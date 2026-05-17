@@ -1,0 +1,233 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createServerSupabase } from "@/lib/supabase/server";
+import Chick from "@/components/Chick";
+import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid";
+
+export const dynamic = "force-dynamic";
+
+type Subject = {
+  id: string;
+  name: string;
+  cuet_code: string | null;
+  icon: string | null;
+  order_index: number;
+};
+
+type UserRow = {
+  xp: number;
+  level: number;
+  coins: number;
+  email: string;
+  streak_count: number;
+  longest_streak: number;
+  last_active_date: string | null;
+  subscription_status: "free" | "trial" | "paid";
+  quizzes_started: number;
+};
+
+export default async function HomePage() {
+  const supabase = createServerSupabase();
+
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) redirect("/");
+
+  // Profile (defensive insert on first visit)
+  let { data: profile } = await supabase
+    .from("users")
+    .select("email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started")
+    .eq("id", authUser.id)
+    .maybeSingle<UserRow>();
+
+  if (!profile) {
+    const { data: created } = await supabase
+      .from("users")
+      .insert({ id: authUser.id, email: authUser.email ?? "" })
+      .select("email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started")
+      .single<UserRow>();
+    profile = created;
+  }
+
+  const { data: subjectsData } = await supabase
+    .from("subjects")
+    .select("id, name, cuet_code, icon, order_index")
+    .order("order_index", { ascending: true });
+  const subjects = (subjectsData ?? []) as Subject[];
+
+  // ---- Per-subject progress ----
+  // Total topics per subject — pre-aggregated in a DB view so we don't hit
+  // PostgREST's 1000-row cap (we have ~1600 topics across 41 subjects).
+  const { data: countsData } = await supabase
+    .from("subject_topic_counts")
+    .select("subject_id, topic_count");
+  const totalTopicsBySubject = new Map<string, number>();
+  for (const row of (countsData ?? []) as Array<{
+    subject_id: string;
+    topic_count: number;
+  }>) {
+    totalTopicsBySubject.set(row.subject_id, row.topic_count);
+  }
+
+  // User's mastery rows joined to subject_id.
+  const { data: masteryRaw } = await supabase
+    .from("user_topic_mastery")
+    .select("mastery_level, topics!inner(chapters!inner(subject_id))")
+    .eq("user_id", authUser.id);
+  const masteredBySubject = new Map<string, number>();
+  const attemptedBySubject = new Map<string, number>();
+  for (const m of (masteryRaw ?? []) as Array<{
+    mastery_level: string;
+    topics:
+      | { chapters: { subject_id: string } | { subject_id: string }[] }
+      | { chapters: { subject_id: string } | { subject_id: string }[] }[];
+  }>) {
+    const topicNode = Array.isArray(m.topics) ? m.topics[0] : m.topics;
+    if (!topicNode) continue;
+    const chNode = Array.isArray(topicNode.chapters)
+      ? topicNode.chapters[0]
+      : topicNode.chapters;
+    if (!chNode) continue;
+    const subjId = chNode.subject_id;
+    attemptedBySubject.set(subjId, (attemptedBySubject.get(subjId) ?? 0) + 1);
+    if (m.mastery_level === "master") {
+      masteredBySubject.set(subjId, (masteredBySubject.get(subjId) ?? 0) + 1);
+    }
+  }
+
+  const xp = profile?.xp ?? 0;
+  const level = profile?.level ?? 1;
+  const isPaid = profile?.subscription_status === "paid";
+  const freeQuizzesLeft = Math.max(0, 3 - (profile?.quizzes_started ?? 0));
+
+  // Streak gets shown only if it's still "alive" — i.e. the user practiced
+  // today or yesterday. Otherwise we show 0 (the streak is broken even if
+  // we haven't yet reset it in the DB on this view).
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+  const lastDate = profile?.last_active_date ?? null;
+  const streakAlive = lastDate === today || lastDate === yesterday;
+  const streak = streakAlive ? profile?.streak_count ?? 0 : 0;
+
+  // Pull first name from Google's user_metadata, falling back to the email handle.
+  const fullName =
+    (authUser.user_metadata?.full_name as string | undefined) ??
+    (authUser.user_metadata?.name as string | undefined) ??
+    "";
+  const firstName =
+    fullName.trim().split(/\s+/)[0] ||
+    (authUser.email?.split("@")[0] ?? "there");
+
+  return (
+    <main className="bg-warm-wash min-h-[100svh] pb-20">
+      {/* Header */}
+      <header className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
+        <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
+          ExamGrind
+        </Link>
+        <Link
+          href="/me"
+          className="flex items-center gap-2 transition hover:opacity-90 sm:gap-3"
+          title="View your profile"
+        >
+          {/* Daily streak — only render the flame when streak > 0 */}
+          {streak > 0 && (
+            <div
+              className="flex items-center gap-1 rounded-full bg-ember-600/10 px-2.5 py-1.5 shadow-warm sm:gap-1.5 sm:px-3"
+              title={`${streak}-day streak · longest ${profile?.longest_streak ?? streak}`}
+            >
+              <span className="text-sm leading-none sm:text-base">🔥</span>
+              <span className="font-mono text-sm font-bold text-ember-700">
+                {streak}
+              </span>
+            </div>
+          )}
+          <div className="flex items-center gap-1 rounded-full bg-cream-50 px-2.5 py-1.5 shadow-warm sm:gap-1.5 sm:px-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-cocoa-500 sm:text-xs">Lvl</span>
+            <span className="font-serif text-sm font-bold text-cocoa-900 sm:text-base">{level}</span>
+          </div>
+          <div className="flex items-center gap-1 rounded-full bg-cream-50 px-2.5 py-1.5 shadow-warm sm:gap-1.5 sm:px-3">
+            <span className="text-sm sm:text-base">⛁</span>
+            <span className="font-mono text-xs font-bold text-cocoa-900 sm:text-sm">{xp}</span>
+            <span className="text-[10px] text-cocoa-500 sm:text-xs">XP</span>
+          </div>
+        </Link>
+      </header>
+
+      {/* Free-tier banner — visible only when relevant */}
+      {!isPaid && (
+        <div className="mx-auto max-w-5xl px-4 pt-3 sm:px-6 sm:pt-5">
+          <Link
+            href="/me"
+            className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-2.5 shadow-warm transition hover:-translate-y-0.5 ${
+              freeQuizzesLeft === 0
+                ? "border-ember-600/30 bg-gradient-to-r from-sun-400/15 to-ember-500/15"
+                : "border-cocoa-900/[0.06] bg-cream-50"
+            }`}
+          >
+            <span className="flex items-center gap-2 text-sm">
+              <span className="text-base leading-none">
+                {freeQuizzesLeft === 0 ? "👑" : "🎁"}
+              </span>
+              <span className="text-cocoa-700">
+                {freeQuizzesLeft === 0 ? (
+                  <>
+                    <span className="font-bold text-cocoa-900">
+                      You&apos;ve used your 3 free quizzes.
+                    </span>{" "}
+                    Upgrade to keep practicing.
+                  </>
+                ) : (
+                  <>
+                    <span className="font-bold text-cocoa-900">
+                      {freeQuizzesLeft}
+                    </span>{" "}
+                    of <span className="font-mono">3</span> free quiz
+                    {freeQuizzesLeft === 1 ? "" : "zes"} left
+                  </>
+                )}
+              </span>
+            </span>
+            <span className="shrink-0 text-xs font-bold text-ember-700">
+              Upgrade →
+            </span>
+          </Link>
+        </div>
+      )}
+
+      {/* Greeting + chick */}
+      <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
+        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">
+              Hi, {firstName}
+            </p>
+            <h1 className="mt-2 font-serif text-4xl font-semibold leading-tight tracking-tight text-cocoa-900 sm:text-5xl">
+              What do you want to practice?
+            </h1>
+            <p className="mt-3 max-w-xl text-base text-cocoa-700">
+              Tap a subject. Walk the path. Earn XP.
+            </p>
+          </div>
+          <Chick state="idle" size={120} className="hidden sm:block" />
+        </div>
+      </section>
+
+      {/* Subject grid (Client Component handles search filter) */}
+      <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
+        <SubjectGrid
+          subjects={subjects.map<SubjectWithProgress>((s) => ({
+            id: s.id,
+            name: s.name,
+            cuet_code: s.cuet_code,
+            icon: s.icon,
+            total: totalTopicsBySubject.get(s.id) ?? 0,
+            attempted: attemptedBySubject.get(s.id) ?? 0,
+            mastered: masteredBySubject.get(s.id) ?? 0,
+          }))}
+        />
+      </section>
+    </main>
+  );
+}

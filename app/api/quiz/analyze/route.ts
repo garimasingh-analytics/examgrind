@@ -1,0 +1,352 @@
+import { NextResponse, type NextRequest } from "next/server";
+import Anthropic from "@anthropic-ai/sdk";
+import { createServerSupabase } from "@/lib/supabase/server";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/**
+ * Deep Analysis API.
+ *
+ * Reads the user's answers + the questions, asks Claude to produce a
+ * structured diagnosis (READ / WORK / PRACTICE per weakness), persists it,
+ * and returns it. Idempotent: a quiz that's already been analyzed serves
+ * from cache without burning quota.
+ *
+ * Quota: every user gets ONE free deep analysis. After that, the response
+ * is `402 Payment Required` with a paywall hint. The "Deep dive" upgrade
+ * button (which uses Sonnet) is gated entirely behind the paid tier — for
+ * now we surface the paywall and ask the client to handle the upgrade UX.
+ */
+
+type AnalyzeBody = { quizId: string; deepDive?: boolean };
+
+type Letter = "A" | "B" | "C" | "D";
+type QuestionRow = {
+  id: string;
+  question_text: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  correct_answer: Letter;
+  user_answer: Letter | null;
+  time_taken: number | null;
+};
+
+const FREE_ANALYSES = 1;
+const HAIKU_MODEL = "claude-haiku-4-5-20251001";
+const SONNET_MODEL = "claude-sonnet-4-6";
+
+export async function POST(req: NextRequest) {
+  // ---- Auth ----
+  const supabase = createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Not signed in." }, { status: 401 });
+  }
+
+  // ---- Body ----
+  let body: AnalyzeBody;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
+  }
+  const { quizId, deepDive = false } = body;
+  if (!quizId || typeof quizId !== "string") {
+    return NextResponse.json({ error: "Missing quizId." }, { status: 400 });
+  }
+
+  // ---- Quiz must exist, be the caller's, and be completed ----
+  const { data: quizRow } = await supabase
+    .from("quizzes")
+    .select("id, user_id, subject, topic, subtopic, score, chapter_id, topic_id")
+    .eq("id", quizId)
+    .maybeSingle();
+  if (!quizRow) {
+    return NextResponse.json({ error: "Quiz not found." }, { status: 404 });
+  }
+  if (quizRow.user_id !== user.id) {
+    return NextResponse.json({ error: "Not your quiz." }, { status: 403 });
+  }
+  if (quizRow.score == null) {
+    return NextResponse.json(
+      { error: "Quiz hasn't been completed yet." },
+      { status: 400 }
+    );
+  }
+
+  // ---- Idempotency: serve cache if we've analyzed this quiz before ----
+  const { data: existing } = await supabase
+    .from("quiz_analyses")
+    .select("analysis, model, is_deep_dive, generated_at")
+    .eq("quiz_id", quizId)
+    .maybeSingle();
+
+  // If we already have a non-deep analysis and the user is asking for one
+  // that isn't a deep-dive upgrade, just return it.
+  if (existing && !deepDive) {
+    return NextResponse.json({
+      cached: true,
+      analysis: existing.analysis,
+      model: existing.model,
+      is_deep_dive: existing.is_deep_dive,
+    });
+  }
+
+  // ---- Free-tier quota check ----
+  const { data: profile } = await supabase
+    .from("users")
+    .select("subscription_status, analyses_taken")
+    .eq("id", user.id)
+    .maybeSingle<{
+      subscription_status: "free" | "trial" | "paid";
+      analyses_taken: number;
+    }>();
+
+  const isPaid = profile?.subscription_status === "paid";
+  const used = profile?.analyses_taken ?? 0;
+
+  // Deep dives (Sonnet) are paid-only.
+  if (deepDive && !isPaid) {
+    return NextResponse.json(
+      {
+        error: "Deep dive is a paid feature.",
+        paywall: { reason: "deep-dive", currentTier: "free" },
+      },
+      { status: 402 }
+    );
+  }
+
+  // Free tier: 1 analysis total. After that, paywall.
+  if (!isPaid && used >= FREE_ANALYSES && !existing) {
+    return NextResponse.json(
+      {
+        error:
+          "You've used your free deep analysis. Upgrade to unlock unlimited analyses + Deep Dive.",
+        paywall: { reason: "quota-exhausted", currentTier: "free", used, limit: FREE_ANALYSES },
+      },
+      { status: 402 }
+    );
+  }
+
+  // ---- Pull questions for this quiz ----
+  const { data: qData } = await supabase
+    .from("questions")
+    .select(
+      "id, question_text, option_a, option_b, option_c, option_d, correct_answer, user_answer, time_taken"
+    )
+    .eq("quiz_id", quizId)
+    .order("created_at", { ascending: true });
+  const questions = (qData ?? []) as QuestionRow[];
+  if (questions.length === 0) {
+    return NextResponse.json(
+      { error: "Quiz has no questions." },
+      { status: 500 }
+    );
+  }
+
+  // ---- Build prompt for Claude ----
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json(
+      { error: "Server missing ANTHROPIC_API_KEY." },
+      { status: 500 }
+    );
+  }
+
+  const subject = quizRow.subject;
+  const chapter = quizRow.topic ?? "";
+  const topic = quizRow.subtopic ?? "";
+
+  const questionsForPrompt = questions.map((q, idx) => ({
+    idx,
+    question: q.question_text,
+    options: { A: q.option_a, B: q.option_b, C: q.option_c, D: q.option_d },
+    correct: q.correct_answer,
+    user_answer: q.user_answer,
+    time_seconds: q.time_taken,
+  }));
+
+  const prompt = buildAnalysisPrompt({
+    subject,
+    chapter,
+    topic,
+    questions: questionsForPrompt,
+    deepDive,
+  });
+
+  // ---- Call Claude ----
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const model = deepDive ? SONNET_MODEL : HAIKU_MODEL;
+
+  let analysis: unknown;
+  try {
+    const resp = await anthropic.messages.create({
+      model,
+      max_tokens: deepDive ? 8000 : 4500,
+      messages: [{ role: "user", content: prompt }],
+    });
+    const text = resp.content
+      .filter((b) => b.type === "text")
+      .map((b) => (b as { type: "text"; text: string }).text)
+      .join("")
+      .trim();
+    const cleaned = text
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```\s*$/i, "")
+      .trim();
+    analysis = JSON.parse(cleaned);
+  } catch (e) {
+    console.error("[quiz/analyze] generation failed:", e);
+    return NextResponse.json(
+      { error: "Couldn't generate the analysis. Please try again in a moment." },
+      { status: 502 }
+    );
+  }
+
+  // ---- Persist (upsert: deep-dive overwrites a prior haiku analysis) ----
+  const { error: upsertErr } = await supabase.from("quiz_analyses").upsert(
+    {
+      quiz_id: quizId,
+      user_id: user.id,
+      analysis,
+      model,
+      is_deep_dive: deepDive,
+    },
+    { onConflict: "quiz_id" }
+  );
+  if (upsertErr) {
+    console.error("[quiz/analyze] upsert failed:", upsertErr);
+    return NextResponse.json(
+      { error: "Couldn't save the analysis." },
+      { status: 500 }
+    );
+  }
+
+  // Increment quota only for the FIRST analysis of this quiz (not for
+  // re-runs / deep-dive upgrades on a quiz that's already been analyzed).
+  if (!existing) {
+    await supabase
+      .from("users")
+      .update({ analyses_taken: used + 1 })
+      .eq("id", user.id);
+  }
+
+  return NextResponse.json({
+    cached: false,
+    analysis,
+    model,
+    is_deep_dive: deepDive,
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ * Prompt construction
+ * ------------------------------------------------------------------ */
+
+function buildAnalysisPrompt(input: {
+  subject: string;
+  chapter: string;
+  topic: string;
+  questions: Array<{
+    idx: number;
+    question: string;
+    options: { A: string; B: string; C: string; D: string };
+    correct: Letter;
+    user_answer: Letter | null;
+    time_seconds: number | null;
+  }>;
+  deepDive: boolean;
+}) {
+  const { subject, chapter, topic, questions, deepDive } = input;
+
+  const depthHint = deepDive
+    ? "DEEP DIVE — be exhaustive. Walk through every wrong question step-by-step. Identify second-order patterns. Suggest a 7-day plan."
+    : "Be precise but concise. Pick the 2-3 most important weaknesses to highlight.";
+
+  return `You are a CUET coach analyzing a student's quiz attempt for an Indian undergraduate aspirant.
+
+CONTEXT
+Subject: ${subject}
+Chapter: ${chapter}
+Topic: ${topic}
+
+ATTEMPT
+${JSON.stringify(questions, null, 2)}
+
+${depthHint}
+
+TONE
+Warm-coach but no-nonsense. Cut the fluff. Lead with the diagnosis. Use the student's own choice of wrong option as evidence ("you picked B, which assumes …"). Reference NCERT chapters/sections by exact number where possible.
+
+VERDICT TYPES (use exactly these strings)
+- "correct"            — they got it right
+- "wrong-conceptual"   — they don't understand the underlying concept
+- "wrong-careless"     — they understand the concept but made a slip (units, sign, arithmetic)
+- "wrong-partial"      — they got partway and stopped at the wrong step
+- "skipped"            — they didn't answer
+
+OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
+{
+  "verdict": "1-2 sentences. Lead with the diagnosis.",
+  "strengths": [
+    { "concept": "string", "evidence": "Q1, Q4 — both correct quickly" }
+  ],
+  "weaknesses": [
+    {
+      "concept": "string — be specific",
+      "severity": "high" | "medium" | "low",
+      "evidence": "Which questions and what they got wrong",
+      "improve": {
+        "read": {
+          "source": "NCERT Class XX [Subject], Ch X, §X.X",
+          "minutes": 5,
+          "distill": "1-2 sentence concept distillation in plain English"
+        },
+        "work": {
+          "questionIdx": 2,
+          "walkthrough_steps": [
+            "Step 1: ...",
+            "Step 2: ...",
+            "Step 3: ..."
+          ],
+          "your_mistake": "You picked B = ... — skipped the X step.",
+          "correct_answer": "What the right answer is, with units"
+        },
+        "practice": {
+          "concept_focus": "short string for the question generator",
+          "drill_size": 5
+        }
+      }
+    }
+  ],
+  "perQuestion": [
+    {
+      "idx": 0,
+      "verdict": "correct" | "wrong-conceptual" | "wrong-careless" | "wrong-partial" | "skipped",
+      "concept": "Specific concept tested",
+      "explanation": "1 sentence — why right or why wrong, citing their actual choice"
+    }
+  ],
+  "patterns": [
+    "Up to 3 cross-question patterns about pacing, confusion, or skill gaps."
+  ],
+  "studyPlan": {
+    "next_15_min": "Specific microaction.",
+    "next_session": "Specific drill.",
+    "this_week": "Specific milestone."
+  }
+}
+
+RULES
+- Every weakness MUST include all three rungs: read, work, practice.
+- "work.questionIdx" must reference an actual wrong-conceptual question idx.
+- If there are no wrong-conceptual questions, drop weaknesses to length 0.
+- "practice.concept_focus" must be a concise phrase like "latent heat at phase change" — it'll be fed back into a drill question generator.
+- "perQuestion" must include exactly one entry for every question, in idx order.
+- No "Read NCERT" without a chapter number. No "Practice more" without specifying what.
+- Currency in Indian rupees. Use NCERT Class 11/12 conventions.`;
+}

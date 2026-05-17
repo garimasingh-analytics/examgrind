@@ -1,0 +1,267 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FFF8E8;
+  --foreground: #1F1A14;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Soft, warm gradient washes — used behind hero areas. */
+.bg-warm-wash {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(253, 203, 64, 0.18) 0%, transparent 50%),
+    radial-gradient(circle at 88% 80%, rgba(253, 124, 41, 0.12) 0%, transparent 50%),
+    #FFF8E8;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Reader styles for /terms /privacy /refund /contact */
+  .prose-legal h2 {
+    font-family: var(--font-fraunces), serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1F1A14;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+  .prose-legal h3 {
+    font-family: var(--font-fraunces), serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1F1A14;
+    margin-top: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+  .prose-legal p { margin: 0.5rem 0; }
+  .prose-legal ul { list-style: disc; margin: 0.5rem 0 0.5rem 1.5rem; }
+  .prose-legal ol { list-style: decimal; margin: 0.5rem 0 0.5rem 1.5rem; }
+  .prose-legal li { margin: 0.25rem 0; }
+  .prose-legal a {
+    color: #C2350A;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-legal a:hover { color: #FD4401; }
+  .prose-legal strong { color: #1F1A14; font-weight: 600; }
+  .prose-legal code {
+    font-family: ui-monospace, monospace;
+    background: rgba(31,26,20,0.06);
+    padding: 0.05rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  /* Indeterminate sliding-bar loader (used during quiz generation). */
+  .animate-quiz-loader {
+    animation: quiz-loader 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  /* ============================================================
+     Chick mascot — 5 emotion states, per chick_emotion_engine.json
+     ============================================================ */
+
+  /* idle — subtle breathing + gentle bob */
+  .animate-chick-idle {
+    animation: chick-idle 3.2s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+
+  /* happy — gentle rhythmic swaying (per spec) */
+  .animate-chick-happy {
+    animation: chick-happy-sway 2.4s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+
+  /* sad — slow deflation animation (per spec) */
+  .animate-chick-sad {
+    animation: chick-sad-deflate 2.8s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+
+  /* frustrated — short, sharp jittery vibrations (per spec) */
+  .animate-chick-frustrated {
+    animation: chick-frustrated-jitter 0.18s linear infinite;
+    transform-origin: 50% 100%;
+  }
+
+  /* excited — vertical jumping/bouncing, animation_speed: 1.5 */
+  .animate-chick-excited {
+    animation: chick-excited-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    transform-origin: 50% 100%;
+  }
+
+  /* shadow reactions */
+  .chick-shadow-bounce {
+    animation: chick-shadow-bounce 0.55s ease-in-out infinite;
+    transform-origin: center;
+  }
+  .chick-shadow-sway {
+    animation: chick-shadow-sway 2.4s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  /* wing variants per emotion */
+  .chick-wings-flap {
+    animation: chick-wings-flap 0.18s ease-in-out infinite;  /* rapid */
+  }
+  .chick-wings-rigid {
+    transform: rotate(0);
+    animation: chick-wings-rigid-tremor 0.18s linear infinite;
+  }
+  .chick-wings-droop {
+    transform: translateY(4px) rotate(-3deg);
+  }
+  .chick-wings-sway {
+    animation: chick-wings-sway 2.4s ease-in-out infinite;
+  }
+
+  /* cheek intensity per spec */
+  .chick-cheeks-happy   { filter: saturate(1.2) brightness(1.05); }   /* +20% */
+  .chick-cheeks-angry   { filter: saturate(1.6) hue-rotate(-15deg); } /* deep red +40% */
+
+  /* frustrated beak rapid clicking */
+  .chick-beak-click {
+    animation: chick-beak-click 0.14s steps(2) infinite;
+    transform-origin: 110px 134px;
+  }
+
+  /* tear drop falling */
+  .chick-tear {
+    animation: chick-tear 1.8s ease-in infinite;
+    transform-origin: center;
+  }
+
+  /* floating sparkles for excited */
+  .chick-sparkle {
+    position: absolute;
+    pointer-events: none;
+    animation: chick-sparkle 1.4s ease-in-out infinite;
+    opacity: 0;
+    z-index: 1;
+  }
+}
+
+/* ============================================================
+   Keyframes
+   ============================================================ */
+
+@keyframes chick-idle {
+  0%, 100% { transform: translateY(0)    scale(1); }
+  50%      { transform: translateY(-3px) scale(1.015); }
+}
+
+/* happy: gentle rhythmic sway */
+@keyframes chick-happy-sway {
+  0%, 100% { transform: rotate(-3deg) translateY(0); }
+  50%      { transform: rotate( 3deg) translateY(-2px); }
+}
+@keyframes chick-shadow-sway {
+  0%, 100% { transform: translateX(-3px) scale(0.95, 1); }
+  50%      { transform: translateX( 3px) scale(0.95, 1); }
+}
+@keyframes chick-wings-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate( 2deg); }
+}
+
+/* sad: slow deflation, settle, repeat */
+@keyframes chick-sad-deflate {
+  0%, 100% { transform: translateY(0)    scale(1, 1); }
+  50%      { transform: translateY(4px)  scale(1.015, 0.96); }
+}
+
+/* frustrated: rapid sharp jitter */
+@keyframes chick-frustrated-jitter {
+  0%   { transform: translateX(-1.5px) translateY(0); }
+  25%  { transform: translateX( 1.5px) translateY(-1px); }
+  50%  { transform: translateX(-1px)   translateY(0); }
+  75%  { transform: translateX( 1px)   translateY(-0.5px); }
+  100% { transform: translateX(-1.5px) translateY(0); }
+}
+@keyframes chick-wings-rigid-tremor {
+  0%, 100% { transform: rotate(0); }
+  50%      { transform: rotate(1deg); }
+}
+@keyframes chick-beak-click {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.85); }
+}
+
+/* excited: vertical bounce, 1.5× implied by 0.55s loop */
+@keyframes chick-excited-bounce {
+  0%   { transform: translateY(0)     scale(1, 1); }
+  20%  { transform: translateY(0)     scale(1.06, 0.92); }
+  50%  { transform: translateY(-18px) scale(0.96, 1.05); }
+  80%  { transform: translateY(-4px)  scale(1.02, 0.98); }
+  100% { transform: translateY(0)     scale(1, 1); }
+}
+@keyframes chick-shadow-bounce {
+  0%, 100% { transform: scale(1, 1);   opacity: 0.10; }
+  50%      { transform: scale(0.55, 1); opacity: 0.05; }
+}
+@keyframes chick-wings-flap {
+  0%, 100% { transform: rotate(-12deg) translateY(0); }
+  50%      { transform: rotate( 12deg) translateY(-3px); }
+}
+
+/* shared: tear drop falling for sad */
+@keyframes chick-tear {
+  0%   { transform: translateY(0)    scale(1);   opacity: 0; }
+  20%  { opacity: 1; }
+  90%  { transform: translateY(20px) scale(0.85); opacity: 0.85; }
+  100% { transform: translateY(24px) scale(0.5);  opacity: 0; }
+}
+
+/* indeterminate progress: bar slides left → right within its track */
+@keyframes quiz-loader {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(310%); }
+}
+
+/* shared: sparkle pop */
+@keyframes chick-sparkle {
+  0%   { transform: scale(0) rotate(0);     opacity: 0; }
+  40%  { transform: scale(1) rotate(20deg); opacity: 1; }
+  100% { transform: scale(0) rotate(50deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-chick-idle,
+  .animate-chick-happy,
+  .animate-chick-sad,
+  .animate-chick-frustrated,
+  .animate-chick-excited,
+  .chick-shadow-bounce,
+  .chick-shadow-sway,
+  .chick-wings-flap,
+  .chick-wings-rigid,
+  .chick-wings-sway,
+  .chick-beak-click,
+  .chick-tear,
+  .chick-sparkle { animation: none !important; }
+  html { scroll-behavior: auto; }
+}
