@@ -161,7 +161,7 @@ export default async function ProfilePage() {
       }
     }
   }
-  const topWeaknesses = [...weaknessMap.values()]
+  const topWeaknesses = Array.from(weaknessMap.values())
     .sort((a, b) => b.severityScore - a.severityScore || b.count - a.count)
     .slice(0, 5);
 
