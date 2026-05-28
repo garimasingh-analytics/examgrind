@@ -79,21 +79,14 @@ export default function LandingPage() {
             name="SSC CGL"
             blurb="Quant · Reasoning · English · GA"
             status="waitlist"
-            badge="Launching August"
+            badge="Launching July"
           />
           <ExamCard
             slug="neet-ug"
             name="NEET UG"
             blurb="Physics · Chemistry · Biology · NCERT-aligned"
             status="waitlist"
-            badge="Launching October"
-          />
-          <ExamCard
-            slug="neet-pg"
-            name="NEET PG"
-            blurb="19 medical PG subjects · For MBBS graduates"
-            status="waitlist"
-            badge="Launching November"
+            badge="Launching July"
           />
           <ExamCard
             slug="suggest"
