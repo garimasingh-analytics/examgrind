@@ -24,6 +24,15 @@ type UserRow = {
   last_active_date: string | null;
   subscription_status: "free" | "trial" | "paid";
   quizzes_started: number;
+  exam_choice: string | null;
+};
+
+// Display metadata for the exam header pill — keep this co-located with /home
+// so adding a new exam means touching exactly one file here.
+const EXAM_DISPLAY: Record<string, { name: string; pill: string }> = {
+  cuet: { name: "CUET UG", pill: "CUET UG" },
+  "ssc-cgl": { name: "SSC CGL", pill: "SSC CGL" },
+  "neet-ug": { name: "NEET UG", pill: "NEET UG" },
 };
 
 export default async function HomePage() {
@@ -32,26 +41,50 @@ export default async function HomePage() {
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) redirect("/");
 
-  // Profile (defensive insert on first visit)
+  // Profile (defensive insert on first visit). New rows get exam_choice='cuet'
+  // as a safe default — anyone who took a non-CUET path will already have
+  // gotten exam_choice set by the OAuth callback or /start/[slug].
   let { data: profile } = await supabase
     .from("users")
-    .select("email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started")
+    .select("email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice")
     .eq("id", authUser.id)
     .maybeSingle<UserRow>();
 
   if (!profile) {
     const { data: created } = await supabase
       .from("users")
-      .insert({ id: authUser.id, email: authUser.email ?? "" })
-      .select("email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started")
+      .insert({
+        id: authUser.id,
+        email: authUser.email ?? "",
+        exam_choice: "cuet",
+      })
+      .select("email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice")
       .single<UserRow>();
     profile = created;
   }
 
-  const { data: subjectsData } = await supabase
+  const examSlug = profile?.exam_choice ?? "cuet";
+  const examDisplay = EXAM_DISPLAY[examSlug] ?? EXAM_DISPLAY.cuet;
+
+  // Resolve exam slug → uuid so we can filter subjects.
+  // CUET's existing subjects had exam_id backfilled in migration 006.
+  const { data: examRow } = await supabase
+    .from("exams")
+    .select("id")
+    .eq("slug", examSlug)
+    .maybeSingle<{ id: string }>();
+
+  // Subjects scoped to this user's exam. If exam lookup somehow fails (bad
+  // data), fall back to an unfiltered list so /home still renders — better
+  // than a blank page on launch day.
+  let subjectsQuery = supabase
     .from("subjects")
     .select("id, name, cuet_code, icon, order_index")
     .order("order_index", { ascending: true });
+  if (examRow?.id) {
+    subjectsQuery = subjectsQuery.eq("exam_id", examRow.id);
+  }
+  const { data: subjectsData } = await subjectsQuery;
   const subjects = (subjectsData ?? []) as Subject[];
 
   // ---- Per-subject progress ----
@@ -123,9 +156,19 @@ export default async function HomePage() {
     <main className="bg-warm-wash min-h-[100svh] pb-20">
       {/* Header */}
       <header className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
-        <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
-          ExamGrind
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
+            ExamGrind
+          </Link>
+          {/* Exam pill — tappable, takes user to /me where they can switch */}
+          <Link
+            href="/me"
+            className="inline-flex items-center gap-1 rounded-full bg-moss-500/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-moss-700 transition hover:bg-moss-500/25"
+            title="Switch exam"
+          >
+            {examDisplay.pill}
+          </Link>
+        </div>
         <Link
           href="/me"
           className="flex items-center gap-2 transition hover:opacity-90 sm:gap-3"

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import GoogleLoginButton from "@/components/GoogleLoginButton";
 import Chick from "@/components/Chick";
 import WaitlistModal from "@/components/WaitlistModal";
 
@@ -49,7 +48,15 @@ export default function LandingPage() {
         </p>
 
         <div className="mt-9 flex flex-col items-center gap-3">
-          <GoogleLoginButton label="Sign in with Google" redirectTo="/home" />
+          {/* Multi-exam launch: don't expose a single "Sign in" CTA from   */}
+          {/* the hero. Users must pick an exam first so their exam_choice  */}
+          {/* gets recorded correctly. Anchor link below scrolls to picker. */}
+          <a
+            href="#pick-your-exam"
+            className="inline-flex items-center justify-center rounded-2xl bg-cocoa-900 px-7 py-3.5 text-base font-bold text-cream-50 shadow-warm transition hover:bg-cocoa-700"
+          >
+            Pick your exam ↓
+          </a>
           <p className="text-sm text-cocoa-500">
             Free to start · ₹75/month after · No credit card
           </p>
@@ -57,7 +64,7 @@ export default function LandingPage() {
       </section>
 
       {/* Exam picker */}
-      <section className="mx-auto max-w-5xl px-6 pb-20">
+      <section id="pick-your-exam" className="mx-auto max-w-5xl px-6 pb-20 scroll-mt-6">
         <div className="mb-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
             Pick your exam
@@ -222,8 +229,11 @@ function ExamCard({
   );
 
   if (isLive) {
+    // Route through /start/[slug] so the user's exam choice gets recorded
+    // even if they're signed out (sign-in card → OAuth → /home filtered
+    // by this exam). Signed-in users get a one-tick exam-switch + /home.
     return (
-      <Link href="/home" aria-label={`Practice ${name}`}>
+      <Link href={`/start/${slug}`} aria-label={`Practice ${name}`}>
         {card}
       </Link>
     );

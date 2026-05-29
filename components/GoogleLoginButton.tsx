@@ -10,12 +10,19 @@ type Props = {
   label?: string;
   /** Extra Tailwind classes to merge into the button. */
   className?: string;
+  /**
+   * Exam slug the user picked on the landing page (e.g. 'cuet', 'ssc-cgl',
+   * 'neet-ug'). The OAuth callback reads this and writes it to
+   * users.exam_choice so /home knows which exam to filter subjects by.
+   */
+  examSlug?: string;
 };
 
 export default function GoogleLoginButton({
   redirectTo = "/home",
   label = "Sign in with Google",
   className = "",
+  examSlug,
 }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,10 +35,18 @@ export default function GoogleLoginButton({
       const siteUrl =
         process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
 
+      // Pipe the exam slug through the OAuth round trip via the callback URL.
+      // Supabase preserves our `redirectTo` query string verbatim, so by the
+      // time /auth/callback runs we can read ?exam=ssc-cgl and write it to
+      // users.exam_choice on the first sign-in.
+      const callbackParams = new URLSearchParams({ next: redirectTo });
+      if (examSlug) callbackParams.set("exam", examSlug);
+      const callbackUrl = `${siteUrl}/auth/callback?${callbackParams.toString()}`;
+
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+          redirectTo: callbackUrl,
           queryParams: {
             access_type: "offline",
             prompt: "consent",

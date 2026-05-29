@@ -17,6 +17,7 @@ type UserRow = {
   streak_count: number;
   longest_streak: number;
   last_active_date: string | null;
+  exam_choice: string | null;
 };
 
 type QuizRow = {
@@ -49,7 +50,7 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("users")
     .select(
-      "email, xp, level, quizzes_taken, quizzes_started, analyses_taken, subscription_status, streak_count, longest_streak, last_active_date"
+      "email, xp, level, quizzes_taken, quizzes_started, analyses_taken, subscription_status, streak_count, longest_streak, last_active_date, exam_choice"
     )
     .eq("id", authUser.id)
     .maybeSingle<UserRow>();
@@ -205,6 +206,45 @@ export default async function ProfilePage() {
           quizzesStarted={profile?.quizzes_started ?? 0}
           analysesTaken={profile?.analyses_taken ?? 0}
         />
+      </section>
+
+      {/* Exam switcher — three pills, current one highlighted. Clicks go */}
+      {/* through /start/[slug] which upserts exam_choice + bounces to /home */}
+      <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
+        <div className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-serif text-xl font-bold text-cocoa-900">
+              Your exam
+            </h2>
+            <p className="text-xs text-cocoa-500">
+              Switching keeps your XP and streak — only the subject grid changes.
+            </p>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[
+              { slug: "cuet", name: "CUET UG" },
+              { slug: "ssc-cgl", name: "SSC CGL" },
+              { slug: "neet-ug", name: "NEET UG" },
+            ].map((e) => {
+              const active = (profile?.exam_choice ?? "cuet") === e.slug;
+              return (
+                <Link
+                  key={e.slug}
+                  href={`/start/${e.slug}`}
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    active
+                      ? "bg-cocoa-900 text-cream-50 shadow-warm"
+                      : "border border-cocoa-900/[0.08] bg-cream-50 text-cocoa-700 hover:bg-warm-wash"
+                  }`}
+                  aria-current={active ? "true" : undefined}
+                >
+                  {active && <span aria-hidden>✓</span>}
+                  {e.name}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
       {/* Stats grid */}

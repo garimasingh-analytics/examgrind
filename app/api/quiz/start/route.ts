@@ -82,7 +82,9 @@ export async function POST(req: NextRequest) {
   // ---- 3. Pull topic context (subject + chapter + topic name) ----
   const { data: topicRow, error: topicErr } = await supabase
     .from("topics")
-    .select("id, name, slug, chapter:chapters(id, name, subject:subjects(id, name))")
+    .select(
+      "id, name, slug, chapter:chapters(id, name, ncert_class, subject:subjects(id, name, exam:exams(slug, name)))"
+    )
     .eq("id", topicId)
     .maybeSingle();
 
@@ -93,12 +95,24 @@ export async function POST(req: NextRequest) {
   type TopicCtx = {
     id: string;
     name: string;
-    chapter: { id: string; name: string; subject: { id: string; name: string } };
+    chapter: {
+      id: string;
+      name: string;
+      ncert_class: number | null;
+      subject: {
+        id: string;
+        name: string;
+        exam: { slug: string; name: string } | null;
+      };
+    };
   };
   const topic = topicRow as unknown as TopicCtx;
   const subjectName = topic.chapter.subject.name;
   const chapterName = topic.chapter.name;
   const topicName = topic.name;
+  const examSlug = topic.chapter.subject.exam?.slug ?? "cuet";
+  const examName = topic.chapter.subject.exam?.name ?? "CUET UG";
+  const ncertClass = topic.chapter.ncert_class; // 11 / 12 for NEET UG, null otherwise
 
   // ---- 4. Generate questions with Claude ----
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -114,8 +128,23 @@ export async function POST(req: NextRequest) {
     ? `\n\nDRILL FOCUS — every question must test this specific concept: "${conceptFocus}". Bias toward medium-hard difficulty so the student has to actually work through it.`
     : "";
 
-  const prompt = `Generate ${questionCount} CUET-style multiple-choice questions for an Indian undergraduate aspirant.
+  // Exam-specific framing. Each block tells Claude (a) who the aspirant is,
+  // (b) what the canonical question style for that exam looks like, and
+  // (c) any source-material constraints (NCERT, official syllabus, etc.).
+  // Keep these tight — the LLM is good at calibrating difficulty when it
+  // knows the exam, but only if we name the exam explicitly.
+  const examFraming: Record<string, string> = {
+    cuet: `Generate ${questionCount} CUET-style multiple-choice questions for an Indian undergraduate aspirant (class 12 pass / first-year college). Use NCERT Class 11–12 conventions. Stick to the NTA CUET UG difficulty band — slightly above board level, with one-step application as the modal difficulty.`,
+    "ssc-cgl": `Generate ${questionCount} SSC CGL Tier-1/Tier-2 style multiple-choice questions for an Indian graduate aspirant preparing for central-government clerical/officer posts (CGL, CHSL, MTS). Match the SSC question style: numeric, time-bound, no fluff. For Quant target ~SSC CGL Tier-1 difficulty (≈ board-level arithmetic with one twist). For Reasoning use canonical SSC patterns. For English use 1980s–2010s SSC vocab register. For GA prefer static facts and high-yield current affairs.`,
+    "neet-ug": `Generate ${questionCount} NEET UG style multiple-choice questions for an Indian medical undergraduate aspirant (class 12 / dropper). Source material is strictly NCERT Class ${ncertClass ?? "11–12"}. Match NTA NEET difficulty — concept-heavy, single-correct, plausible distractors drawn from sibling concepts. Use scientific notation and SI units. Biology questions should reflect NCERT line-by-line phrasing where possible. Physics and Chemistry should be application-level, not derivation-heavy.`,
+  };
 
+  const examIntro =
+    examFraming[examSlug] ?? examFraming.cuet;
+
+  const prompt = `${examIntro}
+
+Exam: ${examName}
 Subject: ${subjectName}
 Chapter: ${chapterName}
 Topic: ${topicName}${focusLine}
@@ -126,7 +155,8 @@ Rules:
 - Stems under 60 words. Options under 20 words each.
 - Distractors must be plausible — common student errors, sign flips, or conceptual confusions.
 - No "All of the above" / "None of the above".
-- Use NCERT Class 11/12 conventions. Use rupees and Indian context where natural.
+- Use Indian context (rupees, Indian names, Indian geography) where natural.
+- Never include disclaimers, meta-commentary, or "as an AI" language.
 
 Return ONLY a valid JSON array with this exact shape — no prose, no markdown fences:
 
