@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
+import ExamSwitcher from "@/components/ExamSwitcher";
 import type { Chapter, Subject, Topic, UserTopicMastery, TopicWithMastery } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,13 @@ export default async function ChapterPage({ params }: Params) {
 
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) redirect("/");
+
+  const { data: profile } = await supabase
+    .from("users")
+    .select("exam_choice")
+    .eq("id", authUser.id)
+    .maybeSingle<{ exam_choice: string | null }>();
+  const examSlug = profile?.exam_choice ?? "cuet";
 
   // Chapter + subject
   const { data: chapterData } = await supabase
@@ -77,12 +85,15 @@ export default async function ChapterPage({ params }: Params) {
     <main className="bg-warm-wash min-h-[100svh] pb-32">
       {/* Header */}
       <header className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
-        <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
-          ExamGrind
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
+            ExamGrind
+          </Link>
+          <ExamSwitcher currentSlug={examSlug} />
+        </div>
         <Link
           href={`/subject/${chapter.subject_id}`}
-          className="max-w-[55%] truncate text-sm font-medium text-cocoa-500 hover:text-cocoa-900"
+          className="max-w-[45%] truncate text-sm font-medium text-cocoa-500 hover:text-cocoa-900"
         >
           ← {chapter.subject?.name}
         </Link>

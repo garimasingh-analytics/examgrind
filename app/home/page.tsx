@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
 import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid";
+import ExamSwitcher from "@/components/ExamSwitcher";
 
 export const dynamic = "force-dynamic";
 
@@ -160,14 +161,8 @@ export default async function HomePage() {
           <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
             ExamGrind
           </Link>
-          {/* Exam pill — tappable, takes user to /me where they can switch */}
-          <Link
-            href="/me"
-            className="inline-flex items-center gap-1 rounded-full bg-moss-500/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-moss-700 transition hover:bg-moss-500/25"
-            title="Switch exam"
-          >
-            {examDisplay.pill}
-          </Link>
+          {/* One-click exam switcher dropdown */}
+          <ExamSwitcher currentSlug={examSlug} />
         </div>
         <Link
           href="/me"

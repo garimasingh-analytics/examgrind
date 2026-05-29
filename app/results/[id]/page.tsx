@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
+import ExamSwitcher from "@/components/ExamSwitcher";
 import DeepAnalysis, { type AnalysisJson } from "./DeepAnalysis";
 import ShareButton from "./ShareButton";
 
@@ -46,14 +47,16 @@ export default async function ResultsPage({ params }: Params) {
   // Also pulls subscription tier + analyses_taken for the deep analysis quota.
   const { data: profile } = await supabase
     .from("users")
-    .select("streak_count, last_active_date, subscription_status, analyses_taken")
+    .select("streak_count, last_active_date, subscription_status, analyses_taken, exam_choice")
     .eq("id", user.id)
     .maybeSingle<{
       streak_count: number;
       last_active_date: string | null;
       subscription_status: "free" | "trial" | "paid";
       analyses_taken: number;
+      exam_choice: string | null;
     }>();
+  const examSlug = profile?.exam_choice ?? "cuet";
 
   // Existing analysis for this quiz (if already generated)
   const { data: existingAnalysis } = await supabase
@@ -91,9 +94,12 @@ export default async function ResultsPage({ params }: Params) {
   return (
     <main className="bg-warm-wash min-h-[100svh] pb-24">
       <header className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
-        <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
-          ExamGrind
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
+            ExamGrind
+          </Link>
+          <ExamSwitcher currentSlug={examSlug} />
+        </div>
         <Link href="/home" className="text-sm font-medium text-cocoa-500 hover:text-cocoa-900">
           Home
         </Link>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
+import ExamSwitcher from "@/components/ExamSwitcher";
 import type { Subject, Chapter } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,14 @@ export default async function SubjectPage({ params }: Params) {
 
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) redirect("/");
+
+  // Pull exam_choice so the header switcher knows the current pick.
+  const { data: profile } = await supabase
+    .from("users")
+    .select("exam_choice")
+    .eq("id", authUser.id)
+    .maybeSingle<{ exam_choice: string | null }>();
+  const examSlug = profile?.exam_choice ?? "cuet";
 
   const { data: subjectData } = await supabase
     .from("subjects")
@@ -37,9 +46,12 @@ export default async function SubjectPage({ params }: Params) {
   return (
     <main className="bg-warm-wash min-h-[100svh] pb-20">
       <header className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
-        <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
-          ExamGrind
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
+            ExamGrind
+          </Link>
+          <ExamSwitcher currentSlug={examSlug} />
+        </div>
         <Link href="/home" className="truncate text-sm font-medium text-cocoa-500 hover:text-cocoa-900">
           ← All subjects
         </Link>
