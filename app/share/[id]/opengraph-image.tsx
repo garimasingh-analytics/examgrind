@@ -36,7 +36,7 @@ export default async function Image({ params }: Props) {
   const score = quiz?.score ?? 0;
   const total = count ?? 0;
   const accuracy = total > 0 ? Math.round((score / total) * 100) : 0;
-  const subject = quiz?.subject ?? "CUET";
+  const subject = quiz?.subject ?? "ExamGrind";
   const topic = quiz?.subtopic ?? "Practice";
 
   const chickFace =
@@ -83,7 +83,7 @@ export default async function Image({ params }: Props) {
               textTransform: "uppercase",
             }}
           >
-            CUET Practice
+            AI-graded practice
           </div>
         </div>
 

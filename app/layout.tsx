@@ -20,9 +20,9 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "ExamGrind — practice CUET, one chapter at a time",
+  title: "ExamGrind — AI-graded practice for CUET, SSC CGL & NEET UG",
   description:
-    "A warm, simple practice app for CUET UG. Pick a chapter, take a quiz, see what to revise.",
+    "Know exactly what to study next. Concept-level diagnosis on every wrong answer — for CUET UG, SSC CGL, and NEET UG aspirants. ₹75/month. No credit card.",
 };
 
 export default function RootLayout({

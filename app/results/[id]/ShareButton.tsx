@@ -41,7 +41,7 @@ export default function ShareButton({
       ? `Scored ${scoreLabel} on ${topic}. ExamGrind's AI told me exactly what to drill next. Free to try 👇`
       : accuracy >= 40
       ? `Practicing ${topic} on ExamGrind. The AI shows you exactly where you went wrong, question by question. Free 👇`
-      : `Tough quiz on ${topic} — but ExamGrind's AI walked me through every wrong answer. Free CUET practice 👇`;
+      : `Tough quiz on ${topic} — but ExamGrind's AI walked me through every wrong answer. Free to try 👇`;
 
   const handleShare = async () => {
     setError(null);

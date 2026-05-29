@@ -10,7 +10,7 @@ export default function Footer() {
     <footer className="border-t border-cocoa-900/[0.06] bg-cream-50/40 py-6">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left">
         <p className="text-xs text-cocoa-500">
-          © {year} ExamGrind · Practice CUET, one chapter at a time.
+          © {year} ExamGrind · AI-graded practice for India&apos;s biggest exams.
         </p>
         <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-cocoa-500">
           <Link href="/terms" className="hover:text-cocoa-900">Terms</Link>

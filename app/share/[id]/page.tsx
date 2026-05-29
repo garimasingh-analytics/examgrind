@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     ? Math.round((quiz.score! / quiz.total) * 100)
     : 0;
   const title = `${quiz.score}/${quiz.total} on ${quiz.subtopic ?? quiz.subject} · ExamGrind`;
-  const description = `Just scored ${accuracy}% on ${quiz.subtopic ?? quiz.subject}. Practice CUET with AI-powered diagnosis — free.`;
+  const description = `Just scored ${accuracy}% on ${quiz.subtopic ?? quiz.subject}. Free, AI-graded practice for CUET, SSC CGL, and NEET UG aspirants.`;
 
   return {
     title,
@@ -132,7 +132,7 @@ export default async function SharePage({ params }: Params) {
       {/* CTA */}
       <section className="mx-auto mt-10 max-w-xl px-4 text-center sm:px-6">
         <h2 className="font-serif text-3xl font-bold leading-tight text-cocoa-900 sm:text-4xl">
-          Practice CUET the way it should be.
+          Practice the way it should be.
         </h2>
         <p className="mt-3 text-sm text-cocoa-700 sm:text-base">
           Every wrong answer comes with an AI diagnosis — not just a score. Find the concept you actually need to study.

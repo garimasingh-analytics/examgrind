@@ -139,9 +139,10 @@ export default function PrivacyPage() {
 
       <h2>7. Children</h2>
       <p>
-        ExamGrind is built for CUET aspirants. If you are under 18, you may
-        use the Service only with a parent or legal guardian&apos;s consent.
-        We do not knowingly collect personal data from anyone under 13.
+        ExamGrind is built for Indian competitive-exam aspirants (currently
+        CUET UG, SSC CGL, and NEET UG). If you are under 18, you may use the
+        Service only with a parent or legal guardian&apos;s consent. We do not
+        knowingly collect personal data from anyone under 13.
       </p>
 
       <h2>8. Changes to this policy</h2>

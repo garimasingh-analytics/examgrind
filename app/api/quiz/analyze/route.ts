@@ -161,6 +161,31 @@ export async function POST(req: NextRequest) {
   const chapter = quizRow.topic ?? "";
   const topic = quizRow.subtopic ?? "";
 
+  // Resolve exam via topic_id → chapter → subject → exam join. Fall back to
+  // 'cuet' for legacy quizzes from before migration_006 (when there was only
+  // CUET and exam_id didn't exist).
+  let examSlug = "cuet";
+  let examName = "CUET UG";
+  if (quizRow.topic_id) {
+    const { data: examLookup } = await supabase
+      .from("topics")
+      .select(
+        "chapter:chapters(subject:subjects(exam:exams(slug, name)))"
+      )
+      .eq("id", quizRow.topic_id)
+      .maybeSingle();
+    type ExamLookup = {
+      chapter: {
+        subject: { exam: { slug: string; name: string } | null } | null;
+      } | null;
+    };
+    const exam = (examLookup as ExamLookup | null)?.chapter?.subject?.exam;
+    if (exam) {
+      examSlug = exam.slug;
+      examName = exam.name;
+    }
+  }
+
   const questionsForPrompt = questions.map((q, idx) => ({
     idx,
     question: q.question_text,
@@ -171,6 +196,8 @@ export async function POST(req: NextRequest) {
   }));
 
   const prompt = buildAnalysisPrompt({
+    examSlug,
+    examName,
     subject,
     chapter,
     topic,
@@ -248,6 +275,8 @@ export async function POST(req: NextRequest) {
  * ------------------------------------------------------------------ */
 
 function buildAnalysisPrompt(input: {
+  examSlug: string;
+  examName: string;
   subject: string;
   chapter: string;
   topic: string;
@@ -261,15 +290,27 @@ function buildAnalysisPrompt(input: {
   }>;
   deepDive: boolean;
 }) {
-  const { subject, chapter, topic, questions, deepDive } = input;
+  const { examSlug, examName, subject, chapter, topic, questions, deepDive } =
+    input;
 
   const depthHint = deepDive
     ? "DEEP DIVE — be exhaustive. Walk through every wrong question step-by-step. Identify second-order patterns. Suggest a 7-day plan."
     : "Be precise but concise. Pick the 2-3 most important weaknesses to highlight.";
 
-  return `You are a CUET coach analyzing a student's quiz attempt for an Indian undergraduate aspirant.
+  // Exam-specific coach persona. Mirrors the framing in quiz/start so the
+  // diagnosis voice matches the test the student is studying for.
+  const coachIntro: Record<string, string> = {
+    cuet: `You are a CUET UG coach analyzing a student's quiz attempt for an Indian undergraduate aspirant. Reference NCERT Class 11/12 sections where possible.`,
+    "ssc-cgl": `You are an SSC CGL coach analyzing a graduate aspirant's quiz attempt. Speak in the language of SSC prep — time pressure, modal shortcuts, common SSC traps. Reference standard SSC books (R.S. Aggarwal Quant, S.P. Bakshi English, Lucent GK) where helpful, not NCERT.`,
+    "neet-ug": `You are a NEET UG coach analyzing an Indian medical aspirant's quiz attempt. Reference NCERT Class 11/12 line-by-line — NEET aspirants live in NCERT. For Biology, prefer NCERT vocabulary verbatim. For Physics/Chemistry, point to the exact NCERT section number.`,
+  };
+
+  const intro = coachIntro[examSlug] ?? coachIntro.cuet;
+
+  return `${intro}
 
 CONTEXT
+Exam: ${examName}
 Subject: ${subject}
 Chapter: ${chapter}
 Topic: ${topic}
@@ -280,7 +321,7 @@ ${JSON.stringify(questions, null, 2)}
 ${depthHint}
 
 TONE
-Warm-coach but no-nonsense. Cut the fluff. Lead with the diagnosis. Use the student's own choice of wrong option as evidence ("you picked B, which assumes …"). Reference NCERT chapters/sections by exact number where possible.
+Warm-coach but no-nonsense. Cut the fluff. Lead with the diagnosis. Use the student's own choice of wrong option as evidence ("you picked B, which assumes …"). For source citations, follow the exam-specific guidance in the opening line — don't push NCERT references on an SSC CGL student or push SSC books on a NEET aspirant.
 
 VERDICT TYPES (use exactly these strings)
 - "correct"            — they got it right
@@ -302,7 +343,7 @@ OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
       "evidence": "Which questions and what they got wrong",
       "improve": {
         "read": {
-          "source": "NCERT Class XX [Subject], Ch X, §X.X",
+          "source": "Exam-appropriate source — e.g. 'NCERT Class XX [Subject], Ch X, §X.X' for CUET/NEET, or 'R.S. Aggarwal Quant, Ch X' / 'Lucent GK, p. NNN' for SSC CGL",
           "minutes": 5,
           "distill": "1-2 sentence concept distillation in plain English"
         },
