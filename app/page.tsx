@@ -78,22 +78,20 @@ export default function LandingPage() {
           <ExamCard
             slug="cuet"
             name="CUET UG"
-            blurb="12 subjects · Full NTA syllabus · Live now"
+            blurb="12 subjects · Full NTA syllabus · NCERT-aligned"
             status="live"
           />
           <ExamCard
             slug="ssc-cgl"
             name="SSC CGL"
-            blurb="Quant · Reasoning · English · GA"
-            status="waitlist"
-            badge="Launching July"
+            blurb="Quant · Reasoning · English · GA · Live now"
+            status="live"
           />
           <ExamCard
             slug="neet-ug"
             name="NEET UG"
             blurb="Physics · Chemistry · Biology · NCERT-aligned"
-            status="waitlist"
-            badge="Launching July"
+            status="live"
           />
           <ExamCard
             slug="suggest"
