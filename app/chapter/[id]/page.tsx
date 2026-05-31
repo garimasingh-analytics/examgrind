@@ -18,29 +18,29 @@ export default async function ChapterPage({ params }: Params) {
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) redirect("/");
 
-  const { data: profile } = await supabase
-    .from("users")
-    .select("exam_choice")
-    .eq("id", authUser.id)
-    .maybeSingle<{ exam_choice: string | null }>();
-  const examSlug = profile?.exam_choice ?? "cuet";
+  // PERFORMANCE: profile / chapter / topics are independent — parallelise.
+  const [profileRes, chapterRes, topicsRes] = await Promise.all([
+    supabase
+      .from("users")
+      .select("exam_choice")
+      .eq("id", authUser.id)
+      .maybeSingle<{ exam_choice: string | null }>(),
+    supabase
+      .from("chapters")
+      .select("*, subject:subjects(*)")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("topics")
+      .select("*")
+      .eq("chapter_id", id)
+      .order("order_index", { ascending: true }),
+  ]);
 
-  // Chapter + subject
-  const { data: chapterData } = await supabase
-    .from("chapters")
-    .select("*, subject:subjects(*)")
-    .eq("id", id)
-    .maybeSingle();
-  if (!chapterData) notFound();
-  const chapter = chapterData as Chapter & { subject: Subject };
-
-  // Topics for this chapter
-  const { data: topicsData } = await supabase
-    .from("topics")
-    .select("*")
-    .eq("chapter_id", id)
-    .order("order_index", { ascending: true });
-  const topics = (topicsData ?? []) as Topic[];
+  const examSlug = profileRes.data?.exam_choice ?? "cuet";
+  if (!chapterRes.data) notFound();
+  const chapter = chapterRes.data as Chapter & { subject: Subject };
+  const topics = (topicsRes.data ?? []) as Topic[];
 
   // User's mastery for these topics
   const topicIds = topics.map((t) => t.id);

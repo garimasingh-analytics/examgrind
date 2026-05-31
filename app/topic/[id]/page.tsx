@@ -17,47 +17,44 @@ export default async function TopicLauncherPage({ params }: Params) {
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) redirect("/");
 
-  const { data: topicData } = await supabase
-    .from("topics")
-    .select("*, chapter:chapters(*, subject:subjects(*))")
-    .eq("id", id)
-    .maybeSingle();
-  if (!topicData) notFound();
-
+  // PERFORMANCE: topic + mastery + user profile are all independent. Also
+  // combined the previously-separate gateProfile + examProfile queries into
+  // one users-table fetch (was doing the same select twice).
   type Joined = Topic & {
     chapter: Chapter & { subject: Subject };
   };
-  const topic = topicData as Joined;
+  type UserProfile = {
+    subscription_status: "free" | "trial" | "paid";
+    quizzes_started: number;
+    exam_choice: string | null;
+  };
+  const [topicRes, masteryRes, profileRes] = await Promise.all([
+    supabase
+      .from("topics")
+      .select("*, chapter:chapters(*, subject:subjects(*))")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("user_topic_mastery")
+      .select("*")
+      .eq("user_id", authUser.id)
+      .eq("topic_id", id)
+      .maybeSingle(),
+    supabase
+      .from("users")
+      .select("subscription_status, quizzes_started, exam_choice")
+      .eq("id", authUser.id)
+      .maybeSingle<UserProfile>(),
+  ]);
 
-  const { data: masteryData } = await supabase
-    .from("user_topic_mastery")
-    .select("*")
-    .eq("user_id", authUser.id)
-    .eq("topic_id", id)
-    .maybeSingle();
-  const mastery = masteryData as UserTopicMastery | null;
+  if (!topicRes.data) notFound();
+  const topic = topicRes.data as Joined;
+  const mastery = masteryRes.data as UserTopicMastery | null;
+  const profile = profileRes.data;
 
-  // Free-tier gate state — passed to the picker.
-  const { data: gateProfile } = await supabase
-    .from("users")
-    .select("subscription_status, quizzes_started")
-    .eq("id", authUser.id)
-    .maybeSingle<{
-      subscription_status: "free" | "trial" | "paid";
-      quizzes_started: number;
-    }>();
-  const isPaid = gateProfile?.subscription_status === "paid";
-  const freeQuizzesLeft = Math.max(
-    0,
-    3 - (gateProfile?.quizzes_started ?? 0)
-  );
-
-  const { data: examProfile } = await supabase
-    .from("users")
-    .select("exam_choice")
-    .eq("id", authUser.id)
-    .maybeSingle<{ exam_choice: string | null }>();
-  const examSlug = examProfile?.exam_choice ?? "cuet";
+  const isPaid = profile?.subscription_status === "paid";
+  const freeQuizzesLeft = Math.max(0, 3 - (profile?.quizzes_started ?? 0));
+  const examSlug = profile?.exam_choice ?? "cuet";
 
   const previouslyAttempted = (mastery?.questions_attempted ?? 0) > 0;
   const accuracy = mastery && mastery.questions_attempted > 0

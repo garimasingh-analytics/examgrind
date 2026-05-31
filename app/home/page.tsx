@@ -42,16 +42,36 @@ export default async function HomePage() {
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) redirect("/");
 
-  // Profile (defensive insert on first visit). New rows get exam_choice='cuet'
-  // as a safe default — anyone who took a non-CUET path will already have
-  // gotten exam_choice set by the OAuth callback or /start/[slug].
-  let { data: profile } = await supabase
-    .from("users")
-    .select("email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice")
-    .eq("id", authUser.id)
-    .maybeSingle<UserRow>();
+  // PERFORMANCE: /home used to do 5 sequential awaits (profile → exam →
+  // subjects → counts → mastery) which added ~500-1000ms of network time.
+  // Three of those queries are independent — profile, topic counts, and
+  // mastery — so we fire them in parallel here. Subjects still needs the
+  // user's exam_choice, so it stays sequential after the parallel batch.
+  const [profileRes, countsRes, masteryRes] = await Promise.all([
+    supabase
+      .from("users")
+      .select(
+        "email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice"
+      )
+      .eq("id", authUser.id)
+      .maybeSingle<UserRow>(),
+    supabase
+      .from("subject_topic_counts")
+      .select("subject_id, topic_count"),
+    supabase
+      .from("user_topic_mastery")
+      .select("mastery_level, topics!inner(chapters!inner(subject_id))")
+      .eq("user_id", authUser.id),
+  ]);
+
+  let profile = profileRes.data;
+  const countsData = countsRes.data;
+  const masteryRaw = masteryRes.data;
 
   if (!profile) {
+    // Defensive insert on first visit. New rows get exam_choice='cuet'
+    // as a safe default — anyone who took a non-CUET path will already
+    // have gotten exam_choice set by the OAuth callback or /start/[slug].
     const { data: created } = await supabase
       .from("users")
       .insert({
@@ -59,7 +79,9 @@ export default async function HomePage() {
         email: authUser.email ?? "",
         exam_choice: "cuet",
       })
-      .select("email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice")
+      .select(
+        "email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice"
+      )
       .single<UserRow>();
     profile = created;
   }
@@ -67,33 +89,18 @@ export default async function HomePage() {
   const examSlug = profile?.exam_choice ?? "cuet";
   const examDisplay = EXAM_DISPLAY[examSlug] ?? EXAM_DISPLAY.cuet;
 
-  // Resolve exam slug → uuid so we can filter subjects.
-  // CUET's existing subjects had exam_id backfilled in migration 006.
-  const { data: examRow } = await supabase
-    .from("exams")
-    .select("id")
-    .eq("slug", examSlug)
-    .maybeSingle<{ id: string }>();
-
-  // Subjects scoped to this user's exam. If exam lookup somehow fails (bad
-  // data), fall back to an unfiltered list so /home still renders — better
-  // than a blank page on launch day.
-  let subjectsQuery = supabase
+  // Single roundtrip: nested filter on exams.slug via the FK relationship.
+  // Avoids the separate exam-lookup query that was burning ~100ms.
+  const { data: subjectsData } = await supabase
     .from("subjects")
-    .select("id, name, cuet_code, icon, order_index")
+    .select("id, name, cuet_code, icon, order_index, exam:exams!inner(slug)")
+    .eq("exam.slug", examSlug)
     .order("order_index", { ascending: true });
-  if (examRow?.id) {
-    subjectsQuery = subjectsQuery.eq("exam_id", examRow.id);
-  }
-  const { data: subjectsData } = await subjectsQuery;
   const subjects = (subjectsData ?? []) as Subject[];
 
   // ---- Per-subject progress ----
   // Total topics per subject — pre-aggregated in a DB view so we don't hit
   // PostgREST's 1000-row cap (we have ~1600 topics across 41 subjects).
-  const { data: countsData } = await supabase
-    .from("subject_topic_counts")
-    .select("subject_id, topic_count");
   const totalTopicsBySubject = new Map<string, number>();
   for (const row of (countsData ?? []) as Array<{
     subject_id: string;
@@ -101,12 +108,6 @@ export default async function HomePage() {
   }>) {
     totalTopicsBySubject.set(row.subject_id, row.topic_count);
   }
-
-  // User's mastery rows joined to subject_id.
-  const { data: masteryRaw } = await supabase
-    .from("user_topic_mastery")
-    .select("mastery_level, topics!inner(chapters!inner(subject_id))")
-    .eq("user_id", authUser.id);
   const masteredBySubject = new Map<string, number>();
   const attemptedBySubject = new Map<string, number>();
   for (const m of (masteryRaw ?? []) as Array<{

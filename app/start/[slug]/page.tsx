@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Link from "next/link";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
@@ -12,11 +13,10 @@ import Chick from "@/components/Chick";
  * Click "NEET UG"                     → /start/neet-ug
  *
  * Behaviour:
- *   - If signed in: update users.exam_choice and bounce straight to /home
- *     (no extra screen). Returning users get instant switching.
- *   - If signed out: render a focused sign-in card with the exam name in
- *     the headline and pass the slug down so the OAuth round-trip writes
- *     exam_choice on first arrival at /home.
+ *   - Signed-in: upsert users.exam_choice and bounce to /home (no extra
+ *     screen). Returning users get instant exam switching.
+ *   - Signed-out: render a focused sign-in card with the exam name in the
+ *     headline; the OAuth round-trip writes exam_choice on first arrival.
  */
 
 const EXAM_META: Record<
@@ -45,12 +45,14 @@ const EXAM_META: Record<
 
 export const dynamic = "force-dynamic";
 
-export default async function StartExamPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const meta = EXAM_META[params.slug];
+// Match the codebase convention used by /subject/[id], /chapter/[id], etc.
+// In Next 14, params is technically sync, but the async Promise<> pattern
+// is forward-compatible and matches the rest of the app.
+type Params = { params: Promise<{ slug: string }> };
+
+export default async function StartExamPage({ params }: Params) {
+  const { slug } = await params;
+  const meta = EXAM_META[slug];
   if (!meta) redirect("/");
 
   const supabase = createServerSupabase();
@@ -60,14 +62,37 @@ export default async function StartExamPage({
 
   // Already signed in? Update exam choice and go straight to /home.
   if (user) {
-    await supabase.from("users").upsert(
-      {
+    // Use update if the row exists, insert otherwise. Upsert was masking
+    // edge cases where Supabase didn't recognise the conflict properly
+    // for some users — split into explicit insert/update so we can verify
+    // the row actually got the new exam_choice before redirecting.
+    const { data: existing } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from("users")
+        .update({ exam_choice: meta.slug })
+        .eq("id", user.id);
+    } else {
+      await supabase.from("users").insert({
         id: user.id,
         email: user.email ?? "",
         exam_choice: meta.slug,
-      },
-      { onConflict: "id" }
-    );
+      });
+    }
+
+    // Tell Next.js the /home cache for this user is stale. Without this,
+    // the redirect can land on a stale rendering of /home showing the
+    // previous exam_choice — which is what was happening when users
+    // tried to switch to NEET UG: /start/neet-ug updated the DB but
+    // /home rendered from cache with the old exam_choice = cuet.
+    revalidatePath("/home");
+    revalidatePath("/me");
+
     redirect("/home");
   }
 

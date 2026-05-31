@@ -15,28 +15,26 @@ export default async function SubjectPage({ params }: Params) {
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) redirect("/");
 
-  // Pull exam_choice so the header switcher knows the current pick.
-  const { data: profile } = await supabase
-    .from("users")
-    .select("exam_choice")
-    .eq("id", authUser.id)
-    .maybeSingle<{ exam_choice: string | null }>();
-  const examSlug = profile?.exam_choice ?? "cuet";
+  // PERFORMANCE: profile / subject / chapters are all independent — fire
+  // them in parallel instead of three sequential awaits.
+  const [profileRes, subjectRes, chaptersRes] = await Promise.all([
+    supabase
+      .from("users")
+      .select("exam_choice")
+      .eq("id", authUser.id)
+      .maybeSingle<{ exam_choice: string | null }>(),
+    supabase.from("subjects").select("*").eq("id", id).maybeSingle(),
+    supabase
+      .from("chapters")
+      .select("*")
+      .eq("subject_id", id)
+      .order("order_index", { ascending: true }),
+  ]);
 
-  const { data: subjectData } = await supabase
-    .from("subjects")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-  if (!subjectData) notFound();
-  const subject = subjectData as Subject;
-
-  const { data: chaptersData } = await supabase
-    .from("chapters")
-    .select("*")
-    .eq("subject_id", id)
-    .order("order_index", { ascending: true });
-  const chapters = (chaptersData ?? []) as Chapter[];
+  const examSlug = profileRes.data?.exam_choice ?? "cuet";
+  if (!subjectRes.data) notFound();
+  const subject = subjectRes.data as Subject;
+  const chapters = (chaptersRes.data ?? []) as Chapter[];
 
   // Group chapters by NCERT class for cleaner browsing.
   const class11 = chapters.filter((c) => c.ncert_class === 11);
