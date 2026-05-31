@@ -59,7 +59,15 @@ export default async function SubjectPage({ params }: Params) {
 
       <section className="mx-auto max-w-3xl px-4 pt-4 sm:px-6 sm:pt-8">
         <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">
-          {subject.cuet_code ?? "Subject"}
+          {/* Header crumb: CUET keeps cuet_code (e.g. 'CUET-301'); SSC/NEET */}
+          {/* fall back to the exam name so it never reads as a generic       */}
+          {/* 'Subject' label.                                                */}
+          {subject.cuet_code ??
+            (examSlug === "ssc-cgl"
+              ? "SSC CGL"
+              : examSlug === "neet-ug"
+              ? "NEET UG"
+              : "Subject")}
         </p>
         <h1 className="mt-2 font-serif text-4xl font-semibold leading-tight tracking-tight text-cocoa-900 sm:text-5xl">
           {subject.name}
@@ -70,9 +78,18 @@ export default async function SubjectPage({ params }: Params) {
       </section>
 
       <section className="mx-auto mt-10 max-w-3xl px-4 sm:px-6 space-y-10">
+        {/* NCERT-tagged exams (CUET, NEET UG) get class-grouped chapters;  */}
+        {/* exams without NCERT tagging (SSC CGL) just show a flat list — */}
+        {/* a single 'Sections' header would feel redundant.                  */}
         {class11.length > 0 && <ChapterGroup label="Class 11" chapters={class11} />}
         {class12.length > 0 && <ChapterGroup label="Class 12" chapters={class12} />}
-        {other.length   > 0 && <ChapterGroup label="Sections"  chapters={other}  />}
+        {other.length > 0 && (
+          class11.length + class12.length > 0 ? (
+            <ChapterGroup label="Sections" chapters={other} />
+          ) : (
+            <ChapterGroup label={null} chapters={other} />
+          )
+        )}
 
         {chapters.length === 0 && (
           <div className="rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-8 text-center">
@@ -90,14 +107,16 @@ function ChapterGroup({
   label,
   chapters,
 }: {
-  label: string;
+  label: string | null;
   chapters: Chapter[];
 }) {
   return (
     <div>
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">
-        {label}
-      </p>
+      {label && (
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">
+          {label}
+        </p>
+      )}
       <div className="space-y-2">
         {chapters.map((c, i) => (
           <Link
