@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 
 /**
  * OAuth callback handler.
@@ -43,8 +44,14 @@ export async function GET(request: NextRequest) {
         // (i.e. first sign-in). Returning users keep whatever they last
         // chose — that way "Sign in with Google" from elsewhere doesn't
         // silently reset an existing pick. Explicit exam switches happen
-        // on /start/[slug] and (later) the /me exam switcher.
-        const { data: existing } = await supabase
+        // on /start/[slug].
+        //
+        // Use the service-role client for the write to bypass the
+        // intermittent RLS-cookie-timing issue documented in
+        // lib/supabase/admin.ts. The user.id has already been verified
+        // via the cookie session's auth.getUser() above.
+        const admin = createAdminSupabase();
+        const { data: existing } = await admin
           .from("users")
           .select("id, exam_choice")
           .eq("id", user.id)
@@ -52,7 +59,7 @@ export async function GET(request: NextRequest) {
 
         if (!existing) {
           // First sign-in: create the row with the picked exam.
-          await supabase.from("users").insert({
+          await admin.from("users").insert({
             id: user.id,
             email: user.email ?? "",
             exam_choice: examChoice,
@@ -60,13 +67,12 @@ export async function GET(request: NextRequest) {
         } else if (!existing.exam_choice) {
           // Row exists but exam_choice never got set (legacy account, or
           // user landed via a path that didn't carry a slug). Set it now.
-          await supabase
+          await admin
             .from("users")
             .update({ exam_choice: examChoice })
             .eq("id", user.id);
         }
-        // else: keep their existing pick. Card-click switching is handled
-        // explicitly by /start/[slug] (which upserts unconditionally).
+        // else: keep their existing pick.
       }
     }
   }

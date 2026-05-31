@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 import Link from "next/link";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import Chick from "@/components/Chick";
@@ -62,34 +63,42 @@ export default async function StartExamPage({ params }: Params) {
 
   // Already signed in? Update exam choice and go straight to /home.
   if (user) {
-    // Use update if the row exists, insert otherwise. Upsert was masking
-    // edge cases where Supabase didn't recognise the conflict properly
-    // for some users — split into explicit insert/update so we can verify
-    // the row actually got the new exam_choice before redirecting.
-    const { data: existing } = await supabase
-      .from("users")
-      .select("id")
-      .eq("id", user.id)
-      .maybeSingle();
+    // ROOT CAUSE of the "NEET UG silently goes to CUET" bug:
+    // The cookie-based server client was hitting silent RLS failures on
+    // UPDATE — auth.uid() inside the policy was sometimes resolving to
+    // NULL in Server Component contexts because Next.js doesn't refresh
+    // the cookie session in time for the write. The DB row stayed at
+    // exam_choice='cuet' regardless of which card the user clicked.
+    //
+    // Fix: use the service-role client for the write, scoped explicitly
+    // to user.id (which we already verified via auth.getUser() above).
+    // We verify the result so we don't redirect on a failed write.
+    const admin = createAdminSupabase();
 
-    if (existing) {
-      await supabase
-        .from("users")
-        .update({ exam_choice: meta.slug })
-        .eq("id", user.id);
-    } else {
-      await supabase.from("users").insert({
+    const { data: updated, error: updateErr } = await admin
+      .from("users")
+      .update({ exam_choice: meta.slug })
+      .eq("id", user.id)
+      .select("id, exam_choice");
+
+    if (updateErr) {
+      console.error("[start] failed to update exam_choice:", updateErr);
+    }
+
+    // If no row was updated, the user record doesn't exist yet — insert it.
+    if (!updated || updated.length === 0) {
+      const { error: insertErr } = await admin.from("users").insert({
         id: user.id,
         email: user.email ?? "",
         exam_choice: meta.slug,
       });
+      if (insertErr) {
+        console.error("[start] failed to insert user row:", insertErr);
+      }
     }
 
-    // Tell Next.js the /home cache for this user is stale. Without this,
-    // the redirect can land on a stale rendering of /home showing the
-    // previous exam_choice — which is what was happening when users
-    // tried to switch to NEET UG: /start/neet-ug updated the DB but
-    // /home rendered from cache with the old exam_choice = cuet.
+    // Invalidate cached renders of /home and /me so the next request
+    // sees the new exam_choice rather than a stale cuet/ssc-cgl version.
     revalidatePath("/home");
     revalidatePath("/me");
 

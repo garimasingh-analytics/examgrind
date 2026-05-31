@@ -89,13 +89,26 @@ export default async function HomePage() {
   const examSlug = profile?.exam_choice ?? "cuet";
   const examDisplay = EXAM_DISPLAY[examSlug] ?? EXAM_DISPLAY.cuet;
 
-  // Single roundtrip: nested filter on exams.slug via the FK relationship.
-  // Avoids the separate exam-lookup query that was burning ~100ms.
-  const { data: subjectsData } = await supabase
+  // Explicit two-query path: look up exam_id by slug, then filter subjects
+  // by exam_id. We tried the nested-filter approach (.eq("exam.slug",...))
+  // for a single-roundtrip speedup but PostgREST returns inconsistent
+  // results across exams with that pattern — SSC CGL specifically came
+  // back unfiltered. The 50-100ms extra over the network is not worth
+  // shipping wrong subjects to a brand-new user.
+  const { data: examRow } = await supabase
+    .from("exams")
+    .select("id")
+    .eq("slug", examSlug)
+    .maybeSingle<{ id: string }>();
+
+  let subjectsQuery = supabase
     .from("subjects")
-    .select("id, name, cuet_code, icon, order_index, exam:exams!inner(slug)")
-    .eq("exam.slug", examSlug)
+    .select("id, name, cuet_code, icon, order_index")
     .order("order_index", { ascending: true });
+  if (examRow?.id) {
+    subjectsQuery = subjectsQuery.eq("exam_id", examRow.id);
+  }
+  const { data: subjectsData } = await subjectsQuery;
   const subjects = (subjectsData ?? []) as Subject[];
 
   // ---- Per-subject progress ----
