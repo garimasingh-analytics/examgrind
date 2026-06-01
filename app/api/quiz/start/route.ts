@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { generateWithRetry } from "@/lib/anthropic-resilient";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -168,22 +169,26 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
   }
 ]`;
 
+  // Resilient generation: 3 attempts with backoff, friendly per-kind
+  // error messages, and an alert fired to ALERT_WEBHOOK_URL if our
+  // Anthropic balance hits zero.
+  const result = await generateWithRetry(anthropic, {
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 4000,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  if (!result.ok) {
+    return NextResponse.json(
+      { error: result.userMessage, kind: result.kind },
+      { status: result.httpStatus }
+    );
+  }
+
   let generated: GeneratedQuestion[];
   try {
-    const resp = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 4000,
-      messages: [{ role: "user", content: prompt }],
-    });
-    const text =
-      resp.content
-        .filter((b) => b.type === "text")
-        .map((b) => (b as { type: "text"; text: string }).text)
-        .join("")
-        .trim();
-
     // Strip optional markdown fences just in case.
-    const cleaned = text
+    const cleaned = result.text
       .replace(/^```(?:json)?\s*/i, "")
       .replace(/\s*```\s*$/i, "")
       .trim();
@@ -193,7 +198,7 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
       throw new Error("Claude returned no questions.");
     }
   } catch (e) {
-    console.error("[quiz/start] generation failed:", e);
+    console.error("[quiz/start] parse failed:", e);
     return NextResponse.json(
       { error: "Couldn't generate questions. Please try again." },
       { status: 502 }

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { generateWithRetry } from "@/lib/anthropic-resilient";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -205,29 +206,32 @@ export async function POST(req: NextRequest) {
     deepDive,
   });
 
-  // ---- Call Claude ----
+  // ---- Call Claude with resilient retry + classified errors ----
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const model = deepDive ? SONNET_MODEL : HAIKU_MODEL;
 
+  const result = await generateWithRetry(anthropic, {
+    model,
+    max_tokens: deepDive ? 8000 : 4500,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  if (!result.ok) {
+    return NextResponse.json(
+      { error: result.userMessage, kind: result.kind },
+      { status: result.httpStatus }
+    );
+  }
+
   let analysis: unknown;
   try {
-    const resp = await anthropic.messages.create({
-      model,
-      max_tokens: deepDive ? 8000 : 4500,
-      messages: [{ role: "user", content: prompt }],
-    });
-    const text = resp.content
-      .filter((b) => b.type === "text")
-      .map((b) => (b as { type: "text"; text: string }).text)
-      .join("")
-      .trim();
-    const cleaned = text
+    const cleaned = result.text
       .replace(/^```(?:json)?\s*/i, "")
       .replace(/\s*```\s*$/i, "")
       .trim();
     analysis = JSON.parse(cleaned);
   } catch (e) {
-    console.error("[quiz/analyze] generation failed:", e);
+    console.error("[quiz/analyze] parse failed:", e);
     return NextResponse.json(
       { error: "Couldn't generate the analysis. Please try again in a moment." },
       { status: 502 }
