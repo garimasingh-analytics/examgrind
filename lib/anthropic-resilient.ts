@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { fireAlert } from "./alert";
 
 /**
  * Resilient wrapper around Anthropic message generation.
@@ -53,40 +54,6 @@ function isRetryable(err: ClassifiedError): boolean {
     err.kind === "overloaded" ||
     err.kind === "transient_5xx"
   );
-}
-
-/**
- * Fires the ops alert webhook (if configured). Best-effort — never
- * throws. Use this to ping yourself when something needs human
- * attention (credit balance hit zero, repeated 5xx, etc.).
- *
- * Set ALERT_WEBHOOK_URL in env to enable. Works with Slack incoming
- * webhooks, Discord webhooks, or any endpoint that accepts a POST
- * with JSON body `{ text: "..." }`.
- */
-async function fireAlert(
-  message: string,
-  context: Record<string, unknown> = {}
-) {
-  const url = process.env.ALERT_WEBHOOK_URL;
-  if (!url) {
-    console.error("[ALERT]", message, context);
-    return;
-  }
-  try {
-    await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text: `🚨 ExamGrind: ${message}`,
-        ...context,
-      }),
-      // Don't let a slow webhook block the user-facing response.
-      signal: AbortSignal.timeout(2000),
-    });
-  } catch (e) {
-    console.error("[ALERT] webhook failed:", e);
-  }
 }
 
 export type ResilientResult =

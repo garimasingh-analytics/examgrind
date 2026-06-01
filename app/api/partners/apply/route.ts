@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { fireAlert } from "@/lib/alert";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -124,6 +125,18 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+
+  // Real-time ping so the founder knows about coaching-centre interest
+  // immediately, not when they happen to check /admin. Best-effort — a
+  // failed webhook never blocks the response to the applicant.
+  void fireAlert(`New partner application from ${centreName} (${city})`, {
+    contact_name: contactName,
+    contact_email: contactEmail,
+    contact_phone: contactPhone,
+    student_count: studentCount || "(not provided)",
+    exams_taught: examsTaught || "(not provided)",
+    admin_url: "/admin",
+  });
 
   return NextResponse.json({ ok: true });
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { fireAlert } from "@/lib/alert";
 
 /**
  * POST /api/waitlist
@@ -63,6 +64,15 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+
+  // Real-time ping so we know interest is coming in. Best-effort —
+  // never blocks the response. The dedupe-on-upsert may fire this for
+  // duplicates too, but that's fine; we'd rather over-notify on day 1.
+  void fireAlert(`New waitlist signup for ${cleanSlug}`, {
+    email: cleanEmail,
+    exam_slug: cleanSlug,
+    admin_url: "/admin",
+  });
 
   return NextResponse.json({ ok: true });
 }
