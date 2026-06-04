@@ -157,7 +157,7 @@ export default function LandingPage() {
           />
           <Faq
             q="What if I don't like it?"
-            a="Cancel any time — the page is just /me → 'Cancel plan'. Full refund within 7 days of paying, no questions. See /refund for the exact policy."
+            a="There's nothing to cancel because we don't auto-charge — just don't renew next month and you're done. If you paid and changed your mind within 7 days, write to support@examgrind.in and we'll refund in full, no questions. See /refund for the exact policy."
           />
           <Faq
             q="Can I switch between exams?"
