@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
 import PlanPanel from "./PlanPanel";
+import { ensureSubscriptionFreshness } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ type UserRow = {
   longest_streak: number;
   last_active_date: string | null;
   exam_choice: string | null;
+  paid_until: string | null;
 };
 
 type QuizRow = {
@@ -50,10 +52,17 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("users")
     .select(
-      "email, xp, level, quizzes_taken, quizzes_started, analyses_taken, subscription_status, streak_count, longest_streak, last_active_date, exam_choice"
+      "email, xp, level, quizzes_taken, quizzes_started, analyses_taken, subscription_status, streak_count, longest_streak, last_active_date, exam_choice, paid_until"
     )
     .eq("id", authUser.id)
     .maybeSingle<UserRow>();
+
+  // Lazy downgrade if paid_until has lapsed but status is still 'paid'.
+  const liveSubscriptionStatus = await ensureSubscriptionFreshness(
+    authUser.id,
+    profile?.subscription_status ?? "free",
+    profile?.paid_until ?? null
+  );
 
   const fullName =
     (authUser.user_metadata?.full_name as string | undefined) ??
@@ -202,7 +211,7 @@ export default async function ProfilePage() {
       {/* Plan panel — tier + freemium meters + upgrade CTA */}
       <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
         <PlanPanel
-          subscriptionStatus={profile?.subscription_status ?? "free"}
+          subscriptionStatus={liveSubscriptionStatus}
           quizzesStarted={profile?.quizzes_started ?? 0}
           analysesTaken={profile?.analyses_taken ?? 0}
         />

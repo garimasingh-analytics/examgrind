@@ -131,6 +131,49 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* FAQ — answers the "is this real?" anxiety before they bounce */}
+      <section className="mx-auto max-w-3xl px-6 py-20">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
+            Questions students ask
+          </p>
+          <h2 className="mt-2 font-serif text-3xl font-bold text-cocoa-900 sm:text-4xl">
+            Quick answers
+          </h2>
+        </div>
+
+        <dl className="mt-10 space-y-3">
+          <Faq
+            q="Is this just another AI quiz app?"
+            a="No. Other apps grade your answer and move on. ExamGrind tells you the exact concept you got wrong, points you to the NCERT / R.S. Aggarwal / Lucent section to revise, and tracks your weak spots across every quiz so you can see what to practice next. It's a coach, not a marker."
+          />
+          <Faq
+            q="Will I be charged automatically?"
+            a="No. ExamGrind is one-tap monthly — ₹75 each month, only when you click renew. No auto-debit, no UPI mandate, no surprise charges. You can take 3 free quizzes first to see if it clicks."
+          />
+          <Faq
+            q="Is the syllabus actually up to date?"
+            a="Full NTA CUET UG syllabus (12 subjects), full SSC CGL Tier 1+2 (Quant, Reasoning, English, GA), full NEET UG syllabus (NCERT Class 11+12). 450+ chapters and 2,200+ topics seeded. We update when the official notification changes."
+          />
+          <Faq
+            q="What if I don't like it?"
+            a="Cancel any time — the page is just /me → 'Cancel plan'. Full refund within 7 days of paying, no questions. See /refund for the exact policy."
+          />
+          <Faq
+            q="Can I switch between exams?"
+            a="Yes. One account works for CUET, SSC CGL, and NEET UG. There's a small dropdown in the top-left of every screen — switch any time, your XP and streak come with you."
+          />
+          <Faq
+            q="Does it work on my phone?"
+            a="Yes — the site is mobile-first. You can also install it as an app from your browser: 'Add to Home Screen' on Android Chrome or iOS Safari. Standalone Android + iOS apps coming after launch."
+          />
+          <Faq
+            q="My coaching centre teaches this. Can I get a referral code?"
+            a="Yes — 50/50 revenue share, ₹37.50/student/month for as long as your students stay subscribed. Apply on the partner page; we onboard within 48 hours over WhatsApp."
+          />
+        </dl>
+      </section>
+
       {/* Partner program — coaching centres refer & earn */}
       <section className="bg-cocoa-900 py-16 text-cream-50">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-6 text-center sm:flex-row sm:justify-between sm:text-left">
@@ -252,5 +295,27 @@ function Benefit({ title, body }: { title: string; body: string }) {
       </h3>
       <p className="mt-2 text-sm leading-relaxed text-cocoa-700">{body}</p>
     </div>
+  );
+}
+
+/**
+ * Single FAQ row. Uses native <details>/<summary> so it works without
+ * JS (good for SEO crawlers + WhatsApp link previews) and gets the
+ * expand/collapse a11y story for free.
+ */
+function Faq({ q, a }: { q: string; a: string }) {
+  return (
+    <details className="group rounded-2xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm transition open:bg-white">
+      <summary className="flex cursor-pointer list-none items-start justify-between gap-3 font-serif text-base font-bold text-cocoa-900 sm:text-lg">
+        <span>{q}</span>
+        <span
+          aria-hidden
+          className="mt-1 shrink-0 text-cocoa-500 transition group-open:rotate-45"
+        >
+          +
+        </span>
+      </summary>
+      <p className="mt-3 text-sm leading-relaxed text-cocoa-700">{a}</p>
+    </details>
   );
 }

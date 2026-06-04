@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
 import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid";
 import ExamSwitcher from "@/components/ExamSwitcher";
+import { ensureSubscriptionFreshness } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ type UserRow = {
   subscription_status: "free" | "trial" | "paid";
   quizzes_started: number;
   exam_choice: string | null;
+  paid_until: string | null;
 };
 
 // Display metadata for the exam header pill — keep this co-located with /home
@@ -51,7 +53,7 @@ export default async function HomePage() {
     supabase
       .from("users")
       .select(
-        "email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice"
+        "email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice, paid_until"
       )
       .eq("id", authUser.id)
       .maybeSingle<UserRow>(),
@@ -80,7 +82,7 @@ export default async function HomePage() {
         exam_choice: "cuet",
       })
       .select(
-        "email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice"
+        "email, xp, level, coins, streak_count, longest_streak, last_active_date, subscription_status, quizzes_started, exam_choice, paid_until"
       )
       .single<UserRow>();
     profile = created;
@@ -88,6 +90,15 @@ export default async function HomePage() {
 
   const examSlug = profile?.exam_choice ?? "cuet";
   const examDisplay = EXAM_DISPLAY[examSlug] ?? EXAM_DISPLAY.cuet;
+
+  // Lazy downgrade: if the user's paid_until has lapsed but their
+  // status is still 'paid', flip them to 'free' right now. Costs at
+  // most a single conditional UPDATE per expired user per visit.
+  const liveSubscriptionStatus = await ensureSubscriptionFreshness(
+    authUser.id,
+    profile?.subscription_status ?? "free",
+    profile?.paid_until ?? null
+  );
 
   // Explicit two-query path: look up exam_id by slug, then filter subjects
   // by exam_id. We tried the nested-filter approach (.eq("exam.slug",...))
@@ -144,7 +155,7 @@ export default async function HomePage() {
 
   const xp = profile?.xp ?? 0;
   const level = profile?.level ?? 1;
-  const isPaid = profile?.subscription_status === "paid";
+  const isPaid = liveSubscriptionStatus === "paid";
   const freeQuizzesLeft = Math.max(0, 3 - (profile?.quizzes_started ?? 0));
 
   // Streak gets shown only if it's still "alive" — i.e. the user practiced
