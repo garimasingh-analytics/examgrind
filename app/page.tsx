@@ -149,7 +149,7 @@ export default function LandingPage() {
           />
           <Faq
             q="Will I be charged automatically?"
-            a="No. ExamGrind is one-tap monthly — ₹75 each month, only when you click renew. No auto-debit, no UPI mandate, no surprise charges. You can take 3 free quizzes first to see if it clicks."
+            a="Yes — ₹75 auto-renews monthly through UPI Autopay (or card mandate, whichever you pick at checkout). You'll get an SMS from your bank before each charge so there are no surprises. Cancel any time from /me → 'Cancel subscription' and you keep access through the cycle you already paid for."
           />
           <Faq
             q="Is the syllabus actually up to date?"
@@ -157,7 +157,7 @@ export default function LandingPage() {
           />
           <Faq
             q="What if I don't like it?"
-            a="There's nothing to cancel because we don't auto-charge — just don't renew next month and you're done. If you paid and changed your mind within 7 days, write to support@examgrind.in and we'll refund in full, no questions. See /refund for the exact policy."
+            a="Cancel any time from /me. Your access continues through the month you already paid for, and no further charges hit your UPI / card. Want a refund instead? Write to support@examgrind.in within 7 days of paying — full refund, no questions. See /refund for the exact policy."
           />
           <Faq
             q="Can I switch between exams?"

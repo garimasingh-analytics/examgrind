@@ -13,17 +13,23 @@ declare global {
 
 type RazorpayOptions = {
   key: string;
-  amount: number;
-  currency: string;
+  // In subscription mode we pass subscription_id, NOT amount/order_id.
+  subscription_id?: string;
+  amount?: number;
+  currency?: string;
   name: string;
   description: string;
-  order_id: string;
+  order_id?: string;
   prefill?: { email?: string; name?: string; contact?: string };
   theme?: { color?: string };
+  // Subscription mode hands back a payment + subscription id pair;
+  // we don't need to verify a signature client-side since the webhook
+  // is the source of truth.
   handler: (resp: {
-    razorpay_payment_id: string;
-    razorpay_order_id: string;
-    razorpay_signature: string;
+    razorpay_payment_id?: string;
+    razorpay_subscription_id?: string;
+    razorpay_signature?: string;
+    razorpay_order_id?: string;
   }) => void;
   modal?: { ondismiss?: () => void };
 };
@@ -112,7 +118,7 @@ export default function UpgradeModal({
     setError(null);
     setLoading(true);
     try {
-      // 1. Make sure the Razorpay SDK is on the page.
+      // 1. Razorpay SDK
       const ok = await loadRazorpayScript();
       if (!ok || !window.Razorpay) {
         throw new Error(
@@ -120,64 +126,54 @@ export default function UpgradeModal({
         );
       }
 
-      // 2. Ask the server to create a Razorpay order.
-      const orderRes = await fetch("/api/billing/create-order", {
+      // 2. Server creates a Razorpay Subscription (UPI Autopay-eligible).
+      const subRes = await fetch("/api/billing/create-subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
-      if (!orderRes.ok) {
-        const body = (await orderRes.json().catch(() => ({}))) as {
+      if (!subRes.ok) {
+        const body = (await subRes.json().catch(() => ({}))) as {
           error?: string;
         };
-        throw new Error(body.error ?? "Couldn't start checkout.");
+        throw new Error(body.error ?? "Couldn't start subscription.");
       }
-      const order = (await orderRes.json()) as {
-        orderId: string;
-        amount: number;
-        currency: string;
+      const sub = (await subRes.json()) as {
+        subscriptionId: string;
         key: string;
-        name: string;
-        description: string;
+        name?: string;
+        description?: string;
         prefill?: { email?: string };
+        alreadyActive?: boolean;
       };
 
-      // 3. Open Razorpay Checkout. The user enters card/UPI/etc and
-      //    Razorpay calls our handler with the payment proof.
+      if (sub.alreadyActive) {
+        // User already paid up — just refresh /me to show their plan.
+        setSuccess(true);
+        setLoading(false);
+        router.refresh();
+        return;
+      }
+
+      // 3. Open Razorpay Checkout in SUBSCRIPTION mode. User signs the
+      //    UPI / card mandate. Razorpay handles the rest async — our
+      //    webhook updates state when subscription.activated fires.
       const rzp = new window.Razorpay({
-        key: order.key,
-        amount: order.amount,
-        currency: order.currency,
-        name: order.name,
-        description: order.description,
-        order_id: order.orderId,
-        prefill: order.prefill,
-        theme: { color: "#FD7C29" }, // matches our ember accent
-        handler: async (resp) => {
-          // 4. Hand the proof to the server for HMAC verify + entitlement.
-          try {
-            const verifyRes = await fetch("/api/billing/verify-payment", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(resp),
-            });
-            if (!verifyRes.ok) {
-              const body = (await verifyRes.json().catch(() => ({}))) as {
-                error?: string;
-              };
-              throw new Error(body.error ?? "Couldn't activate your account.");
-            }
-            setSuccess(true);
-            // Reflect upgraded status across the app.
-            router.refresh();
-          } catch (e) {
-            setError(
-              e instanceof Error
-                ? e.message
-                : "Payment succeeded but activation failed."
-            );
-          } finally {
-            setLoading(false);
-          }
+        key: sub.key,
+        subscription_id: sub.subscriptionId,
+        name: sub.name ?? "ExamGrind",
+        description:
+          sub.description ?? "ExamGrind monthly — auto-renews ₹75",
+        prefill: sub.prefill,
+        theme: { color: "#FD7C29" },
+        handler: () => {
+          // Razorpay calls this when the mandate is signed and the
+          // first charge has been queued. The DB flip happens via the
+          // webhook a moment later — we show a friendly "you're in!"
+          // and a refresh once that propagates.
+          setSuccess(true);
+          setLoading(false);
+          // Small delay so the webhook has time to land before /me re-fetches.
+          setTimeout(() => router.refresh(), 1500);
         },
         modal: {
           ondismiss: () => setLoading(false),
@@ -217,7 +213,7 @@ export default function UpgradeModal({
         {/* Body */}
         <div className="px-6 py-5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">
-            What you get for ₹75 / month
+            ₹75 / month · Auto-renews via UPI · Cancel any time
           </p>
           <ul className="mt-3 space-y-2.5">
             <Feature>Unlimited quizzes — every subject, every topic</Feature>

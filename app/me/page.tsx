@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
 import PlanPanel from "./PlanPanel";
+import CancelSubButton from "./CancelSubButton";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
@@ -215,6 +216,13 @@ export default async function ProfilePage() {
           quizzesStarted={profile?.quizzes_started ?? 0}
           analysesTaken={profile?.analyses_taken ?? 0}
         />
+        {/* Cancel-subscription affordance — only shown for active paid */}
+        {/* users. Two-tap confirmation so accidental clicks don't fire. */}
+        {liveSubscriptionStatus === "paid" && (
+          <div className="mt-3 flex justify-end">
+            <CancelSubButton paidUntil={profile?.paid_until ?? null} />
+          </div>
+        )}
       </section>
 
       {/* Exam switcher — three pills, current one highlighted. Clicks go */}
