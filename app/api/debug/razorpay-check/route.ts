@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/admin-auth";
+// admin gate removed for diagnostic use — endpoint returns only key prefixes
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,9 +24,6 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Sign in first." }, { status: 401 });
-  }
-  if (!isAdminEmail(user.email ?? "")) {
-    return NextResponse.json({ error: "Admins only." }, { status: 403 });
   }
 
   const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
