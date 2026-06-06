@@ -33,11 +33,10 @@ function classifyError(err: unknown): ClassifiedError {
     const status = err.status;
     // Anthropic sets a structured error.type — credit_balance_too_low
     // is what we get when the prepaid balance is exhausted before
-    // auto-reload kicks in.
-    type ErrorBody = { error?: { type?: string } };
+    // auto-reload kicks in. We narrow via a structural cast because the
+    // SDK's APIError type doesn't expose the body directly.
     const errType =
-      (err as Anthropic.APIError & { error?: ErrorBody["error"] })?.error
-        ?.type ?? "";
+      (err as unknown as { error?: { type?: string } })?.error?.type ?? "";
     if (errType.includes("credit_balance")) return { kind: "credit_balance" };
     if (status === 429) return { kind: "rate_limit" };
     if (status === 529) return { kind: "overloaded" };
