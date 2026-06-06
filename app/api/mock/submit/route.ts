@@ -129,11 +129,12 @@ export async function POST(req: NextRequest) {
   }
 
   // Per-section score.
-  const breakdown: SectionAgg[] = [];
-  for (const s of bySection.values()) {
+  // Array.from(...) — TS strict mode without downlevelIteration can't
+  // iterate Map values directly. Same workaround used in earlier files.
+  const breakdown: SectionAgg[] = Array.from(bySection.values()).map((s) => {
     s.score = s.correct * pos - s.wrong * neg;
-    breakdown.push(s);
-  }
+    return s;
+  });
   const totalScore = totalCorrect * pos - totalWrong * neg;
 
   // Persist.
