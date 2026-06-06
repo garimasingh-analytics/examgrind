@@ -61,7 +61,9 @@ update public.users
 create table if not exists public.mock_tests (
   id                uuid primary key default gen_random_uuid(),
   exam_id           uuid not null references public.exams(id) on delete cascade,
-  subject_id        uuid          references public.subjects(id) on delete set null,
+  -- subjects.id is a text slug (e.g. 'physics'), not a uuid — see
+  -- migration_002. Must match for the FK to be implementable.
+  subject_id        text          references public.subjects(id) on delete set null,
   slug              text not null,                       -- e.g. 'neet-ug-full', 'cuet-physics', 'ssc-cgl-tier-1'
   display_name      text not null,                       -- e.g. 'NEET UG Full Mock'
   description       text,                                -- short blurb for the catalog card
