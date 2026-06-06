@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { createServerSupabase } from "@/lib/supabase/server";
-// admin gate removed for diagnostic use — endpoint returns only key prefixes
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,14 +16,21 @@ export const dynamic = "force-dynamic";
  *     real reason ("plan not found" vs "auth failed" vs subscriptions
  *     not enabled, etc).
  *
- * Never logs the secret. Truncates the plan_id and key_id to first
- * few chars for safety.
+ * Never logs or returns the secret. Truncates the plan_id and key_id
+ * to first few chars only.
+ *
+ * Gated to ADMIN_EMAILS (defaults to garimakalhansh@gmail.com via
+ * lib/admin-auth) so a random signed-in user can't enumerate or
+ * probe the merchant's Razorpay config.
  */
 export async function GET() {
   const supabase = createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Sign in first." }, { status: 401 });
+  }
+  if (!isAdminEmail(user.email ?? "")) {
+    return NextResponse.json({ error: "Admins only." }, { status: 403 });
   }
 
   const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -55,8 +62,6 @@ export async function GET() {
 
   const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
 
-  // Step 1: can we even fetch the plan? Most useful single test —
-  // tells us if keys are right mode, plan exists, plan is reachable.
   try {
     const plan = await razorpay.plans.fetch(planId);
     return NextResponse.json({
@@ -72,7 +77,6 @@ export async function GET() {
       },
     });
   } catch (e) {
-    // Surface the verbatim Razorpay error so we can see the cause.
     const err = e as {
       statusCode?: number;
       error?: { code?: string; description?: string; reason?: string };
