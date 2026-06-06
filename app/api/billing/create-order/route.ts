@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
 
 const PRICE_PAISE = 7500; // ₹75 = 7500 paise
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
   const supabase = createServerSupabase();
   const {
     data: { user },

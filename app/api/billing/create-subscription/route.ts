@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
@@ -32,7 +32,7 @@ export const dynamic = "force-dynamic";
 // the webhook anyway, so the user experience is effectively unlimited.
 const TOTAL_BILLING_CYCLES = 12;
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
   const supabase = createServerSupabase();
   const {
     data: { user },

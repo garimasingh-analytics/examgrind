@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
  *
  * Body: {}  (we look up the user's active subscription server-side)
  */
-export async function POST(_req: NextRequest) {
+export async function POST() {
   const supabase = createServerSupabase();
   const {
     data: { user },

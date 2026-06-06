@@ -30,13 +30,9 @@ type UserRow = {
   paid_until: string | null;
 };
 
-// Display metadata for the exam header pill — keep this co-located with /home
-// so adding a new exam means touching exactly one file here.
-const EXAM_DISPLAY: Record<string, { name: string; pill: string }> = {
-  cuet: { name: "CUET UG", pill: "CUET UG" },
-  "ssc-cgl": { name: "SSC CGL", pill: "SSC CGL" },
-  "neet-ug": { name: "NEET UG", pill: "NEET UG" },
-};
+// Exam display copy now lives inside ExamSwitcher — this header used to
+// show a static pill from an EXAM_DISPLAY map, replaced by the
+// switcher dropdown so users can change exam in one click.
 
 export default async function HomePage() {
   const supabase = createServerSupabase();
@@ -89,7 +85,6 @@ export default async function HomePage() {
   }
 
   const examSlug = profile?.exam_choice ?? "cuet";
-  const examDisplay = EXAM_DISPLAY[examSlug] ?? EXAM_DISPLAY.cuet;
 
   // Lazy downgrade: if the user's paid_until has lapsed but their
   // status is still 'paid', flip them to 'free' right now. Costs at
