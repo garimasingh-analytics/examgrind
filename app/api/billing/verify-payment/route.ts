@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
-        amount_paise: 7500,
+        amount_paise: 19900,
         currency: "INR",
         status: "paid",
       },
