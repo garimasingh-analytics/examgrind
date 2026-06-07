@@ -17,6 +17,7 @@ type GeneratedQuestion = {
   question: string;
   options: { A: string; B: string; C: string; D: string };
   correct: "A" | "B" | "C" | "D";
+  explanation?: string;
 };
 
 const MIN_Q = 5;
@@ -158,6 +159,11 @@ Rules:
 - No "All of the above" / "None of the above".
 - Use Indian context (rupees, Indian names, Indian geography) where natural.
 - Never include disclaimers, meta-commentary, or "as an AI" language.
+- For every question, write a 1-2 sentence "explanation" that does TWO things:
+  (a) states why the correct answer is correct, citing the concept/rule that makes it so;
+  (b) names the most likely wrong choice and says exactly which misconception leads to it
+      (e.g. "B is the common trap — students forget to convert minutes to seconds before plugging into v=u+at").
+  Keep it concrete — no "this question tests your understanding of X" filler.
 
 Return ONLY a valid JSON array with this exact shape — no prose, no markdown fences:
 
@@ -165,7 +171,8 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
   {
     "question": "...",
     "options": { "A": "...", "B": "...", "C": "...", "D": "..." },
-    "correct": "B"
+    "correct": "B",
+    "explanation": "..."
   }
 ]`;
 
@@ -256,6 +263,7 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
     option_c: q.options.C,
     option_d: q.options.D,
     correct_answer: q.correct,
+    explanation: typeof q.explanation === "string" ? q.explanation : null,
   }));
 
   const { error: qErr } = await supabase.from("questions").insert(questionRows);

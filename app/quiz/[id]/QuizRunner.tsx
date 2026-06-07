@@ -174,6 +174,31 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
               Question {idx + 1} of {total}
             </span>
           </button>
+          {/* Per-question elapsed timer. Counts UP — gives the student a
+              feel for time-per-question that maps to the real exam budget.
+              Ember-700 once the question crosses 60s (the rough CUET budget). */}
+          <div
+            role="timer"
+            aria-live="off"
+            className={[
+              "ml-2 inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 font-mono text-xs font-bold tabular-nums shadow-warm",
+              secondsOnQuestion >= 60
+                ? "bg-ember-500/15 text-ember-700"
+                : "bg-cream-50 text-cocoa-700",
+            ].join(" ")}
+            title="Time on this question"
+          >
+            <span aria-hidden="true">⏱</span>
+            <span>
+              {secondsOnQuestion < 60
+                ? `${secondsOnQuestion}s`
+                : `${Math.floor(secondsOnQuestion / 60)}:${(
+                    secondsOnQuestion % 60
+                  )
+                    .toString()
+                    .padStart(2, "0")}`}
+            </span>
+          </div>
           <Chick state={chickState} size={56} />
         </div>
         {/* Progress bar */}

@@ -28,7 +28,7 @@ export default async function ResultsPage({ params }: Params) {
 
   const { data: questionsData } = await supabase
     .from("questions")
-    .select("id, question_text, option_a, option_b, option_c, option_d, correct_answer, user_answer")
+    .select("id, question_text, option_a, option_b, option_c, option_d, correct_answer, user_answer, time_taken, explanation")
     .eq("quiz_id", id)
     .order("created_at", { ascending: true });
   const questions = questionsData ?? [];
@@ -248,6 +248,30 @@ export default async function ResultsPage({ params }: Params) {
                         <p className="text-cocoa-500 italic">Skipped</p>
                       )}
                     </div>
+
+                    {/* Per-question explanation. Populated by the quiz/start
+                        prompt going forward. Older quizzes with null
+                        explanation just hide this block — no broken UI. */}
+                    {q.explanation && (
+                      <div className="mt-3 rounded-2xl bg-cocoa-100 px-3.5 py-2.5">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cocoa-500">
+                          Why
+                        </p>
+                        <p className="mt-1 text-sm text-cocoa-900">
+                          {q.explanation}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Per-question time used. Subtle — small, muted. */}
+                    {typeof q.time_taken === "number" && q.time_taken > 0 && (
+                      <p className="mt-2 text-[11px] text-cocoa-500">
+                        ⏱ {q.time_taken < 60
+                          ? `${q.time_taken}s`
+                          : `${Math.floor(q.time_taken / 60)}m ${q.time_taken % 60}s`}{" "}
+                        on this question
+                      </p>
+                    )}
                   </div>
                 </div>
               </li>
