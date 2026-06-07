@@ -35,6 +35,34 @@ type QuestionRow = {
   time_taken: number | null;
 };
 
+// Server-side verdict type — kept tiny on purpose. The full Verdict
+// union is also defined in app/results/[id]/DeepAnalysis.tsx for the
+// UI's structural type; this is the runtime shape we operate on
+// here so we can defend against Claude regrading wrong answers as
+// correct.
+type Verdict =
+  | "correct"
+  | "wrong-conceptual"
+  | "wrong-careless"
+  | "wrong-partial"
+  | "skipped";
+
+type PerQuestionResult = {
+  idx: number;
+  verdict: Verdict;
+  concept?: string;
+  explanation?: string;
+};
+
+type AnalysisShape = {
+  perQuestion?: PerQuestionResult[];
+  // The rest of the analysis (verdict, strengths, weaknesses, patterns,
+  // pacing, studyPlan, etc.) is opaque to us here — we don't post-process
+  // it. Typed as unknown via index signature so .map() on perQuestion
+  // works without coercing the whole structure.
+  [key: string]: unknown;
+};
+
 const FREE_ANALYSES = 1;
 const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const SONNET_MODEL = "claude-sonnet-4-6";
@@ -88,11 +116,20 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   // If we already have a non-deep analysis and the user is asking for one
-  // that isn't a deep-dive upgrade, just return it.
+  // that isn't a deep-dive upgrade, just return it — but trust-but-verify
+  // the perQuestion verdicts first. Old cached analyses (before the
+  // 2026-06 miscount fix) can have wrong-letter answers marked "correct";
+  // we correct them on the way out so the score the user sees in the
+  // Deep Analysis matches the score on the results page.
   if (existing && !deepDive) {
+    const fixed = await reconcileCachedAnalysis(
+      supabase,
+      existing.analysis as AnalysisShape,
+      quizId
+    );
     return NextResponse.json({
       cached: true,
-      analysis: existing.analysis,
+      analysis: fixed,
       model: existing.model,
       is_deep_dive: existing.is_deep_dive,
     });
@@ -196,6 +233,14 @@ export async function POST(req: NextRequest) {
     time_seconds: q.time_taken,
   }));
 
+  // Compute the ground-truth correct count from the actual data, NOT from
+  // anything Claude returns. This is what we hand into the prompt so the
+  // narrative verdict can't drift from reality.
+  const actualCorrectCount = questions.filter(
+    (q) => q.user_answer != null && q.user_answer === q.correct_answer
+  ).length;
+  const totalCount = questions.length;
+
   const prompt = buildAnalysisPrompt({
     examSlug,
     examName,
@@ -204,6 +249,8 @@ export async function POST(req: NextRequest) {
     topic,
     questions: questionsForPrompt,
     deepDive,
+    actualCorrectCount,
+    totalCount,
   });
 
   // ---- Call Claude with resilient retry + classified errors ----
@@ -223,19 +270,45 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let analysis: unknown;
+  let analysis: AnalysisShape;
   try {
     const cleaned = result.text
       .replace(/^```(?:json)?\s*/i, "")
       .replace(/\s*```\s*$/i, "")
       .trim();
-    analysis = JSON.parse(cleaned);
+    analysis = JSON.parse(cleaned) as AnalysisShape;
   } catch (e) {
     console.error("[quiz/analyze] parse failed:", e);
     return NextResponse.json(
       { error: "Couldn't generate the analysis. Please try again in a moment." },
       { status: 502 }
     );
+  }
+
+  // ---- Trust-but-verify: force perQuestion verdicts to match reality ----
+  // Defence-in-depth against Claude regrading wrong answers as "correct"
+  // because it disagreed with the answer key. The score the student sees
+  // on the results page is the ground truth — perQuestion must match it.
+  // We keep Claude's "concept" and "explanation" fields; we only overwrite
+  // the verdict tag itself.
+  if (Array.isArray(analysis?.perQuestion)) {
+    analysis.perQuestion = analysis.perQuestion.map((pq) => {
+      const q = questions[pq.idx];
+      if (!q) return pq;
+      const truthVerdict: Verdict =
+        q.user_answer == null
+          ? "skipped"
+          : q.user_answer === q.correct_answer
+          ? "correct"
+          : // Was wrong. Keep Claude's wrong-* subtype if it picked one;
+            // otherwise fall back to wrong-conceptual.
+            pq.verdict === "wrong-careless" ||
+            pq.verdict === "wrong-conceptual" ||
+            pq.verdict === "wrong-partial"
+          ? pq.verdict
+          : "wrong-conceptual";
+      return { ...pq, verdict: truthVerdict };
+    });
   }
 
   // ---- Persist (upsert: deep-dive overwrites a prior haiku analysis) ----
@@ -275,6 +348,47 @@ export async function POST(req: NextRequest) {
 }
 
 /* ------------------------------------------------------------------ *
+ * Cache reconciliation — fix wrong perQuestion verdicts in old cached
+ * analyses that were generated before the 2026-06 verdict-correctness
+ * fix. Pulls the truth from the questions table and overrides.
+ * ------------------------------------------------------------------ */
+async function reconcileCachedAnalysis(
+  supabase: ReturnType<typeof createServerSupabase>,
+  cached: AnalysisShape,
+  quizId: string
+): Promise<AnalysisShape> {
+  if (!Array.isArray(cached?.perQuestion)) return cached;
+  const { data } = await supabase
+    .from("questions")
+    .select("user_answer, correct_answer")
+    .eq("quiz_id", quizId)
+    .order("created_at", { ascending: true });
+  const rows = (data ?? []) as Array<{
+    user_answer: Letter | null;
+    correct_answer: Letter;
+  }>;
+  if (rows.length === 0) return cached;
+  return {
+    ...cached,
+    perQuestion: cached.perQuestion.map((pq) => {
+      const q = rows[pq.idx];
+      if (!q) return pq;
+      const truthVerdict: Verdict =
+        q.user_answer == null
+          ? "skipped"
+          : q.user_answer === q.correct_answer
+          ? "correct"
+          : pq.verdict === "wrong-careless" ||
+            pq.verdict === "wrong-conceptual" ||
+            pq.verdict === "wrong-partial"
+          ? pq.verdict
+          : "wrong-conceptual";
+      return { ...pq, verdict: truthVerdict };
+    }),
+  };
+}
+
+/* ------------------------------------------------------------------ *
  * Prompt construction
  * ------------------------------------------------------------------ */
 
@@ -293,9 +407,20 @@ function buildAnalysisPrompt(input: {
     time_seconds: number | null;
   }>;
   deepDive: boolean;
+  actualCorrectCount: number;
+  totalCount: number;
 }) {
-  const { examSlug, examName, subject, chapter, topic, questions, deepDive } =
-    input;
+  const {
+    examSlug,
+    examName,
+    subject,
+    chapter,
+    topic,
+    questions,
+    deepDive,
+    actualCorrectCount,
+    totalCount,
+  } = input;
 
   const depthHint = deepDive
     ? "DEEP DIVE — be exhaustive. Walk through every wrong question step-by-step. Identify second-order patterns. Suggest a 7-day plan."
@@ -319,6 +444,12 @@ Subject: ${subject}
 Chapter: ${chapter}
 Topic: ${topic}
 
+SCORE (ground truth — do NOT recompute or contradict this)
+The student got ${actualCorrectCount} / ${totalCount} correct.
+Your verdict prose MUST cite this exact score if it mentions a score at all.
+Your perQuestion array MUST contain exactly ${actualCorrectCount} entries with verdict="correct".
+Any divergence from these numbers is a bug.
+
 ATTEMPT
 ${JSON.stringify(questions, null, 2)}
 
@@ -340,6 +471,14 @@ VERDICT TYPES (use exactly these strings)
 - "wrong-careless"     — they understand the concept but made a slip (units, sign, arithmetic)
 - "wrong-partial"      — they got partway and stopped at the wrong step
 - "skipped"            — they didn't answer
+
+VERDICT RULE — HARD, NO EXCEPTIONS
+- "verdict" is determined purely by string comparison of user_answer vs correct (the "correct" field in the question data).
+- If user_answer is null  → verdict MUST be "skipped".
+- If user_answer === correct (exact letter match) → verdict MUST be "correct".
+- Otherwise (user_answer is a letter that doesn't match correct) → verdict MUST be one of "wrong-conceptual" / "wrong-careless" / "wrong-partial". Pick the best fit.
+- DO NOT change a wrong-letter answer to "correct" because you think the student's reasoning was almost right, or because you'd grade differently than the answer key. Treat the correct field as ground truth.
+- The number of perQuestion entries with verdict="correct" MUST equal the count where user_answer === correct. If you find yourself wanting to mark a wrong-letter answer as "correct", stop — your job is to diagnose, not regrade.
 
 OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
 {
