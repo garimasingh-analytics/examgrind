@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
 import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid";
 import ExamSwitcher from "@/components/ExamSwitcher";
+import PremiumBadge from "@/components/PremiumBadge";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
@@ -189,6 +190,10 @@ export default async function HomePage() {
           className="flex items-center gap-2 transition hover:opacity-90 sm:gap-3"
           title="View your profile"
         >
+          {/* Premium badge — paid users only. Free users see nothing here */}
+          {/* (the Upgrade button lives elsewhere). Lives next to streak so   */}
+          {/* it reads as a status pill, not a CTA.                           */}
+          <PremiumBadge isPaid={isPaid} />
           {/* Daily streak — only render the flame when streak > 0 */}
           {streak > 0 && (
             <div

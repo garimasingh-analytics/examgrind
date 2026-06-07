@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
 import ExamSwitcher from "@/components/ExamSwitcher";
+import PremiumBadge from "@/components/PremiumBadge";
 import DeepAnalysis, { type AnalysisJson } from "./DeepAnalysis";
 import ShareButton from "./ShareButton";
 
@@ -100,9 +101,12 @@ export default async function ResultsPage({ params }: Params) {
           </Link>
           <ExamSwitcher currentSlug={examSlug} />
         </div>
-        <Link href="/home" className="text-sm font-medium text-cocoa-500 hover:text-cocoa-900">
-          Home
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <PremiumBadge isPaid={isPaid} />
+          <Link href="/home" className="text-sm font-medium text-cocoa-500 hover:text-cocoa-900">
+            Home
+          </Link>
+        </div>
       </header>
 
       {/* Score panel */}

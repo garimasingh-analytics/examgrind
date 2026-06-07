@@ -5,6 +5,7 @@ import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { FREE_LIMITS } from "@/lib/freemium";
 import Chick from "@/components/Chick";
 import ExamSwitcher from "@/components/ExamSwitcher";
+import PremiumBadge from "@/components/PremiumBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -117,7 +118,10 @@ export default async function MockHubPage() {
         >
           ExamGrind
         </Link>
-        <ExamSwitcher currentSlug={examSlug} />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <PremiumBadge isPaid={isPaid} />
+          <ExamSwitcher currentSlug={examSlug} />
+        </div>
       </header>
 
       <section className="mx-auto max-w-5xl px-5 pb-12 sm:px-8">
