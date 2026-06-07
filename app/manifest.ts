@@ -4,9 +4,11 @@ import type { MetadataRoute } from "next";
  * Web App Manifest — what makes ExamGrind installable on a phone home
  * screen and what gives the browser "Add to Home Screen" prompt.
  *
- * Next.js compiles this into /manifest.webmanifest at build time, and
- * the auto-generated `app/icon.tsx` / `app/icon0.tsx` files are picked
- * up automatically — we don't need to enumerate them here.
+ * Icons live as static PNGs in /public so Android's launcher gets a
+ * real raster image (the old dynamic app/icon.tsx returned a placeholder
+ * "Eg" monogram; we replaced it 2026-06 with the actual chick stamp
+ * matching the in-app mascot). The same artwork ships as the Instagram
+ * DP so the brand is unified across surfaces.
  */
 
 export default function manifest(): MetadataRoute.Manifest {
@@ -25,27 +27,30 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en-IN",
     icons: [
       {
-        src: "/icon",
+        src: "/icon-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icon0",
+        src: "/icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       // Maskable variants tell Android it's safe to crop into the
       // launcher's adaptive shape (circle / squircle / rounded square).
+      // Our stamp is already a perfect circle so masking is a no-op
+      // visually — but flagging it correct prevents Android from
+      // adding a default white border.
       {
-        src: "/icon",
+        src: "/icon-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/icon0",
+        src: "/icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
