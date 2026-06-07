@@ -6,6 +6,7 @@ import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid"
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -153,6 +154,11 @@ export default async function HomePage() {
   const level = profile?.level ?? 1;
   const isPaid = liveSubscriptionStatus === "paid";
   const freeQuizzesLeft = Math.max(0, 3 - (profile?.quizzes_started ?? 0));
+  // Admins get a visible "Admin →" pill in the header. The auto-redirect
+  // on /auth/callback already sends them to /admin on sign-in, but the
+  // pill is the fallback for when they click "Back to app" and want to
+  // jump straight back.
+  const isAdmin = isAdminEmail(authUser.email);
 
   // Streak gets shown only if it's still "alive" — i.e. the user practiced
   // today or yesterday. Otherwise we show 0 (the streak is broken even if
@@ -182,6 +188,19 @@ export default async function HomePage() {
           <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
             ExamGrind
           </Link>
+          {/* Admin pill — visible only to admin emails (the route itself
+              is already gated server-side; this just gives admins a
+              one-tap way back to /admin without typing the URL). */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1 rounded-full bg-cocoa-900 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-cream-50 shadow-warm transition hover:scale-[1.03]"
+              title="Open the admin dashboard"
+            >
+              <span aria-hidden>🛡️</span>
+              <span>Admin</span>
+            </Link>
+          )}
           {/* One-click exam switcher dropdown */}
           <ExamSwitcher currentSlug={examSlug} />
         </div>

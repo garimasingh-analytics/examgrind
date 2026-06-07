@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 /**
  * OAuth callback handler.
@@ -28,16 +29,31 @@ export async function GET(request: NextRequest) {
   const examChoice =
     examParam && ALLOWED_EXAMS.has(examParam) ? examParam : null;
 
+  // We may swap the default landing destination for admins below.
+  let finalNext = next;
+
   if (code) {
     const supabase = createServerSupabase();
     await supabase.auth.exchangeCodeForSession(code);
 
-    // After session exchange, fetch the authenticated user and ensure they
-    // have a row in public.users with the right exam_choice.
+    // After session exchange, fetch the authenticated user once and reuse
+    // it for (a) the optional exam_choice write, and (b) the admin auto-
+    // route decision below.
+    const {
+      data: { user: signedInUser },
+    } = await supabase.auth.getUser();
+
+    // If the signed-in user is on the admin allow-list AND they were
+    // headed to the default /home landing, redirect them straight to
+    // /admin. We preserve an explicit ?next= because the user might be
+    // mid-flow (e.g., resuming a quiz link or returning from /me) and
+    // overriding that would be hostile.
+    if (signedInUser && isAdminEmail(signedInUser.email) && next === "/home") {
+      finalNext = "/admin";
+    }
+
     if (examChoice) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = signedInUser;
 
       if (user) {
         // For the callback path we set exam_choice only when it's missing
@@ -77,5 +93,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}${next}`);
+  return NextResponse.redirect(`${origin}${finalNext}`);
 }
