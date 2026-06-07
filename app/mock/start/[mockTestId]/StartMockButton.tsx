@@ -83,7 +83,7 @@ export default function StartMockButton({ mockTestId }: { mockTestId: string }) 
         // Full-screen loading overlay — the question generation takes
         // 8-15 seconds for a 180q NEET mock. Need a clear "we're working".
         <div className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-4 bg-cream-50/95 px-4 text-center">
-          <Chick state="focused" size={120} />
+          <Chick state="idle" size={120} />
           <h2 className="font-serif text-2xl font-bold text-cocoa-900">
             Generating your mock…
           </h2>

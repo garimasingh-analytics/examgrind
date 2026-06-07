@@ -143,7 +143,7 @@ export default async function MockHubPage() {
 
         {/* Hero */}
         <div className="flex items-start gap-3">
-          <Chick state="focused" size={56} />
+          <Chick state="idle" size={56} />
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cocoa-500">
               {examName} mock tests

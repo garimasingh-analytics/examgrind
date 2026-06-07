@@ -36,7 +36,7 @@ export default async function MockStartPage({ params }: PageProps) {
   if (!mock || !(mock as { is_active: boolean }).is_active) {
     return (
       <main className="mx-auto max-w-2xl px-5 py-16 text-center">
-        <Chick state="confused" size={120} className="mx-auto" />
+        <Chick state="sad" size={120} className="mx-auto" />
         <h1 className="mt-4 font-serif text-3xl font-bold text-cocoa-900">
           That mock isn&apos;t available
         </h1>
@@ -101,7 +101,7 @@ export default async function MockStartPage({ params }: PageProps) {
 
       <section className="mx-auto max-w-3xl px-5 pb-16 sm:px-8">
         <div className="flex items-start gap-3">
-          <Chick state="focused" size={64} />
+          <Chick state="idle" size={64} />
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cocoa-500">
               {m.exam?.name ?? "Mock"}
