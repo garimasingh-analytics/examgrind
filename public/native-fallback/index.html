@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>ExamGrind</title>
+    <style>
+      :root {
+        --cream-50: #fbf5ec;
+        --cocoa-900: #2a1f17;
+        --cocoa-700: #4f3d2c;
+        --ember-700: #b54a17;
+      }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: var(--cream-50);
+        color: var(--cocoa-900);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 24px;
+        text-align: center;
+      }
+      h1 {
+        font-family: "Georgia", "Times New Roman", serif;
+        font-size: 32px;
+        margin: 8px 0 4px;
+        letter-spacing: -0.01em;
+      }
+      p { color: var(--cocoa-700); margin: 0; font-size: 14px; max-width: 280px; }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        background: var(--ember-700);
+        color: var(--cream-50);
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 12px;
+        margin-top: 18px;
+      }
+      .chick {
+        font-size: 56px;
+        line-height: 1;
+        animation: bounce 1.4s ease-in-out infinite;
+      }
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="chick">🐥</div>
+      <h1>ExamGrind</h1>
+      <p>
+        Couldn't reach the server. Check your internet connection and try again.
+      </p>
+      <div class="badge">Offline</div>
+    </main>
+    <script>
+      // Retry every 4 seconds — if we get back online, jump to the live site.
+      setInterval(function () {
+        fetch("https://examgrind.vercel.app", { method: "HEAD", mode: "no-cors" })
+          .then(function () {
+            window.location.replace("https://examgrind.vercel.app");
+          })
+          .catch(function () {});
+      }, 4000);
+    </script>
+  </body>
+</html>

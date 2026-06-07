@@ -34,3 +34,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Capacitor native projects — scaffolded locally by setup-mobile.sh.
+# These contain machine-specific paths + signing config that should
+# stay out of git. capacitor.config.ts is committed; android/ and
+# ios/ are not.
+/android
+/ios
+
