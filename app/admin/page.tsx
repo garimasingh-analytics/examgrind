@@ -66,9 +66,9 @@ export default async function AdminPage() {
 
   const admin = createAdminSupabase();
   const now = Date.now();
-  const sevenDaysAgo  = new Date(now - 7  * 24 * 60 * 60 * 1000).toISOString();
-  const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const sevenDaysAgo  = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
   const nowIso = new Date(now).toISOString();
+  // 30-day cutoff is used inline in the subscription-lapsed check below.
 
   // ----- All queries in parallel ----------------------------------------
   const [
