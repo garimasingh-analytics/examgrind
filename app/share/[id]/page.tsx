@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 import Chick from "@/components/Chick";
 
 export const dynamic = "force-dynamic";
@@ -9,10 +9,13 @@ export const dynamic = "force-dynamic";
 type Params = { params: Promise<{ id: string }> };
 
 async function loadQuiz(id: string) {
-  // Use the server client without auth — share pages must work for
-  // visitors who aren't signed in. RLS policies allow public read of
-  // anonymized quiz metadata (score + subject + subtopic).
-  const supabase = createServerSupabase();
+  // Use the SERVICE-ROLE admin client because share pages must work for
+  // visitors who aren't signed in (and we explicitly DON'T have a public-
+  // read RLS policy on quizzes — that would expose every user's quiz
+  // metadata via UUID enumeration). We only select non-PII fields here:
+  // score, subject, subtopic — no user_id, no email, no answer choices.
+  // If we ever add private columns to quizzes, narrow this select.
+  const supabase = createAdminSupabase();
   const { data } = await supabase
     .from("quizzes")
     .select("id, subject, subtopic, score, created_at, topic_id")
@@ -20,7 +23,7 @@ async function loadQuiz(id: string) {
     .maybeSingle();
   if (!data || data.score == null) return null;
 
-  // Pull the total question count for this quiz
+  // Pull the total question count for this quiz.
   const { count } = await supabase
     .from("questions")
     .select("id", { count: "exact", head: true })
@@ -40,8 +43,21 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const accuracy = quiz.total > 0
     ? Math.round((quiz.score! / quiz.total) * 100)
     : 0;
-  const title = `${quiz.score}/${quiz.total} on ${quiz.subtopic ?? quiz.subject} · ExamGrind`;
-  const description = `Just scored ${accuracy}% on ${quiz.subtopic ?? quiz.subject}. Free, AI-graded practice for CUET, SSC CGL, and NEET UG aspirants.`;
+
+  // Score-aware dare framing — the title is what shows as the WhatsApp /
+  // iMessage / Twitter card heading, so we lead with the hook, not the
+  // score.
+  const dare =
+    accuracy >= 90
+      ? `🎉 I aced ${quiz.subtopic ?? quiz.subject} — can you?`
+      : accuracy >= 70
+      ? `🔥 ${accuracy}% on ${quiz.subtopic ?? quiz.subject}. Can you beat me?`
+      : accuracy >= 40
+      ? `🥲 ${accuracy}% on ${quiz.subtopic ?? quiz.subject}. Bet you can do better.`
+      : `😅 ${quiz.subtopic ?? quiz.subject} destroyed me. Bet you can't even match this.`;
+
+  const title = `${dare} · ExamGrind`;
+  const description = `${quiz.score}/${quiz.total} correct. Free, AI-graded practice for CUET, SSC CGL & NEET UG — every wrong answer comes with a concept-level diagnosis.`;
 
   return {
     title,
@@ -85,10 +101,10 @@ export default async function SharePage({ params }: Params) {
   :                  "sad";
 
   const blurb =
-    accuracy >= 90 ? "Aced it — and the AI broke down exactly which concepts I owned."
-  : accuracy >= 70 ? "Solid score. The AI told me exactly which two concepts to drill next."
-  : accuracy >= 40 ? "Mixed result. The AI showed me exactly where I went wrong, question by question."
-  :                  "Tough round. But the AI walked me through every wrong answer step-by-step.";
+    accuracy >= 90 ? "Aced it — can you?"
+  : accuracy >= 70 ? "Solid score. Think you can beat me?"
+  : accuracy >= 40 ? "Mixed round. Bet you can do better."
+  :                  "Tough one. Bet you can't even match this 😏";
 
   return (
     <main className="bg-warm-wash min-h-[100svh] pb-20">

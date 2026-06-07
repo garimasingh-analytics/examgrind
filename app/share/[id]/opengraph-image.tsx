@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const alt = "ExamGrind quiz score";
@@ -18,7 +18,10 @@ type Props = { params: Promise<{ id: string }> };
  */
 export default async function Image({ params }: Props) {
   const { id } = await params;
-  const supabase = createServerSupabase();
+  // Service-role read: WhatsApp / Twitter crawlers come anonymous and we
+  // need them to be able to fetch the score data to render the preview.
+  // Same non-PII guarantees as the share page route.
+  const supabase = createAdminSupabase();
 
   const { data: quiz } = await supabase
     .from("quizzes")
@@ -41,6 +44,17 @@ export default async function Image({ params }: Props) {
 
   const chickFace =
     accuracy >= 70 ? "happy" : accuracy >= 40 ? "idle" : "sad";
+
+  // Dare framing — what the recipient sees at the top of the card.
+  // Score-aware so a high scorer brags and a low scorer dares back.
+  const dareLine =
+    accuracy >= 90
+      ? "🎉 Hooray! I aced it — can you?"
+      : accuracy >= 70
+      ? "🔥 Solid score. Can you beat me?"
+      : accuracy >= 40
+      ? "🥲 Mixed round. Bet you can do better?"
+      : "😅 Tough one. Bet you can't even match this 😏";
 
   return new ImageResponse(
     (
@@ -119,7 +133,7 @@ export default async function Image({ params }: Props) {
             <div
               style={{
                 fontFamily: "serif",
-                fontSize: 60,
+                fontSize: 52,
                 fontWeight: 700,
                 color: "#1F1A14",
                 lineHeight: 1.05,
@@ -129,18 +143,31 @@ export default async function Image({ params }: Props) {
             >
               {topic}
             </div>
+            {/* Dare line — drives the "can you beat me?" hook so the
+                preview reads as a challenge, not a brag-or-pity card. */}
+            <div
+              style={{
+                fontSize: 30,
+                fontWeight: 700,
+                color: "#FD4401",
+                marginTop: 18,
+                letterSpacing: -0.5,
+              }}
+            >
+              {dareLine}
+            </div>
             <div
               style={{
                 display: "flex",
                 alignItems: "baseline",
                 gap: 24,
-                marginTop: 36,
+                marginTop: 30,
               }}
             >
               <div
                 style={{
                   fontFamily: "serif",
-                  fontSize: 180,
+                  fontSize: 170,
                   fontWeight: 800,
                   color: "#FD4401",
                   lineHeight: 0.85,
