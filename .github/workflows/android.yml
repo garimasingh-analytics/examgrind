@@ -1,0 +1,116 @@
+# Build the ExamGrind Android APK in the cloud on every push to main.
+#
+# Output: a debug-signed APK uploaded as a workflow artifact called
+# `examgrind-debug-apk`. Download it from the GitHub Actions run, then
+# either:
+#   - Send it to yourself via email / Telegram and tap to install on
+#     your Android phone (requires "Install from unknown sources"
+#     toggled on for that app), OR
+#   - Use `adb install examgrind.apk` if you have Android Debug Bridge
+#     installed on a computer plugged into your phone.
+#
+# This APK is **debug-signed** — it can be installed for beta testing
+# and personal use, but it CAN'T be submitted to the Play Store. For
+# a Play-Store-ready release (AAB / release-signed APK) we'll add a
+# second workflow that uses a keystore stored in GitHub Secrets.
+
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # Only rebuild when something that affects the native shell or
+      # the Capacitor config changes. Pure Vercel/web-only commits don't
+      # need a new APK — the WebView reloads the live site automatically.
+      - "capacitor.config.ts"
+      - "public/native-fallback/**"
+      - ".github/workflows/android.yml"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:    # also runnable manually from the Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Set up JDK 17 (Android Gradle Plugin requires it)
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "gradle"
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Capacitor SDK + plugins (not in package.json yet)
+        # The web build doesn't need Capacitor — setup-mobile.sh installs
+        # it locally. CI installs it on the fly so we don't bloat the
+        # Vercel deploy with native-only deps.
+        run: |
+          npm install --no-save \
+            @capacitor/core \
+            @capacitor/android \
+            @capacitor/splash-screen \
+            @capacitor/status-bar
+          npm install --no-save --save-dev @capacitor/cli
+
+      - name: Scaffold Android project (idempotent)
+        run: |
+          # `cap add android` only writes the android/ folder if it
+          # doesn't already exist. Safe to run on every build.
+          npx cap add android || echo "android/ already present"
+
+      - name: Sync Capacitor config + web assets into android/
+        run: npx cap sync android
+
+      - name: Build debug APK with Gradle
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+
+      - name: Locate the built APK
+        id: apk
+        run: |
+          APK_PATH=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          echo "Found APK at: $APK_PATH"
+          echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: examgrind-debug-apk
+          path: ${{ steps.apk.outputs.path }}
+          # 30-day retention is enough for beta cycles; older builds
+          # auto-expire so the artifact storage doesn't balloon.
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          echo "### ExamGrind APK built 🐥" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Scroll up, click the **examgrind-debug-apk** artifact box." >> $GITHUB_STEP_SUMMARY
+          echo "2. Unzip → install on your Android phone." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This is a **debug** APK — fine for beta testing, not Play Store." >> $GITHUB_STEP_SUMMARY
