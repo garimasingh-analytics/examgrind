@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/admin-auth";
-import ApplicationActions from "./ApplicationActions";
 
 export const metadata: Metadata = {
   title: "Admin · ExamGrind",
@@ -13,32 +12,11 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-type Application = {
-  id: string;
-  centre_name: string;
-  contact_name: string;
-  contact_email: string;
-  contact_phone: string;
-  city: string;
-  student_count: string | null;
-  exams_taught: string | null;
-  notes: string | null;
-  status: "pending" | "contacted" | "approved" | "rejected";
-  created_at: string;
-};
-
 type Waitlist = {
   email: string;
   exam_slug: string;
   source: string | null;
   created_at: string;
-};
-
-const STATUS_TONE: Record<Application["status"], string> = {
-  pending: "bg-sun-400/20 text-cocoa-900",
-  contacted: "bg-ember-600/15 text-ember-700",
-  approved: "bg-moss-500/15 text-moss-700",
-  rejected: "bg-cocoa-500/15 text-cocoa-500",
 };
 
 /**
@@ -49,13 +27,14 @@ const STATUS_TONE: Record<Application["status"], string> = {
  *
  * Sections:
  *  1. Stats — total users, exam-choice distribution, signups this week
- *  2. Partner applications — full list with inline status controls
- *  3. Waitlist signups — historical record (kept since we may still
+ *  2. Waitlist signups — historical record (kept since we may still
  *     get them when launching new exams)
  *
- * All queries go through the service-role admin client because the
- * partner_applications / waitlist_signups tables have no public SELECT
- * policy (insert-only from the public form).
+ * All queries go through the service-role admin client because
+ * waitlist_signups has no public SELECT policy (insert-only from the
+ * public form). The Partner Program was removed in 2026-06; richer
+ * analytics (subscriptions, drop-off, popular quizzes) ship in a
+ * follow-up dashboard rewrite.
  */
 export default async function AdminPage() {
   const supabase = createServerSupabase();
@@ -74,19 +53,11 @@ export default async function AdminPage() {
   ).toISOString();
 
   const [
-    applicationsRes,
     waitlistRes,
     examCountsRes,
     recentUsersRes,
     quizzesRes,
   ] = await Promise.all([
-    admin
-      .from("partner_applications")
-      .select(
-        "id, centre_name, contact_name, contact_email, contact_phone, city, student_count, exams_taught, notes, status, created_at"
-      )
-      .order("created_at", { ascending: false })
-      .limit(100),
     admin
       .from("waitlist_signups")
       .select("email, exam_slug, source, created_at")
@@ -105,7 +76,6 @@ export default async function AdminPage() {
       .gte("created_at", sevenDaysAgo),
   ]);
 
-  const applications = (applicationsRes.data ?? []) as Application[];
   const waitlist = (waitlistRes.data ?? []) as Waitlist[];
 
   // Aggregate exam distribution from the users-table result.
@@ -119,9 +89,6 @@ export default async function AdminPage() {
   const totalUsers = examCountsRes.count ?? 0;
   const usersThisWeek = recentUsersRes.count ?? 0;
   const quizzesThisWeek = quizzesRes.count ?? 0;
-
-  const pendingCount = applications.filter((a) => a.status === "pending")
-    .length;
 
   return (
     <main className="bg-warm-wash min-h-[100svh] pb-24">
@@ -151,18 +118,13 @@ export default async function AdminPage() {
           Dashboard
         </h1>
         <p className="mt-1 text-sm text-cocoa-500">
-          Last 7 days, plus everything ever submitted to /partners.
+          Last 7 days at a glance. Richer analytics shipping next.
         </p>
 
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Stat label="Total users" value={totalUsers.toLocaleString("en-IN")} />
           <Stat label="New (7d)" value={usersThisWeek.toLocaleString("en-IN")} />
           <Stat label="Quizzes (7d)" value={quizzesThisWeek.toLocaleString("en-IN")} />
-          <Stat
-            label="Pending applications"
-            value={pendingCount.toString()}
-            highlight={pendingCount > 0}
-          />
         </div>
 
         {/* Exam distribution */}
@@ -188,92 +150,6 @@ export default async function AdminPage() {
               ))}
           </div>
         </div>
-      </section>
-
-      {/* Applications */}
-      <section className="mx-auto mt-10 max-w-6xl px-4 sm:px-6">
-        <div className="flex items-baseline justify-between">
-          <h2 className="font-serif text-2xl font-bold text-cocoa-900">
-            Partner applications
-          </h2>
-          <p className="text-sm text-cocoa-500">
-            {applications.length}{" "}
-            {applications.length === 1 ? "application" : "applications"}
-          </p>
-        </div>
-
-        {applications.length === 0 ? (
-          <div className="mt-6 rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-10 text-center text-cocoa-500 shadow-warm">
-            No applications yet. Share <Link href="/partners" className="underline">/partners</Link> with coaching centres.
-          </div>
-        ) : (
-          <ul className="mt-6 space-y-4">
-            {applications.map((a) => (
-              <li
-                key={a.id}
-                className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <h3 className="font-serif text-lg font-bold text-cocoa-900">
-                        {a.centre_name}
-                      </h3>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${STATUS_TONE[a.status]}`}
-                      >
-                        {a.status}
-                      </span>
-                      <span className="text-xs text-cocoa-500">
-                        {a.city} ·{" "}
-                        {new Date(a.created_at).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </span>
-                    </div>
-
-                    <p className="mt-1 text-sm text-cocoa-700">
-                      <span className="font-medium">{a.contact_name}</span>
-                      {" · "}
-                      <a
-                        href={`mailto:${a.contact_email}`}
-                        className="hover:text-cocoa-900"
-                      >
-                        {a.contact_email}
-                      </a>
-                      {" · "}
-                      <a
-                        href={`https://wa.me/${a.contact_phone.replace(/\D/g, "")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:text-cocoa-900"
-                      >
-                        {a.contact_phone}
-                      </a>
-                    </p>
-
-                    {(a.student_count || a.exams_taught) && (
-                      <p className="mt-1 text-xs text-cocoa-500">
-                        {a.student_count && <>~{a.student_count} students</>}
-                        {a.student_count && a.exams_taught && " · "}
-                        {a.exams_taught}
-                      </p>
-                    )}
-
-                    {a.notes && (
-                      <p className="mt-3 whitespace-pre-wrap rounded-2xl bg-warm-wash p-3 text-sm text-cocoa-700">
-                        {a.notes}
-                      </p>
-                    )}
-                  </div>
-
-                  <ApplicationActions id={a.id} status={a.status} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
       </section>
 
       {/* Waitlist */}

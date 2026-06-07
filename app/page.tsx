@@ -25,12 +25,6 @@ export default function LandingPage() {
         <span className="font-serif text-xl font-bold text-cocoa-900">
           ExamGrind
         </span>
-        <Link
-          href="/partners"
-          className="hidden text-sm font-semibold text-cocoa-500 hover:text-cocoa-900 sm:inline"
-        >
-          Partner with us →
-        </Link>
       </header>
 
       {/* Hero */}
@@ -167,37 +161,7 @@ export default function LandingPage() {
             q="Does it work on my phone?"
             a="Yes — the site is mobile-first. You can also install it as an app from your browser: 'Add to Home Screen' on Android Chrome or iOS Safari. Standalone Android + iOS apps coming after launch."
           />
-          <Faq
-            q="My coaching centre teaches this. Can I get a referral code?"
-            a="Yes — 50/50 revenue share, ₹37.50/student/month for as long as your students stay subscribed. Apply on the partner page; we onboard within 48 hours over WhatsApp."
-          />
         </dl>
-      </section>
-
-      {/* Partner program — coaching centres refer & earn */}
-      <section className="bg-cocoa-900 py-16 text-cream-50">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-6 text-center sm:flex-row sm:justify-between sm:text-left">
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sun-400">
-              Partner program · For coaching centres
-            </p>
-            <h2 className="mt-2 font-serif text-2xl font-bold sm:text-3xl">
-              Refer your students. Earn ₹37.50 per student, every month.
-            </h2>
-            <p className="mt-3 text-cream-200">
-              Share your referral code. Students get our AI-graded practice
-              for ₹199/month. We split it 50/50 with you — for as long as they
-              stay subscribed. No contracts, no minimums, no dashboards to
-              learn.
-            </p>
-          </div>
-          <Link
-            href="/partners"
-            className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-sun-500 px-6 py-3 text-sm font-bold text-cocoa-900 shadow-warm transition hover:bg-sun-400"
-          >
-            Get your referral code →
-          </Link>
-        </div>
       </section>
 
       {/* Footer */}
@@ -207,7 +171,6 @@ export default function LandingPage() {
           <Link href="/privacy" className="hover:text-cocoa-900">Privacy</Link>
           <Link href="/refund" className="hover:text-cocoa-900">Refunds</Link>
           <Link href="/contact" className="hover:text-cocoa-900">Contact</Link>
-          <Link href="/partners" className="hover:text-cocoa-900">Partner program</Link>
         </div>
         <p className="mt-4">© {new Date().getFullYear()} ExamGrind. Made in India.</p>
       </footer>

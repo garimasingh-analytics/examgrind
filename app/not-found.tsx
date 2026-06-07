@@ -32,12 +32,6 @@ export default function NotFound() {
         >
           Take me home →
         </Link>
-        <Link
-          href="/partners"
-          className="text-sm font-semibold text-cocoa-500 hover:text-cocoa-900"
-        >
-          Partner program
-        </Link>
       </div>
     </main>
   );
