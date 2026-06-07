@@ -358,6 +358,10 @@ OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
           "minutes": 5,
           "distill": "1-2 sentence concept distillation in plain English"
         },
+        "watch": {
+          "query": "Exam-aware YouTube search query that will reliably surface a strong free explainer. Lead with a known Indian education channel name + the specific concept. For CUET/NEET prefer: 'Physics Wallah', 'Khan Academy Hindi', 'Unacademy NEET', 'NEETprep', 'Vedantu NEET'. For SSC CGL prefer: 'Adda247', 'Study IQ', 'BYJU's Exam Prep SSC', 'Mahendra Guru'. Example good queries: 'Physics Wallah laws of motion class 11 friction problems', 'Adda247 SSC CGL profit and loss tricks'. The query should be 6-12 words — specific enough that the first 1-3 results will be the right video.",
+          "channel_hint": "Short channel name shown to the user — e.g. 'Physics Wallah' or 'Adda247'."
+        },
         "work": {
           "questionIdx": 2,
           "walkthrough_steps": [
@@ -416,7 +420,8 @@ OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
 }
 
 RULES
-- Every weakness MUST include all three rungs: read, work, practice.
+- Every weakness MUST include all four rungs: read, watch, work, practice.
+- "watch.query" must be a YouTube-style search query — no quotation marks around the whole thing, no URL. Always include a recognised Indian education channel name first (Physics Wallah / Khan Academy Hindi / Unacademy NEET / Adda247 / Study IQ etc.) so the first result is reliable.
 - "work.questionIdx" must reference an actual wrong-conceptual question idx.
 - If there are no wrong-conceptual questions, drop weaknesses to length 0.
 - "practice.concept_focus" must be a concise phrase like "latent heat at phase change" — it'll be fed back into a drill question generator.

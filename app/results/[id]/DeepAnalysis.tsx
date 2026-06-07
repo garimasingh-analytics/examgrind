@@ -24,6 +24,9 @@ type Weakness = {
   evidence: string;
   improve: {
     read: { source: string; minutes: number; distill: string };
+    // Optional so older cached analyses (generated before the Watch
+    // rung shipped) still render — they just won't show the button.
+    watch?: { query: string; channel_hint?: string };
     work: {
       questionIdx: number;
       walkthrough_steps: string[];
@@ -532,6 +535,44 @@ function WeaknessCard({
         body={weakness.improve.read.distill}
         meta={`~${weakness.improve.read.minutes} min`}
       />
+
+      {/* WATCH — only if Claude returned a query (older cached
+          analyses don't have this field). Opens a YouTube search
+          in a new tab; we deliberately do NOT embed a specific
+          URL because Claude can't reliably know which videos
+          exist, but channel + concept search reliably surfaces
+          the right one as the first 1-2 results. */}
+      {weakness.improve.watch?.query && (
+        <div className="border-t border-cocoa-900/[0.04] px-5 py-4">
+          <div className="flex items-start gap-3">
+            <span className="text-lg leading-none" aria-hidden="true">▶️</span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">
+                Watch
+              </p>
+              <p className="mt-1 font-serif text-sm font-semibold text-cocoa-900">
+                {weakness.improve.watch.channel_hint
+                  ? `${weakness.improve.watch.channel_hint} on YouTube`
+                  : "Free explainer on YouTube"}
+              </p>
+              <p className="mt-0.5 text-xs text-cocoa-500">
+                {weakness.improve.watch.query}
+              </p>
+              <a
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
+                  weakness.improve.watch.query
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-coral-500 px-4 py-2 text-xs font-bold text-cream-50 shadow-warm transition hover:bg-coral-600"
+              >
+                <span aria-hidden="true">▶️</span>
+                <span>Watch on YouTube</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* WORK */}
       <Rung
