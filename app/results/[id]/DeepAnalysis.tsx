@@ -98,6 +98,19 @@ type Props = {
   /** Has the user already used their free analysis? */
   freeAnalysisUsed: boolean;
   isPaid: boolean;
+  /**
+   * Endpoint to POST to for analysis. Defaults to the chapter-quiz route.
+   * The mock-test path passes "/api/mock/analyze" — same response shape,
+   * different table behind it.
+   */
+  analyzeEndpoint?: string;
+  /**
+   * Which field name the endpoint expects in the request body for the
+   * id. Chapter quizzes expect "quizId"; mocks expect "attemptId".
+   * The value sent is always the `quizId` prop above (renaming the
+   * prop would churn 4 files for cosmetics).
+   */
+  analyzeIdField?: "quizId" | "attemptId";
 };
 
 /* ------------------------------------------------------------------ *
@@ -111,6 +124,8 @@ export default function DeepAnalysis({
   initialIsDeepDive,
   freeAnalysisUsed,
   isPaid,
+  analyzeEndpoint = "/api/quiz/analyze",
+  analyzeIdField = "quizId",
 }: Props) {
   const router = useRouter();
   const [analysis, setAnalysis] = useState<AnalysisJson | null>(initialAnalysis);
@@ -129,10 +144,10 @@ export default function DeepAnalysis({
     setPaywall(null);
     startTransition(async () => {
       try {
-        const res = await fetch("/api/quiz/analyze", {
+        const res = await fetch(analyzeEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ quizId, deepDive }),
+          body: JSON.stringify({ [analyzeIdField]: quizId, deepDive }),
         });
         const body: AnalyzeResponse = await res.json();
         if (!res.ok) {

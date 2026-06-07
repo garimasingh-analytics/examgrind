@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 import Chick from "@/components/Chick";
+import { ensureSubscriptionFreshness } from "@/lib/subscription";
+import { FREE_LIMITS } from "@/lib/freemium";
+import MockDeepAnalysisTrigger from "./MockDeepAnalysisTrigger";
+import type { AnalysisJson } from "@/app/results/[id]/DeepAnalysis";
 
 export const dynamic = "force-dynamic";
 
@@ -106,6 +111,38 @@ export default async function MockResultsPage({ params }: PageProps) {
 
   const answers = (rows ?? []) as AnswerRow[];
 
+  // Pre-fetch any existing Deep Analysis + the user's freemium state in
+  // parallel — both feed into the MockDeepAnalysisTrigger CTA. We go
+  // through the admin client for mock_analyses because the RLS policy
+  // is owner-select; we already auth-checked above.
+  const admin = createAdminSupabase();
+  const [analysisRes, profileRes] = await Promise.all([
+    admin
+      .from("mock_analyses")
+      .select("analysis, is_deep_dive")
+      .eq("mock_attempt_id", attemptId)
+      .maybeSingle<{ analysis: AnalysisJson; is_deep_dive: boolean }>(),
+    supabase
+      .from("users")
+      .select("subscription_status, paid_until, analyses_started")
+      .eq("id", user.id)
+      .maybeSingle<{
+        subscription_status: "free" | "trial" | "paid";
+        paid_until: string | null;
+        analyses_started: number;
+      }>(),
+  ]);
+  const initialAnalysis = analysisRes.data?.analysis ?? null;
+  const initialIsDeepDive = analysisRes.data?.is_deep_dive ?? false;
+  const liveSubStatus = await ensureSubscriptionFreshness(
+    user.id,
+    profileRes.data?.subscription_status ?? "free",
+    profileRes.data?.paid_until ?? null
+  );
+  const isPaid = liveSubStatus === "paid";
+  const freeAnalysisUsed =
+    (profileRes.data?.analyses_started ?? 0) >= FREE_LIMITS.analysis;
+
   const maxScore = mock.total_questions * Number(mock.positive_marks);
   const accuracy = mock.total_questions
     ? Math.round(
@@ -192,6 +229,20 @@ export default async function MockResultsPage({ params }: PageProps) {
             </div>
           </div>
         )}
+
+        {/* Deep Analysis CTA + render — Phase E, ships 2026-06.
+            For the first analysis per mock, shows the orange "Run Deep
+            Analysis" card (caller hits Run, ~30-60s of Claude work).
+            For a cached analysis, renders the full Read/Watch/Work
+            ladder directly. The component is the same one that powers
+            chapter-quiz Deep Analysis — only the API path differs. */}
+        <MockDeepAnalysisTrigger
+          attemptId={attemptId}
+          initialAnalysis={initialAnalysis}
+          initialIsDeepDive={initialIsDeepDive}
+          freeAnalysisUsed={freeAnalysisUsed}
+          isPaid={isPaid}
+        />
 
         {/* Per-question review */}
         <div className="mt-10">
