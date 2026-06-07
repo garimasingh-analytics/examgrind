@@ -18,7 +18,7 @@ Library of Nalanda**, where each subject is guarded by a Spirit.
 on the frontend; Supabase (Postgres + Auth) on the backend; Anthropic SDK
 (Claude) for question generation, explanation, and weakness analysis.
 
-**Pricing:** ₹75/month subscription. Heavy AI features must be cost-disciplined
+**Pricing:** ₹199/month subscription. Heavy AI features must be cost-disciplined
 — prefer Claude Haiku 4.5 for routine explanations, reserve Sonnet 4.6 for
 deep weakness analysis.
 

@@ -117,7 +117,7 @@ export default function UpgradeModal({
       ? "Upgrade to keep diagnosing every quiz."
       : reason === "deep-dive"
       ? "Deep Dive uses our most thorough model — exhaustive walkthroughs, second-order patterns, a 7-day plan."
-      : "Get the full ExamGrind experience for ₹75 / month.";
+      : "Get the full ExamGrind experience for ₹199 / month.";
 
   const handleUpgrade = async () => {
     setError(null);
@@ -167,7 +167,7 @@ export default function UpgradeModal({
         subscription_id: sub.subscriptionId,
         name: sub.name ?? "ExamGrind",
         description:
-          sub.description ?? "ExamGrind monthly — auto-renews ₹75",
+          sub.description ?? "ExamGrind monthly — auto-renews ₹199",
         prefill: sub.prefill,
         theme: { color: "#FD7C29" },
         handler: () => {
@@ -217,8 +217,24 @@ export default function UpgradeModal({
 
         {/* Body */}
         <div className="px-6 py-5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">
-            ₹75 / month · Auto-renews via UPI · Cancel any time
+          {/* Anchor + actual price. ₹2,499 strikethrough = ~92% off
+              — feels like a real, time-bound launch deal rather than
+              a permanently fake one. Bumps believability vs a giant
+              99% anchor. */}
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm font-semibold text-cocoa-500 line-through decoration-cocoa-500/60">
+              ₹2,499
+            </span>
+            <span className="font-serif text-3xl font-bold text-cocoa-900">
+              ₹199
+            </span>
+            <span className="text-sm font-medium text-cocoa-700">/ month</span>
+            <span className="ml-2 rounded-full bg-ember-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-cream-50">
+              Launch offer
+            </span>
+          </div>
+          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">
+            Auto-renews via UPI · Cancel any time
           </p>
           <ul className="mt-3 space-y-2.5">
             <Feature>Unlimited quizzes — every subject, every topic</Feature>
@@ -241,7 +257,7 @@ export default function UpgradeModal({
                 ? "You're paid up! 🎉"
                 : loading
                 ? "Opening checkout…"
-                : "Upgrade — ₹75 / month"}
+                : "Upgrade — ₹199 / month"}
             </span>
           </button>
           <button

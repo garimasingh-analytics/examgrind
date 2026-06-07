@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/billing/create-order
  *
- * Creates a Razorpay order for one month of ExamGrind paid tier (₹75).
+ * Creates a Razorpay order for one month of ExamGrind paid tier (₹199).
  * Returns the order ID + amount so the client can open Razorpay Checkout.
  *
  * Flow:
@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
  * which the client posts to /api/billing/verify-payment for HMAC check.
  */
 
-const PRICE_PAISE = 7500; // ₹75 = 7500 paise
+const PRICE_PAISE = 19900; // ₹199 = 19900 paise
 
 export async function POST() {
   const supabase = createServerSupabase();

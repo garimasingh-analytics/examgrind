@@ -8,7 +8,7 @@ A warm, simple practice app for CUET UG. Pick a chapter, take a quiz, see what t
 - **Tailwind CSS** + custom warm palette (Maxima-inspired)
 - **Supabase** (Postgres + Google OAuth + Row Level Security)
 - **Anthropic Claude** (Haiku 4.5 for question generation + Deep Analysis; Sonnet for Deep Dive)
-- **Razorpay** for ₹75/month subscription (wiring in progress)
+- **Razorpay** for ₹199/month subscription (wiring in progress)
 
 ## Local dev
 

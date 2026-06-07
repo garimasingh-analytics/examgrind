@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
 
         if (body.event === "subscription.activated") {
           void fireAlert(
-            `New SUBSCRIPTION activated — ₹75/mo recurring from user ${userId.slice(0, 8)}`,
+            `New SUBSCRIPTION activated — ₹199/mo recurring from user ${userId.slice(0, 8)}`,
             { subscription_id: sub.id, paid_until: paidUntilIso }
           );
         } else {

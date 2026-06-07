@@ -140,7 +140,7 @@ export default async function StartExamPage({ params }: Params) {
             examSlug={meta.slug}
           />
           <p className="text-sm text-cocoa-500">
-            Free to start · ₹75/month after · No credit card
+            Free to start · ₹199/month after · No credit card
           </p>
         </div>
       </section>

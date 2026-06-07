@@ -58,7 +58,7 @@ export default function LandingPage() {
             Pick your exam ↓
           </a>
           <p className="text-sm text-cocoa-500">
-            Free to start · ₹75/month after · No credit card
+            Free to start · ₹199/month after · No credit card
           </p>
         </div>
       </section>
@@ -124,7 +124,7 @@ export default function LandingPage() {
               body="Daily streaks, mastery indicators, and a weakness heatmap across every quiz you've ever taken."
             />
             <Benefit
-              title="₹75/month. No trap pricing."
+              title="₹199/month. No trap pricing."
               body="No ₹15K coaching plans. No upsells. No fake discounts. Practice as much as you want."
             />
           </div>
@@ -149,7 +149,7 @@ export default function LandingPage() {
           />
           <Faq
             q="Will I be charged automatically?"
-            a="Yes — ₹75 auto-renews monthly through UPI Autopay (or card mandate, whichever you pick at checkout). You'll get an SMS from your bank before each charge so there are no surprises. Cancel any time from /me → 'Cancel subscription' and you keep access through the cycle you already paid for."
+            a="Yes — ₹199 auto-renews monthly through UPI Autopay (or card mandate, whichever you pick at checkout). You'll get an SMS from your bank before each charge so there are no surprises. Cancel any time from /me → 'Cancel subscription' and you keep access through the cycle you already paid for."
           />
           <Faq
             q="Is the syllabus actually up to date?"
@@ -186,7 +186,7 @@ export default function LandingPage() {
             </h2>
             <p className="mt-3 text-cream-200">
               Share your referral code. Students get our AI-graded practice
-              for ₹75/month. We split it 50/50 with you — for as long as they
+              for ₹199/month. We split it 50/50 with you — for as long as they
               stay subscribed. No contracts, no minimums, no dashboards to
               learn.
             </p>

@@ -21,7 +21,7 @@ const dmSans = DM_Sans({
 });
 
 const SITE_DESCRIPTION =
-  "Know exactly what to study next. Concept-level diagnosis on every wrong answer — for CUET UG, SSC CGL, and NEET UG aspirants. ₹75/month. No credit card.";
+  "Know exactly what to study next. Concept-level diagnosis on every wrong answer — for CUET UG, SSC CGL, and NEET UG aspirants. ₹199/month. No credit card.";
 const SITE_TITLE = "ExamGrind — AI-graded practice for CUET, SSC CGL & NEET UG";
 
 export const metadata: Metadata = {

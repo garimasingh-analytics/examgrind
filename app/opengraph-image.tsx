@@ -84,7 +84,7 @@ export default function OG() {
               maxWidth: 900,
             }}
           >
-            Concept-level diagnosis on every wrong answer. ₹75/month. No credit
+            Concept-level diagnosis on every wrong answer. ₹199/month. No credit
             card.
           </div>
         </div>

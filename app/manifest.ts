@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "ExamGrind — AI-graded practice for CUET, SSC CGL & NEET UG",
     short_name: "ExamGrind",
     description:
-      "Know exactly what to study next. Concept-level diagnosis on every wrong answer. ₹75/month.",
+      "Know exactly what to study next. Concept-level diagnosis on every wrong answer. ₹199/month.",
     start_url: "/",
     scope: "/",
     display: "standalone",

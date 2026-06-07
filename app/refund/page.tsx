@@ -15,7 +15,7 @@ export default function RefundPage() {
     >
       <p>
         ExamGrind is a digital subscription service sold by{" "}
-        <strong>[Your Registered Business Name]</strong> for ₹75 per month,
+        <strong>[Your Registered Business Name]</strong> for ₹199 per month,
         inclusive of applicable Indian taxes (e.g. GST). This page explains
         when refunds are available and how to request one.
       </p>

@@ -4,7 +4,7 @@ You don't need to know what an API does. Just follow these screenshots.
 
 ---
 
-## Step 1 — Create the ₹75/month Plan (3 min)
+## Step 1 — Create the ₹199/month Plan (3 min)
 
 1. Sign in at **https://dashboard.razorpay.com**
 2. Left sidebar → **Subscriptions** → **Plans** → click **+ Create plan**
@@ -70,7 +70,7 @@ If you're already using test keys (they start with `rzp_test_…`), keep using t
 5. **Redeploy** (Vercel → Deployments → newest one → Redeploy)
 
 **Important:** in Live mode you also need to:
-- Repeat **Step 1** (create the same ₹75 Plan again in Live mode — test plans don't carry over)
+- Repeat **Step 1** (create the same ₹199 Plan again in Live mode — test plans don't carry over)
 - Repeat **Step 2** (create the webhook again in Live mode)
 - Update `RAZORPAY_PLAN_ID` and `RAZORPAY_WEBHOOK_SECRET` to the live values
 
@@ -98,7 +98,7 @@ If you want to test cancellation: go to `/me` → scroll to the plan panel → c
 
 - They sign the UPI mandate at Razorpay checkout
 - Within 5-30 seconds, the webhook fires `subscription.activated`
-- Your alert webhook (if you set `ALERT_WEBHOOK_URL`) pings you: **🚨 ExamGrind: New SUBSCRIPTION activated — ₹75/mo recurring from user XXXXXXXX**
+- Your alert webhook (if you set `ALERT_WEBHOOK_URL`) pings you: **🚨 ExamGrind: New SUBSCRIPTION activated — ₹199/mo recurring from user XXXXXXXX**
 - Their `/home` shows full paid access
 - 30 days later, Razorpay auto-debits via UPI Autopay
 - `subscription.charged` fires, paid_until extends by another 30 days, you get another ping

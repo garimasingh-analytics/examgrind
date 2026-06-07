@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
  * state to 'active' and we'll show the renewal date on /me.
  */
 
-// 12 months × ₹75 = one full year of student practice before we even
+// 12 months × ₹199 = one full year of student practice before we even
 // have to think about "completed". We renew this rolling window via
 // the webhook anyway, so the user experience is effectively unlimited.
 const TOTAL_BILLING_CYCLES = 12;
@@ -124,7 +124,7 @@ export async function POST() {
     subscriptionId: subscription.id,
     key: keyId,
     name: "ExamGrind",
-    description: "ExamGrind monthly — auto-renews ₹75 via UPI / card",
+    description: "ExamGrind monthly — auto-renews ₹199 via UPI / card",
     prefill: { email: user.email ?? "" },
   });
 }

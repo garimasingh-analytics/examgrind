@@ -228,7 +228,7 @@ export default function QuestionCountPicker({
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-6 py-4 text-base font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.01] active:scale-[0.99]"
         >
           <span>👑</span>
-          <span>Upgrade — ₹75 / month</span>
+          <span>Upgrade — ₹199 / month</span>
         </button>
       ) : (
         <button

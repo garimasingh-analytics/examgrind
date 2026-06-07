@@ -46,7 +46,7 @@ export default function TermsPage() {
         <li>Access to streaks, mastery progress, and chapter paths.</li>
       </ul>
 
-      <h2>4. What you get on the paid tier (₹75 / month)</h2>
+      <h2>4. What you get on the paid tier (₹199 / month)</h2>
       <ul>
         <li>Unlimited quizzes across every supported exam, subject, and topic.</li>
         <li>Unlimited Deep Analyses on every quiz you complete.</li>

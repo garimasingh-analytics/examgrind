@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
 
   // Revenue ping 🎉
   void fireAlert(
-    `New paid user — ₹75 from ${user.email ?? "unknown"}`,
+    `New paid user — ₹199 from ${user.email ?? "unknown"}`,
     {
       user_id: user.id,
       razorpay_payment_id,

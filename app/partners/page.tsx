@@ -6,7 +6,7 @@ import PartnerApplyForm from "./PartnerApplyForm";
 export const metadata: Metadata = {
   title: "Partner program — ExamGrind for coaching centres",
   description:
-    "Refer your students. Earn ₹37.50 per student, every month — for as long as they stay subscribed. No contracts, no minimums, no dashboards to learn.",
+    "Refer your students. Earn ₹99.50 per student, every month — for as long as they stay subscribed. No contracts, no minimums, no dashboards to learn.",
 };
 
 /**
@@ -14,8 +14,8 @@ export const metadata: Metadata = {
  *
  * Designed for coaching-centre owners in Greater Noida (and India broadly)
  * who already have a student book of business. Pitch is:
- *   - Their students get a real product (AI-graded practice for ₹75/mo).
- *   - The centre earns ₹37.50/student/month for life — passive after one
+ *   - Their students get a real product (AI-graded practice for ₹199/mo).
+ *   - The centre earns ₹99.50/student/month for life — passive after one
  *     conversation.
  *   - No paperwork, no batch dashboards, no quotas.
  *
@@ -44,12 +44,12 @@ export default function PartnersPage() {
         </p>
         <h1 className="mt-3 text-balance font-serif text-5xl font-semibold leading-[1.05] tracking-tight text-cocoa-900 sm:text-6xl">
           Refer your students. <br className="hidden sm:block" />
-          Earn ₹37.50 per student. <br className="hidden sm:block" />
+          Earn ₹99.50 per student. <br className="hidden sm:block" />
           Every month.
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-balance text-lg leading-relaxed text-cocoa-700">
           Your students get our AI-graded practice for{" "}
-          <strong className="text-cocoa-900">₹75/month</strong>. We split it{" "}
+          <strong className="text-cocoa-900">₹199/month</strong>. We split it{" "}
           <strong className="text-cocoa-900">50/50</strong> with you — for as
           long as they stay subscribed. No contracts. No minimums. No
           dashboards to learn.
@@ -121,7 +121,7 @@ export default function PartnersPage() {
           <Step
             number="3"
             title="Get paid every month"
-            body="When a student starts paying ₹75/month, ₹37.50 goes straight to your UPI. Forever, as long as they renew."
+            body="When a student starts paying ₹199/month, ₹99.50 goes straight to your UPI. Forever, as long as they renew."
           />
         </div>
       </section>
@@ -165,7 +165,7 @@ export default function PartnersPage() {
         <dl className="mt-10 space-y-6">
           <Faq
             q="Is there a minimum number of students I need to refer?"
-            a="No. Refer one student, refer two hundred — the math works the same. You earn ₹37.50 for every paying student you bring."
+            a="No. Refer one student, refer two hundred — the math works the same. You earn ₹99.50 for every paying student you bring."
           />
           <Faq
             q="How is the attribution tracked?"
