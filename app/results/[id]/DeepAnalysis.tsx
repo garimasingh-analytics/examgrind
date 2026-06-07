@@ -41,12 +41,32 @@ type PerQuestion = {
   explanation: string;
 };
 
+type PacingSlow = { idx: number; seconds: number; reason: string };
+type PacingRushed = {
+  idx: number;
+  seconds: number;
+  verdict: "fast-correct" | "rushed-wrong";
+  reason: string;
+};
+
 export type AnalysisJson = {
   verdict: string;
   strengths: Strength[];
   weaknesses: Weakness[];
   perQuestion: PerQuestion[];
   patterns: string[];
+  // Pacing block — present when any time_seconds were recorded.
+  // Older quizzes (pre-time-tracking) won't have this field; the UI
+  // renders nothing for them, which is the right behaviour.
+  pacing?: {
+    median_seconds_per_question?: number;
+    exam_budget_seconds?: number;
+    over_budget?: boolean;
+    slow_questions?: PacingSlow[];
+    rushed_questions?: PacingRushed[];
+    verdict?: string;
+    exam_pacing_projection?: string;
+  };
   studyPlan: {
     next_15_min: string;
     next_session: string;
@@ -330,6 +350,95 @@ export default function DeepAnalysis({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {/* Pacing — only renders when time data was recorded */}
+      {analysis.pacing && (
+        <section className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-serif text-lg font-bold text-cocoa-900">
+              ⏱ Pacing
+            </h3>
+            {typeof analysis.pacing.median_seconds_per_question === "number" && (
+              <span
+                className={[
+                  "rounded-full px-2.5 py-0.5 text-[11px] font-bold",
+                  analysis.pacing.over_budget
+                    ? "bg-ember-500/15 text-ember-700"
+                    : "bg-moss-500/15 text-moss-700",
+                ].join(" ")}
+              >
+                {analysis.pacing.median_seconds_per_question}s typical
+                {typeof analysis.pacing.exam_budget_seconds === "number" &&
+                  ` · budget ${analysis.pacing.exam_budget_seconds}s`}
+              </span>
+            )}
+          </div>
+
+          {analysis.pacing.verdict && (
+            <p className="mt-3 text-sm text-cocoa-900">
+              {analysis.pacing.verdict}
+            </p>
+          )}
+
+          {analysis.pacing.slow_questions &&
+            analysis.pacing.slow_questions.length > 0 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cocoa-500">
+                  Slow questions
+                </p>
+                <ul className="mt-2 space-y-1.5">
+                  {analysis.pacing.slow_questions.map((s) => (
+                    <li
+                      key={`slow-${s.idx}`}
+                      className="rounded-xl bg-ember-500/10 px-3 py-2 text-xs text-cocoa-900"
+                    >
+                      <span className="font-semibold">
+                        Q{s.idx + 1} · {s.seconds}s
+                      </span>{" "}
+                      — {s.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+          {analysis.pacing.rushed_questions &&
+            analysis.pacing.rushed_questions.length > 0 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cocoa-500">
+                  Fast answers
+                </p>
+                <ul className="mt-2 space-y-1.5">
+                  {analysis.pacing.rushed_questions.map((r) => (
+                    <li
+                      key={`rushed-${r.idx}`}
+                      className={[
+                        "rounded-xl px-3 py-2 text-xs text-cocoa-900",
+                        r.verdict === "rushed-wrong"
+                          ? "bg-ember-500/10"
+                          : "bg-moss-500/10",
+                      ].join(" ")}
+                    >
+                      <span className="font-semibold">
+                        Q{r.idx + 1} · {r.seconds}s
+                      </span>{" "}
+                      — {r.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+          {analysis.pacing.exam_pacing_projection && (
+            <p className="mt-4 rounded-xl bg-cocoa-100 px-3 py-2 text-xs text-cocoa-700">
+              <span className="font-semibold text-cocoa-900">
+                On the real exam:
+              </span>{" "}
+              {analysis.pacing.exam_pacing_projection}
+            </p>
+          )}
         </section>
       )}
 

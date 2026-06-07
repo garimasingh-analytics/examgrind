@@ -327,6 +327,13 @@ ${depthHint}
 TONE
 Warm-coach but no-nonsense. Cut the fluff. Lead with the diagnosis. Use the student's own choice of wrong option as evidence ("you picked B, which assumes …"). For source citations, follow the exam-specific guidance in the opening line — don't push NCERT references on an SSC CGL student or push SSC books on a NEET aspirant.
 
+PACING ANALYSIS — use the time_seconds field per question
+- Compute the student's median seconds per question; flag any question that took more than 1.5× the median as a "slow" question, and explain *why* in terms of the concept they likely struggled with (not just "you spent X seconds").
+- Flag questions answered in < 10 seconds as either "fast-correct" (good — they knew it) or "rushed-wrong" (bad — they didn't read carefully).
+- Compare the student's median against the real exam's per-question budget (CUET ≈ 54s, SSC CGL ≈ 36s, NEET ≈ 60s). If they're over budget overall, say so concretely — "you'd run out of time on real NEET by Q120 at this pace".
+- Tie pacing to a specific behavior change: "skip and come back" / "trust your first instinct" / "read the stem twice before working".
+- If time_seconds is null for every question (older quiz before timing existed), skip pacing and don't fabricate numbers.
+
 VERDICT TYPES (use exactly these strings)
 - "correct"            — they got it right
 - "wrong-conceptual"   — they don't understand the underlying concept
@@ -379,6 +386,28 @@ OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
   "patterns": [
     "Up to 3 cross-question patterns about pacing, confusion, or skill gaps."
   ],
+  "pacing": {
+    "median_seconds_per_question": 42,
+    "exam_budget_seconds": 54,
+    "over_budget": false,
+    "slow_questions": [
+      {
+        "idx": 2,
+        "seconds": 95,
+        "reason": "Concept-level hesitation: paused at the integration step. You were stuck on which substitution to use."
+      }
+    ],
+    "rushed_questions": [
+      {
+        "idx": 5,
+        "seconds": 7,
+        "verdict": "rushed-wrong",
+        "reason": "Picked B without checking units. Slow down to 20+s on stoichiometry."
+      }
+    ],
+    "verdict": "Single-sentence pacing diagnosis tied to a behavior change.",
+    "exam_pacing_projection": "On the real exam, at this pace you'd finish Q90 with 20 minutes left — comfortable. Push hardest concepts first."
+  },
   "studyPlan": {
     "next_15_min": "Specific microaction.",
     "next_session": "Specific drill.",
