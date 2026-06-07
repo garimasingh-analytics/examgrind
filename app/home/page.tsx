@@ -234,6 +234,17 @@ export default async function HomePage() {
             <span className="font-mono text-xs font-bold text-cocoa-900 sm:text-sm">{xp}</span>
             <span className="text-[10px] text-cocoa-500 sm:text-xs">XP</span>
           </div>
+          {/* Explicit "Profile" pill — Garima flagged that the streak /
+              Lvl / XP chips were the only way to reach /me but weren't
+              labeled as such. This pill adds a clear, named CTA so new
+              students don't have to guess. The whole row is inside the
+              <Link> so clicking any chip OR the Profile pill goes to /me. */}
+          <div className="flex items-center gap-1 rounded-full bg-cocoa-900 px-2.5 py-1.5 text-cream-50 shadow-warm transition group-hover:scale-[1.03] sm:gap-1.5 sm:px-3">
+            <span className="text-sm sm:text-base" aria-hidden>👤</span>
+            <span className="text-xs font-bold uppercase tracking-wider sm:text-[13px]">
+              Profile
+            </span>
+          </div>
         </Link>
       </header>
 
