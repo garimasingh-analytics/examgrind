@@ -3,6 +3,7 @@ import { Fraunces, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import RegisterSW from "@/components/RegisterSW";
+import FeedbackWidget from "@/components/FeedbackWidget";
 
 // Soft warm serif — used for headlines.
 const fraunces = Fraunces({
@@ -84,6 +85,10 @@ export default function RootLayout({
         {/* One-shot service worker registration so PWA install becomes */}
         {/* available on Android Chrome / iOS Safari. Skips localhost. */}
         <RegisterSW />
+        {/* Floating "Feedback" button — visible on every page except    */}
+        {/* strict-mode quiz/mock screens, /admin, and /share/[id]. The  */}
+        {/* widget itself decides where to hide based on pathname.       */}
+        <FeedbackWidget />
       </body>
     </html>
   );
