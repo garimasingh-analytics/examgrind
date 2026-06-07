@@ -31,7 +31,7 @@ type UserRow = {
 };
 
 // Exam display copy now lives inside ExamSwitcher — this header used to
-// show a static pill from an EXAM_DISPLAY map, replaced by the
+// show a static pill from the EXAM_DISPLAY map, replaced by the
 // switcher dropdown so users can change exam in one click.
 
 export default async function HomePage() {
@@ -270,6 +270,31 @@ export default async function HomePage() {
           </div>
           <Chick state="idle" size={120} className="hidden sm:block" />
         </div>
+      </section>
+
+      {/* Mock test CTA — surfaces the new full-length mode. Stays subtle:
+          one row, not a giant banner, so it doesn't compete with the
+          chapter-quiz path that drives daily engagement. */}
+      <section className="mx-auto mt-6 max-w-5xl px-4 sm:px-6">
+        <Link
+          href="/mock"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-cocoa-900/[0.06] bg-gradient-to-r from-sun-400/15 via-sun-500/10 to-ember-500/15 px-4 py-3 shadow-warm transition hover:-translate-y-0.5 sm:px-5 sm:py-3.5"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xl">📝</span>
+            <div>
+              <p className="text-sm font-bold text-cocoa-900">
+                Take a full-length mock test
+              </p>
+              <p className="text-[11px] text-cocoa-700">
+                Real exam timing, real scoring, sectional breakdown.
+              </p>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-xl bg-cocoa-900 px-3 py-1.5 text-xs font-bold text-cream-50">
+            Open →
+          </span>
+        </Link>
       </section>
 
       {/* Subject grid (Client Component handles search filter) */}
