@@ -59,6 +59,7 @@ function loadRazorpayScript(): Promise<boolean> {
 
 export type PaywallReason =
   | "quiz-limit"
+  | "mock-limit"
   | "analysis-limit"
   | "deep-dive"
   | "manual"; // direct "Upgrade" click
@@ -99,6 +100,8 @@ export default function UpgradeModal({
   const headline =
     reason === "quiz-limit"
       ? "You've used your 3 free quizzes"
+      : reason === "mock-limit"
+      ? "You've used your free mock test"
       : reason === "analysis-limit"
       ? "You've used your free analysis"
       : reason === "deep-dive"
@@ -108,6 +111,8 @@ export default function UpgradeModal({
   const sub =
     reason === "quiz-limit"
       ? `${used ?? "—"} / ${limit ?? 3} free quizzes used. Upgrade to keep practicing.`
+      : reason === "mock-limit"
+      ? "Upgrade to take unlimited full-length mocks in real exam conditions."
       : reason === "analysis-limit"
       ? "Upgrade to keep diagnosing every quiz."
       : reason === "deep-dive"
@@ -217,11 +222,11 @@ export default function UpgradeModal({
           </p>
           <ul className="mt-3 space-y-2.5">
             <Feature>Unlimited quizzes — every subject, every topic</Feature>
+            <Feature>Unlimited full-length mock tests — real exam UX</Feature>
             <Feature>Unlimited Deep Analyses on every quiz</Feature>
             <Feature>
               <span className="font-semibold">Deep Dive 👑</span> — exhaustive walkthroughs + 7-day plans
             </Feature>
-            <Feature>Drill-the-concept mini-quizzes on tap</Feature>
             <Feature>Priority on every new feature</Feature>
           </ul>
 
