@@ -154,10 +154,14 @@ export default async function HomePage() {
   const level = profile?.level ?? 1;
   const isPaid = liveSubscriptionStatus === "paid";
   const freeQuizzesLeft = Math.max(0, 3 - (profile?.quizzes_started ?? 0));
-  // First-time user: account exists but no quizzes ever started.
-  // We surface a one-shot welcome nudge until they tap their first
-  // subject — auto-disappears the moment the counter increments.
-  const isFirstTimeUser = (profile?.quizzes_started ?? 0) === 0;
+  // First-time user: truly brand-new account, zero activity.
+  // We check BOTH counters AND XP — quizzes_started is the freemium-
+  // gate counter (may be zero for historical accounts that pre-date
+  // the gate), so XP > 0 is the surer signal of "this account has
+  // done anything". Show the nudge only when nothing has ever
+  // happened on this account.
+  const isFirstTimeUser =
+    (profile?.quizzes_started ?? 0) === 0 && xp === 0;
   // Admins get a visible "Admin →" pill in the header. The auto-redirect
   // on /auth/callback already sends them to /admin on sign-in, but the
   // pill is the fallback for when they click "Back to app" and want to
