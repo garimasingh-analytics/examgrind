@@ -103,6 +103,17 @@ export default async function ResultsPage({ params }: Params) {
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <PremiumBadge isPaid={isPaid} />
+          {/* Explicit Profile pill — consistent with /home + /mock. */}
+          <Link
+            href="/me"
+            className="inline-flex items-center gap-1 rounded-full bg-cocoa-900 px-2.5 py-1.5 text-cream-50 shadow-warm transition hover:scale-[1.03] sm:gap-1.5 sm:px-3"
+            title="View your profile"
+          >
+            <span aria-hidden>👤</span>
+            <span className="text-xs font-bold uppercase tracking-wider sm:text-[13px]">
+              Profile
+            </span>
+          </Link>
           <Link href="/home" className="text-sm font-medium text-cocoa-500 hover:text-cocoa-900">
             Home
           </Link>

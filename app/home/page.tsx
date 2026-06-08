@@ -154,6 +154,10 @@ export default async function HomePage() {
   const level = profile?.level ?? 1;
   const isPaid = liveSubscriptionStatus === "paid";
   const freeQuizzesLeft = Math.max(0, 3 - (profile?.quizzes_started ?? 0));
+  // First-time user: account exists but no quizzes ever started.
+  // We surface a one-shot welcome nudge until they tap their first
+  // subject — auto-disappears the moment the counter increments.
+  const isFirstTimeUser = (profile?.quizzes_started ?? 0) === 0;
   // Admins get a visible "Admin →" pill in the header. The auto-redirect
   // on /auth/callback already sends them to /admin on sign-in, but the
   // pill is the fallback for when they click "Back to app" and want to
@@ -286,6 +290,28 @@ export default async function HomePage() {
               Upgrade →
             </span>
           </Link>
+        </div>
+      )}
+
+      {/* First-time user welcome nudge — visible only when the account
+          has never started a quiz. Self-dismisses on first quiz_started
+          (no state to clear, the condition just goes false). Warm, low-
+          friction copy to bridge from sign-up → first tap. */}
+      {isFirstTimeUser && (
+        <div className="mx-auto max-w-5xl px-4 pt-3 sm:px-6 sm:pt-5">
+          <div className="flex items-start gap-3 rounded-2xl border border-sun-500/30 bg-gradient-to-br from-sun-400/15 via-cream-50 to-ember-500/10 px-4 py-3 shadow-warm sm:items-center sm:px-5">
+            <span className="text-2xl leading-none" aria-hidden>🎉</span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-cocoa-900 sm:text-base">
+                Welcome to ExamGrind! Tap any subject below to start your first quiz.
+              </p>
+              <p className="mt-0.5 text-xs text-cocoa-700 sm:text-sm">
+                Every wrong answer comes with an AI diagnosis — not just a red X.
+                First 3 quizzes free, no card needed.
+              </p>
+            </div>
+            <span className="hidden text-xl sm:inline" aria-hidden>↓</span>
+          </div>
         </div>
       )}
 

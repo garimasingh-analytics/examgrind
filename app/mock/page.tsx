@@ -121,6 +121,18 @@ export default async function MockHubPage() {
         <div className="flex items-center gap-2 sm:gap-3">
           <PremiumBadge isPaid={isPaid} />
           <ExamSwitcher currentSlug={examSlug} />
+          {/* Explicit Profile pill — same pattern as /home so /me is
+              one tap from anywhere in the app. */}
+          <Link
+            href="/me"
+            className="inline-flex items-center gap-1 rounded-full bg-cocoa-900 px-2.5 py-1.5 text-cream-50 shadow-warm transition hover:scale-[1.03] sm:gap-1.5 sm:px-3"
+            title="View your profile"
+          >
+            <span aria-hidden>👤</span>
+            <span className="text-xs font-bold uppercase tracking-wider sm:text-[13px]">
+              Profile
+            </span>
+          </Link>
         </div>
       </header>
 
