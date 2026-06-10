@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { fireAlert } from "@/lib/alert";
+import { sendFeedbackAck } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -97,6 +98,11 @@ export async function POST(req: NextRequest) {
     source_path: sourcePath,
     user_id: user?.id,
   });
+
+  // Send acknowledgment to the user (no-op if SMTP not configured)
+  if (email) {
+    void sendFeedbackAck(email);
+  }
 
   return NextResponse.json({ ok: true, id: row.id });
 }

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import crypto from "crypto";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { fireAlert } from "@/lib/alert";
+import { sendPaymentConfirmation } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -177,6 +178,15 @@ export async function POST(req: NextRequest) {
             `Subscription RENEWED — auto-charge succeeded for ${userId.slice(0, 8)}`,
             { subscription_id: sub.id, paid_until: paidUntilIso }
           );
+        }
+
+        // Send payment confirmation email (no-op if SMTP not configured)
+        const email = sub.notes?.email;
+        if (email) {
+          const periodEndsAt = new Date(paidUntilIso).toLocaleDateString("en-IN", {
+            day: "numeric", month: "short", year: "numeric",
+          });
+          void sendPaymentConfirmation(email, 199, periodEndsAt);
         }
         break;
       }
