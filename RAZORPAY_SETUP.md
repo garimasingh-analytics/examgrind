@@ -34,7 +34,7 @@ This is what tells our app when someone pays / cancels / renews.
 2. Click **+ Add New Webhook**
 3. Fill in:
    - **Webhook URL**: `https://YOUR-VERCEL-URL/api/billing/webhook`
-     (replace `YOUR-VERCEL-URL` with your live domain — e.g. `https://examgrind.vercel.app` or `https://examgrind.com` once custom domain is live)
+     (replace `YOUR-VERCEL-URL` with your live domain — e.g. `https://examgrind.in` or `https://examgrind.com` once custom domain is live)
    - **Secret**: Click **Generate secret** OR type any long random string (24+ chars). **Copy this value** — you'll paste it into Vercel below.
    - **Alert email**: your email
 4. Under **Active Events**, tick these (and only these):

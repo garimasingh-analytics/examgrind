@@ -8,7 +8,7 @@ import type { MetadataRoute } from "next";
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://examgrind.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://examgrind.in";
 
   const now = new Date();
 

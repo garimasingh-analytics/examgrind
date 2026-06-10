@@ -223,7 +223,7 @@ export default async function Image({ params }: Props) {
               background: "rgba(253,68,1,0.1)",
             }}
           >
-            examgrind.vercel.app
+            examgrind.in
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 # ExamGrind native apps — Capacitor setup + publish guide
 
-We wrap the live web app at `examgrind.vercel.app` in a Capacitor WebView for Android + iOS. The reasoning is in the header comment of `capacitor.config.ts`. Short version: it keeps SSR + Supabase auth + Razorpay flows working unchanged, and every Vercel deploy is automatically a mobile update.
+We wrap the live web app at `examgrind.in` in a Capacitor WebView for Android + iOS. The reasoning is in the header comment of `capacitor.config.ts`. Short version: it keeps SSR + Supabase auth + Razorpay flows working unchanged, and every Vercel deploy is automatically a mobile update.
 
 This guide assumes zero prior native-app experience. Follow it once per platform; after that, day-to-day mobile updates are free.
 
@@ -120,7 +120,7 @@ You'll rarely need to rebuild the native shell. Once the app is on the stores, e
 ## Troubleshooting
 
 **"App won't load past the splash screen"**
-The WebView can't reach `examgrind.vercel.app`. Check that the offline fallback HTML at `public/native-fallback/index.html` renders — it's what's shown in this case. Also confirm `server.allowNavigation` in `capacitor.config.ts` includes every domain the user might hit (Razorpay, Supabase auth, Google OAuth).
+The WebView can't reach `examgrind.in`. Check that the offline fallback HTML at `public/native-fallback/index.html` renders — it's what's shown in this case. Also confirm `server.allowNavigation` in `capacitor.config.ts` includes every domain the user might hit (Razorpay, Supabase auth, Google OAuth).
 
 **"Razorpay checkout doesn't open in the app"**
 Make sure `checkout.razorpay.com` and `api.razorpay.com` are in `allowNavigation`. They already are in the default config. If they get stripped, add them back.

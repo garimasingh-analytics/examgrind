@@ -32,7 +32,7 @@ export default function ShareButton({
   const url =
     typeof window !== "undefined"
       ? `${window.location.origin}/share/${quizId}`
-      : `https://examgrind.vercel.app/share/${quizId}`;
+      : `https://examgrind.in/share/${quizId}`;
 
   const text =
     accuracy >= 90

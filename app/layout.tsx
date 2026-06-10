@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   // Use NEXT_PUBLIC_SITE_URL so OG / Twitter cards have absolute URLs
   // when shared. Falls back to a sane default for local dev.
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://examgrind.vercel.app"
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://examgrind.in"
   ),
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,

@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       title,
       description,
       type: "website",
-      url: `https://examgrind.vercel.app/share/${id}`,
+      url: `https://examgrind.in/share/${id}`,
       images: [
         {
           url: `/share/${id}/opengraph-image`,

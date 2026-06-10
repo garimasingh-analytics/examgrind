@@ -70,9 +70,9 @@
     <script>
       // Retry every 4 seconds — if we get back online, jump to the live site.
       setInterval(function () {
-        fetch("https://examgrind.vercel.app", { method: "HEAD", mode: "no-cors" })
+        fetch("https://examgrind.in", { method: "HEAD", mode: "no-cors" })
           .then(function () {
-            window.location.replace("https://examgrind.vercel.app");
+            window.location.replace("https://examgrind.in");
           })
           .catch(function () {});
       }, 4000);

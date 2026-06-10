@@ -4,7 +4,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * Capacitor config for the ExamGrind native wrapper.
  *
  * Strategy: server-URL mode. The native shell (Android + iOS) loads
- * https://examgrind.vercel.app inside a WebView. This keeps the
+ * https://examgrind.in inside a WebView. This keeps the
  * existing SSR + Supabase cookie auth working — we don't have to
  * port the whole Next.js app to a static bundle, and any code we
  * push to Vercel ships to mobile users immediately without a fresh
@@ -34,15 +34,15 @@ const config: CapacitorConfig = {
   // the offline fallback HTML lives.
   webDir: "public/native-fallback",
   server: {
-    url: "https://examgrind.vercel.app",
+    url: "https://examgrind.in",
     // Cleartext stays false — we only ever serve over HTTPS, which is
     // also what Razorpay Checkout requires.
     cleartext: false,
     // Trust the production hostname so the WebView accepts cookies
     // from the same domain it loaded.
     allowNavigation: [
-      "examgrind.vercel.app",
-      "*.examgrind.vercel.app",
+      "examgrind.in",
+      "*.examgrind.in",
       // Razorpay Checkout opens checkout.razorpay.com inside the
       // WebView; whitelist it so the user can pay without bouncing
       // out to the system browser.
