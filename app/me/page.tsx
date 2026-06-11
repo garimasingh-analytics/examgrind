@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
 import PlanPanel from "./PlanPanel";
+import ChickPicker from "@/components/ChickPicker";
 import CancelSubButton from "./CancelSubButton";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 
@@ -223,6 +224,14 @@ export default async function ProfilePage() {
             <CancelSubButton paidUntil={profile?.paid_until ?? null} />
           </div>
         )}
+      </section>
+
+      {/* Cosmetic chick wardrobe — XP-gated skins */}
+      <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
+        <ChickPicker
+          userXp={profile?.xp ?? 0}
+          isPremium={liveSubscriptionStatus === "paid"}
+        />
       </section>
 
       {/* Exam switcher — three pills, current one highlighted. Clicks go */}

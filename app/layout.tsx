@@ -3,6 +3,10 @@ import { Fraunces, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import RegisterSW from "@/components/RegisterSW";
+import { ChickVariantProvider } from "@/components/ChickVariantContext";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
+import { asChickVariant } from "@/lib/chicks";
 import FeedbackWidget from "@/components/FeedbackWidget";
 
 // Soft warm serif — used for headlines.
@@ -70,18 +74,40 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Server-side: fetch the signed-in user's selected chick so the
+  // provider hydrates without a flash of "classic" first.
+  let initialVariant: ReturnType<typeof asChickVariant> = "classic";
+  try {
+    const supabase = createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const admin = createAdminSupabase();
+      const { data: row } = await admin
+        .from("users")
+        .select("selected_chick")
+        .eq("id", user.id)
+        .single();
+      const sc = (row as { selected_chick?: string | null } | null)?.selected_chick;
+      initialVariant = asChickVariant(sc);
+    }
+  } catch {
+    // ignore — fallback to "classic" is fine
+  }
+
   return (
     <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`}>
       <body className="bg-cream-100 text-cocoa-900 antialiased">
-        <div className="flex min-h-[100svh] flex-col">
-          <div className="flex-1">{children}</div>
-          <Footer />
-        </div>
+        <ChickVariantProvider initialVariant={initialVariant}>
+          <div className="flex min-h-[100svh] flex-col">
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
+        </ChickVariantProvider>
         {/* One-shot service worker registration so PWA install becomes */}
         {/* available on Android Chrome / iOS Safari. Skips localhost. */}
         <RegisterSW />

@@ -1,5 +1,8 @@
 "use client";
 
+import { useChickVariant } from "./ChickVariantContext";
+import type { ChickVariant } from "@/lib/chicks";
+
 /**
  * Chick — the mascot.
  *
@@ -23,13 +26,18 @@ type Props = {
   /** Pixel size — height matches width (the SVG is square). */
   size?: number;
   className?: string;
+  /** Cosmetic skin. If omitted, reads from ChickVariantContext (user's pick). */
+  variant?: ChickVariant;
 };
 
 export default function Chick({
   state = "idle",
   size = 140,
   className = "",
+  variant,
 }: Props) {
+  const { variant: ctxVariant } = useChickVariant();
+  const resolvedVariant: ChickVariant = variant ?? ctxVariant;
   const animClass = {
     idle:        "animate-chick-idle",
     happy:       "animate-chick-happy",
@@ -180,6 +188,9 @@ export default function Chick({
           <Foot x={88} />
           <Foot x={132} />
         </g>
+
+        {/* ---- Cosmetic skin overlay ---- */}
+        <ChickAccessory variant={resolvedVariant} />
       </svg>
     </div>
   );
@@ -412,4 +423,188 @@ function Sparkle({
       </svg>
     </span>
   );
+}
+
+/* ---------------- Cosmetic accessory overlays ---------------- */
+/**
+ * Each variant renders zero or more SVG groups on top of the base chick.
+ * The base chick is identical across variants — only this layer changes.
+ * Positions are all within the same 220x220 viewBox.
+ */
+function ChickAccessory({ variant }: { variant: ChickVariant }) {
+  if (variant === "classic") return null;
+
+  if (variant === "scholar") {
+    // Black mortarboard cap + yellow tassel hanging off the right
+    return (
+      <g>
+        {/* shadow under cap */}
+        <ellipse cx="110" cy="40" rx="62" ry="6" fill="#000" opacity="0.18" />
+        {/* cap band (around head) */}
+        <ellipse cx="110" cy="34" rx="60" ry="9" fill="#1F1A14" />
+        {/* mortarboard square top — slight perspective */}
+        <polygon
+          points="42,28 178,28 172,16 48,16"
+          fill="#1F1A14"
+          stroke="#000"
+          strokeWidth="0.5"
+        />
+        {/* button on top */}
+        <circle cx="110" cy="22" r="3" fill="#FDD647" />
+        {/* tassel string */}
+        <path
+          d="M168 20 Q176 28 172 38"
+          stroke="#FDD647"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+        {/* tassel pom */}
+        <g>
+          <circle cx="172" cy="40" r="5" fill="#FDD647" />
+          <circle cx="170" cy="44" r="2" fill="#E5A823" />
+          <circle cx="174" cy="42" r="2" fill="#E5A823" />
+        </g>
+      </g>
+    );
+  }
+
+  if (variant === "bookworm") {
+    // Round black-rimmed glasses over both eyes + tiny bowtie for nerd-chic
+    return (
+      <g>
+        {/* Glasses — left lens */}
+        <circle
+          cx="82" cy="108" r="20"
+          fill="#FFFDF6" fillOpacity="0.18"
+          stroke="#1F1A14" strokeWidth="3.5"
+        />
+        {/* Glasses — right lens */}
+        <circle
+          cx="138" cy="108" r="20"
+          fill="#FFFDF6" fillOpacity="0.18"
+          stroke="#1F1A14" strokeWidth="3.5"
+        />
+        {/* Bridge */}
+        <line
+          x1="102" y1="108" x2="118" y2="108"
+          stroke="#1F1A14" strokeWidth="3.5"
+          strokeLinecap="round"
+        />
+        {/* Lens shine highlights */}
+        <ellipse cx="76" cy="100" rx="3" ry="5" fill="white" fillOpacity="0.65" />
+        <ellipse cx="132" cy="100" rx="3" ry="5" fill="white" fillOpacity="0.65" />
+        {/* Tiny red bowtie below beak — nerdy & cute */}
+        <g transform="translate(110 165)">
+          <polygon points="-12,-6 0,0 -12,6" fill="#FF6B6B" />
+          <polygon points="12,-6 0,0 12,6" fill="#FF6B6B" />
+          <circle cx="0" cy="0" r="3" fill="#C2350A" />
+        </g>
+      </g>
+    );
+  }
+
+  if (variant === "doctor") {
+    // Stethoscope around neck — black tube + silver chest piece
+    return (
+      <g>
+        {/* Earpieces (Y at top) */}
+        <circle cx="72" cy="118" r="3" fill="#1F1A14" />
+        <circle cx="148" cy="118" r="3" fill="#1F1A14" />
+        {/* Left tube */}
+        <path
+          d="M72 122 Q56 140 78 168 L98 178"
+          stroke="#1F1A14" strokeWidth="4" fill="none" strokeLinecap="round"
+        />
+        {/* Right tube */}
+        <path
+          d="M148 122 Q164 140 142 168 L122 178"
+          stroke="#1F1A14" strokeWidth="4" fill="none" strokeLinecap="round"
+        />
+        {/* Chest piece (silver disc) */}
+        <circle cx="110" cy="184" r="11" fill="#D8D8DD" stroke="#666" strokeWidth="2" />
+        <circle cx="110" cy="184" r="6" fill="#A8A8B0" />
+        <circle cx="107" cy="181" r="2" fill="#FFFDF6" opacity="0.6" />
+        {/* Red cross armband on left wing */}
+        <g>
+          <rect x="16" y="125" width="22" height="22" fill="#FFFDF6" rx="3" />
+          <rect x="24" y="129" width="6" height="14" fill="#E03131" />
+          <rect x="20" y="133" width="14" height="6" fill="#E03131" />
+        </g>
+      </g>
+    );
+  }
+
+  if (variant === "police") {
+    // Khaki/navy beret tilted left + gold star badge on chest
+    return (
+      <g>
+        {/* Beret base shadow */}
+        <ellipse cx="115" cy="38" rx="64" ry="7" fill="#000" opacity="0.15" />
+        {/* Beret rim band */}
+        <ellipse cx="115" cy="34" rx="62" ry="11" fill="#1B2557" />
+        {/* Beret top — tilted poof */}
+        <ellipse cx="128" cy="20" rx="46" ry="14" fill="#2C3E80" />
+        {/* Beret highlight */}
+        <ellipse cx="120" cy="16" rx="20" ry="5" fill="#3D52A5" opacity="0.6" />
+        {/* Cap badge (gold star on beret) */}
+        <polygon
+          points="138,22 140,28 146,28 141,32 143,38 138,34 133,38 135,32 130,28 136,28"
+          fill="#FDD647"
+          stroke="#C2350A"
+          strokeWidth="0.8"
+        />
+        {/* Star badge on chest */}
+        <g>
+          <circle cx="110" cy="158" r="14" fill="#FDD647" stroke="#C2350A" strokeWidth="1.5" />
+          <polygon
+            points="110,148 113,156 121,156 115,161 117,169 110,164 103,169 105,161 99,156 107,156"
+            fill="#C2350A"
+          />
+        </g>
+      </g>
+    );
+  }
+
+  if (variant === "royal") {
+    // Gold crown with gems + tiny red velvet cape behind body
+    return (
+      <g>
+        {/* Cape — drawn behind body via negative offset & opacity layering */}
+        <path
+          d="M40 130 Q30 200 60 215 L160 215 Q190 200 180 130 Q150 145 110 145 Q70 145 40 130 Z"
+          fill="#9E1B1B"
+          opacity="0.0"
+        />
+        {/* (cape disabled in v1 because of z-order; crown alone is the marquee) */}
+
+        {/* Crown shadow */}
+        <ellipse cx="110" cy="42" rx="50" ry="5" fill="#000" opacity="0.15" />
+        {/* Crown base band */}
+        <rect x="62" y="34" width="96" height="10" fill="#FDD647" stroke="#C2350A" strokeWidth="1.2" />
+        {/* Crown points (5 spikes) */}
+        <path
+          d="M62 34 L70 16 L82 30 L94 8 L110 28 L126 8 L138 30 L150 16 L158 34 Z"
+          fill="#FDD647"
+          stroke="#C2350A"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        {/* Gems on the band */}
+        <circle cx="82" cy="39" r="3.5" fill="#FF6B6B" stroke="#9E1B1B" strokeWidth="0.6" />
+        <circle cx="110" cy="39" r="4" fill="#7BC9F0" stroke="#1B2557" strokeWidth="0.6" />
+        <circle cx="138" cy="39" r="3.5" fill="#9C4DD3" stroke="#5B2090" strokeWidth="0.6" />
+        {/* Tip jewels (small dots on each spike) */}
+        <circle cx="94" cy="8" r="2.5" fill="#FFFDF6" />
+        <circle cx="110" cy="28" r="2.5" fill="#FFFDF6" />
+        <circle cx="126" cy="8" r="2.5" fill="#FFFDF6" />
+        {/* Sparkle accent */}
+        <g opacity="0.85">
+          <path d="M110 4 L112 8 L116 8 L113 11 L114 16 L110 13 L106 16 L107 11 L104 8 L108 8 Z" fill="#FFFDF6" />
+        </g>
+      </g>
+    );
+  }
+
+  return null;
 }
