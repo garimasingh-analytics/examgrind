@@ -38,11 +38,11 @@ export default function ContactPage() {
 
       <h2>Business details</h2>
       <p>
-        <strong>Operated by:</strong> Mobizone Technologies Private Limited
+        <strong>Mobizone Technologies Private Limited</strong>
         <br />
-        <strong>Address:</strong> Flat-702, Tower-9, Unitech Horizon, Pi-2, Greater Noida-201310, India
+        Flat-702, Tower-9, Unitech Horizon, Pi-2, Greater Noida-201310, India
         <br />
-        <strong>GSTIN:</strong> 09AAICM6882B1Z8
+        GSTIN: 09AAICM6882B1Z8
       </p>
 
       <h2>Response times</h2>
