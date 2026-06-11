@@ -40,7 +40,7 @@ export default function ContactPage() {
       <p>
         <strong>Mobizone Technologies Private Limited</strong>
         <br />
-        Flat-702, Tower-9, Unitech Horizon, Pi-2, Greater Noida-201310, India
+        Registered office: A2/544A 3rd Floor, Shiv Arcade, Acharya Niketan, Mayur Vihar Phase-1, Delhi-110091
         <br />
         GSTIN: 09AAICM6882B1Z8
       </p>

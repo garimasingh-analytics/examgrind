@@ -116,23 +116,46 @@ export async function sendWelcomeEmail(to: string, examName?: string) {
   });
 }
 
-/** Payment confirmation after Razorpay subscription. */
-export async function sendPaymentConfirmation(to: string, amount: number, periodEndsAt: string) {
+/** Payment receipt — automated, sent after Razorpay subscription.activated or .charged. */
+export async function sendPaymentConfirmation(
+  to: string,
+  amount: number,
+  periodEndsAt: string,
+  txnRef?: string
+) {
+  const txnLine = txnRef
+    ? `<tr><td style="padding:12px 16px;color:#666;border-top:1px solid #FFE;">Transaction ID</td><td style="padding:12px 16px;text-align:right;font-family:monospace;font-size:13px;border-top:1px solid #FFE;">${txnRef}</td></tr>`
+    : "";
   return sendEmail({
     to,
-    subject: "Payment received ✓ — you're premium for the month",
+    subject: `Receipt — ExamGrind Premium ₹${amount}`,
     html: wrap(`
-      <h2 style="margin:0 0 16px;color:#FF6B6B;">Payment received 👑</h2>
-      <p>Your ExamGrind Premium subscription is active.</p>
-      <table style="width:100%;border-collapse:collapse;margin:20px 0;background:#FFF8E8;border-radius:6px;">
-        <tr><td style="padding:12px 16px;color:#666;">Amount</td><td style="padding:12px 16px;text-align:right;font-weight:600;">₹${amount}</td></tr>
+      <h2 style="margin:0 0 8px;color:#FF6B6B;">Payment received 👑</h2>
+      <p style="color:#888;font-size:13px;margin:0 0 20px;">Your ExamGrind Premium subscription is active.</p>
+
+      <table style="width:100%;border-collapse:collapse;margin:0 0 20px;background:#FFF8E8;border-radius:6px;">
+        <tr><td style="padding:12px 16px;color:#666;">Plan</td><td style="padding:12px 16px;text-align:right;font-weight:600;">ExamGrind Premium · monthly</td></tr>
+        <tr><td style="padding:12px 16px;color:#666;border-top:1px solid #FFE;">Amount</td><td style="padding:12px 16px;text-align:right;font-weight:600;border-top:1px solid #FFE;">₹${amount} (incl. GST)</td></tr>
         <tr><td style="padding:12px 16px;color:#666;border-top:1px solid #FFE;">Next renewal</td><td style="padding:12px 16px;text-align:right;font-weight:600;border-top:1px solid #FFE;">${periodEndsAt}</td></tr>
+        ${txnLine}
       </table>
-      <p>Unlimited quizzes, mocks, and Deep Analyses are now unlocked. Go ace it.</p>
-      <p style="text-align:center;margin:28px 0;">
+
+      <p style="font-size:14px;color:#444;margin:0 0 20px;">
+        Unlimited quizzes, mocks, and Deep Analyses are now unlocked.
+      </p>
+      <p style="text-align:center;margin:0 0 28px;">
         <a href="https://examgrind.in/home" style="background:#FF6B6B;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;">Back to practice →</a>
       </p>
-      <p style="color:#888;font-size:12px;">This is a tax invoice. To cancel auto-renewal anytime, head to your profile.</p>
+
+      <hr style="border:none;border-top:1px solid #EEE;margin:24px 0;" />
+      <p style="color:#888;font-size:12px;line-height:1.5;margin:0;">
+        <strong>This is an automated receipt — please do not reply to this email.</strong><br/>
+        For questions, contact <a href="mailto:info@examgrind.in" style="color:#FF6B6B;">info@examgrind.in</a>.
+        Cancel anytime at <a href="https://examgrind.in/me" style="color:#FF6B6B;">examgrind.in/me</a>.<br/><br/>
+        Sold by Mobizone Technologies Private Limited<br/>
+        Registered office: A2/544A 3rd Floor, Shiv Arcade, Acharya Niketan, Mayur Vihar Phase-1, Delhi-110091<br/>
+        GSTIN: 09AAICM6882B1Z8
+      </p>
     `),
   });
 }

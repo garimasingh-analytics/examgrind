@@ -68,9 +68,10 @@ function tsToIso(secs: number | undefined): string | null {
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export async function POST(req: NextRequest) {
+  console.log("[billing/webhook] ⚡ RECEIVED webhook from Razorpay");
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
   if (!secret) {
-    console.error("[billing/webhook] missing RAZORPAY_WEBHOOK_SECRET");
+    console.error("[billing/webhook] ❌ missing RAZORPAY_WEBHOOK_SECRET");
     return NextResponse.json({ error: "Not configured." }, { status: 500 });
   }
 
@@ -182,11 +183,19 @@ export async function POST(req: NextRequest) {
 
         // Send payment confirmation email (no-op if SMTP not configured)
         const email = sub.notes?.email;
+        console.log(`[billing/webhook] ✉️  payment confirmation: email=${email ?? "<none>"} sub_id=${sub.id}`);
         if (email) {
           const periodEndsAt = new Date(paidUntilIso).toLocaleDateString("en-IN", {
             day: "numeric", month: "short", year: "numeric",
           });
-          void sendPaymentConfirmation(email, 199, periodEndsAt);
+          try {
+            const sent = await sendPaymentConfirmation(email, 199, periodEndsAt, sub.id);
+            console.log(`[billing/webhook] ✉️  email sent: ${sent}`);
+          } catch (err) {
+            console.error("[billing/webhook] ❌ email send threw:", err);
+          }
+        } else {
+          console.warn("[billing/webhook] ⚠️ no email in sub.notes — receipt not sent. user_id=" + userId);
         }
         break;
       }
