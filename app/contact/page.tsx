@@ -42,6 +42,8 @@ export default function ContactPage() {
         <br />
         Registered office: A2/544A 3rd Floor, Shiv Arcade, Acharya Niketan, Mayur Vihar Phase-1, Delhi-110091
         <br />
+        CIN: U72200DL2013PTC254306
+        <br />
         GSTIN: 09AAICM6882B1Z8
       </p>
 
