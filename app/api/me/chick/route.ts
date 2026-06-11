@@ -39,7 +39,14 @@ export async function POST(req: NextRequest) {
   const xp = (row as { xp: number | null }).xp ?? 0;
   const paid = (row as { subscription_status?: string | null }).subscription_status === "paid";
 
-  if (!isChickUnlocked(variant, xp, paid)) {
+  // Load any explicitly-granted chicks (promo redemptions etc.)
+  const { data: granted } = await admin
+    .from("user_chick_unlocks")
+    .select("chick")
+    .eq("user_id", user.id);
+  const explicit = (granted ?? []).map((g) => (g as { chick: string }).chick) as ChickVariant[];
+
+  if (!isChickUnlocked(variant, xp, paid, explicit)) {
     return NextResponse.json(
       { error: "This chick isn't unlocked yet — keep grinding 🐥" },
       { status: 403 }

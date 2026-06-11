@@ -8,22 +8,25 @@ import { CHICK_VARIANTS, isChickUnlocked, type ChickVariant } from "@/lib/chicks
 type Props = {
   userXp: number;
   isPremium: boolean;
+  grantedChicks?: ChickVariant[];
 };
 
-export default function ChickPicker({ userXp, isPremium }: Props) {
+export default function ChickPicker({ userXp, isPremium, grantedChicks = [] }: Props) {
   const { variant, setVariant } = useChickVariant();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function handlePick(target: ChickVariant) {
-    const unlocked = isChickUnlocked(target, userXp, isPremium);
+    const unlocked = isChickUnlocked(target, userXp, isPremium, grantedChicks);
     if (!unlocked) {
       const def = CHICK_VARIANTS.find((c) => c.id === target);
-      setError(
-        def?.unlockXp === -1
-          ? "👑 The royal chick is for Premium members only."
-          : `🔒 Earn ${def?.unlockXp.toLocaleString("en-IN")} XP to unlock — you have ${userXp.toLocaleString("en-IN")}.`
-      );
+      if (def?.unlockXp === -1) {
+        setError("👑 The royal chick is for Premium members only.");
+      } else if (def?.unlockXp === -2) {
+        setError("🌟 This is a code-only chick. Redeem a promo code below to unlock.");
+      } else {
+        setError(`🔒 Earn ${def?.unlockXp.toLocaleString("en-IN")} XP to unlock — you have ${userXp.toLocaleString("en-IN")}.`);
+      }
       return;
     }
     setError(null);
@@ -52,7 +55,7 @@ export default function ChickPicker({ userXp, isPremium }: Props) {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {CHICK_VARIANTS.map((def) => {
-          const unlocked = isChickUnlocked(def.id, userXp, isPremium);
+          const unlocked = isChickUnlocked(def.id, userXp, isPremium, grantedChicks);
           const active = variant === def.id;
           return (
             <button
@@ -96,6 +99,9 @@ export default function ChickPicker({ userXp, isPremium }: Props) {
                 )}
                 {def.unlockXp === -1 && (
                   <span className="text-amber-600">Premium 👑</span>
+                )}
+                {def.unlockXp === -2 && (
+                  <span className="text-purple-600">Code-only 🌟</span>
                 )}
                 {def.unlockXp > 0 && (
                   <span className={unlocked ? "text-green-600" : "text-cocoa-400"}>

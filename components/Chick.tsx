@@ -606,5 +606,212 @@ function ChickAccessory({ variant }: { variant: ChickVariant }) {
     );
   }
 
+  if (variant === "ninja") {
+    // Red headband with rising-sun dot + black eye-band ninja mask + tiny shuriken
+    return (
+      <g>
+        {/* Headband (wraps the head) */}
+        <rect x="58" y="36" width="104" height="14" fill="#9E1B1B" rx="3" />
+        {/* Rising-sun dot */}
+        <circle cx="110" cy="43" r="5" fill="#FDD647" />
+        {/* Headband tails flying back */}
+        <path d="M62 40 Q40 50 38 72 Q48 66 56 52 Z" fill="#9E1B1B" />
+        <path d="M158 40 Q180 50 182 72 Q172 66 164 52 Z" fill="#9E1B1B" />
+        {/* Black mask band across upper eye area — eyes still visible below */}
+        <rect x="50" y="86" width="120" height="14" fill="#1F1A14" rx="2" />
+        {/* Pointed angles at outer edges of mask (ninja shape) */}
+        <polygon points="50,86 38,84 50,100" fill="#1F1A14" />
+        <polygon points="170,86 182,84 170,100" fill="#1F1A14" />
+        {/* Shuriken on chest, rotated for dynamism */}
+        <g transform="translate(110 160) rotate(20)">
+          <polygon points="0,-11 4,-4 11,0 4,4 0,11 -4,4 -11,0 -4,-4" fill="#1F1A14" stroke="#000" strokeWidth="0.5" />
+          <circle r="2.5" fill="#FDD647" />
+        </g>
+      </g>
+    );
+  }
+
+  if (variant === "dragon") {
+    // Two horns, scaled spine, fire wisp from beak, glowing eyes
+    return (
+      <g>
+        {/* Left horn */}
+        <path d="M86 22 L78 0 L94 18 Z" fill="#9E1B1B" stroke="#5A0A0A" strokeWidth="1.2" strokeLinejoin="round" />
+        {/* Right horn */}
+        <path d="M134 22 L142 0 L126 18 Z" fill="#9E1B1B" stroke="#5A0A0A" strokeWidth="1.2" strokeLinejoin="round" />
+        {/* Spine scales (zigzag) */}
+        <path
+          d="M55 88 L65 78 L75 86 L85 76 L95 84 L105 74 L110 82 L115 74 L125 84 L135 76 L145 86 L155 78 L165 88"
+          stroke="#9E1B1B" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round"
+        />
+        {/* Fire wisp from beak */}
+        <g opacity="0.95">
+          <path d="M114 156 Q132 158 144 174 Q138 184 124 178 Q118 168 114 156 Z" fill="#FF6B6B" />
+          <path d="M118 158 Q130 162 137 172 Q131 178 124 172 Z" fill="#FDD647" />
+          <ellipse cx="135" cy="170" rx="3" ry="2" fill="#FFFDF6" opacity="0.7" />
+        </g>
+        {/* Glowing red eye accents (rim) */}
+        <circle cx="82" cy="108" r="14" fill="none" stroke="#FF6B6B" strokeWidth="1.5" opacity="0.6" />
+        <circle cx="138" cy="108" r="14" fill="none" stroke="#FF6B6B" strokeWidth="1.5" opacity="0.6" />
+      </g>
+    );
+  }
+
+  if (variant === "cyber") {
+    // Blue glowing visor + LED dots + chest emblem
+    return (
+      <g>
+        {/* Visor band (dark base) */}
+        <rect x="46" y="95" width="128" height="26" fill="#0F1B3D" rx="5" />
+        {/* Visor band (mid layer) */}
+        <rect x="50" y="100" width="120" height="14" fill="#1B3D7A" rx="3" />
+        {/* Glowing blue stripe */}
+        <rect x="52" y="104" width="116" height="6" fill="#3B82F6" />
+        <rect x="52" y="105" width="116" height="3" fill="#7BC9F0" opacity="0.95" />
+        {/* Highlight reflections on stripe */}
+        <rect x="60" y="105" width="14" height="2" fill="#FFFDF6" opacity="0.8" />
+        <rect x="140" y="105" width="14" height="2" fill="#FFFDF6" opacity="0.8" />
+        {/* LED dots on temples (animated) */}
+        <circle cx="44" cy="108" r="2.5" fill="#7BC9F0">
+          <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="176" cy="108" r="2.5" fill="#7BC9F0">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" />
+        </circle>
+        {/* Tiny LED dots on head */}
+        <circle cx="100" cy="30" r="1.5" fill="#7BC9F0" />
+        <circle cx="120" cy="30" r="1.5" fill="#7BC9F0" />
+        {/* Circuit traces on body */}
+        <path d="M70 158 L92 158 L92 172 L108 172" stroke="#3B82F6" strokeWidth="1.5" fill="none" opacity="0.55" />
+        <path d="M150 158 L128 158 L128 172 L112 172" stroke="#3B82F6" strokeWidth="1.5" fill="none" opacity="0.55" />
+        {/* Chest emblem */}
+        <circle cx="110" cy="180" r="7" fill="#0F1B3D" stroke="#3B82F6" strokeWidth="1.5" />
+        <circle cx="110" cy="180" r="3" fill="#7BC9F0" />
+      </g>
+    );
+  }
+
+  if (variant === "warrior") {
+    // Bronze Spartan helmet + red mohawk plume + small shield on wing
+    return (
+      <g>
+        {/* Helmet shadow */}
+        <ellipse cx="110" cy="50" rx="62" ry="6" fill="#000" opacity="0.18" />
+        {/* Helmet dome (bronze) */}
+        <path d="M48 46 Q48 12 110 12 Q172 12 172 46 L172 52 L48 52 Z"
+              fill="#B8732B" stroke="#5A3A1F" strokeWidth="1.5" strokeLinejoin="round" />
+        {/* Helmet brim shadow */}
+        <rect x="48" y="46" width="124" height="7" fill="#5A3A1F" opacity="0.4" />
+        {/* Bronze highlight (curved shine on top-left) */}
+        <path d="M58 24 Q90 14 130 18" stroke="#FDD647" strokeWidth="2.5" fill="none" opacity="0.65" />
+        {/* Cheek guards (sides) */}
+        <path d="M48 46 L46 70 L58 78 L60 50 Z" fill="#B8732B" stroke="#5A3A1F" strokeWidth="1" />
+        <path d="M172 46 L174 70 L162 78 L160 50 Z" fill="#B8732B" stroke="#5A3A1F" strokeWidth="1" />
+        {/* Nose plate (vertical down to between eyes) */}
+        <path d="M105 46 L105 86 L115 86 L115 46 Z" fill="#8B5A2B" stroke="#5A3A1F" strokeWidth="0.8" />
+        {/* Mohawk plume (red bristles flowing back) */}
+        <g>
+          <path d="M85 12 L90 -6 L96 8 L102 -10 L108 10 L114 -10 L120 8 L126 -6 L132 12 Z"
+                fill="#9E1B1B" stroke="#5A0A0A" strokeWidth="0.8" strokeLinejoin="round" />
+          {/* Individual hair strands */}
+          <path d="M90 -6 L92 -14" stroke="#9E1B1B" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M102 -10 L104 -18" stroke="#9E1B1B" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M114 -10 L116 -18" stroke="#9E1B1B" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M126 -6 L128 -14" stroke="#9E1B1B" strokeWidth="2.5" strokeLinecap="round" />
+        </g>
+        {/* Shield on left wing */}
+        <g>
+          <ellipse cx="22" cy="138" rx="13" ry="17" fill="#9E1B1B" stroke="#5A0A0A" strokeWidth="1.5" />
+          {/* Shield cross emblem */}
+          <path d="M22 124 L22 152" stroke="#FDD647" strokeWidth="2" />
+          <path d="M11 138 L33 138" stroke="#FDD647" strokeWidth="2" />
+          {/* Shield boss center */}
+          <circle cx="22" cy="138" r="3" fill="#FDD647" />
+        </g>
+      </g>
+    );
+  }
+
+  if (variant === "cosmic") {
+    // Code-only rare: purple aura + star sparkles
+    return (
+      <g>
+        {/* Aura halo */}
+        <circle cx="110" cy="118" r="100" fill="none" stroke="#9C4DD3" strokeWidth="2" opacity="0.5">
+          <animate attributeName="r" values="98;106;98" dur="3s" repeatCount="indefinite" />
+        </circle>
+        {/* Sparkles around the chick */}
+        <g fill="#FFFDF6">
+          <path d="M30 60 L32 56 L34 60 L38 62 L34 64 L32 68 L30 64 L26 62 Z" opacity="0.9" />
+          <path d="M180 80 L182 76 L184 80 L188 82 L184 84 L182 88 L180 84 L176 82 Z" opacity="0.9" />
+          <path d="M40 180 L42 176 L44 180 L48 182 L44 184 L42 188 L40 184 L36 182 Z" opacity="0.9" />
+          <path d="M170 170 L172 166 L174 170 L178 172 L174 174 L172 178 L170 174 L166 172 Z" opacity="0.9" />
+        </g>
+        {/* Tiny stars on body (constellation pattern) */}
+        <circle cx="90" cy="150" r="1.5" fill="#FFFDF6" />
+        <circle cx="130" cy="160" r="1.5" fill="#FFFDF6" />
+        <circle cx="100" cy="175" r="1.5" fill="#FFFDF6" />
+        <circle cx="120" cy="175" r="1.5" fill="#FFFDF6" />
+        {/* Crown-like tiny purple gem on head */}
+        <path d="M105 22 L110 12 L115 22 Z" fill="#9C4DD3" stroke="#5B2090" strokeWidth="0.8" />
+        <circle cx="110" cy="14" r="1.5" fill="#FFFDF6" />
+      </g>
+    );
+  }
+
+  if (variant === "squad") {
+    // Code-only referral chick: heart accents + tiny "+1" badge
+    return (
+      <g>
+        {/* Heart on chest */}
+        <path
+          d="M110 168 C105 158 88 158 88 168 C88 180 110 192 110 192 C110 192 132 180 132 168 C132 158 115 158 110 168 Z"
+          fill="#FF6B6B" stroke="#9E1B1B" strokeWidth="1.2"
+        />
+        {/* Heart shine */}
+        <ellipse cx="100" cy="170" rx="4" ry="3" fill="#FFFDF6" opacity="0.55" />
+        {/* +1 badge on right shoulder */}
+        <circle cx="178" cy="118" r="11" fill="#FDD647" stroke="#9E1B1B" strokeWidth="1.5" />
+        <text x="178" y="123" textAnchor="middle" fontSize="13" fontWeight="700" fill="#9E1B1B" fontFamily="sans-serif">+1</text>
+        {/* Tiny heart sparkles */}
+        <path d="M50 80 L52 76 L54 80 L52 84 Z" fill="#FF6B6B" opacity="0.8" />
+        <path d="M170 60 L172 56 L174 60 L172 64 Z" fill="#FF6B6B" opacity="0.8" />
+      </g>
+    );
+  }
+
+  if (variant === "phoenix") {
+    // Code-only ultra-rare: flame trail + glowing red-orange aura
+    return (
+      <g>
+        {/* Flame ring aura */}
+        <g opacity="0.6">
+          <circle cx="110" cy="118" r="95" fill="none" stroke="#FF6B6B" strokeWidth="3" opacity="0.7">
+            <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="indefinite" />
+          </circle>
+        </g>
+        {/* Flame plumes (4 around the body) */}
+        <g fill="#FF6B6B" opacity="0.85">
+          <path d="M30 100 Q20 80 30 60 Q40 75 35 95 Z" />
+          <path d="M190 100 Q200 80 190 60 Q180 75 185 95 Z" />
+          <path d="M30 160 Q20 180 30 200 Q40 185 35 165 Z" />
+          <path d="M190 160 Q200 180 190 200 Q180 185 185 165 Z" />
+        </g>
+        {/* Inner gold core on plumes */}
+        <g fill="#FDD647" opacity="0.9">
+          <path d="M33 95 Q26 82 32 70 Q36 80 34 92 Z" />
+          <path d="M187 95 Q194 82 188 70 Q184 80 186 92 Z" />
+        </g>
+        {/* Tail feather flames behind */}
+        <path d="M70 200 Q60 215 75 215 Q80 208 78 200 Z" fill="#FF6B6B" />
+        <path d="M150 200 Q160 215 145 215 Q140 208 142 200 Z" fill="#FF6B6B" />
+        {/* Glowing tuft on top */}
+        <circle cx="110" cy="16" r="6" fill="#FDD647">
+          <animate attributeName="r" values="6;8;6" dur="1.2s" repeatCount="indefinite" />
+        </circle>
+      </g>
+    );
+  }
+
   return null;
 }
