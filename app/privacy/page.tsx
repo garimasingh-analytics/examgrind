@@ -15,7 +15,7 @@ export default function PrivacyPage() {
         collect, why we collect it, and the choices you have. It applies to
         anyone who uses the ExamGrind website or services
         (&ldquo;Service&rdquo;), operated by{" "}
-        <strong>[Your Registered Business Name]</strong>.
+        <strong>Mobizone Technologies Private Limited</strong>.
       </p>
 
       <h2>1. Information we collect</h2>

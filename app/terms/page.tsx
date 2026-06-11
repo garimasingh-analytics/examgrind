@@ -13,7 +13,7 @@ export default function TermsPage() {
         Welcome to ExamGrind (the &ldquo;Service&rdquo;). These Terms of Service
         (&ldquo;Terms&rdquo;) govern your access to and use of the ExamGrind
         website, mobile interfaces, and related services operated by{" "}
-        <strong>[Your Registered Business Name]</strong>{" "}
+        <strong>Mobizone Technologies Private Limited</strong>{" "}
         (&ldquo;ExamGrind&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;).
       </p>
       <p>
@@ -146,7 +146,7 @@ export default function TermsPage() {
       <p>
         These Terms are governed by the laws of the Republic of India. Any
         dispute will be subject to the exclusive jurisdiction of the courts
-        at <strong>[Your City]</strong>, India.
+        at <strong>Greater Noida</strong>, India.
       </p>
 
       <h2>14. Contact</h2>
