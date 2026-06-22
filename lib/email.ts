@@ -97,22 +97,164 @@ function wrap(bodyHtml: string): string {
   </div>`;
 }
 
-/** Welcome email after first signup. */
+/** Welcome email after first signup — bespoke marketing-grade HTML. */
 export async function sendWelcomeEmail(to: string, examName?: string) {
   const exam = examName ?? "your exam";
   return sendEmail({
     to,
-    subject: "Welcome to ExamGrind 🐥 — your AI tutor is ready",
-    html: wrap(`
-      <h2 style="margin:0 0 16px;color:#FF6B6B;">You're in.</h2>
-      <p>Hi there,</p>
-      <p>Welcome to ExamGrind. You're about to practice for ${exam} with an AI tutor that doesn't just say <em>"wrong answer"</em> — it diagnoses exactly which concept tripped you up and shows you the fix.</p>
-      <p><strong>You have 3 free quizzes, 1 free mock test, and 1 free Deep Analysis</strong> waiting. No card needed.</p>
-      <p style="text-align:center;margin:28px 0;">
-        <a href="https://examgrind.in/home" style="background:#FF6B6B;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;">Start a quiz →</a>
-      </p>
-      <p style="color:#888;font-size:13px;">— The ExamGrind team</p>
-    `),
+    subject: `Welcome to ExamGrind 🐥 — your ${exam} AI coach is ready`,
+    html: `
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Welcome to ExamGrind</title>
+</head>
+<body style="margin:0;padding:0;background:#F7EFE6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#2C1810;-webkit-font-smoothing:antialiased;">
+  <!-- preheader (shows as preview in inbox) -->
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#F7EFE6;">Your AI coach for ${exam} just woke up. 3 free quizzes + 1 mock + 1 Deep Analysis are ready. No card, no catch.</div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7EFE6;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#FFFCF7;border-radius:24px;overflow:hidden;box-shadow:0 8px 24px rgba(255,107,107,0.10);">
+
+          <!-- HERO -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#FF6B6B 0%,#FD7C29 60%,#FFB84D 100%);padding:40px 32px 36px;text-align:center;">
+              <div style="font-size:64px;line-height:1;margin-bottom:8px;">🐥</div>
+              <div style="font-family:Georgia,'Times New Roman',serif;font-size:34px;font-weight:700;color:#FFFCF7;letter-spacing:-0.5px;line-height:1.15;">
+                You're in.
+              </div>
+              <div style="font-size:16px;color:rgba(255,252,247,0.92);margin-top:10px;font-weight:500;">
+                Your ${exam} AI coach just woke up.
+              </div>
+            </td>
+          </tr>
+
+          <!-- INTRO -->
+          <tr>
+            <td style="padding:36px 32px 8px;">
+              <p style="margin:0 0 14px;font-size:17px;line-height:1.55;color:#2C1810;">
+                Hey 👋
+              </p>
+              <p style="margin:0 0 14px;font-size:16px;line-height:1.6;color:#2C1810;">
+                Most quiz apps tell you "wrong answer" and move on. <strong style="color:#FF6B6B;">ExamGrind is different.</strong> Every wrong answer comes with a concept-level diagnosis — the actual gap in your understanding — and exactly which NCERT chapter / R.S. Aggarwal section to revise.
+              </p>
+              <p style="margin:0;font-size:16px;line-height:1.6;color:#2C1810;">
+                It's a coach, not a marker.
+              </p>
+            </td>
+          </tr>
+
+          <!-- VISUAL PROOF — fake quiz card -->
+          <tr>
+            <td style="padding:28px 32px 4px;">
+              <div style="background:#FFFFFF;border:1px solid rgba(44,24,16,0.08);border-radius:18px;padding:22px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#FF6B6B;margin-bottom:10px;">
+                  ↓ Here's what you'll see when you get one wrong
+                </div>
+                <div style="font-size:14px;font-weight:600;color:#2C1810;margin-bottom:12px;line-height:1.4;">
+                  Q: Which statement about the lac operon is INCORRECT?
+                </div>
+                <div style="background:#FFE8E1;border-left:3px solid #FF6B6B;padding:14px 16px;border-radius:6px;font-size:13px;line-height:1.6;color:#2C1810;">
+                  <div style="font-weight:700;color:#C74A3A;margin-bottom:6px;">✕ You picked (c). Real answer: (d).</div>
+                  <div style="color:#2C1810;">71% of NEET aspirants miss this. <strong>Allolactose</strong> — not lactose itself — is the actual inducer. Lactose is the substrate; allolactose is its isomer that binds the repressor.</div>
+                  <div style="margin-top:8px;font-size:12px;color:#7A6A5C;">📚 Drill: NCERT Class 12 Bio · Ch 6 · Gene regulation</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- FREE BENEFITS GRID -->
+          <tr>
+            <td style="padding:28px 32px 8px;">
+              <div style="text-align:center;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#7A6A5C;margin-bottom:14px;">
+                What's free in your account right now
+              </div>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="33%" align="center" style="padding:4px;">
+                    <div style="background:#FFF4EB;border-radius:14px;padding:18px 10px;">
+                      <div style="font-size:28px;line-height:1;margin-bottom:6px;">🎯</div>
+                      <div style="font-size:22px;font-weight:800;color:#FF6B6B;line-height:1;">3</div>
+                      <div style="font-size:11px;color:#7A6A5C;margin-top:4px;line-height:1.3;">Concept<br/>quizzes</div>
+                    </div>
+                  </td>
+                  <td width="33%" align="center" style="padding:4px;">
+                    <div style="background:#FFF4EB;border-radius:14px;padding:18px 10px;">
+                      <div style="font-size:28px;line-height:1;margin-bottom:6px;">📝</div>
+                      <div style="font-size:22px;font-weight:800;color:#FF6B6B;line-height:1;">1</div>
+                      <div style="font-size:11px;color:#7A6A5C;margin-top:4px;line-height:1.3;">Full-length<br/>mock test</div>
+                    </div>
+                  </td>
+                  <td width="33%" align="center" style="padding:4px;">
+                    <div style="background:#FFF4EB;border-radius:14px;padding:18px 10px;">
+                      <div style="font-size:28px;line-height:1;margin-bottom:6px;">🔍</div>
+                      <div style="font-size:22px;font-weight:800;color:#FF6B6B;line-height:1;">1</div>
+                      <div style="font-size:11px;color:#7A6A5C;margin-top:4px;line-height:1.3;">Deep<br/>Analysis</div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+              <div style="text-align:center;font-size:12px;color:#7A6A5C;margin-top:10px;">No card. No catch. ₹199/month after you outgrow the free tier.</div>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td align="center" style="padding:28px 32px 12px;">
+              <a href="https://examgrind.in/home" style="display:inline-block;background:#2C1810;color:#FFFCF7;font-size:16px;font-weight:700;padding:16px 38px;border-radius:14px;text-decoration:none;letter-spacing:0.2px;box-shadow:0 4px 0 rgba(0,0,0,0.10);">
+                Take your first quiz →
+              </a>
+            </td>
+          </tr>
+
+          <!-- Secondary CTA -->
+          <tr>
+            <td align="center" style="padding:0 32px 32px;">
+              <a href="https://examgrind.in/diagnose" style="font-size:14px;color:#FF6B6B;font-weight:600;text-decoration:none;border-bottom:1px dashed rgba(255,107,107,0.4);padding-bottom:1px;">
+                ⚡ Or take the 60-sec weakness diagnosis →
+              </a>
+            </td>
+          </tr>
+
+          <!-- FOUNDER NOTE -->
+          <tr>
+            <td style="padding:0 32px 32px;">
+              <div style="background:#F7EFE6;border-radius:14px;padding:18px 20px;font-size:14px;line-height:1.55;color:#2C1810;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#7A6A5C;margin-bottom:6px;">
+                  From the founder
+                </div>
+                I'm 24. I watched people around me grind through NEET, CUET, and SSC and saw how broken Indian test prep is — ₹50K coaching fees for the same rote drills, no real diagnosis of what's actually weak. So I built ExamGrind. If anything here breaks, just reply to this email — I read every single one.
+                <div style="margin-top:10px;font-style:italic;color:#7A6A5C;">— Garima, founder</div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background:#F7EFE6;padding:24px 32px;text-align:center;font-size:12px;color:#7A6A5C;line-height:1.6;">
+              <a href="https://examgrind.in" style="color:#FF6B6B;text-decoration:none;font-weight:700;">examgrind.in</a> ·
+              <a href="https://examgrind.in/terms" style="color:#7A6A5C;text-decoration:none;">Terms</a> ·
+              <a href="https://examgrind.in/privacy" style="color:#7A6A5C;text-decoration:none;">Privacy</a> ·
+              <a href="https://examgrind.in/refund" style="color:#7A6A5C;text-decoration:none;">Refund</a>
+              <div style="margin-top:10px;font-size:11px;color:#9A8C7C;">
+                Mobizone Technologies Pvt Ltd · CIN U72200DL2013PTC254306 · GSTIN 09AAICM6882B1Z8<br/>
+                A2/544A, Shiv Arcade, Acharya Niketan, Mayur Vihar Phase-1, Delhi
+              </div>
+              <div style="margin-top:8px;font-size:11px;color:#9A8C7C;">© 2026 ExamGrind · Made in India 🇮🇳</div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`,
   });
 }
 
