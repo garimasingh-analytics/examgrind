@@ -51,6 +51,12 @@ export default function LandingPage() {
           >
             Pick your exam ↓
           </a>
+          <Link
+            href="/diagnose"
+            className="inline-flex items-center justify-center rounded-2xl border-2 border-cocoa-900/20 bg-cream-50 px-6 py-2.5 text-sm font-bold text-cocoa-900 transition hover:border-coral-500 hover:text-coral-700"
+          >
+            ⚡ Or try the 60-sec weakness diagnosis (no signup)
+          </Link>
           <p className="text-sm text-cocoa-500">
             Free to start · ₹199/month after · No credit card
           </p>

@@ -3,6 +3,13 @@ import type { NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/admin-auth";
+import { sendWelcomeEmail } from "@/lib/email";
+
+const EXAM_FRIENDLY_LABEL: Record<string, string> = {
+  cuet: "CUET UG",
+  "ssc-cgl": "SSC CGL",
+  "neet-ug": "NEET UG",
+};
 
 /**
  * OAuth callback handler.
@@ -80,6 +87,16 @@ export async function GET(request: NextRequest) {
             email: user.email ?? "",
             exam_choice: examChoice,
           });
+          // Fire-and-forget welcome email. Don't await — if SMTP is slow or
+          // misconfigured we still want the redirect to complete instantly.
+          // The sendEmail() function is a no-op when SMTP_USER/SMTP_PASS env
+          // vars are missing, so this is safe to leave in regardless of env.
+          if (user.email) {
+            void sendWelcomeEmail(
+              user.email,
+              EXAM_FRIENDLY_LABEL[examChoice] ?? examChoice
+            );
+          }
         } else if (!existing.exam_choice) {
           // Row exists but exam_choice never got set (legacy account, or
           // user landed via a path that didn't carry a slug). Set it now.
