@@ -26,7 +26,10 @@ type Weakness = {
     read: { source: string; minutes: number; distill: string };
     // Optional so older cached analyses (generated before the Watch
     // rung shipped) still render — they just won't show the button.
-    watch?: { query: string; channel_hint?: string };
+    // `video_url` is also optional and only populated when Claude is
+    // confident of a specific real video; the client validates the format
+    // and falls back to the search query if anything looks off.
+    watch?: { query: string; channel_hint?: string; video_url?: string };
     work: {
       questionIdx: number;
       walkthrough_steps: string[];
@@ -557,37 +560,53 @@ function WeaknessCard({
           URL because Claude can't reliably know which videos
           exist, but channel + concept search reliably surfaces
           the right one as the first 1-2 results. */}
-      {weakness.improve.watch?.query && (
-        <div className="border-t border-cocoa-900/[0.04] px-5 py-4">
-          <div className="flex items-start gap-3">
-            <span className="text-lg leading-none" aria-hidden="true">▶️</span>
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">
-                Watch
-              </p>
-              <p className="mt-1 font-serif text-sm font-semibold text-cocoa-900">
-                {weakness.improve.watch.channel_hint
-                  ? `${weakness.improve.watch.channel_hint} on YouTube`
-                  : "Free explainer on YouTube"}
-              </p>
-              <p className="mt-0.5 text-xs text-cocoa-500">
-                {weakness.improve.watch.query}
-              </p>
-              <a
-                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(
-                  weakness.improve.watch.query
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-coral-500 px-4 py-2 text-xs font-bold text-cream-50 shadow-warm transition hover:bg-coral-600"
-              >
-                <span aria-hidden="true">▶️</span>
-                <span>Watch on YouTube</span>
-              </a>
+      {weakness.improve.watch?.query && (() => {
+        // Prefer Claude's specific video_url if it survived validation —
+        // a real https://www.youtube.com/watch?v=<11-char-id> URL means
+        // the user lands directly on the right video instead of a search
+        // results page. The regex blocks playlists, shorts, channel pages,
+        // and obviously-fake IDs. If anything fails, fall back to a search
+        // URL which is guaranteed to surface SOMETHING relevant.
+        const rawUrl = weakness.improve.watch.video_url;
+        const watchRegex = /^https:\/\/(www\.)?youtube\.com\/watch\?v=[A-Za-z0-9_-]{11}(&|$)/;
+        const directVideo = typeof rawUrl === "string" && watchRegex.test(rawUrl)
+          ? rawUrl
+          : null;
+        const href = directVideo
+          ?? `https://www.youtube.com/results?search_query=${encodeURIComponent(
+            weakness.improve.watch.query
+          )}`;
+        const ctaLabel = directVideo ? "Watch the video" : "Watch on YouTube";
+        return (
+          <div className="border-t border-cocoa-900/[0.04] px-5 py-4">
+            <div className="flex items-start gap-3">
+              <span className="text-lg leading-none" aria-hidden="true">▶️</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">
+                  Watch
+                </p>
+                <p className="mt-1 font-serif text-sm font-semibold text-cocoa-900">
+                  {weakness.improve.watch.channel_hint
+                    ? `${weakness.improve.watch.channel_hint} on YouTube`
+                    : "Free explainer on YouTube"}
+                </p>
+                <p className="mt-0.5 text-xs text-cocoa-500">
+                  {weakness.improve.watch.query}
+                </p>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-coral-500 px-4 py-2 text-xs font-bold text-cream-50 shadow-warm transition hover:bg-coral-600"
+                >
+                  <span aria-hidden="true">▶️</span>
+                  <span>{ctaLabel}</span>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* WORK */}
       <Rung

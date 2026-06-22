@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import Chick from "@/components/Chick";
 import PlanPanel from "./PlanPanel";
+import ShieldPanel from "./ShieldPanel";
 import ChickPicker from "@/components/ChickPicker";
 import PromoCodeRedeemer from "@/components/PromoCodeRedeemer";
 import type { ChickVariant } from "@/lib/chicks";
@@ -25,6 +26,8 @@ type UserRow = {
   last_active_date: string | null;
   exam_choice: string | null;
   paid_until: string | null;
+  streak_shields: number;
+  total_shields_used: number;
 };
 
 type QuizRow = {
@@ -57,7 +60,7 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("users")
     .select(
-      "email, xp, level, quizzes_taken, quizzes_started, analyses_taken, subscription_status, streak_count, longest_streak, last_active_date, exam_choice, paid_until"
+      "email, xp, level, quizzes_taken, quizzes_started, analyses_taken, subscription_status, streak_count, longest_streak, last_active_date, exam_choice, paid_until, streak_shields, total_shields_used"
     )
     .eq("id", authUser.id)
     .maybeSingle<UserRow>();
@@ -236,6 +239,15 @@ export default async function ProfilePage() {
             <CancelSubButton paidUntil={profile?.paid_until ?? null} />
           </div>
         )}
+      </section>
+
+      {/* Streak Insurance — XP-purchased shields that auto-protect streak */}
+      <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
+        <ShieldPanel
+          xp={profile?.xp ?? 0}
+          shields={profile?.streak_shields ?? 0}
+          totalUsed={profile?.total_shields_used ?? 0}
+        />
       </section>
 
       {/* Cosmetic chick wardrobe — XP-gated skins + promo redemption */}

@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
+import { decideStreak } from "@/lib/streak";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -102,7 +104,9 @@ export async function POST(req: NextRequest) {
   // Read current values first (RLS-friendly, no RPC needed).
   const { data: profile } = await supabase
     .from("users")
-    .select("xp, level, quizzes_taken, streak_count, longest_streak, last_active_date")
+    .select(
+      "xp, level, quizzes_taken, streak_count, longest_streak, last_active_date, streak_shields, total_shields_used"
+    )
     .eq("id", user.id)
     .maybeSingle();
 
@@ -111,36 +115,38 @@ export async function POST(req: NextRequest) {
   const answeredCount = updates.filter((u) => u.user_answer != null).length;
   const countsAsPractice = answeredCount > 0;
 
-  // Streak calculation (only when countsAsPractice):
-  //   - same calendar day as last_active_date  → no change (already counted today)
-  //   - exactly 1 day after last_active_date   → streak_count + 1
-  //   - any other case (null / older / future) → streak resets to 1
-  // Server uses UTC date — close enough for India (~5.5h offset means streak
-  // boundaries land in the early morning, which feels natural).
+  // Streak calculation (only when countsAsPractice). Routed through
+  // decideStreak() in lib/streak.ts which handles the auto-shield-protect
+  // case: a 2-day gap with shields ≥ 1 auto-burns one shield and keeps the
+  // streak alive. Larger gaps reset regardless.
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const prevDate: string | null = profile?.last_active_date ?? null;
+  const prevShields: number = profile?.streak_shields ?? 0;
+  const prevStreak: number = profile?.streak_count ?? 0;
 
-  let newStreak = profile?.streak_count ?? 0;
-  let streakChanged: "incremented" | "reset" | "same-day" | "skipped" = "same-day";
+  let newStreak = prevStreak;
+  let shieldConsumed = false;
+  let streakChanged:
+    | "incremented"
+    | "reset"
+    | "same-day"
+    | "skipped"
+    | "shield-saved" = "same-day";
+
   if (!countsAsPractice) {
-    // Empty quiz — leave streak untouched.
     streakChanged = "skipped";
-  } else if (prevDate === today) {
-    streakChanged = "same-day";
   } else {
-    // Compute "yesterday" in UTC for comparison
-    const t = new Date(today + "T00:00:00Z");
-    const yesterday = new Date(t.getTime() - 86_400_000)
-      .toISOString()
-      .slice(0, 10);
-    if (prevDate === yesterday) {
-      newStreak = (profile?.streak_count ?? 0) + 1;
-      streakChanged = "incremented";
-    } else {
-      // First quiz ever, or gap of >1 day → fresh streak
-      newStreak = 1;
-      streakChanged = "reset";
-    }
+    const decision = decideStreak(prevDate, prevStreak, prevShields);
+    newStreak = decision.newStreak;
+    shieldConsumed = decision.shieldConsumed;
+    streakChanged =
+      decision.reason === "first" || decision.reason === "next-day"
+        ? "incremented"
+        : decision.reason === "shield-saved"
+          ? "shield-saved"
+          : decision.reason === "reset"
+            ? "reset"
+            : "same-day";
   }
   const newLongest = Math.max(profile?.longest_streak ?? 0, newStreak);
 
@@ -156,7 +162,24 @@ export async function POST(req: NextRequest) {
     };
     // Only stamp last_active_date when the quiz actually counted as practice.
     if (countsAsPractice) updatePayload.last_active_date = today;
+    if (shieldConsumed) {
+      updatePayload.streak_shields = Math.max(0, prevShields - 1);
+      updatePayload.total_shields_used =
+        (profile.total_shields_used ?? 0) + 1;
+    }
     await supabase.from("users").update(updatePayload).eq("id", user.id);
+
+    // Log the shield auto-use for the /me history UI. Non-fatal if the
+    // log insert fails — the actual streak protection already landed.
+    if (shieldConsumed) {
+      const admin = createAdminSupabase();
+      await admin.from("shield_events").insert({
+        user_id: user.id,
+        kind: "auto_use",
+        xp_cost: null,
+        shields_after: Math.max(0, prevShields - 1),
+      });
+    }
   }
 
   // ---- 5. Update user_topic_mastery (upsert, accumulate) ----
