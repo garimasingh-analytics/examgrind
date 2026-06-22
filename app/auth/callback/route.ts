@@ -87,15 +87,20 @@ export async function GET(request: NextRequest) {
             email: user.email ?? "",
             exam_choice: examChoice,
           });
-          // Fire-and-forget welcome email. Don't await — if SMTP is slow or
-          // misconfigured we still want the redirect to complete instantly.
-          // The sendEmail() function is a no-op when SMTP_USER/SMTP_PASS env
-          // vars are missing, so this is safe to leave in regardless of env.
+          // AWAIT the welcome email send. Fire-and-forget gets killed by
+          // Vercel serverless lambda termination after the redirect response
+          // is sent — confirmed empirically. Adds ~1-2 sec to the OAuth round
+          // trip but guarantees delivery. SMTP failure won't break signup
+          // since sendEmail catches errors and returns false.
           if (user.email) {
-            void sendWelcomeEmail(
-              user.email,
-              EXAM_FRIENDLY_LABEL[examChoice] ?? examChoice
-            );
+            try {
+              await sendWelcomeEmail(
+                user.email,
+                EXAM_FRIENDLY_LABEL[examChoice] ?? examChoice
+              );
+            } catch (e) {
+              console.error("[auth/callback] welcome email send threw:", e);
+            }
           }
         } else if (!existing.exam_choice) {
           // Row exists but exam_choice never got set (legacy account, or
