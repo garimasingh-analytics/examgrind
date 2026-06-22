@@ -97,9 +97,79 @@ function wrap(bodyHtml: string): string {
   </div>`;
 }
 
+type ExamSlug = "cuet" | "ssc-cgl" | "neet-ug";
+
+const EXAM_LABEL_MAP: Record<ExamSlug, string> = {
+  cuet: "CUET UG",
+  "ssc-cgl": "SSC CGL",
+  "neet-ug": "NEET UG",
+};
+
+type ProofTrap = {
+  question: string;
+  wrongPick: string;
+  rightPick: string;
+  headline: string;
+  explanation: string;
+  drill: string;
+};
+
+const PROOF_TRAP: Record<ExamSlug, ProofTrap> = {
+  "neet-ug": {
+    question: "Q: Which statement about the lac operon is INCORRECT?",
+    wrongPick: "c",
+    rightPick: "d",
+    headline: "71% of NEET aspirants miss this.",
+    explanation:
+      "<strong>Allolactose</strong> — not lactose itself — is the actual inducer. Lactose is the substrate; allolactose is its isomer that binds the repressor.",
+    drill: "NCERT Class 12 Bio · Ch 6 · Gene regulation",
+  },
+  cuet: {
+    question: "Q: The word \"ubiquitous\" most nearly means:",
+    wrongPick: "a",
+    rightPick: "b",
+    headline: "Half of CUET English takers pick (a). It's a root-trap.",
+    explanation:
+      "<strong>Ubiquitous = present everywhere</strong> (Latin <em>ubique</em> = everywhere). The trap is \"unique\" which sounds similar but means rare — exact opposite meaning. Root awareness is the single highest-leverage vocab skill for CUET English.",
+    drill: "CUET English Language · Vocabulary builders",
+  },
+  "ssc-cgl": {
+    question: "Q: If x + 1/x = 3, find the value of x⁴ + 1/x⁴.",
+    wrongPick: "a",
+    rightPick: "b",
+    headline: "This trap appears in 4 SSC papers since 2018.",
+    explanation:
+      "<strong>Two squarings needed.</strong> (x + 1/x)² = 9 → x² + 1/x² = 7. Then square again: 49 → x⁴ + 1/x⁴ = 47. Most students stop after one squaring and pick 27.",
+    drill: "SSC CGL Algebra · Square-cube identities",
+  },
+};
+
+function proofBlockHtml(slug: ExamSlug): string {
+  const p = PROOF_TRAP[slug];
+  return `
+        <div style="background:#FFFFFF;border:1px solid rgba(44,24,16,0.08);border-radius:18px;padding:22px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#FF6B6B;margin-bottom:10px;">
+            ↓ Here's what you'll see when you get one wrong
+          </div>
+          <div style="font-size:14px;font-weight:600;color:#2C1810;margin-bottom:12px;line-height:1.4;">
+            ${p.question}
+          </div>
+          <div style="background:#FFE8E1;border-left:3px solid #FF6B6B;padding:14px 16px;border-radius:6px;font-size:13px;line-height:1.6;color:#2C1810;">
+            <div style="font-weight:700;color:#C74A3A;margin-bottom:6px;">✕ You picked (${p.wrongPick}). Real answer: (${p.rightPick}).</div>
+            <div style="color:#2C1810;">${p.headline} ${p.explanation}</div>
+            <div style="margin-top:8px;font-size:12px;color:#7A6A5C;">📚 Drill: ${p.drill}</div>
+          </div>
+        </div>`;
+}
+
 /** Welcome email after first signup — bespoke marketing-grade HTML. */
-export async function sendWelcomeEmail(to: string, examName?: string) {
-  const exam = examName ?? "your exam";
+export async function sendWelcomeEmail(to: string, examSlug?: string) {
+  const slug: ExamSlug =
+    examSlug === "cuet" || examSlug === "ssc-cgl" || examSlug === "neet-ug"
+      ? examSlug
+      : "neet-ug";
+  const exam = EXAM_LABEL_MAP[slug];
+  const proofHtml = proofBlockHtml(slug);
   return sendEmail({
     to,
     subject: `Welcome to ExamGrind 🐥 — your ${exam} AI coach is ready`,
@@ -148,22 +218,10 @@ export async function sendWelcomeEmail(to: string, examName?: string) {
             </td>
           </tr>
 
-          <!-- VISUAL PROOF — fake quiz card -->
+          <!-- VISUAL PROOF — exam-specific trap -->
           <tr>
             <td style="padding:28px 32px 4px;">
-              <div style="background:#FFFFFF;border:1px solid rgba(44,24,16,0.08);border-radius:18px;padding:22px;">
-                <div style="font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#FF6B6B;margin-bottom:10px;">
-                  ↓ Here's what you'll see when you get one wrong
-                </div>
-                <div style="font-size:14px;font-weight:600;color:#2C1810;margin-bottom:12px;line-height:1.4;">
-                  Q: Which statement about the lac operon is INCORRECT?
-                </div>
-                <div style="background:#FFE8E1;border-left:3px solid #FF6B6B;padding:14px 16px;border-radius:6px;font-size:13px;line-height:1.6;color:#2C1810;">
-                  <div style="font-weight:700;color:#C74A3A;margin-bottom:6px;">✕ You picked (c). Real answer: (d).</div>
-                  <div style="color:#2C1810;">71% of NEET aspirants miss this. <strong>Allolactose</strong> — not lactose itself — is the actual inducer. Lactose is the substrate; allolactose is its isomer that binds the repressor.</div>
-                  <div style="margin-top:8px;font-size:12px;color:#7A6A5C;">📚 Drill: NCERT Class 12 Bio · Ch 6 · Gene regulation</div>
-                </div>
-              </div>
+              ${proofHtml}
             </td>
           </tr>
 

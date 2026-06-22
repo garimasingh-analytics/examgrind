@@ -5,12 +5,6 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/admin-auth";
 import { sendWelcomeEmail } from "@/lib/email";
 
-const EXAM_FRIENDLY_LABEL: Record<string, string> = {
-  cuet: "CUET UG",
-  "ssc-cgl": "SSC CGL",
-  "neet-ug": "NEET UG",
-};
-
 /**
  * OAuth callback handler.
  *
@@ -94,10 +88,10 @@ export async function GET(request: NextRequest) {
           // since sendEmail catches errors and returns false.
           if (user.email) {
             try {
-              await sendWelcomeEmail(
-                user.email,
-                EXAM_FRIENDLY_LABEL[examChoice] ?? examChoice
-              );
+              // Pass the exam SLUG (cuet / ssc-cgl / neet-ug) so the email
+              // can render the exam-specific proof block (CUET vocab trap /
+              // SSC algebra trap / NEET lac operon).
+              await sendWelcomeEmail(user.email, examChoice);
             } catch (e) {
               console.error("[auth/callback] welcome email send threw:", e);
             }
