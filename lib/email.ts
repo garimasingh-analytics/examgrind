@@ -299,8 +299,7 @@ export async function sendWelcomeEmail(to: string, examSlug?: string) {
               <a href="https://examgrind.in/privacy" style="color:#7A6A5C;text-decoration:none;">Privacy</a> ·
               <a href="https://examgrind.in/refund" style="color:#7A6A5C;text-decoration:none;">Refund</a>
               <div style="margin-top:10px;font-size:11px;color:#9A8C7C;">
-                Mobizone Technologies Pvt Ltd · CIN U72200DL2013PTC254306 · GSTIN 09AAICM6882B1Z8<br/>
-                A2/544A, Shiv Arcade, Acharya Niketan, Mayur Vihar Phase-1, Delhi
+                Mobizone Technologies Private Limited
               </div>
               <div style="margin-top:8px;font-size:11px;color:#9A8C7C;">© 2026 ExamGrind · Made in India 🇮🇳</div>
             </td>
