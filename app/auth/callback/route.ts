@@ -53,58 +53,57 @@ export async function GET(request: NextRequest) {
       finalNext = "/admin";
     }
 
-    if (examChoice) {
-      const user = signedInUser;
+    // Handle user-row insert (first signup) + welcome email + exam_choice update.
+    // This runs for ANY successful sign-in, regardless of whether ?exam= was
+    // passed in the OAuth round trip. That matters because:
+    //   - Users who click an exam card carry ?exam=cuet etc.
+    //   - Users who sign in via any other entrypoint (direct OAuth, magic link,
+    //     etc.) don't carry the param — but they still need a user row + welcome.
+    const user = signedInUser;
+    if (user) {
+      // Use the service-role client to bypass the intermittent RLS-cookie-
+      // timing issue documented in lib/supabase/admin.ts. The user.id has
+      // already been verified via the cookie session's auth.getUser() above.
+      const admin = createAdminSupabase();
+      const { data: existing } = await admin
+        .from("users")
+        .select("id, exam_choice")
+        .eq("id", user.id)
+        .maybeSingle();
 
-      if (user) {
-        // For the callback path we set exam_choice only when it's missing
-        // (i.e. first sign-in). Returning users keep whatever they last
-        // chose — that way "Sign in with Google" from elsewhere doesn't
-        // silently reset an existing pick. Explicit exam switches happen
-        // on /start/[slug].
-        //
-        // Use the service-role client for the write to bypass the
-        // intermittent RLS-cookie-timing issue documented in
-        // lib/supabase/admin.ts. The user.id has already been verified
-        // via the cookie session's auth.getUser() above.
-        const admin = createAdminSupabase();
-        const { data: existing } = await admin
-          .from("users")
-          .select("id, exam_choice")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (!existing) {
-          // First sign-in: create the row with the picked exam.
-          await admin.from("users").insert({
-            id: user.id,
-            email: user.email ?? "",
-            exam_choice: examChoice,
-          });
-          // AWAIT the welcome email send. Fire-and-forget gets killed by
-          // Vercel serverless lambda termination after the redirect response
-          // is sent — confirmed empirically. Adds ~1-2 sec to the OAuth round
-          // trip but guarantees delivery. SMTP failure won't break signup
-          // since sendEmail catches errors and returns false.
-          if (user.email) {
-            try {
-              // Pass the exam SLUG (cuet / ssc-cgl / neet-ug) so the email
-              // can render the exam-specific proof block (CUET vocab trap /
-              // SSC algebra trap / NEET lac operon).
-              await sendWelcomeEmail(user.email, examChoice);
-            } catch (e) {
-              console.error("[auth/callback] welcome email send threw:", e);
-            }
+      if (!existing) {
+        // First sign-in: create the row. examChoice may be null if the user
+        // didn't go through an exam-card click — that's fine, /start/[slug]
+        // will set it later.
+        await admin.from("users").insert({
+          id: user.id,
+          email: user.email ?? "",
+          exam_choice: examChoice,
+        });
+        // AWAIT the welcome email send. Fire-and-forget gets killed by
+        // Vercel serverless lambda termination after the redirect response
+        // is sent — confirmed empirically. Adds ~1-2 sec to the OAuth round
+        // trip but guarantees delivery. SMTP failure won't break signup
+        // since sendEmail catches errors and returns false.
+        if (user.email) {
+          try {
+            // Pass the exam SLUG (cuet / ssc-cgl / neet-ug) so the email
+            // can render the exam-specific proof block. Falls back to neet-ug
+            // template if no exam was picked.
+            console.log("[auth/callback] sending welcome email to", user.email, "exam:", examChoice ?? "(none → default NEET)");
+            const sent = await sendWelcomeEmail(user.email, examChoice ?? undefined);
+            console.log("[auth/callback] welcome email send result:", sent);
+          } catch (e) {
+            console.error("[auth/callback] welcome email send threw:", e);
           }
-        } else if (!existing.exam_choice) {
-          // Row exists but exam_choice never got set (legacy account, or
-          // user landed via a path that didn't carry a slug). Set it now.
-          await admin
-            .from("users")
-            .update({ exam_choice: examChoice })
-            .eq("id", user.id);
         }
-        // else: keep their existing pick.
+      } else if (examChoice && !existing.exam_choice) {
+        // Returning user with no exam choice set yet — fill it in.
+        // Returning users with an existing choice keep their pick.
+        await admin
+          .from("users")
+          .update({ exam_choice: examChoice })
+          .eq("id", user.id);
       }
     }
   }

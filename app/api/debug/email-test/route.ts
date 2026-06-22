@@ -1,25 +1,30 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, sendWelcomeEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Temporary diagnostic endpoint to debug SMTP delivery.
+ * Temporary diagnostic endpoint to debug SMTP + welcome email.
  *
- * Usage: GET /api/debug/email-test?to=your@email.com
+ * Usage:
+ *   GET /api/debug/email-test?to=you@example.com
+ *     → sends the SMTP diagnostic ping
+ *   GET /api/debug/email-test?to=you@example.com&template=welcome&exam=cuet
+ *     → fires the REAL welcome email (CUET / SSC / NEET) so you can preview
+ *       it without going through a fresh OAuth signup that bumps a user row.
  *
- * Awaits the send synchronously and returns a JSON report of exactly what
- * the SMTP transport said. Use this to isolate fire-and-forget log-loss
- * issues from real send failures.
- *
- * REMOVE THIS FILE once welcome email is verified working end-to-end.
+ * REMOVE THIS FILE once everything is verified working end-to-end.
  */
 export async function GET(req: NextRequest) {
-  const to = new URL(req.url).searchParams.get("to");
+  const url = new URL(req.url);
+  const to = url.searchParams.get("to");
+  const template = url.searchParams.get("template");
+  const exam = url.searchParams.get("exam") ?? "neet-ug";
+
   if (!to) {
     return NextResponse.json(
-      { error: "Pass ?to=email@example.com" },
+      { error: "Pass ?to=email@example.com (optional: &template=welcome&exam=cuet|ssc-cgl|neet-ug)" },
       { status: 400 }
     );
   }
@@ -34,12 +39,17 @@ export async function GET(req: NextRequest) {
   };
 
   try {
-    const ok = await sendEmail({
-      to,
-      subject: "🧪 ExamGrind SMTP diagnostic test",
-      html: `<p>If you received this, SMTP is working from production.</p><p>Time: ${new Date().toISOString()}</p>`,
-    });
-    return NextResponse.json({ sent: ok, env: envSummary });
+    let ok = false;
+    if (template === "welcome") {
+      ok = await sendWelcomeEmail(to, exam);
+    } else {
+      ok = await sendEmail({
+        to,
+        subject: "🧪 ExamGrind SMTP diagnostic test",
+        html: `<p>If you received this, SMTP is working from production.</p><p>Time: ${new Date().toISOString()}</p>`,
+      });
+    }
+    return NextResponse.json({ sent: ok, template: template ?? "ping", exam, env: envSummary });
   } catch (err) {
     return NextResponse.json(
       {
