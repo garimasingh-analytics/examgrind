@@ -315,7 +315,16 @@ export async function sendWelcomeEmail(to: string, examSlug?: string) {
   });
 }
 
-/** Payment receipt — automated, sent after Razorpay subscription.activated or .charged. */
+/** Subscription thank-you email — marketing-grade, brand love, trust building.
+ *  NOT a tax invoice. Razorpay sends its own GSTIN-compliant auto-receipt
+ *  separately, which keeps Anthropic + accountants happy. This email is for
+ *  the human — warm hero, what's-unlocked, founder note, clean receipt block.
+ *  Mirrors the welcome email DNA so Premium feels like a continuation, not a
+ *  jarring tone shift.
+ *
+ *  Sent from the Razorpay subscription.activated / subscription.charged webhook
+ *  after a real payment lands.
+ */
 export async function sendPaymentConfirmation(
   to: string,
   amount: number,
@@ -323,39 +332,180 @@ export async function sendPaymentConfirmation(
   txnRef?: string
 ) {
   const txnLine = txnRef
-    ? `<tr><td style="padding:12px 16px;color:#666;border-top:1px solid #FFE;">Transaction ID</td><td style="padding:12px 16px;text-align:right;font-family:monospace;font-size:13px;border-top:1px solid #FFE;">${txnRef}</td></tr>`
+    ? `<div style="font-size:11px;color:#9A8C7C;margin-top:10px;font-family:Menlo,Monaco,monospace;letter-spacing:0.2px;">Txn ${txnRef}</div>`
     : "";
   return sendEmail({
     to,
-    subject: `Receipt — ExamGrind Premium ₹${amount}`,
-    html: wrap(`
-      <h2 style="margin:0 0 8px;color:#FF6B6B;">Payment received 👑</h2>
-      <p style="color:#888;font-size:13px;margin:0 0 20px;">Your ExamGrind Premium subscription is active.</p>
+    subject: `You're Premium 👑 — thank you for backing ExamGrind`,
+    html: `
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>You're Premium · ExamGrind</title>
+</head>
+<body style="margin:0;padding:0;background:#F7EFE6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#2C1810;-webkit-font-smoothing:antialiased;">
+  <!-- preheader (shows as inbox preview) -->
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#F7EFE6;">Unlimited quizzes, mocks, and Deep Analyses are now unlocked. Next renewal ${periodEndsAt}. ₹${amount} received — thank you for backing ExamGrind.</div>
 
-      <table style="width:100%;border-collapse:collapse;margin:0 0 20px;background:#FFF8E8;border-radius:6px;">
-        <tr><td style="padding:12px 16px;color:#666;">Plan</td><td style="padding:12px 16px;text-align:right;font-weight:600;">ExamGrind Premium · monthly</td></tr>
-        <tr><td style="padding:12px 16px;color:#666;border-top:1px solid #FFE;">Amount</td><td style="padding:12px 16px;text-align:right;font-weight:600;border-top:1px solid #FFE;">₹${amount} (incl. GST)</td></tr>
-        <tr><td style="padding:12px 16px;color:#666;border-top:1px solid #FFE;">Next renewal</td><td style="padding:12px 16px;text-align:right;font-weight:600;border-top:1px solid #FFE;">${periodEndsAt}</td></tr>
-        ${txnLine}
-      </table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7EFE6;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#FFFCF7;border-radius:24px;overflow:hidden;box-shadow:0 8px 24px rgba(255,107,107,0.10);">
 
-      <p style="font-size:14px;color:#444;margin:0 0 20px;">
-        Unlimited quizzes, mocks, and Deep Analyses are now unlocked.
-      </p>
-      <p style="text-align:center;margin:0 0 28px;">
-        <a href="https://examgrind.in/home" style="background:#FF6B6B;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;">Back to practice →</a>
-      </p>
+          <!-- HERO -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#FF6B6B 0%,#FD7C29 60%,#FFB84D 100%);padding:40px 32px 36px;text-align:center;">
+              <div style="font-size:64px;line-height:1;margin-bottom:8px;">👑</div>
+              <div style="font-family:Georgia,'Times New Roman',serif;font-size:34px;font-weight:700;color:#FFFCF7;letter-spacing:-0.5px;line-height:1.15;">
+                You're Premium.
+              </div>
+              <div style="font-size:16px;color:rgba(255,252,247,0.92);margin-top:10px;font-weight:500;">
+                Unlimited unlocked. Ceiling removed.
+              </div>
+            </td>
+          </tr>
 
-      <hr style="border:none;border-top:1px solid #EEE;margin:24px 0;" />
-      <p style="color:#888;font-size:12px;line-height:1.5;margin:0;">
-        <strong>This is an automated receipt — please do not reply to this email.</strong><br/>
-        For questions, contact <a href="mailto:info@examgrind.in" style="color:#FF6B6B;">info@examgrind.in</a>.
-        Cancel anytime at <a href="https://examgrind.in/me" style="color:#FF6B6B;">examgrind.in/me</a>.<br/><br/>
-        Sold by Mobizone Technologies Private Limited<br/>
-        Registered office: A2/544A 3rd Floor, Shiv Arcade, Acharya Niketan, Mayur Vihar Phase-1, Delhi-110091<br/>
-        GSTIN: 09AAICM6882B1Z8
-      </p>
-    `),
+          <!-- INTRO -->
+          <tr>
+            <td style="padding:36px 32px 8px;">
+              <p style="margin:0 0 14px;font-size:17px;line-height:1.55;color:#2C1810;">
+                Hey 👋
+              </p>
+              <p style="margin:0 0 14px;font-size:16px;line-height:1.6;color:#2C1810;">
+                <strong style="color:#FF6B6B;">Thank you for going Premium.</strong> Truly, truly — thank you.
+              </p>
+              <p style="margin:0 0 14px;font-size:16px;line-height:1.6;color:#2C1810;">
+                Picking a prep tool isn't a casual decision. You're trusting us with the hours and the focus you're putting into the biggest exam ahead of you, and that's not something I take lightly.
+              </p>
+              <p style="margin:0;font-size:16px;line-height:1.6;color:#2C1810;">
+                Your account is upgraded. The ceiling is gone — go grind. 🐥
+              </p>
+            </td>
+          </tr>
+
+          <!-- WHAT'S UNLOCKED -->
+          <tr>
+            <td style="padding:28px 32px 8px;">
+              <div style="text-align:center;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#7A6A5C;margin-bottom:14px;">
+                What's unlocked
+              </div>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="50%" valign="top" style="padding:6px;">
+                    <div style="background:#FFF4EB;border-radius:14px;padding:18px 16px;">
+                      <div style="font-size:24px;line-height:1;margin-bottom:8px;">🎯</div>
+                      <div style="font-size:14px;font-weight:700;color:#2C1810;line-height:1.2;">Unlimited concept quizzes</div>
+                      <div style="font-size:12px;color:#7A6A5C;margin-top:6px;line-height:1.4;">Across every subject in your exam.</div>
+                    </div>
+                  </td>
+                  <td width="50%" valign="top" style="padding:6px;">
+                    <div style="background:#FFF4EB;border-radius:14px;padding:18px 16px;">
+                      <div style="font-size:24px;line-height:1;margin-bottom:8px;">📝</div>
+                      <div style="font-size:14px;font-weight:700;color:#2C1810;line-height:1.2;">Unlimited full-length mocks</div>
+                      <div style="font-size:12px;color:#7A6A5C;margin-top:6px;line-height:1.4;">Real-exam strict mode + timer.</div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="50%" valign="top" style="padding:6px;">
+                    <div style="background:#FFF4EB;border-radius:14px;padding:18px 16px;">
+                      <div style="font-size:24px;line-height:1;margin-bottom:8px;">🔍</div>
+                      <div style="font-size:14px;font-weight:700;color:#2C1810;line-height:1.2;">Unlimited Deep Analysis</div>
+                      <div style="font-size:12px;color:#7A6A5C;margin-top:6px;line-height:1.4;">Per-question diagnosis + revise links.</div>
+                    </div>
+                  </td>
+                  <td width="50%" valign="top" style="padding:6px;">
+                    <div style="background:#FFF4EB;border-radius:14px;padding:18px 16px;">
+                      <div style="font-size:24px;line-height:1;margin-bottom:8px;">🛡️</div>
+                      <div style="font-size:14px;font-weight:700;color:#2C1810;line-height:1.2;">Streak Insurance + skins</div>
+                      <div style="font-size:12px;color:#7A6A5C;margin-top:6px;line-height:1.4;">Don't lose a streak to one bad day.</div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- RECEIPT BLOCK -->
+          <tr>
+            <td style="padding:24px 32px 4px;">
+              <div style="background:#FFFFFF;border:1px solid rgba(44,24,16,0.08);border-radius:18px;padding:22px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#FF6B6B;margin-bottom:14px;">
+                  Receipt
+                </div>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px;color:#2C1810;">
+                  <tr>
+                    <td style="padding:6px 0;color:#7A6A5C;">Plan</td>
+                    <td style="padding:6px 0;text-align:right;font-weight:600;">ExamGrind Premium · monthly</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;color:#7A6A5C;border-top:1px solid rgba(44,24,16,0.06);">Amount</td>
+                    <td style="padding:8px 0;text-align:right;font-weight:700;border-top:1px solid rgba(44,24,16,0.06);">₹${amount}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;color:#7A6A5C;border-top:1px solid rgba(44,24,16,0.06);">Next renewal</td>
+                    <td style="padding:8px 0;text-align:right;font-weight:600;border-top:1px solid rgba(44,24,16,0.06);">${periodEndsAt}</td>
+                  </tr>
+                </table>
+                ${txnLine}
+              </div>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td align="center" style="padding:28px 32px 12px;">
+              <a href="https://examgrind.in/home" style="display:inline-block;background:#2C1810;color:#FFFCF7;font-size:16px;font-weight:700;padding:16px 38px;border-radius:14px;text-decoration:none;letter-spacing:0.2px;box-shadow:0 4px 0 rgba(0,0,0,0.10);">
+                Back to practice →
+              </a>
+            </td>
+          </tr>
+
+          <!-- Secondary CTA -->
+          <tr>
+            <td align="center" style="padding:0 32px 32px;">
+              <a href="https://examgrind.in/me" style="font-size:14px;color:#FF6B6B;font-weight:600;text-decoration:none;border-bottom:1px dashed rgba(255,107,107,0.4);padding-bottom:1px;">
+                Manage subscription →
+              </a>
+            </td>
+          </tr>
+
+          <!-- FOUNDER NOTE -->
+          <tr>
+            <td style="padding:0 32px 32px;">
+              <div style="background:#F7EFE6;border-radius:14px;padding:18px 20px;font-size:14px;line-height:1.55;color:#2C1810;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#7A6A5C;margin-bottom:6px;">
+                  From the founder
+                </div>
+                I'll be transparent — this is a tiny team, and you're an early subscriber. That means two things. First: thank you, really. Second: if ANYTHING feels off — a grading slip, a slow page, a missing chapter — just reply to this email. It lands in my inbox.
+                <div style="margin-top:10px;font-style:italic;color:#7A6A5C;">— Garima, founder</div>
+              </div>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background:#F7EFE6;padding:24px 32px;text-align:center;font-size:12px;color:#7A6A5C;line-height:1.6;">
+              <a href="https://examgrind.in" style="color:#FF6B6B;text-decoration:none;font-weight:700;">examgrind.in</a> ·
+              <a href="https://examgrind.in/terms" style="color:#7A6A5C;text-decoration:none;">Terms</a> ·
+              <a href="https://examgrind.in/privacy" style="color:#7A6A5C;text-decoration:none;">Privacy</a> ·
+              <a href="https://examgrind.in/refund" style="color:#7A6A5C;text-decoration:none;">Refund</a>
+              <div style="margin-top:10px;font-size:11px;color:#9A8C7C;">
+                Mobizone Technologies Private Limited
+              </div>
+              <div style="margin-top:8px;font-size:11px;color:#9A8C7C;">© 2026 ExamGrind · Made in India 🇮🇳</div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`,
   });
 }
 
