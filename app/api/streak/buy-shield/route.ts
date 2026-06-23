@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import {
@@ -25,7 +25,7 @@ export const dynamic = "force-dynamic";
  * 500 XP but never give the user more than MAX_SHIELDS shields (CHECK
  * constraint enforces).
  */
-export async function POST(_req: NextRequest) {
+export async function POST() {
   const supabase = createServerSupabase();
   const {
     data: { user },

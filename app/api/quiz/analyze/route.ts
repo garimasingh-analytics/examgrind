@@ -285,6 +285,16 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // ---- Enrich watch links with REAL YouTube video URLs ----
+  // Claude returns a search query per weakness; we resolve that to an actual
+  // video via YouTube Data API v3 search.list (maxResults=1). If YOUTUBE_API_KEY
+  // isn't set, or the call fails / rate-limits / returns nothing, we silently
+  // fall back to no video_url — the client then renders the search URL, so
+  // the worst case is the pre-existing behaviour. Calls run in parallel
+  // with a 5s timeout each. Quota: 100 units per search × ~5 weaknesses per
+  // analysis = ~500 quota per analysis. Google's free tier is 10,000/day.
+  await enrichWithYouTubeUrls(analysis);
+
   // ---- Trust-but-verify: force perQuestion verdicts to match reality ----
   // Defence-in-depth against Claude regrading wrong answers as "correct"
   // because it disagreed with the answer key. The score the student sees
@@ -386,6 +396,73 @@ async function reconcileCachedAnalysis(
       return { ...pq, verdict: truthVerdict };
     }),
   };
+}
+
+/* ------------------------------------------------------------------ *
+ * YouTube enrichment — turn Claude's watch.query into an actual video URL
+ *
+ * Why: Claude can't reliably recall specific YouTube video IDs (the
+ * earlier attempt of asking Claude for video_url straight broke JSON
+ * parsing). The clean fix is to do a real YouTube Data API v3 search.list
+ * call AFTER Claude returns the analysis, look up the top result for each
+ * weakness's query, and attach a verified video_url.
+ *
+ * Failure modes are all silently graceful — no YOUTUBE_API_KEY, API
+ * error, timeout, rate-limit, empty results — every path leaves
+ * watch.video_url unset and the client falls back to the search URL,
+ * which is the pre-existing behaviour (no regression possible).
+ *
+ * Quota: search.list is 100 quota units per call. ~5 weaknesses per
+ * analysis = ~500 units. Google's free tier is 10,000/day = ~20 deep
+ * analyses/day before throttling. Plenty for early launch; revisit if
+ * volume picks up.
+ * ------------------------------------------------------------------ */
+type WatchBlock = {
+  query?: string;
+  channel_hint?: string;
+  video_url?: string;
+};
+type WeaknessLike = {
+  improve?: { watch?: WatchBlock };
+};
+
+async function enrichWithYouTubeUrls(analysis: AnalysisShape): Promise<void> {
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  if (!apiKey) return;
+  const weaknesses = analysis?.weaknesses;
+  if (!Array.isArray(weaknesses)) return;
+
+  const lookups = (weaknesses as WeaknessLike[]).map(async (w) => {
+    const query = w?.improve?.watch?.query;
+    if (typeof query !== "string" || query.trim().length === 0) return;
+    try {
+      const url =
+        `https://www.googleapis.com/youtube/v3/search?part=snippet` +
+        `&type=video&maxResults=1` +
+        `&q=${encodeURIComponent(query)}` +
+        `&key=${apiKey}`;
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        items?: Array<{ id?: { videoId?: string } }>;
+      };
+      const videoId = data?.items?.[0]?.id?.videoId;
+      // 11-char alphanumeric/underscore/dash is the YouTube ID format.
+      if (
+        typeof videoId === "string" &&
+        /^[A-Za-z0-9_-]{11}$/.test(videoId)
+      ) {
+        if (w.improve?.watch) {
+          w.improve.watch.video_url = `https://www.youtube.com/watch?v=${videoId}`;
+        }
+      }
+    } catch {
+      // Swallow any error — graceful fallback to search URL on the client.
+    }
+  });
+  await Promise.allSettled(lookups);
 }
 
 /* ------------------------------------------------------------------ *
