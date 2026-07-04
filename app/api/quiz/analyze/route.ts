@@ -5,6 +5,10 @@ import { generateWithRetry } from "@/lib/anthropic-resilient";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Pro plan allows up to 300s. Deep dive (Sonnet, 8000 tokens) + YouTube resolve
+// + Supabase upsert routinely burns 12-40s. The default 10s cap was silently
+// killing the function — see 2026-07-04 incident.
+export const maxDuration = 90;
 
 /**
  * Deep Analysis API.
@@ -68,6 +72,9 @@ const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const SONNET_MODEL = "claude-sonnet-4-6";
 
 export async function POST(req: NextRequest) {
+  const _t0 = Date.now();
+  console.log("[analyze:quiz] hit", { ua: req.headers.get("user-agent")?.slice(0,60) });
+ 
   // ---- Auth ----
   const supabase = createServerSupabase();
   const {

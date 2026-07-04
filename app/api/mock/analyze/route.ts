@@ -70,6 +70,9 @@ const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const SONNET_MODEL = "claude-sonnet-4-6";
 
 export async function POST(req: NextRequest) {
+  const _t0 = Date.now();
+  console.log("[analyze:mock] hit", { ua: req.headers.get("user-agent")?.slice(0,60) });
+ 
   // ---- Auth ----
   const supabase = createServerSupabase();
   const {
