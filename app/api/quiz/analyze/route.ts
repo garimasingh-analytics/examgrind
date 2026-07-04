@@ -265,7 +265,7 @@ export async function POST(req: NextRequest) {
 
   const result = await generateWithRetry(anthropic, {
     model,
-    max_tokens: deepDive ? 8000 : 4500,
+    max_tokens: deepDive ? 12000 : 8000,
     messages: [{ role: "user", content: prompt }],
   });
 
