@@ -62,6 +62,21 @@ export const metadata: Metadata = {
   },
   // Used by Android Chrome's address bar + tab switcher.
   formatDetection: { telephone: false },
+  // Explicit favicon wiring — the app/ convention alone was previously
+  // masked by a stale Vercel-branded favicon.ico that shipped with the
+  // Next.js starter. Force browsers to load our chick icons.
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [
+      { url: "/icon-192.png", sizes: "192x192" },
+    ],
+    shortcut: "/favicon.ico",
+  },
 };
 
 // Theme color + viewport were previously embedded in metadata; Next 14
