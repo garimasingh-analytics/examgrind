@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/verify-critical-invariants.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "verify": "node scripts/verify-critical-invariants.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",

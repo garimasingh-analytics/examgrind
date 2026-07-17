@@ -42,3 +42,9 @@ next-env.d.ts
 /android
 /ios
 
+# Editor / sed backups — shouldn't ever ship. Learned this the hard
+# way when a stray route.ts.bak nearly went out on 2026-07-17.
+*.bak
+*.orig
+*.rej
+

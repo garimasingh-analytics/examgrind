@@ -5,6 +5,11 @@ import { generateWithRetry } from "@/lib/anthropic-resilient";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Pro plan allows up to 300s. Deep dive (Sonnet, 8000 tokens) + YouTube resolve
+// + Supabase upsert routinely burns 12-40s. The default 10s cap was silently
+// killing the function — see 2026-07-04 and 2026-07-17 incidents.
+// If you remove this line, scripts/verify-critical-invariants.mjs fails the build.
+export const maxDuration = 90;
 
 /**
  * Deep Analysis API.
