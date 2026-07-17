@@ -28,22 +28,23 @@ const INVARIANTS = [
   {
     id: "quiz-analyze-maxDuration",
     file: "app/api/quiz/analyze/route.ts",
-    pattern: /export\s+const\s+maxDuration\s*=\s*\d+\s*;/,
+    pattern: /export\s+const\s+maxDuration\s*=\s*(?:[3-9]\d{2,}|\d{4,})\s*;/,
     rationale:
-      "Chapter-quiz Deep Analysis calls Claude Haiku (4500 tok) + optional Sonnet " +
-      "deep-dive (8000 tok) + YouTube resolve + Supabase upsert. Vercel default of " +
-      "10s silently kills the function partway. Users get a generic toast, ads waste " +
-      "money. Regressed 2026-07-04 AND 2026-07-17 — do NOT remove this line without " +
-      "confirming Vercel's default runtime cap has changed.",
+      "Chapter-quiz Deep Analysis is our USP. Requires ≥300s ceiling: " +
+      "Haiku 4500tok + optional Sonnet 8000tok + retry backoff (5 attempts × 10s) " +
+      "+ Sonnet→Haiku fallback + YouTube resolve + Supabase upsert. On slow-network " +
+      "or overloaded-model days the whole chain can burn 60-120s. Regressed " +
+      "2026-07-04 AND 2026-07-17 (both with real ad-spend impact). The pattern " +
+      "requires the LITERAL number to be ≥ 300, so anyone lowering it silently " +
+      "will also fail this guard.",
   },
   {
     id: "mock-analyze-maxDuration",
     file: "app/api/mock/analyze/route.ts",
-    pattern: /export\s+const\s+maxDuration\s*=\s*\d+\s*;/,
+    pattern: /export\s+const\s+maxDuration\s*=\s*(?:[3-9]\d{2,}|\d{4,})\s*;/,
     rationale:
-      "Mock tests are 100-180 questions — Claude spends 30-60s per analysis. Same " +
-      "reasoning as quiz/analyze but the failure is even louder because mocks are " +
-      "our paid-tier hero feature.",
+      "Mock tests are 100-180 questions — Sonnet 10000tok deep dive burns 45-90s " +
+      "before ANY retry. Same USP status as chapter-quiz analyze. Value must be ≥ 300.",
   },
   {
     id: "sms-lib-present",

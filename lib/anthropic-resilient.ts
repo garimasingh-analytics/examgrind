@@ -68,8 +68,13 @@ export async function generateWithRetry(
   anthropic: Anthropic,
   params: Anthropic.MessageCreateParamsNonStreaming
 ): Promise<ResilientResult> {
-  // 3 attempts: 0ms → 500ms → 2000ms. Total worst-case 2.5s extra.
-  const delays = [0, 500, 2000];
+  // 5 attempts: 0ms → 1s → 3s → 6s → 10s. Total worst-case 20s extra.
+  // Widened from 3 attempts / 2.5s on 2026-07-17 after ads-live incident:
+  // Anthropic overload spikes ("529 overloaded") sometimes last 15-30s.
+  // Old backoff burned through all 3 attempts in <3s and gave up. New
+  // backoff has a real chance of catching the recovery window.
+  // The 300s route maxDuration comfortably absorbs this.
+  const delays = [0, 1000, 3000, 6000, 10000];
 
   let lastErr: unknown;
   for (let i = 0; i < delays.length; i++) {

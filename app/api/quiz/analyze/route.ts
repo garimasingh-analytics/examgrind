@@ -2,14 +2,20 @@ import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
+import { sendAdminSMS } from "@/lib/sms";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 // Pro plan allows up to 300s. Deep dive (Sonnet, 8000 tokens) + YouTube resolve
-// + Supabase upsert routinely burns 12-40s. The default 10s cap was silently
-// killing the function — see 2026-07-04 and 2026-07-17 incidents.
-// If you remove this line, scripts/verify-critical-invariants.mjs fails the build.
-export const maxDuration = 90;
+// + Supabase upsert routinely burns 12-40s. Setting the CEILING to 300 so:
+//   - Anthropic overload retries have room (up to 20s backoff × 5 attempts = 100s of retry budget)
+//   - A single Sonnet deep dive on a slow day can still complete
+//   - Sonnet→Haiku fallback path (if Sonnet dies) has room to complete cleanly
+// Default 10s silently killed the function — see 2026-07-04 and 2026-07-17
+// incidents. Two separate ad-spend impact events.
+// Regressed twice, protected by scripts/verify-critical-invariants.mjs.
+// If you remove this line, the build FAILS at prebuild.
+export const maxDuration = 300;
 
 /**
  * Deep Analysis API.
@@ -260,20 +266,57 @@ export async function POST(req: NextRequest) {
 
   // ---- Call Claude with resilient retry + classified errors ----
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const model = deepDive ? SONNET_MODEL : HAIKU_MODEL;
+  const requestedModel = deepDive ? SONNET_MODEL : HAIKU_MODEL;
+  let actualModel = requestedModel;
 
-  const result = await generateWithRetry(anthropic, {
-    model,
+  console.log(
+    `[quiz/analyze] START user=${user.id.slice(0, 8)} quiz=${quizId.slice(0, 8)} deepDive=${deepDive} model=${requestedModel}`
+  );
+  const t0 = Date.now();
+
+  let result = await generateWithRetry(anthropic, {
+    model: requestedModel,
     max_tokens: deepDive ? 8000 : 4500,
     messages: [{ role: "user", content: prompt }],
   });
 
+  // FALLBACK: if the deep-dive Sonnet call died (overload, 5xx, rate limit),
+  // retry with Haiku so the user gets SOMETHING back, not a hard error.
+  // We flag `is_deep_dive: false` in the response so the client knows this
+  // is the lighter tier and can offer a "retry deep dive later" affordance.
+  if (!result.ok && deepDive && result.kind !== "auth" && result.kind !== "invalid_request") {
+    console.warn(
+      `[quiz/analyze] Sonnet failed (${result.kind}) — falling back to Haiku for user=${user.id.slice(0, 8)}`
+    );
+    result = await generateWithRetry(anthropic, {
+      model: HAIKU_MODEL,
+      max_tokens: 4500,
+      messages: [{ role: "user", content: prompt }],
+    });
+    if (result.ok) {
+      actualModel = HAIKU_MODEL;
+    }
+  }
+
   if (!result.ok) {
+    // Real-time SMS alert so Malkin sees paying-user failures live.
+    // Free users are noise; paid users are her USP — they can't hit an error.
+    if (isPaid) {
+      void sendAdminSMS(
+        `ExamGrind ALERT: Deep Analysis FAILED for paid user ${user.email ?? user.id.slice(0, 8)} (${result.kind})`
+      );
+    }
+    console.error(
+      `[quiz/analyze] FAILED user=${user.id.slice(0, 8)} model=${requestedModel} kind=${result.kind} elapsed=${Date.now() - t0}ms`
+    );
     return NextResponse.json(
       { error: result.userMessage, kind: result.kind },
       { status: result.httpStatus }
     );
   }
+  console.log(
+    `[quiz/analyze] Claude OK user=${user.id.slice(0, 8)} model=${actualModel} elapsed=${Date.now() - t0}ms tokens=${result.text.length}`
+  );
 
   let analysis: AnalysisShape;
   try {
@@ -327,13 +370,18 @@ export async function POST(req: NextRequest) {
   }
 
   // ---- Persist (upsert: deep-dive overwrites a prior haiku analysis) ----
+  // Note: `actualModel` reflects the model that ACTUALLY served the response
+  // (may be Haiku even if user requested Sonnet, if the Sonnet path fell back).
+  // is_deep_dive stays true if the user requested a deep dive, so the DB
+  // knows the user's INTENT even if we degraded gracefully.
+  const isDeepDiveActual = deepDive && actualModel === SONNET_MODEL;
   const { error: upsertErr } = await supabase.from("quiz_analyses").upsert(
     {
       quiz_id: quizId,
       user_id: user.id,
       analysis,
-      model,
-      is_deep_dive: deepDive,
+      model: actualModel,
+      is_deep_dive: isDeepDiveActual,
     },
     { onConflict: "quiz_id" }
   );
@@ -357,8 +405,11 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     cached: false,
     analysis,
-    model,
-    is_deep_dive: deepDive,
+    model: actualModel,
+    is_deep_dive: isDeepDiveActual,
+    // If we degraded from Sonnet to Haiku, tell the client so it can offer
+    // a "retry deep dive later" affordance instead of pretending nothing happened.
+    degraded: deepDive && !isDeepDiveActual,
   });
 }
 

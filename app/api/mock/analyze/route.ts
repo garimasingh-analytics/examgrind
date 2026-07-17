@@ -4,13 +4,16 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { checkFreemium, paywallError } from "@/lib/freemium";
+import { sendAdminSMS } from "@/lib/sms";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// Mocks have many more questions than chapter quizzes (NEET = 180, SSC = 100).
-// Give Claude more room to think — but not unbounded; the Anthropic call is
-// gated by the resilient retry helper which caps overall wall time.
-export const maxDuration = 90;
+// Mocks have MORE questions than chapter quizzes (NEET = 180, SSC = 100).
+// Ceiling of 300s matches quiz/analyze — gives Anthropic retry backoffs room
+// (5 attempts × up to 10s = 50s of retry budget) + Sonnet→Haiku fallback path.
+// Regressed twice on quiz/analyze — protected by scripts/verify-critical-invariants.mjs.
+// If you remove this line, the build FAILS at prebuild.
+export const maxDuration = 300;
 
 /**
  * POST /api/mock/analyze
@@ -237,22 +240,55 @@ export async function POST(req: NextRequest) {
     totalCount,
   });
 
-  // ---- Call Claude ----
+  // ---- Call Claude with retry + Sonnet→Haiku fallback + SMS alerts ----
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const model = deepDive ? SONNET_MODEL : HAIKU_MODEL;
+  const requestedModel = deepDive ? SONNET_MODEL : HAIKU_MODEL;
+  let actualModel = requestedModel;
 
-  const result = await generateWithRetry(anthropic, {
-    model,
+  console.log(
+    `[mock/analyze] START user=${user.id.slice(0, 8)} attempt=${attemptId.slice(0, 8)} deepDive=${deepDive} model=${requestedModel}`
+  );
+  const t0 = Date.now();
+
+  let result = await generateWithRetry(anthropic, {
+    model: requestedModel,
     max_tokens: deepDive ? 10000 : 6000,
     messages: [{ role: "user", content: prompt }],
   });
 
+  // FALLBACK: Sonnet died → Haiku so user gets something back.
+  if (!result.ok && deepDive && result.kind !== "auth" && result.kind !== "invalid_request") {
+    console.warn(
+      `[mock/analyze] Sonnet failed (${result.kind}) — falling back to Haiku for user=${user.id.slice(0, 8)}`
+    );
+    result = await generateWithRetry(anthropic, {
+      model: HAIKU_MODEL,
+      max_tokens: 6000,
+      messages: [{ role: "user", content: prompt }],
+    });
+    if (result.ok) {
+      actualModel = HAIKU_MODEL;
+    }
+  }
+
   if (!result.ok) {
+    // SMS alert for paid-user failures (they're the USP audience).
+    if (decision.isPaid) {
+      void sendAdminSMS(
+        `ExamGrind ALERT: Mock Deep Analysis FAILED for paid user ${user.email ?? user.id.slice(0, 8)} (${result.kind})`
+      );
+    }
+    console.error(
+      `[mock/analyze] FAILED user=${user.id.slice(0, 8)} model=${requestedModel} kind=${result.kind} elapsed=${Date.now() - t0}ms`
+    );
     return NextResponse.json(
       { error: result.userMessage, kind: result.kind },
       { status: result.httpStatus }
     );
   }
+  console.log(
+    `[mock/analyze] Claude OK user=${user.id.slice(0, 8)} model=${actualModel} elapsed=${Date.now() - t0}ms tokens=${result.text.length}`
+  );
 
   let analysis: AnalysisShape;
   try {
@@ -295,13 +331,15 @@ export async function POST(req: NextRequest) {
   }
 
   // ---- Persist ----
+  // actualModel reflects what actually served — may be Haiku even if user asked Sonnet.
+  const isDeepDiveActual = deepDive && actualModel === SONNET_MODEL;
   const { error: upsertErr } = await admin.from("mock_analyses").upsert(
     {
       mock_attempt_id: attemptId,
       user_id: user.id,
       analysis,
-      model,
-      is_deep_dive: deepDive,
+      model: actualModel,
+      is_deep_dive: isDeepDiveActual,
     },
     { onConflict: "mock_attempt_id" }
   );
@@ -326,8 +364,10 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     cached: false,
     analysis,
-    model,
-    is_deep_dive: deepDive,
+    model: actualModel,
+    is_deep_dive: isDeepDiveActual,
+    // If Sonnet degraded to Haiku, tell client so it can offer a retry.
+    degraded: deepDive && !isDeepDiveActual,
   });
 }
 
