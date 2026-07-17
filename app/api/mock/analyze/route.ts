@@ -70,8 +70,6 @@ const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const SONNET_MODEL = "claude-sonnet-4-6";
 
 export async function POST(req: NextRequest) {
-  console.log("[analyze:mock] hit", { ua: req.headers.get("user-agent")?.slice(0,60) });
- 
   // ---- Auth ----
   const supabase = createServerSupabase();
   const {
@@ -245,7 +243,7 @@ export async function POST(req: NextRequest) {
 
   const result = await generateWithRetry(anthropic, {
     model,
-    max_tokens: deepDive ? 14000 : 8000,
+    max_tokens: deepDive ? 10000 : 6000,
     messages: [{ role: "user", content: prompt }],
   });
 

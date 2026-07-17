@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { fireAlert } from "@/lib/alert";
+import { sendAdminSMS } from "@/lib/sms";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -177,6 +178,10 @@ export async function POST(req: NextRequest) {
       razorpay_payment_id,
       paid_until: newPaidUntil.toISOString(),
     }
+  );
+  // 📱 real-time SMS to Malkin — one-time paid unlock
+  void sendAdminSMS(
+    `ExamGrind: PAID Rs 199 from ${user.email ?? "unknown"}. pay=${razorpay_payment_id.slice(-8)}`
   );
 
   // The next render of /me and /home should see the upgrade.

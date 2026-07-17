@@ -41,16 +41,18 @@ Sharing: set `ExamGrind/` to "anyone with link can view" so designers/freelancer
 
 | Input | Type | Range | Purpose |
 |---|---|---|---|
-| `state` | Number | 0–4 | Picks the active animation: 0=idle, 1=celebrate, 2=think, 3=sad, 4=streak-fire |
-| `intensity` | Number | 0–100 | Amplifies the active animation (used for streak count, score boost, etc.) |
+| `state` | Number | 0–4 | Picks the active animation: 0=idle, 1=happy, 2=sad, 3=frustrated, 4=excited |
+| `intensity` | Number | 0–100 | Amplifies the active animation (streak fire size, bounce height, etc.) |
+
+State names match the existing `<Chick />` SVG component (`components/Chick.tsx`) so `<ChickRive />` is a drop-in replacement.
 
 ### Animations (5 named timelines)
 
-1. **`idle`** — 2s loop. Gentle bob (head up/down 4px), blink every 1.2s, soft tail twitch. Default state on page load.
-2. **`celebrate`** — 1.5s one-shot. Both wings up, eyes squinted ^_^, 3 confetti particles puff out, slight upward jump (8px). Plays on quiz pass / streak milestone / payment success.
-3. **`think`** — 2s loop. Head tilted 12° right, one wing on chin, eyes scanning left↔right, occasional `?` bubble above. Plays during quiz generation loading.
-4. **`sad`** — 1.2s one-shot, then settle into a slower idle. Eyes droop, beak frown, one tear drop. Plays on quiz fail / streak break (before shield auto-protects).
-5. **`streak-fire`** — 1.8s loop. Mini flames behind chick (3 layers parallax), glow pulse, wings flap fast. `intensity` controls flame size (0=tiny embers, 100=full bonfire). Plays on streak ≥7.
+1. **`idle`** — 2s loop. Gentle breathing + subtle bob. Default state on page load.
+2. **`happy`** — 1.5s one-shot. Rhythmic swaying, ^_^ eyes, soft smile, blush. Plays on quiz pass / streak milestone / payment success.
+3. **`sad`** — 1.2s one-shot, then settle into slower idle. Drooped lids, downturned beak, tear drop. Plays on quiz fail / streak break.
+4. **`frustrated`** — 1s loop. Tight jittery vibrations, lowered brows, rigid wings out, +40% red cheeks. Plays mid-quiz when stuck / wrong streak.
+5. **`excited`** — 1.8s loop. Vertical bouncing, wide sparkly eyes, open "cheep" beak, rapid wing flap (1.5×). `intensity` controls bounce height + sparkle count. Plays on streak ≥7 / Premium unlock.
 
 ### State Machine wiring
 
@@ -69,44 +71,30 @@ Use **Any State → target** transitions for state=1/2/3/4 so the rig can interr
 
 ---
 
-## React integration (drop-in component)
+## React integration
 
-`components/ChickRive.tsx`:
+`components/ChickRive.tsx` is **already built and shipped** — a drop-in
+replacement for the existing `<Chick />` SVG component. It:
+
+1. HEAD-probes `/rive/chick-master.riv` on mount
+2. If 200 → loads the Rive rig and drives the state machine
+3. If 404 → falls back to rendering `<Chick />` (the SVG) with the same props
+
+So the app keeps working today even before the rig is built, and "upgrading"
+a page from SVG to Rive is just changing the import.
+
+Usage:
 ```tsx
-"use client";
-import { useRive, useStateMachineInput } from "@rive-app/react-canvas";
+import ChickRive from "@/components/ChickRive";
 
-type ChickState = "idle" | "celebrate" | "think" | "sad" | "streak-fire";
-const STATE_MAP: Record<ChickState, number> = {
-  idle: 0, celebrate: 1, think: 2, sad: 3, "streak-fire": 4,
-};
-
-export function ChickRive({
-  state = "idle",
-  intensity = 0,
-  size = 200,
-}: { state?: ChickState; intensity?: number; size?: number }) {
-  const { rive, RiveComponent } = useRive({
-    src: "/rive/chick-master.riv",
-    stateMachines: "Chick",
-    autoplay: true,
-  });
-  const stateInput = useStateMachineInput(rive, "Chick", "state");
-  const intensityInput = useStateMachineInput(rive, "Chick", "intensity");
-
-  if (stateInput) stateInput.value = STATE_MAP[state];
-  if (intensityInput) intensityInput.value = intensity;
-
-  return <RiveComponent style={{ width: size, height: size }} />;
-}
+<ChickRive state="happy" />                          // quiz passed
+<ChickRive state="frustrated" />                     // mid-quiz, stuck
+<ChickRive state="excited" intensity={streak * 10} /> // streak display
 ```
 
-Usage anywhere:
-```tsx
-<ChickRive state="celebrate" />                    // quiz passed
-<ChickRive state="think" />                         // loading
-<ChickRive state="streak-fire" intensity={streak * 10} />   // streak display
-```
+**Upgrade path** — once `chick-master.riv` lives in `public/rive/`:
+- Find usages of `<Chick />` and replace with `<ChickRive />` (identical API)
+- Or do a global find/replace `import Chick` → `import ChickRive` (Chick.tsx itself stays as the fallback)
 
 ---
 

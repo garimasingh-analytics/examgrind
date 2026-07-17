@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" width="512" height="512">
+  <defs>
+    <radialGradient id="chickBody" cx="42%" cy="32%" r="78%">
+      <stop offset="0%" stop-color="#FFF1A8"/>
+      <stop offset="55%" stop-color="#FDD647"/>
+      <stop offset="100%" stop-color="#E5A823"/>
+    </radialGradient>
+    <radialGradient id="chickBelly" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#FFF6C8" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#FFF6C8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cheekBlush" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#FFB1B8" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#FFB1B8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beakGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFA94D"/>
+      <stop offset="100%" stop-color="#F76707"/>
+    </linearGradient>
+    <radialGradient id="eyeSphere" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#5A3A1F"/>
+      <stop offset="55%" stop-color="#1A0F06"/>
+      <stop offset="100%" stop-color="#000"/>
+    </radialGradient>
+  </defs>
+
+  <g id="shadow">
+    <ellipse cx="110" cy="206" rx="62" ry="6" fill="#1F1A14" opacity="0.10"/>
+  </g>
+
+  <g id="wings">
+    <g id="wing-left">
+      <ellipse cx="28" cy="135" rx="12" ry="22" fill="#E5A823" transform="rotate(-12 28 135)"/>
+    </g>
+    <g id="wing-right">
+      <ellipse cx="192" cy="135" rx="12" ry="22" fill="#E5A823" transform="rotate(12 192 135)"/>
+    </g>
+  </g>
+
+  <g id="body">
+    <ellipse cx="110" cy="118" rx="86" ry="90" fill="url(#chickBody)"/>
+    <ellipse cx="110" cy="146" rx="56" ry="48" fill="url(#chickBelly)"/>
+  </g>
+
+  <g id="tuft">
+    <circle cx="100" cy="36" r="6" fill="#E5A823"/>
+    <circle cx="110" cy="28" r="8" fill="#E5A823"/>
+    <circle cx="120" cy="36" r="6" fill="#E5A823"/>
+  </g>
+
+  <g id="cheeks">
+    <ellipse cx="58" cy="128" rx="16" ry="10" fill="url(#cheekBlush)"/>
+    <ellipse cx="162" cy="128" rx="16" ry="10" fill="url(#cheekBlush)"/>
+  </g>
+
+  <g id="eyes">
+    <g id="eye-left">
+      <ellipse cx="82" cy="106" rx="10.5" ry="13" fill="url(#eyeSphere)"/>
+      <circle cx="78" cy="101" r="3.6" fill="#FFFDF6"/>
+      <circle cx="86" cy="112" r="1.6" fill="#FFFDF6"/>
+    </g>
+    <g id="eye-right">
+      <ellipse cx="138" cy="106" rx="10.5" ry="13" fill="url(#eyeSphere)"/>
+      <circle cx="134" cy="101" r="3.6" fill="#FFFDF6"/>
+      <circle cx="142" cy="112" r="1.6" fill="#FFFDF6"/>
+    </g>
+  </g>
+
+  <g id="beak">
+    <path d="M100 128 L120 128 L110 142 Z" fill="url(#beakGrad)"/>
+    <path d="M100 128 Q110 132 120 128" stroke="#C2350A" stroke-width="1" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <g id="feet" fill="url(#beakGrad)" stroke="#C2350A" stroke-width="1" stroke-linejoin="round">
+    <g id="foot-left">
+      <rect x="94" y="196" width="6" height="6" rx="2"/>
+      <path d="M88 210 L86 218 L92 214 Z"/>
+      <path d="M94 210 L94 220 L100 220 L100 210 Z"/>
+      <path d="M106 210 L108 218 L102 214 Z"/>
+    </g>
+    <g id="foot-right">
+      <rect x="138" y="196" width="6" height="6" rx="2"/>
+      <path d="M132 210 L130 218 L136 214 Z"/>
+      <path d="M138 210 L138 220 L144 220 L144 210 Z"/>
+      <path d="M150 210 L152 218 L146 214 Z"/>
+    </g>
+  </g>
+</svg>

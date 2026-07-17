@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { fireAlert } from "@/lib/alert";
 import { sendPaymentConfirmation } from "@/lib/email";
+import { sendAdminSMS } from "@/lib/sms";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -169,15 +170,25 @@ export async function POST(req: NextRequest) {
           })
           .eq("id", userId);
 
+        const emailForAlert = sub.notes?.email;
+        const userTag = emailForAlert ?? `user ${userId.slice(0, 8)}`;
         if (body.event === "subscription.activated") {
           void fireAlert(
-            `New SUBSCRIPTION activated — ₹199/mo recurring from user ${userId.slice(0, 8)}`,
+            `New SUBSCRIPTION activated — ₹199/mo recurring from ${userTag}`,
             { subscription_id: sub.id, paid_until: paidUntilIso }
+          );
+          // 📱 real-time SMS to Malkin — new paid sub
+          void sendAdminSMS(
+            `ExamGrind: NEW sub Rs 199/mo. ${userTag}. sub=${sub.id.slice(-8)}`
           );
         } else {
           void fireAlert(
-            `Subscription RENEWED — auto-charge succeeded for ${userId.slice(0, 8)}`,
+            `Subscription RENEWED — auto-charge succeeded for ${userTag}`,
             { subscription_id: sub.id, paid_until: paidUntilIso }
+          );
+          // 📱 real-time SMS to Malkin — renewal charged
+          void sendAdminSMS(
+            `ExamGrind: RENEW Rs 199. ${userTag}. sub=${sub.id.slice(-8)}`
           );
         }
 
