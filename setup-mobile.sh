@@ -1,84 +1,120 @@
 #!/bin/bash
-# setup-mobile.sh — one-time scaffolding for the ExamGrind native apps.
+# setup-mobile.sh — one-time Capacitor + Android scaffold for ExamGrind
 #
-# Run this once per machine. It:
-#   1. Installs Capacitor + the Android/iOS platform plugins.
-#   2. Initialises the native projects (./android and ./ios).
-#   3. Syncs the capacitor.config.ts you've already got in this repo.
+# Prereqs (install once on your Mac):
+#   1. Node 20+          brew install node
+#   2. Java 17+ (JDK)    brew install --cask temurin
+#      → confirm: java -version  → should say 17.x or higher
+#   3. Android Studio    https://developer.android.com/studio
+#      → open it once, let it install the Android SDK
+#      → in Preferences → Appearance & Behavior → System Settings → Android SDK,
+#        confirm "Android 14 (API 34)" is installed
 #
-# After this finishes, see MOBILE_SETUP.md for what to do in Android
-# Studio / Xcode to actually build + sign + ship the APK / IPA.
-#
-# Usage:
+# After prereqs, just run:
 #   cd "Cuet exam app/cuet-quiz-app"
 #   bash setup-mobile.sh
+#
+# Idempotent — safe to re-run any time.
 
 set -e
 
-# --- Sanity ---------------------------------------------------------
+cd "$(dirname "$0")"
+
+echo "==============================================="
+echo "  ExamGrind — Mobile Setup (Android)"
+echo "==============================================="
+echo ""
+
+# --- 1. Sanity checks ---
 if [ ! -f "capacitor.config.ts" ]; then
-  echo "ERROR: capacitor.config.ts not found. Are you in cuet-quiz-app?"
+  echo "🚨 capacitor.config.ts not found. Are you in cuet-quiz-app?"
+  exit 1
+fi
+if ! command -v node >/dev/null 2>&1; then
+  echo "🚨 Node isn't installed. Install with: brew install node"
+  exit 1
+fi
+if ! command -v java >/dev/null 2>&1; then
+  echo "🚨 Java not installed. Install with: brew install --cask temurin"
+  echo "   Then re-run this script."
+  exit 1
+fi
+JAVA_MAJOR=$(java -version 2>&1 | head -1 | sed 's/.*"\([0-9]*\).*/\1/')
+if [ "${JAVA_MAJOR:-0}" -lt 17 ]; then
+  echo "🚨 Java version is $JAVA_MAJOR — need 17 or later."
+  echo "   Install with: brew install --cask temurin"
   exit 1
 fi
 
-# --- 1. Install Capacitor SDK + CLI + platform plugins -------------
-echo "Installing Capacitor packages…"
-npm install --save \
-  @capacitor/core \
-  @capacitor/android \
-  @capacitor/ios \
-  @capacitor/splash-screen \
-  @capacitor/status-bar
-npm install --save-dev @capacitor/cli
+echo "✓ Node $(node --version) · Java $JAVA_MAJOR"
+echo ""
 
-# --- 2. Initialise (only writes android/ + ios/ if missing) --------
-# Capacitor's init asks 3 questions interactively. We've already set
-# appId + appName in capacitor.config.ts so init is a no-op for those.
-# Adding the platforms is what actually scaffolds the native projects.
-if [ ! -d "android" ]; then
-  echo "Scaffolding Android project…"
-  npx cap add android
+# --- 2. Install dependencies (Capacitor pkgs are now in package.json) ---
+echo "==> Installing npm packages (2-3 min the first time)..."
+npm install --no-audit --no-fund
+echo "✓ Dependencies installed"
+echo ""
+
+# --- 3. Add Android platform (creates android/ folder if missing) ---
+if [ -d "android" ]; then
+  echo "==> android/ folder already exists — skipping cap add"
 else
-  echo "android/ already exists — skipping cap add android."
+  echo "==> Adding Android platform..."
+  npx cap add android
+  echo "✓ android/ folder created"
 fi
+echo ""
 
-if [ ! -d "ios" ]; then
-  # iOS only works on macOS; skip gracefully on Linux.
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "Scaffolding iOS project…"
-    npx cap add ios
+# --- 4. Add iOS platform only if on macOS + Xcode present ---
+if [[ "$OSTYPE" == "darwin"* ]] && command -v xcodebuild >/dev/null 2>&1; then
+  if [ -d "ios" ]; then
+    echo "==> ios/ folder already exists — skipping cap add"
   else
-    echo "Not on macOS — skipping iOS scaffold. Build the iOS app on a Mac later."
+    echo "==> Adding iOS platform (Xcode detected)..."
+    npx cap add ios
+    echo "✓ ios/ folder created"
   fi
 else
-  echo "ios/ already exists — skipping cap add ios."
+  echo "==> Skipping iOS — Xcode not installed (fine, do that later)"
 fi
+echo ""
 
-# --- 3. Sync config + web assets into the native projects ----------
-echo "Syncing Capacitor config into native projects…"
+# --- 5. Generate icons + splash from resources/chick ---
+echo "==> Generating chick icons + splash at all Android densities..."
+npx capacitor-assets generate --android
+echo "✓ Icons + splash generated"
+echo ""
+
+# --- 6. Sync config + web assets into native projects ---
+echo "==> Syncing native project..."
 npx cap sync
+echo "✓ Sync complete"
+echo ""
 
+# --- 7. Next steps ---
 cat <<'EOF'
+===============================================
+  ✓ Ready to install on your phone!
+===============================================
 
-────────────────────────────────────────────────────────────────────
-Mobile scaffolding is done. Next steps:
+Next steps:
+  1. Plug your Android phone into your Mac via USB.
+  2. On your phone: enable Developer Options + USB Debugging
+     (Settings → About phone → tap Build number 7 times → back →
+      Developer Options → USB debugging ON)
+  3. Run:  npx cap open android
+     Android Studio opens the ExamGrind project.
+  4. In the top toolbar, pick your connected phone from the device dropdown.
+  5. Click the green ▶ Run button.
+     First build takes 3-5 min; subsequent builds are fast.
+  6. App installs on your phone with the chick icon.
 
-  Android (Play Store-ready APK / AAB):
-    1. Open Android Studio:    npx cap open android
-    2. Build → Build Bundle(s) / APK(s) → Build APK / AAB
-    3. Sign with your release key (see MOBILE_SETUP.md for keystore
-       generation if you don't have one yet).
+Every WEB change → after Vercel deploys, you DON'T rebuild the native
+app. The WebView pulls the new content on next launch.
+Rebuild native ONLY when:
+  - capacitor.config.ts changes
+  - Icon or splash changes
+  - Plugin versions bump
 
-  iOS (App Store-ready IPA — Mac only):
-    1. Open Xcode:             npx cap open ios
-    2. Set the bundle ID and Team in Signing & Capabilities.
-    3. Product → Archive → Distribute App → App Store Connect.
-
-  Every web change → after vercel deploys, you don't need to rebuild
-  the native app — the WebView reloads the new content automatically.
-  Only rebuild the native shell when you change capacitor.config.ts,
-  splash, icons, or plugin versions.
-
-  Full instructions: MOBILE_SETUP.md
-────────────────────────────────────────────────────────────────────
+Full instructions:  MOBILE_SETUP.md
 EOF

@@ -5,6 +5,7 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { checkFreemium, paywallError } from "@/lib/freemium";
 import { sendAdminSMS } from "@/lib/sms";
+import { extractJSON } from "@/lib/json-extract";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -250,9 +251,12 @@ export async function POST(req: NextRequest) {
   );
   const t0 = Date.now();
 
+  // Mock analyses have MORE questions (100-180) so JSON is larger.
+  // Bumped 2026-07-18 in solidarity with quiz/analyze — mocks were even
+  // closer to the truncation edge.
   let result = await generateWithRetry(anthropic, {
     model: requestedModel,
-    max_tokens: deepDive ? 10000 : 6000,
+    max_tokens: deepDive ? 16000 : 10000,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -263,7 +267,7 @@ export async function POST(req: NextRequest) {
     );
     result = await generateWithRetry(anthropic, {
       model: HAIKU_MODEL,
-      max_tokens: 6000,
+      max_tokens: 10000,
       messages: [{ role: "user", content: prompt }],
     });
     if (result.ok) {
@@ -290,18 +294,27 @@ export async function POST(req: NextRequest) {
     `[mock/analyze] Claude OK user=${user.id.slice(0, 8)} model=${actualModel} elapsed=${Date.now() - t0}ms tokens=${result.text.length}`
   );
 
-  let analysis: AnalysisShape;
-  try {
-    const cleaned = result.text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```\s*$/i, "")
-      .trim();
-    analysis = JSON.parse(cleaned) as AnalysisShape;
-  } catch (e) {
-    console.error("[mock/analyze] parse failed:", e);
+  // Tolerant JSON extraction — see lib/json-extract.ts.
+  // Handles the 2026-07-18 "Unterminated string in JSON" incident.
+  const extracted = extractJSON<AnalysisShape>(result.text);
+  if (!extracted.ok) {
+    console.error(
+      `[mock/analyze] parse failed after all salvage attempts: ${extracted.error} — snippet: ${extracted.snippet}`
+    );
+    if (decision.isPaid) {
+      void sendAdminSMS(
+        `ExamGrind ALERT: Mock DA parse failed for paid user ${user.email ?? user.id.slice(0, 8)} — Claude returned malformed JSON`
+      );
+    }
     return NextResponse.json(
       { error: "Couldn't generate the analysis. Please try again in a moment." },
       { status: 502 }
+    );
+  }
+  const analysis: AnalysisShape = extracted.value;
+  if (extracted.strategy !== "clean") {
+    console.warn(
+      `[mock/analyze] JSON extracted via strategy=${extracted.strategy} user=${user.id.slice(0, 8)} — Claude's output needed salvage but we recovered`
     );
   }
 

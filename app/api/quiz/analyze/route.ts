@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { sendAdminSMS } from "@/lib/sms";
+import { extractJSON } from "@/lib/json-extract";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -274,23 +275,25 @@ export async function POST(req: NextRequest) {
   );
   const t0 = Date.now();
 
+  // max_tokens bumped 2026-07-18 after "Unterminated string in JSON" incident.
+  // Haiku 4.5 was hitting the 4500-token cap mid-JSON on chapter-quiz analyses
+  // with many perQuestion entries + long weakness/pacing prose. 8000 gives
+  // comfortable headroom without meaningfully increasing latency or cost.
   let result = await generateWithRetry(anthropic, {
     model: requestedModel,
-    max_tokens: deepDive ? 8000 : 4500,
+    max_tokens: deepDive ? 12000 : 8000,
     messages: [{ role: "user", content: prompt }],
   });
 
   // FALLBACK: if the deep-dive Sonnet call died (overload, 5xx, rate limit),
   // retry with Haiku so the user gets SOMETHING back, not a hard error.
-  // We flag `is_deep_dive: false` in the response so the client knows this
-  // is the lighter tier and can offer a "retry deep dive later" affordance.
   if (!result.ok && deepDive && result.kind !== "auth" && result.kind !== "invalid_request") {
     console.warn(
       `[quiz/analyze] Sonnet failed (${result.kind}) — falling back to Haiku for user=${user.id.slice(0, 8)}`
     );
     result = await generateWithRetry(anthropic, {
       model: HAIKU_MODEL,
-      max_tokens: 4500,
+      max_tokens: 8000,
       messages: [{ role: "user", content: prompt }],
     });
     if (result.ok) {
@@ -318,18 +321,29 @@ export async function POST(req: NextRequest) {
     `[quiz/analyze] Claude OK user=${user.id.slice(0, 8)} model=${actualModel} elapsed=${Date.now() - t0}ms tokens=${result.text.length}`
   );
 
-  let analysis: AnalysisShape;
-  try {
-    const cleaned = result.text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```\s*$/i, "")
-      .trim();
-    analysis = JSON.parse(cleaned) as AnalysisShape;
-  } catch (e) {
-    console.error("[quiz/analyze] parse failed:", e);
+  // Tolerant JSON extraction (see lib/json-extract.ts).
+  // Walks a ladder: clean → strip fences → slice first { to last } → salvage
+  // unterminated string / brackets. Handles the "Unterminated string in JSON"
+  // failure mode that took DA down on 2026-07-18 (6 users hit it in one hour).
+  const extracted = extractJSON<AnalysisShape>(result.text);
+  if (!extracted.ok) {
+    console.error(
+      `[quiz/analyze] parse failed after all salvage attempts: ${extracted.error} — snippet: ${extracted.snippet}`
+    );
+    if (isPaid) {
+      void sendAdminSMS(
+        `ExamGrind ALERT: DA parse failed for paid user ${user.email ?? user.id.slice(0, 8)} — Claude returned malformed JSON`
+      );
+    }
     return NextResponse.json(
       { error: "Couldn't generate the analysis. Please try again in a moment." },
       { status: 502 }
+    );
+  }
+  const analysis: AnalysisShape = extracted.value;
+  if (extracted.strategy !== "clean") {
+    console.warn(
+      `[quiz/analyze] JSON extracted via strategy=${extracted.strategy} user=${user.id.slice(0, 8)} — Claude's output needed salvage but we recovered`
     );
   }
 
