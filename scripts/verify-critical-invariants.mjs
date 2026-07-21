@@ -47,6 +47,22 @@ const INVARIANTS = [
       "before ANY retry. Same USP status as chapter-quiz analyze. Value must be ≥ 300.",
   },
   {
+    id: "quiz-analysis-structured-output",
+    file: "app/api/quiz/analyze/route.ts",
+    pattern: /output_config:\s*\{\s*format:\s*\{\s*type:\s*["']json_schema["']/,
+    rationale:
+      "Deep Analysis used to accept malformed/free-form model JSON and attempt to repair it. " +
+      "Schema output is required so a partial model response cannot become a cached broken UI state.",
+  },
+  {
+    id: "mock-analysis-bounded-context",
+    file: "app/api/mock/analyze/route.ts",
+    pattern: /selectDiagnosticQuestions\(questions\)/,
+    rationale:
+      "A full mock has up to 180 questions. The model must receive a bounded diagnostic sample, " +
+      "not an unbounded prompt plus an impossible per-question generated response.",
+  },
+  {
     id: "sms-lib-present",
     file: "lib/sms.ts",
     pattern: /export\s+async\s+function\s+sendAdminSMS/,

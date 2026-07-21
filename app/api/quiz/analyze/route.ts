@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { sendAdminSMS } from "@/lib/sms";
-import { extractJSON } from "@/lib/json-extract";
+import { ANALYSIS_JSON_SCHEMA, normalizeAnalysis } from "@/lib/analysis-contract";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -134,11 +134,7 @@ export async function POST(req: NextRequest) {
   // we correct them on the way out so the score the user sees in the
   // Deep Analysis matches the score on the results page.
   if (existing && !deepDive) {
-    const fixed = await reconcileCachedAnalysis(
-      supabase,
-      existing.analysis as AnalysisShape,
-      quizId
-    );
+    const fixed = normalizeAnalysis(existing.analysis);
     return NextResponse.json({
       cached: true,
       analysis: fixed,
@@ -275,13 +271,10 @@ export async function POST(req: NextRequest) {
   );
   const t0 = Date.now();
 
-  // max_tokens bumped 2026-07-18 after "Unterminated string in JSON" incident.
-  // Haiku 4.5 was hitting the 4500-token cap mid-JSON on chapter-quiz analyses
-  // with many perQuestion entries + long weakness/pacing prose. 8000 gives
-  // comfortable headroom without meaningfully increasing latency or cost.
   let result = await generateWithRetry(anthropic, {
     model: requestedModel,
-    max_tokens: deepDive ? 12000 : 8000,
+    max_tokens: deepDive ? 7000 : 4500,
+    output_config: { format: { type: "json_schema", schema: ANALYSIS_JSON_SCHEMA } },
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -293,7 +286,8 @@ export async function POST(req: NextRequest) {
     );
     result = await generateWithRetry(anthropic, {
       model: HAIKU_MODEL,
-      max_tokens: 8000,
+      max_tokens: 4500,
+      output_config: { format: { type: "json_schema", schema: ANALYSIS_JSON_SCHEMA } },
       messages: [{ role: "user", content: prompt }],
     });
     if (result.ok) {
@@ -321,14 +315,12 @@ export async function POST(req: NextRequest) {
     `[quiz/analyze] Claude OK user=${user.id.slice(0, 8)} model=${actualModel} elapsed=${Date.now() - t0}ms tokens=${result.text.length}`
   );
 
-  // Tolerant JSON extraction (see lib/json-extract.ts).
-  // Walks a ladder: clean → strip fences → slice first { to last } → salvage
-  // unterminated string / brackets. Handles the "Unterminated string in JSON"
-  // failure mode that took DA down on 2026-07-18 (6 users hit it in one hour).
-  const extracted = extractJSON<AnalysisShape>(result.text);
-  if (!extracted.ok) {
+  let rawAnalysis: unknown;
+  try {
+    rawAnalysis = JSON.parse(result.text);
+  } catch {
     console.error(
-      `[quiz/analyze] parse failed after all salvage attempts: ${extracted.error} — snippet: ${extracted.snippet}`
+      `[quiz/analyze] schema response was not valid JSON user=${user.id.slice(0, 8)}`
     );
     if (isPaid) {
       void sendAdminSMS(
@@ -340,12 +332,7 @@ export async function POST(req: NextRequest) {
       { status: 502 }
     );
   }
-  const analysis: AnalysisShape = extracted.value;
-  if (extracted.strategy !== "clean") {
-    console.warn(
-      `[quiz/analyze] JSON extracted via strategy=${extracted.strategy} user=${user.id.slice(0, 8)} — Claude's output needed salvage but we recovered`
-    );
-  }
+  const analysis = normalizeAnalysis(rawAnalysis);
 
   // ---- Enrich watch links with REAL YouTube video URLs ----
   // Claude returns a search query per weakness; we resolve that to an actual
@@ -357,31 +344,6 @@ export async function POST(req: NextRequest) {
   // analysis = ~500 quota per analysis. Google's free tier is 10,000/day.
   await enrichWithYouTubeUrls(analysis);
 
-  // ---- Trust-but-verify: force perQuestion verdicts to match reality ----
-  // Defence-in-depth against Claude regrading wrong answers as "correct"
-  // because it disagreed with the answer key. The score the student sees
-  // on the results page is the ground truth — perQuestion must match it.
-  // We keep Claude's "concept" and "explanation" fields; we only overwrite
-  // the verdict tag itself.
-  if (Array.isArray(analysis?.perQuestion)) {
-    analysis.perQuestion = analysis.perQuestion.map((pq) => {
-      const q = questions[pq.idx];
-      if (!q) return pq;
-      const truthVerdict: Verdict =
-        q.user_answer == null
-          ? "skipped"
-          : q.user_answer === q.correct_answer
-          ? "correct"
-          : // Was wrong. Keep Claude's wrong-* subtype if it picked one;
-            // otherwise fall back to wrong-conceptual.
-            pq.verdict === "wrong-careless" ||
-            pq.verdict === "wrong-conceptual" ||
-            pq.verdict === "wrong-partial"
-          ? pq.verdict
-          : "wrong-conceptual";
-      return { ...pq, verdict: truthVerdict };
-    });
-  }
 
   // ---- Persist (upsert: deep-dive overwrites a prior haiku analysis) ----
   // Note: `actualModel` reflects the model that ACTUALLY served the response
@@ -425,47 +387,6 @@ export async function POST(req: NextRequest) {
     // a "retry deep dive later" affordance instead of pretending nothing happened.
     degraded: deepDive && !isDeepDiveActual,
   });
-}
-
-/* ------------------------------------------------------------------ *
- * Cache reconciliation — fix wrong perQuestion verdicts in old cached
- * analyses that were generated before the 2026-06 verdict-correctness
- * fix. Pulls the truth from the questions table and overrides.
- * ------------------------------------------------------------------ */
-async function reconcileCachedAnalysis(
-  supabase: ReturnType<typeof createServerSupabase>,
-  cached: AnalysisShape,
-  quizId: string
-): Promise<AnalysisShape> {
-  if (!Array.isArray(cached?.perQuestion)) return cached;
-  const { data } = await supabase
-    .from("questions")
-    .select("user_answer, correct_answer")
-    .eq("quiz_id", quizId)
-    .order("created_at", { ascending: true });
-  const rows = (data ?? []) as Array<{
-    user_answer: Letter | null;
-    correct_answer: Letter;
-  }>;
-  if (rows.length === 0) return cached;
-  return {
-    ...cached,
-    perQuestion: cached.perQuestion.map((pq) => {
-      const q = rows[pq.idx];
-      if (!q) return pq;
-      const truthVerdict: Verdict =
-        q.user_answer == null
-          ? "skipped"
-          : q.user_answer === q.correct_answer
-          ? "correct"
-          : pq.verdict === "wrong-careless" ||
-            pq.verdict === "wrong-conceptual" ||
-            pq.verdict === "wrong-partial"
-          ? pq.verdict
-          : "wrong-conceptual";
-      return { ...pq, verdict: truthVerdict };
-    }),
-  };
 }
 
 /* ------------------------------------------------------------------ *
@@ -594,8 +515,7 @@ Topic: ${topic}
 SCORE (ground truth — do NOT recompute or contradict this)
 The student got ${actualCorrectCount} / ${totalCount} correct.
 Your verdict prose MUST cite this exact score if it mentions a score at all.
-Your perQuestion array MUST contain exactly ${actualCorrectCount} entries with verdict="correct".
-Any divergence from these numbers is a bug.
+Any divergence from this score is a bug.
 
 ATTEMPT
 ${JSON.stringify(questions, null, 2)}
@@ -625,7 +545,6 @@ VERDICT RULE — HARD, NO EXCEPTIONS
 - If user_answer === correct (exact letter match) → verdict MUST be "correct".
 - Otherwise (user_answer is a letter that doesn't match correct) → verdict MUST be one of "wrong-conceptual" / "wrong-careless" / "wrong-partial". Pick the best fit.
 - DO NOT change a wrong-letter answer to "correct" because you think the student's reasoning was almost right, or because you'd grade differently than the answer key. Treat the correct field as ground truth.
-- The number of perQuestion entries with verdict="correct" MUST equal the count where user_answer === correct. If you find yourself wanting to mark a wrong-letter answer as "correct", stop — your job is to diagnose, not regrade.
 
 OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
 {
@@ -663,14 +582,6 @@ OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
           "drill_size": 5
         }
       }
-    }
-  ],
-  "perQuestion": [
-    {
-      "idx": 0,
-      "verdict": "correct" | "wrong-conceptual" | "wrong-careless" | "wrong-partial" | "skipped",
-      "concept": "Specific concept tested",
-      "explanation": "1 sentence — why right or why wrong, citing their actual choice"
     }
   ],
   "patterns": [
@@ -711,7 +622,7 @@ RULES
 - "work.questionIdx" must reference an actual wrong-conceptual question idx.
 - If there are no wrong-conceptual questions, drop weaknesses to length 0.
 - "practice.concept_focus" must be a concise phrase like "latent heat at phase change" — it'll be fed back into a drill question generator.
-- "perQuestion" must include exactly one entry for every question, in idx order.
+- Do not output per-question explanations; the product renders those from the database.
 - No "Read NCERT" without a chapter number. No "Practice more" without specifying what.
 - Currency in Indian rupees. Use NCERT Class 11/12 conventions.`;
 }

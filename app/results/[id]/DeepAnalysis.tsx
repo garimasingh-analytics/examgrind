@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
 import UpgradeModal, { type PaywallReason } from "@/components/UpgradeModal";
+import { normalizeAnalysis } from "@/lib/analysis-contract";
 
 /* ------------------------------------------------------------------ *
  * Types — mirror the JSON shape Claude returns                       *
@@ -131,7 +132,9 @@ export default function DeepAnalysis({
   analyzeIdField = "quizId",
 }: Props) {
   const router = useRouter();
-  const [analysis, setAnalysis] = useState<AnalysisJson | null>(initialAnalysis);
+  const [analysis, setAnalysis] = useState<AnalysisJson | null>(
+    initialAnalysis ? normalizeAnalysis(initialAnalysis) : null
+  );
   const [isDeepDive, setIsDeepDive] = useState(initialIsDeepDive);
   const [pending, startTransition] = useTransition();
   const [drilling, setDrilling] = useTransition();
@@ -174,7 +177,7 @@ export default function DeepAnalysis({
           throw new Error(("error" in body && body.error) || `Failed (${res.status})`);
         }
         if ("analysis" in body) {
-          setAnalysis(body.analysis);
+          setAnalysis(normalizeAnalysis(body.analysis));
           setIsDeepDive(body.is_deep_dive);
         }
       } catch (e: unknown) {
