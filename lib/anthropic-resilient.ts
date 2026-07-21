@@ -172,7 +172,21 @@ function mapPermanentError(
           "We're hitting a server issue. Please try again in a minute.",
       };
     case "invalid_request":
-      console.error("[anthropic] invalid request", raw);
+      // The provider's response body tells us which request field is invalid.
+      // Log only diagnostic metadata (never prompts or student answers) so a
+      // production 400 can be fixed from evidence instead of being masked by
+      // the generic student-facing message below.
+      if (raw instanceof Anthropic.APIError) {
+        console.error("[anthropic] invalid request", {
+          status: raw.status,
+          type: raw.type,
+          message: raw.message,
+          requestID: raw.requestID,
+          error: raw.error,
+        });
+      } else {
+        console.error("[anthropic] invalid request", raw);
+      }
       return {
         ok: false,
         kind: "invalid_request",
