@@ -48,8 +48,10 @@ export default function PrivacyPage() {
         </li>
         <li>
           A small set of cookies needed to keep you signed in (Supabase auth
-          session tokens). We do not currently use third-party advertising
-          cookies.
+          session tokens). We also use the Google Ads tag to measure whether an
+          advertisement resulted in a paid subscription. Google may set or read
+          advertising measurement cookies for this purpose; we do not send your
+          quiz answers or payment credentials to Google Ads.
         </li>
       </ul>
 

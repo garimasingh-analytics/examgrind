@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
+import { trackPaidSubscriptionConversion } from "@/lib/google-ads";
 
 // Razorpay's checkout SDK injects itself into window when the script loads.
 declare global {
@@ -170,11 +171,16 @@ export default function UpgradeModal({
           sub.description ?? "ExamGrind monthly — auto-renews ₹199",
         prefill: sub.prefill,
         theme: { color: "#FD7C29" },
-        handler: () => {
+        handler: (resp) => {
           // Razorpay calls this when the mandate is signed and the
           // first charge has been queued. The DB flip happens via the
           // webhook a moment later — we show a friendly "you're in!"
           // and a refresh once that propagates.
+          const transactionId =
+            resp.razorpay_payment_id ?? resp.razorpay_subscription_id;
+          if (transactionId) {
+            trackPaidSubscriptionConversion(transactionId);
+          }
           setSuccess(true);
           setLoading(false);
           // Small delay so the webhook has time to land before /me re-fetches.
