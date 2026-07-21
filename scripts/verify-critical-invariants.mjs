@@ -49,10 +49,11 @@ const INVARIANTS = [
   {
     id: "quiz-analysis-structured-output",
     file: "app/api/quiz/analyze/route.ts",
-    pattern: /output_config:\s*\{\s*format:\s*\{\s*type:\s*["']json_schema["']/,
+    pattern: /jsonSchemaOutputFormat\(ANALYSIS_JSON_SCHEMA\)/,
     rationale:
-      "Deep Analysis used to accept malformed/free-form model JSON and attempt to repair it. " +
-      "Schema output is required so a partial model response cannot become a cached broken UI state.",
+      "Deep Analysis must use the SDK schema helper rather than a raw JSON schema. " +
+      "The helper strips provider-unsupported constraints before the request, while still " +
+      "requiring structured output so partial model JSON cannot become a cached broken UI state.",
   },
   {
     id: "mock-analysis-bounded-context",

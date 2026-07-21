@@ -145,10 +145,72 @@ export const ANALYSIS_JSON_SCHEMA = {
   required: ["verdict", "strengths", "weaknesses", "patterns", "studyPlan"],
   properties: {
     verdict: { type: "string" },
-    strengths: { type: "array", maxItems: 4, items: { type: "object", additionalProperties: false, required: ["concept", "evidence"], properties: { concept: { type: "string" }, evidence: { type: "string" } } } },
-    weaknesses: { type: "array", maxItems: 5, items: { type: "object", additionalProperties: true } },
-    patterns: { type: "array", maxItems: 4, items: { type: "string" } },
-    pacing: { type: "object", additionalProperties: true },
-    studyPlan: { type: "object", additionalProperties: false, required: ["next_15_min", "next_session", "this_week"], properties: { next_15_min: { type: "string" }, next_session: { type: "string" }, this_week: { type: "string" } } },
+    strengths: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["concept", "evidence"],
+        properties: { concept: { type: "string" }, evidence: { type: "string" } },
+      },
+    },
+    weaknesses: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["concept", "severity", "evidence", "improve"],
+        properties: {
+          concept: { type: "string" },
+          severity: { type: "string", enum: ["high", "medium", "low"] },
+          evidence: { type: "string" },
+          improve: {
+            type: "object",
+            additionalProperties: false,
+            required: ["read", "work", "practice"],
+            properties: {
+              read: {
+                type: "object",
+                additionalProperties: false,
+                required: ["source", "minutes", "distill"],
+                properties: {
+                  source: { type: "string" },
+                  minutes: { type: "number" },
+                  distill: { type: "string" },
+                },
+              },
+              work: {
+                type: "object",
+                additionalProperties: false,
+                required: ["questionIdx", "walkthrough_steps", "your_mistake", "correct_answer"],
+                properties: {
+                  questionIdx: { type: "number" },
+                  walkthrough_steps: { type: "array", items: { type: "string" } },
+                  your_mistake: { type: "string" },
+                  correct_answer: { type: "string" },
+                },
+              },
+              practice: {
+                type: "object",
+                additionalProperties: false,
+                required: ["concept_focus", "drill_size"],
+                properties: { concept_focus: { type: "string" }, drill_size: { type: "number" } },
+              },
+            },
+          },
+        },
+      },
+    },
+    patterns: { type: "array", items: { type: "string" } },
+    studyPlan: {
+      type: "object",
+      additionalProperties: false,
+      required: ["next_15_min", "next_session", "this_week"],
+      properties: {
+        next_15_min: { type: "string" },
+        next_session: { type: "string" },
+        this_week: { type: "string" },
+      },
+    },
   },
 } as const;

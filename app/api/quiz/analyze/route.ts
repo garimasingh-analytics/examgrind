@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonSchemaOutputFormat } from "@anthropic-ai/sdk/helpers/json-schema";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { sendAdminSMS } from "@/lib/sms";
@@ -274,7 +275,7 @@ export async function POST(req: NextRequest) {
   let result = await generateWithRetry(anthropic, {
     model: requestedModel,
     max_tokens: deepDive ? 7000 : 4500,
-    output_config: { format: { type: "json_schema", schema: ANALYSIS_JSON_SCHEMA } },
+    output_config: { format: jsonSchemaOutputFormat(ANALYSIS_JSON_SCHEMA) },
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -287,7 +288,7 @@ export async function POST(req: NextRequest) {
     result = await generateWithRetry(anthropic, {
       model: HAIKU_MODEL,
       max_tokens: 4500,
-      output_config: { format: { type: "json_schema", schema: ANALYSIS_JSON_SCHEMA } },
+      output_config: { format: jsonSchemaOutputFormat(ANALYSIS_JSON_SCHEMA) },
       messages: [{ role: "user", content: prompt }],
     });
     if (result.ok) {
