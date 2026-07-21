@@ -20,6 +20,8 @@ create index if not exists quiz_analyses_user_id_idx
 
 alter table public.quiz_analyses enable row level security;
 
+drop policy if exists "quiz_analyses own" on public.quiz_analyses;
+
 drop policy if exists "quiz_analyses select own" on public.quiz_analyses;
 create policy "quiz_analyses select own"
   on public.quiz_analyses for select
