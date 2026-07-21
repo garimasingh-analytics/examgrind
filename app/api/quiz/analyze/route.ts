@@ -4,6 +4,7 @@ import { jsonSchemaOutputFormat } from "@anthropic-ai/sdk/helpers/json-schema";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { sendAdminSMS } from "@/lib/sms";
+import { consumeDeepDiveSlot, DAILY_DEEP_DIVE_LIMIT } from "@/lib/ai-rate-limit";
 import { ANALYSIS_JSON_SCHEMA, normalizeAnalysis } from "@/lib/analysis-contract";
 
 export const runtime = "nodejs";
@@ -178,6 +179,18 @@ export async function POST(req: NextRequest) {
       },
       { status: 402 }
     );
+  }
+
+  if (deepDive) {
+    const allowed = await consumeDeepDiveSlot(supabase, user.id);
+    if (!allowed) {
+      return NextResponse.json(
+        {
+          error: `You've reached today's Deep Dive fair-use limit (${DAILY_DEEP_DIVE_LIMIT}). Your regular analyses and saved results remain available; try again tomorrow.`,
+        },
+        { status: 429 }
+      );
+    }
   }
 
   // ---- Pull questions for this quiz ----

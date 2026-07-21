@@ -64,6 +64,23 @@ const INVARIANTS = [
       "not an unbounded prompt plus an impossible per-question generated response.",
   },
   {
+    id: "quiz-deep-dive-fair-use-guard",
+    file: "app/api/quiz/analyze/route.ts",
+    pattern: /consumeDeepDiveSlot\(supabase, user\.id\)/,
+    rationale:
+      "Paid Deep Dive is intentionally generous, but Sonnet is costly. The atomic " +
+      "daily guard prevents accidental or abusive repeated requests from becoming " +
+      "unbounded API spend.",
+  },
+  {
+    id: "mock-deep-dive-fair-use-guard",
+    file: "app/api/mock/analyze/route.ts",
+    pattern: /consumeDeepDiveSlot\(supabase, user\.id\)/,
+    rationale:
+      "Full mock Deep Dives are the most expensive AI operation and must retain " +
+      "their atomic daily fair-use guard.",
+  },
+  {
     id: "sms-lib-present",
     file: "lib/sms.ts",
     pattern: /export\s+async\s+function\s+sendAdminSMS/,

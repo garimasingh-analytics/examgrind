@@ -5,6 +5,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { checkFreemium, paywallError } from "@/lib/freemium";
+import { consumeDeepDiveSlot, DAILY_DEEP_DIVE_LIMIT } from "@/lib/ai-rate-limit";
 import { sendAdminSMS } from "@/lib/sms";
 import { ANALYSIS_JSON_SCHEMA, normalizeAnalysis } from "@/lib/analysis-contract";
 
@@ -144,6 +145,18 @@ export async function POST(req: NextRequest) {
 
   if (!decision.allowed && !existing) {
     return NextResponse.json(paywallError(decision), { status: 402 });
+  }
+
+  if (deepDive) {
+    const allowed = await consumeDeepDiveSlot(supabase, user.id);
+    if (!allowed) {
+      return NextResponse.json(
+        {
+          error: `You've reached today's Deep Dive fair-use limit (${DAILY_DEEP_DIVE_LIMIT}). Your regular analyses and saved results remain available; try again tomorrow.`,
+        },
+        { status: 429 }
+      );
+    }
   }
 
   // ---- Pull questions ----
