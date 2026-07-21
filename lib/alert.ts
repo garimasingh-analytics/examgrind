@@ -17,12 +17,20 @@ export async function fireAlert(
   context: Record<string, unknown> = {}
 ): Promise<void> {
   const url = process.env.ALERT_WEBHOOK_URL;
+  const severity = typeof context.severity === "string" ? context.severity : "";
+
+  // A missing optional webhook must not mean a P0/P1 incident goes unseen.
+  // Fast2SMS is already configured for the founder's payment alerts, so use
+  // it as the durable no-new-account fallback for critical incidents only.
+  if ((severity === "P0" || severity === "P1") && !url) {
+    void sendAdminSMS(`ExamGrind ALERT ${severity}: ${message}`);
+  }
   if (!url) {
     console.error("[ALERT]", message, JSON.stringify(context));
     return;
   }
   try {
-    await fetch(url, {
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -31,7 +39,16 @@ export async function fireAlert(
       }),
       signal: AbortSignal.timeout(2000),
     });
+    // A non-2xx webhook is also an operational failure. Fall back to SMS for
+    // critical alerts rather than silently treating it as delivered.
+    if (!response.ok && (severity === "P0" || severity === "P1")) {
+      void sendAdminSMS(`ExamGrind ALERT ${severity}: ${message}`);
+    }
   } catch (e) {
     console.error("[ALERT] webhook failed:", e);
+    if (severity === "P0" || severity === "P1") {
+      void sendAdminSMS(`ExamGrind ALERT ${severity}: ${message}`);
+    }
   }
 }
+import { sendAdminSMS } from "./sms";

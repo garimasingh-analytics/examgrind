@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "verify": "node scripts/verify-critical-invariants.mjs"
+    "verify": "node scripts/verify-critical-invariants.mjs",
+    "smoke:analysis": "node scripts/smoke-analysis.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",

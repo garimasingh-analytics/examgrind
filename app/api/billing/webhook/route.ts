@@ -68,6 +68,14 @@ function tsToIso(secs: number | undefined): string | null {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+async function requireWrite(
+  label: string,
+  operation: PromiseLike<{ error: { message?: string } | null }>
+) {
+  const { error } = await operation;
+  if (error) throw new Error(`${label}: ${error.message ?? "database write failed"}`);
+}
+
 export async function POST(req: NextRequest) {
   console.log("[billing/webhook] ⚡ RECEIVED webhook from Razorpay");
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
@@ -80,6 +88,7 @@ export async function POST(req: NextRequest) {
   const rawBody = await req.text();
   const signature = req.headers.get("x-razorpay-signature") ?? "";
   const eventId = req.headers.get("x-razorpay-event-id") ?? "";
+  const durableEventId = eventId || crypto.randomUUID();
 
   const expected = crypto
     .createHmac("sha256", secret)
@@ -108,13 +117,19 @@ export async function POST(req: NextRequest) {
   const admin = createAdminSupabase();
 
   // Idempotency check: have we processed this event before?
+  let priorEvent: { id: string; processed_at: string | null } | null = null;
   if (eventId) {
-    const { data: dupe } = await admin
+    const { data: dupe, error: dedupeErr } = await admin
       .from("razorpay_webhook_events")
-      .select("id")
+      .select("id, processed_at")
       .eq("event_id", eventId)
       .maybeSingle();
-    if (dupe) {
+    if (dedupeErr) {
+      console.error("[billing/webhook] dedupe lookup failed", dedupeErr);
+      return NextResponse.json({ error: "Database unavailable." }, { status: 500 });
+    }
+    priorEvent = dupe;
+    if (priorEvent?.processed_at) {
       // Already processed — Razorpay is retrying, ack with 200.
       return NextResponse.json({ ok: true, deduped: true });
     }
@@ -122,11 +137,18 @@ export async function POST(req: NextRequest) {
 
   // Record the event up front so a crash mid-processing still lets us
   // reconcile manually from the payload column.
-  await admin.from("razorpay_webhook_events").insert({
-    event_id: eventId || crypto.randomUUID(),
-    event_type: body.event,
-    payload: body,
-  });
+  if (!priorEvent) {
+    const { error: eventInsertErr } = await admin.from("razorpay_webhook_events").insert({
+      event_id: durableEventId,
+      event_type: body.event,
+      payload: body,
+      processed_at: null,
+    });
+    if (eventInsertErr) {
+      console.error("[billing/webhook] event log insert failed", eventInsertErr);
+      return NextResponse.json({ error: "Database unavailable." }, { status: 500 });
+    }
+  }
 
   const sub = body.payload.subscription?.entity;
   const payment = body.payload.payment?.entity;
@@ -149,7 +171,7 @@ export async function POST(req: NextRequest) {
           tsToIso(sub.current_end) ??
           new Date(Date.now() + 30 * MS_PER_DAY).toISOString();
 
-        await admin
+        await requireWrite("subscription mirror update", admin
           .from("subscriptions")
           .update({
             state: sub.status,
@@ -159,16 +181,16 @@ export async function POST(req: NextRequest) {
             paid_count: sub.paid_count ?? 0,
             remaining_count: sub.remaining_count ?? null,
           })
-          .eq("razorpay_subscription_id", sub.id);
+          .eq("razorpay_subscription_id", sub.id));
 
-        await admin
+        await requireWrite("user entitlement update", admin
           .from("users")
           .update({
             subscription_status: "paid",
             subscription_state: sub.status,
             paid_until: paidUntilIso,
           })
-          .eq("id", userId);
+          .eq("id", userId));
 
         const emailForAlert = sub.notes?.email;
         const userTag = emailForAlert ?? `user ${userId.slice(0, 8)}`;
@@ -216,19 +238,19 @@ export async function POST(req: NextRequest) {
       case "subscription.expired": {
         if (!sub) break;
         const userId = sub.notes?.user_id;
-        await admin
+        await requireWrite("subscription cancellation update", admin
           .from("subscriptions")
           .update({ state: sub.status })
-          .eq("razorpay_subscription_id", sub.id);
+          .eq("razorpay_subscription_id", sub.id));
 
         if (userId) {
           // Don't immediately downgrade to 'free' — the user paid for
           // the current cycle; let it run out naturally. The pg_cron
           // sweep + lib/subscription lazy-downgrade handle the flip.
-          await admin
+          await requireWrite("user cancellation update", admin
             .from("users")
             .update({ subscription_state: sub.status })
-            .eq("id", userId);
+            .eq("id", userId));
         }
         break;
       }
@@ -238,15 +260,15 @@ export async function POST(req: NextRequest) {
       case "subscription.paused": {
         if (!sub) break;
         const userId = sub.notes?.user_id;
-        await admin
+        await requireWrite("subscription status update", admin
           .from("subscriptions")
           .update({ state: sub.status })
-          .eq("razorpay_subscription_id", sub.id);
+          .eq("razorpay_subscription_id", sub.id));
         if (userId) {
-          await admin
+          await requireWrite("user subscription state update", admin
             .from("users")
             .update({ subscription_state: sub.status })
-            .eq("id", userId);
+            .eq("id", userId));
         }
         if (body.event === "subscription.halted") {
           void fireAlert(
@@ -259,10 +281,10 @@ export async function POST(req: NextRequest) {
 
       case "subscription.resumed": {
         if (!sub) break;
-        await admin
+        await requireWrite("subscription resume update", admin
           .from("subscriptions")
           .update({ state: sub.status })
-          .eq("razorpay_subscription_id", sub.id);
+          .eq("razorpay_subscription_id", sub.id));
         break;
       }
 
@@ -290,10 +312,22 @@ export async function POST(req: NextRequest) {
     }
   } catch (e) {
     console.error("[billing/webhook] processing failed", e);
+    await admin
+      .from("razorpay_webhook_events")
+      .update({ last_error: e instanceof Error ? e.message.slice(0, 500) : "unknown processing error" })
+      .eq("event_id", durableEventId);
     // Return 500 so Razorpay retries. Idempotency dedupe will save us
     // from double-processing once the underlying issue is resolved.
     return NextResponse.json({ error: "Processing failed." }, { status: 500 });
   }
+
+  await requireWrite(
+    "mark webhook processed",
+    admin
+      .from("razorpay_webhook_events")
+      .update({ processed_at: new Date().toISOString(), last_error: null })
+      .eq("event_id", durableEventId)
+  );
 
   return NextResponse.json({ ok: true });
 }
