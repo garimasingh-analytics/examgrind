@@ -5,7 +5,7 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { checkFreemium, paywallError } from "@/lib/freemium";
 import { sendAdminSMS } from "@/lib/sms";
-import { extractJSON } from "@/lib/json-extract";
+import { ANALYSIS_JSON_SCHEMA, normalizeAnalysis } from "@/lib/analysis-contract";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,25 +49,6 @@ type MockQuestionRow = {
   correct_answer: Letter;
   user_answer: Letter | null;
   time_spent_seconds: number | null;
-};
-
-type Verdict =
-  | "correct"
-  | "wrong-conceptual"
-  | "wrong-careless"
-  | "wrong-partial"
-  | "skipped";
-
-type PerQuestionResult = {
-  idx: number;
-  verdict: Verdict;
-  concept?: string;
-  explanation?: string;
-};
-
-type AnalysisShape = {
-  perQuestion?: PerQuestionResult[];
-  [key: string]: unknown;
 };
 
 const HAIKU_MODEL = "claude-haiku-4-5-20251001";
@@ -137,11 +118,7 @@ export async function POST(req: NextRequest) {
     // Same trust-but-verify pass as the chapter-quiz path — defends
     // against cached analyses that were saved before any future
     // verdict-rule change.
-    const fixed = await reconcileCachedAnalysis(
-      admin,
-      existing.analysis as AnalysisShape,
-      attemptId
-    );
+    const fixed = normalizeAnalysis(existing.analysis);
     return NextResponse.json({
       cached: true,
       analysis: fixed,
@@ -213,18 +190,19 @@ export async function POST(req: NextRequest) {
   ).length;
   const totalCount = questions.length;
 
-  // Strip huge text from the prompt — for 180 NEET questions we'd blow
-  // through context. Truncate any single question_text past 400 chars
-  // (chemistry/biology stems can sprawl). Keep options shorter still.
-  const trimmed = questions.map((q) => ({
+  // Deep Analysis is a diagnosis, not a second per-question review. The
+  // complete review already comes from the database on the result screen.
+  // Sending every one of 100–180 questions and requiring 100–180 generated
+  // explanations was unbounded and repeatedly truncated the JSON response.
+  const trimmed = selectDiagnosticQuestions(questions).map((q) => ({
     idx: q.question_index,
     section: q.section_name,
-    question: shorten(q.question_text, 400),
+    question: shorten(q.question_text, 320),
     options: {
-      A: shorten(q.option_a, 160),
-      B: shorten(q.option_b, 160),
-      C: shorten(q.option_c, 160),
-      D: shorten(q.option_d, 160),
+      A: shorten(q.option_a, 110),
+      B: shorten(q.option_b, 110),
+      C: shorten(q.option_c, 110),
+      D: shorten(q.option_d, 110),
     },
     correct: q.correct_answer,
     user_answer: q.user_answer,
@@ -236,6 +214,7 @@ export async function POST(req: NextRequest) {
     examName,
     mockName,
     questions: trimmed,
+    sectionSummary: buildSectionSummary(questions),
     deepDive,
     actualCorrectCount,
     totalCount,
@@ -251,12 +230,10 @@ export async function POST(req: NextRequest) {
   );
   const t0 = Date.now();
 
-  // Mock analyses have MORE questions (100-180) so JSON is larger.
-  // Bumped 2026-07-18 in solidarity with quiz/analyze — mocks were even
-  // closer to the truncation edge.
   let result = await generateWithRetry(anthropic, {
     model: requestedModel,
-    max_tokens: deepDive ? 16000 : 10000,
+    max_tokens: deepDive ? 7000 : 4500,
+    output_config: { format: { type: "json_schema", schema: ANALYSIS_JSON_SCHEMA } },
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -267,7 +244,8 @@ export async function POST(req: NextRequest) {
     );
     result = await generateWithRetry(anthropic, {
       model: HAIKU_MODEL,
-      max_tokens: 10000,
+      max_tokens: 4500,
+      output_config: { format: { type: "json_schema", schema: ANALYSIS_JSON_SCHEMA } },
       messages: [{ role: "user", content: prompt }],
     });
     if (result.ok) {
@@ -294,13 +272,13 @@ export async function POST(req: NextRequest) {
     `[mock/analyze] Claude OK user=${user.id.slice(0, 8)} model=${actualModel} elapsed=${Date.now() - t0}ms tokens=${result.text.length}`
   );
 
-  // Tolerant JSON extraction — see lib/json-extract.ts.
-  // Handles the 2026-07-18 "Unterminated string in JSON" incident.
-  const extracted = extractJSON<AnalysisShape>(result.text);
-  if (!extracted.ok) {
-    console.error(
-      `[mock/analyze] parse failed after all salvage attempts: ${extracted.error} — snippet: ${extracted.snippet}`
-    );
+  // JSON-schema output guarantees a JSON document. Never repair a truncated
+  // response: accepting partial data was caching broken analyses for users.
+  let rawAnalysis: unknown;
+  try {
+    rawAnalysis = JSON.parse(result.text);
+  } catch {
+    console.error(`[mock/analyze] schema response was not valid JSON user=${user.id.slice(0, 8)}`);
     if (decision.isPaid) {
       void sendAdminSMS(
         `ExamGrind ALERT: Mock DA parse failed for paid user ${user.email ?? user.id.slice(0, 8)} — Claude returned malformed JSON`
@@ -311,37 +289,7 @@ export async function POST(req: NextRequest) {
       { status: 502 }
     );
   }
-  const analysis: AnalysisShape = extracted.value;
-  if (extracted.strategy !== "clean") {
-    console.warn(
-      `[mock/analyze] JSON extracted via strategy=${extracted.strategy} user=${user.id.slice(0, 8)} — Claude's output needed salvage but we recovered`
-    );
-  }
-
-  // ---- Server-side verdict correction (defence in depth) ----
-  if (Array.isArray(analysis?.perQuestion)) {
-    // Index by question_index for O(1) lookup; mock questions are
-    // not necessarily 0..N-1, they could have gaps if the schema
-    // ever evolves.
-    const byIdx = new Map<number, MockQuestionRow>();
-    for (const q of questions) byIdx.set(q.question_index, q);
-
-    analysis.perQuestion = analysis.perQuestion.map((pq) => {
-      const q = byIdx.get(pq.idx);
-      if (!q) return pq;
-      const truthVerdict: Verdict =
-        q.user_answer == null
-          ? "skipped"
-          : q.user_answer === q.correct_answer
-          ? "correct"
-          : pq.verdict === "wrong-careless" ||
-            pq.verdict === "wrong-conceptual" ||
-            pq.verdict === "wrong-partial"
-          ? pq.verdict
-          : "wrong-conceptual";
-      return { ...pq, verdict: truthVerdict };
-    });
-  }
+  const analysis = normalizeAnalysis(rawAnalysis);
 
   // ---- Persist ----
   // actualModel reflects what actually served — may be Haiku even if user asked Sonnet.
@@ -384,56 +332,60 @@ export async function POST(req: NextRequest) {
   });
 }
 
-/* ------------------------------------------------------------------ *
- * Cache reconciliation — same role as in /api/quiz/analyze; lifted
- * for symmetry. Keeps wrong perQuestion verdicts from persisting.
- * ------------------------------------------------------------------ */
-async function reconcileCachedAnalysis(
-  admin: ReturnType<typeof createAdminSupabase>,
-  cached: AnalysisShape,
-  attemptId: string
-): Promise<AnalysisShape> {
-  if (!Array.isArray(cached?.perQuestion)) return cached;
-  const { data } = await admin
-    .from("mock_attempt_questions")
-    .select("question_index, user_answer, correct_answer")
-    .eq("attempt_id", attemptId);
-  const byIdx = new Map<number, { user_answer: Letter | null; correct_answer: Letter }>();
-  for (const r of (data ?? []) as Array<{
-    question_index: number;
-    user_answer: Letter | null;
-    correct_answer: Letter;
-  }>) {
-    byIdx.set(r.question_index, {
-      user_answer: r.user_answer,
-      correct_answer: r.correct_answer,
-    });
-  }
-  if (byIdx.size === 0) return cached;
-  return {
-    ...cached,
-    perQuestion: cached.perQuestion.map((pq) => {
-      const q = byIdx.get(pq.idx);
-      if (!q) return pq;
-      const truthVerdict: Verdict =
-        q.user_answer == null
-          ? "skipped"
-          : q.user_answer === q.correct_answer
-          ? "correct"
-          : pq.verdict === "wrong-careless" ||
-            pq.verdict === "wrong-conceptual" ||
-            pq.verdict === "wrong-partial"
-          ? pq.verdict
-          : "wrong-conceptual";
-      return { ...pq, verdict: truthVerdict };
-    }),
-  };
-}
-
 function shorten(s: string | null | undefined, max: number): string {
   if (!s) return "";
   if (s.length <= max) return s;
   return s.slice(0, max - 1) + "…";
+}
+
+function selectDiagnosticQuestions(questions: MockQuestionRow[]): MockQuestionRow[] {
+  const bySection = new Map<string, MockQuestionRow[]>();
+  for (const question of questions) {
+    const bucket = bySection.get(question.section_name) ?? [];
+    bucket.push(question);
+    bySection.set(question.section_name, bucket);
+  }
+
+  const selected: MockQuestionRow[] = [];
+  for (const bucket of Array.from(bySection.values())) {
+    const diagnostic = bucket
+      .filter((q) => q.user_answer == null || q.user_answer !== q.correct_answer)
+      .sort((a, b) => (b.time_spent_seconds ?? 0) - (a.time_spent_seconds ?? 0));
+    const strengths = bucket
+      .filter((q) => q.user_answer != null && q.user_answer === q.correct_answer)
+      .sort((a, b) => (a.time_spent_seconds ?? 0) - (b.time_spent_seconds ?? 0));
+    selected.push(...diagnostic.slice(0, 5), ...strengths.slice(0, 2));
+  }
+  // The max is a hard reliability/cost boundary, not a presentation choice.
+  return selected.sort((a, b) => a.question_index - b.question_index).slice(0, 28);
+}
+
+function buildSectionSummary(questions: MockQuestionRow[]): Array<Record<string, unknown>> {
+  const sections = new Map<string, { total: number; correct: number; wrong: number; skipped: number; seconds: number[] }>();
+  for (const q of questions) {
+    const row = sections.get(q.section_name) ?? { total: 0, correct: 0, wrong: 0, skipped: 0, seconds: [] };
+    row.total += 1;
+    if (q.user_answer == null) row.skipped += 1;
+    else if (q.user_answer === q.correct_answer) row.correct += 1;
+    else row.wrong += 1;
+    if (typeof q.time_spent_seconds === "number") row.seconds.push(q.time_spent_seconds);
+    sections.set(q.section_name, row);
+  }
+  return Array.from(sections, ([section, row]) => ({
+    section,
+    total: row.total,
+    correct: row.correct,
+    wrong: row.wrong,
+    skipped: row.skipped,
+    median_seconds: median(row.seconds),
+  }));
+}
+
+function median(values: number[]): number | null {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : Math.round((sorted[middle - 1] + sorted[middle]) / 2);
 }
 
 /* ------------------------------------------------------------------ *
@@ -453,6 +405,7 @@ function buildMockPrompt(input: {
     user_answer: Letter | null;
     time_seconds: number | null;
   }>;
+  sectionSummary: Array<Record<string, unknown>>;
   deepDive: boolean;
   actualCorrectCount: number;
   totalCount: number;
@@ -464,7 +417,7 @@ function buildMockPrompt(input: {
     questions,
     deepDive,
     actualCorrectCount,
-    totalCount,
+    totalCount, sectionSummary,
   } = input;
 
   const depthHint = deepDive
@@ -491,9 +444,11 @@ Total questions: ${totalCount} across ${
 SCORE (ground truth — do NOT recompute or contradict)
 The student got ${actualCorrectCount} / ${totalCount} correct.
 Your verdict prose MUST cite this exact score if it mentions a score at all.
-Your perQuestion array MUST contain exactly ${actualCorrectCount} entries with verdict="correct".
 
-ATTEMPT (each question has a "section" field — use it for section-level weakness diagnosis)
+SECTION FACTS (calculated from the complete attempt; do not contradict them)
+${JSON.stringify(sectionSummary, null, 2)}
+
+REPRESENTATIVE QUESTIONS (a bounded diagnostic sample)
 ${JSON.stringify(questions, null, 2)}
 
 ${depthHint}
@@ -511,11 +466,7 @@ VERDICT TYPES
 - "correct" / "wrong-conceptual" / "wrong-careless" / "wrong-partial" / "skipped"
 
 VERDICT RULE — HARD, NO EXCEPTIONS
-- verdict is string comparison of user_answer vs correct, nothing more.
-- If user_answer is null → verdict MUST be "skipped".
-- If user_answer === correct → verdict MUST be "correct".
-- Otherwise → one of wrong-conceptual / wrong-careless / wrong-partial.
-- DO NOT regrade. Treat correct as ground truth. Count of verdict="correct" MUST equal ${actualCorrectCount}.
+- Treat correct answers and section facts as ground truth; do not regrade them.
 
 OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
 {
@@ -551,14 +502,6 @@ OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
       }
     }
   ],
-  "perQuestion": [
-    {
-      "idx": 0,
-      "verdict": "correct" | "wrong-conceptual" | "wrong-careless" | "wrong-partial" | "skipped",
-      "concept": "Section + concept tested",
-      "explanation": "1 sentence — why right or why wrong, citing the actual choice"
-    }
-  ],
   "patterns": [
     "Up to 4 cross-question patterns about pacing, sectional gaps, careless trends, exam-strategy issues."
   ],
@@ -581,8 +524,8 @@ OUTPUT — return ONLY this JSON shape, no prose, no markdown fences:
 RULES
 - Every weakness MUST include all four rungs: read, watch, work, practice.
 - "watch.query" must be a YouTube search query (no quotes, no URL) leading with a recognised Indian channel name.
-- "work.questionIdx" must reference an actual wrong-conceptual question idx.
-- "perQuestion" must include exactly one entry per question, in idx order.
+- "work.questionIdx" must reference an actual wrong or skipped representative question idx.
+- Do not output per-question explanations; the product renders those from its database.
 - No "Read NCERT" without a chapter number. No "Practice more" without specifying what.
 - Currency in Indian rupees.`;
 }
