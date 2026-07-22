@@ -191,15 +191,6 @@ export default function SscCglCampaignPage() {
         </div>
       </section>
 
-      <footer className="border-t border-cocoa-900/[0.06] px-5 py-8 text-center text-xs text-cocoa-500">
-        <div className="flex flex-wrap justify-center gap-4">
-          <Link href="/terms">Terms</Link>
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/refund">Refunds</Link>
-          <Link href="/contact">Contact</Link>
-        </div>
-        <p className="mt-3">© {new Date().getFullYear()} ExamGrind · Made in India</p>
-      </footer>
     </main>
   );
 }
