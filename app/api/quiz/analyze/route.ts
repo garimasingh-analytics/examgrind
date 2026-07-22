@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { jsonSchemaOutputFormat } from "@anthropic-ai/sdk/helpers/json-schema";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { sendAdminSMS } from "@/lib/sms";
 import { consumeDeepDiveSlot, DAILY_DEEP_DIVE_LIMIT } from "@/lib/ai-rate-limit";
@@ -148,14 +149,19 @@ export async function POST(req: NextRequest) {
   // ---- Free-tier quota check ----
   const { data: profile } = await supabase
     .from("users")
-    .select("subscription_status, analyses_taken")
+    .select("subscription_status, paid_until, analyses_taken")
     .eq("id", user.id)
     .maybeSingle<{
       subscription_status: "free" | "trial" | "paid";
+      paid_until: string | null;
       analyses_taken: number;
     }>();
 
-  const isPaid = profile?.subscription_status === "paid";
+  const paidUntil = profile?.paid_until
+    ? new Date(profile.paid_until).getTime()
+    : 0;
+  const isPaid =
+    profile?.subscription_status === "paid" && paidUntil > Date.now();
   const used = profile?.analyses_taken ?? 0;
 
   // Deep dives (Sonnet) are paid-only.
@@ -386,7 +392,8 @@ export async function POST(req: NextRequest) {
   // Increment quota only for the FIRST analysis of this quiz (not for
   // re-runs / deep-dive upgrades on a quiz that's already been analyzed).
   if (!existing) {
-    await supabase
+    const admin = createAdminSupabase();
+    await admin
       .from("users")
       .update({ analyses_taken: used + 1 })
       .eq("id", user.id);

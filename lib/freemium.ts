@@ -53,17 +53,26 @@ export async function checkFreemium(
   const col = COUNTER_COL[gate];
   const { data } = await supabase
     .from("users")
-    .select(`subscription_status, ${col}`)
+    .select(`subscription_status, paid_until, ${col}`)
     .eq("id", userId)
     .maybeSingle();
 
   const profile = data as
     | (Record<string, unknown> & {
         subscription_status?: "free" | "trial" | "paid";
+        paid_until?: string | null;
       })
     | null;
 
-  const isPaid = profile?.subscription_status === "paid";
+  // Never trust the status flag alone. A stale or tampered `paid` value
+  // must not unlock premium after the paid-through timestamp has passed.
+  const paidUntil = profile?.paid_until
+    ? new Date(profile.paid_until).getTime()
+    : 0;
+  const isPaid =
+    profile?.subscription_status === "paid" &&
+    Number.isFinite(paidUntil) &&
+    paidUntil > Date.now();
   const used = ((profile as Record<string, unknown> | null)?.[col] as number) ?? 0;
   const limit = FREE_LIMITS[gate];
   const allowed = isPaid || used < limit;

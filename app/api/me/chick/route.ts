@@ -37,7 +37,15 @@ export async function POST(req: NextRequest) {
   }
 
   const xp = (row as { xp: number | null }).xp ?? 0;
-  const paid = (row as { subscription_status?: string | null }).subscription_status === "paid";
+  const entitlement = row as {
+    subscription_status?: string | null;
+    paid_until?: string | null;
+  };
+  const paidUntil = entitlement.paid_until
+    ? new Date(entitlement.paid_until).getTime()
+    : 0;
+  const paid =
+    entitlement.subscription_status === "paid" && paidUntil > Date.now();
 
   // Load any explicitly-granted chicks (promo redemptions etc.)
   const { data: granted } = await admin

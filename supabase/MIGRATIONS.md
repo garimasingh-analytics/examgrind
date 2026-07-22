@@ -9,6 +9,7 @@ them. Never apply a migration from an uncommitted working tree.
 | 036 | RLS for production public tables | applied 2026-07-16 |
 | 037 | Reproducible `quiz_analyses` cache | applied 2026-07-21 |
 | 038 | Webhook retry safety and AI daily fair-use guard | applied 2026-07-21 |
+| 039 | Protect billing entitlements and quota counters | applied 2026-07-23 |
 
 After applying a new migration, update this table in the same pull request and
 save the Supabase SQL Editor result in the deployment notes. The migration files

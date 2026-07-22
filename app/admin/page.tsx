@@ -195,9 +195,9 @@ export default async function AdminPage() {
   const conversionPct = totalUsers > 0
     ? Math.round((countPaid / totalUsers) * 1000) / 10
     : 0;
-  const recentUsers = [...allUsers]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 20);
+  const usersBySignupDate = [...allUsers].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
   const paidUsers = allUsers
     .filter((u) => u.subscription_status === "paid")
     .sort((a, b) => {
@@ -319,9 +319,11 @@ export default async function AdminPage() {
         )}
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-cocoa-900/[0.07] bg-cream-50 px-4 py-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-cocoa-500">Recent sign-ups</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-cocoa-500">
+              All sign-ups ({usersBySignupDate.length})
+            </p>
             <ul className="mt-2 max-h-72 space-y-2 overflow-y-auto text-sm text-cocoa-700">
-              {recentUsers.map((u) => (
+              {usersBySignupDate.map((u) => (
                 <li key={u.id} className="flex flex-col border-b border-cocoa-900/[0.05] pb-2 last:border-0">
                   <span className="font-semibold">{u.email}</span>
                   <span className="text-xs text-cocoa-500">

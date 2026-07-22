@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,13 +58,18 @@ export async function POST(req: NextRequest) {
   // ---- 2b. Free-tier quota check (lifetime 3 quiz starts) ----
   const { data: gateProfile } = await supabase
     .from("users")
-    .select("subscription_status, quizzes_started")
+    .select("subscription_status, paid_until, quizzes_started")
     .eq("id", user.id)
     .maybeSingle<{
       subscription_status: "free" | "trial" | "paid";
+      paid_until: string | null;
       quizzes_started: number;
     }>();
-  const isPaid = gateProfile?.subscription_status === "paid";
+  const paidUntil = gateProfile?.paid_until
+    ? new Date(gateProfile.paid_until).getTime()
+    : 0;
+  const isPaid =
+    gateProfile?.subscription_status === "paid" && paidUntil > Date.now();
   const startedCount = gateProfile?.quizzes_started ?? 0;
   if (!isPaid && startedCount >= FREE_QUIZ_LIMIT) {
     return NextResponse.json(
@@ -281,7 +287,8 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
   // Fire-and-forget; the quiz is already saved so a failed update isn't
   // worth blocking the user on.
   if (!isPaid) {
-    void supabase
+    const admin = createAdminSupabase();
+    void admin
       .from("users")
       .update({ quizzes_started: startedCount + 1 })
       .eq("id", user.id);
