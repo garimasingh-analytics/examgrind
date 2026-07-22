@@ -87,7 +87,7 @@ export default async function AdminPage() {
     // can compute multiple slices client-side without re-querying.
     admin
       .from("users")
-      .select("id, exam_choice, subscription_status, paid_until, created_at"),
+      .select("id, email, exam_choice, subscription_status, paid_until, created_at"),
     // Count of users created in last 7d (head request — no rows).
     admin
       .from("users")
@@ -136,6 +136,7 @@ export default async function AdminPage() {
 
   type UserRow = {
     id: string;
+    email: string;
     exam_choice: string | null;
     subscription_status: "free" | "trial" | "paid";
     paid_until: string | null;
@@ -175,12 +176,16 @@ export default async function AdminPage() {
   // ============ 2. Subscription funnel =================================
   let countFree = 0, countTrial = 0, countPaid = 0;
   let activeSubs = 0, lapsedLast30d = 0;
+  const lapsedUsers: UserRow[] = [];
   for (const u of allUsers) {
     if (u.subscription_status === "paid") {
       countPaid += 1;
       const exp = u.paid_until ? new Date(u.paid_until).getTime() : 0;
       if (exp >= now) activeSubs += 1;
-      else if (exp >= now - 30 * 24 * 60 * 60 * 1000) lapsedLast30d += 1;
+      else if (exp >= now - 30 * 24 * 60 * 60 * 1000) {
+        lapsedLast30d += 1;
+        lapsedUsers.push(u);
+      }
     } else if (u.subscription_status === "trial") {
       countTrial += 1;
     } else {
@@ -190,6 +195,16 @@ export default async function AdminPage() {
   const conversionPct = totalUsers > 0
     ? Math.round((countPaid / totalUsers) * 1000) / 10
     : 0;
+  const recentUsers = [...allUsers]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 20);
+  const paidUsers = allUsers
+    .filter((u) => u.subscription_status === "paid")
+    .sort((a, b) => {
+      const bExpiry = b.paid_until ? new Date(b.paid_until).getTime() : 0;
+      const aExpiry = a.paid_until ? new Date(a.paid_until).getTime() : 0;
+      return bExpiry - aExpiry;
+    });
 
   // ============ 3. Quiz / mock activity ================================
   const topicCounts: Record<string, number> = {};
@@ -288,6 +303,54 @@ export default async function AdminPage() {
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat label="Mocks (7d)" value={mocksThisWeek.toLocaleString("en-IN")} />
+        </div>
+        {lapsedUsers.length > 0 && (
+          <div className="mt-4 rounded-2xl border border-coral-500/20 bg-coral-500/5 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-coral-700">Recently lapsed accounts</p>
+            <ul className="mt-2 space-y-1 text-sm text-cocoa-700">
+              {lapsedUsers.map((u) => (
+                <li key={u.id}>
+                  <span className="font-semibold">{u.email}</span>
+                  {u.paid_until ? ` — expired ${new Date(u.paid_until).toLocaleString("en-IN")}` : " — no expiry recorded"}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-2xl border border-cocoa-900/[0.07] bg-cream-50 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-cocoa-500">Recent sign-ups</p>
+            <ul className="mt-2 max-h-72 space-y-2 overflow-y-auto text-sm text-cocoa-700">
+              {recentUsers.map((u) => (
+                <li key={u.id} className="flex flex-col border-b border-cocoa-900/[0.05] pb-2 last:border-0">
+                  <span className="font-semibold">{u.email}</span>
+                  <span className="text-xs text-cocoa-500">
+                    {(u.exam_choice ?? "exam not selected").toUpperCase()} · {u.subscription_status} · joined {new Date(u.created_at).toLocaleString("en-IN")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-moss-500/20 bg-moss-500/5 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-moss-700">Subscriber accounts</p>
+            {paidUsers.length > 0 ? (
+              <ul className="mt-2 max-h-72 space-y-2 overflow-y-auto text-sm text-cocoa-700">
+                {paidUsers.map((u) => {
+                  const active = Boolean(u.paid_until && new Date(u.paid_until).getTime() >= now);
+                  return (
+                    <li key={u.id} className="flex flex-col border-b border-cocoa-900/[0.05] pb-2 last:border-0">
+                      <span className="font-semibold">{u.email}</span>
+                      <span className="text-xs text-cocoa-500">
+                        {active ? "Active" : "Lapsed"} · {u.paid_until ? `access until ${new Date(u.paid_until).toLocaleString("en-IN")}` : "no expiry recorded"}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-cocoa-500">No subscriber accounts yet.</p>
+            )}
+          </div>
         </div>
         <Card title="Users by exam">
           <div className="flex flex-wrap gap-2">
