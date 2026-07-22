@@ -9,6 +9,7 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import { asChickVariant } from "@/lib/chicks";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import GoogleAdsTag from "@/components/GoogleAdsTag";
+import MetaPixel from "@/components/MetaPixel";
 
 // Soft warm serif — used for headlines.
 const fraunces = Fraunces({
@@ -132,6 +133,7 @@ export default async function RootLayout({
         {/* widget itself decides where to hide based on pathname.       */}
         <FeedbackWidget />
         <GoogleAdsTag />
+        <MetaPixel />
       </body>
     </html>
   );
