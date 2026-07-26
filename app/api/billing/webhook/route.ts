@@ -359,7 +359,7 @@ export async function POST(req: NextRequest) {
         const { data: linkPayment, error: linkError } = await admin
           .from("payments")
           .select("user_id, product, amount_paise, status")
-          .eq("razorpay_payment_link_id", paymentLink.id)
+          .eq("razorpay_order_id", paymentLink.id)
           .maybeSingle<{
             user_id: string;
             product: string;
@@ -377,7 +377,7 @@ export async function POST(req: NextRequest) {
         await requireWrite("hosted payment mirror update", admin
           .from("payments")
           .update({ razorpay_payment_id: payment.id, amount_paise: expected, status: "paid" })
-          .eq("razorpay_payment_link_id", paymentLink.id));
+          .eq("razorpay_order_id", paymentLink.id));
 
         const { error: entitlementError } = await admin.rpc("grant_one_time_entitlement", {
           p_user_id: linkPayment.user_id,

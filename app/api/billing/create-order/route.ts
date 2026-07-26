@@ -97,7 +97,6 @@ export async function POST(req: Request) {
   const { error: insertErr } = await admin.from("payments").insert({
     user_id: user.id,
     razorpay_order_id: paymentLink.id,
-    razorpay_payment_link_id: paymentLink.id,
     amount_paise: catalogProduct.pricePaise,
     currency: "INR",
     status: "created",
