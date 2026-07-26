@@ -4,7 +4,7 @@ import { jsonSchemaOutputFormat } from "@anthropic-ai/sdk/helpers/json-schema";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
-import { checkFreemium, paywallError } from "@/lib/freemium";
+import { checkFreemium, FREE_LIMITS } from "@/lib/freemium";
 import { consumeDeepDiveSlot, DAILY_DEEP_DIVE_LIMIT } from "@/lib/ai-rate-limit";
 import { sendAdminSMS } from "@/lib/sms";
 import { ANALYSIS_JSON_SCHEMA, normalizeAnalysis } from "@/lib/analysis-contract";
@@ -143,10 +143,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!decision.allowed && !existing) {
-    return NextResponse.json(paywallError(decision), { status: 402 });
-  }
-
   if (deepDive) {
     const allowed = await consumeDeepDiveSlot(supabase, user.id);
     if (!allowed) {
@@ -156,6 +152,22 @@ export async function POST(req: NextRequest) {
         },
         { status: 429 }
       );
+    }
+  } else {
+    const { data: slotRows, error: slotError } = await admin.rpc(
+      "consume_freemium_slot",
+      { p_user_id: user.id, p_gate: "analysis", p_limit: FREE_LIMITS.analysis },
+    );
+    const slot = Array.isArray(slotRows) ? slotRows[0] : slotRows;
+    if (slotError || !slot) {
+      console.error("[mock/analyze] entitlement check failed", slotError);
+      return NextResponse.json({ error: "Couldn't verify your plan. Please try again." }, { status: 503 });
+    }
+    if (!slot.allowed) {
+      return NextResponse.json({
+        error: "You've used your free Deep Analysis. Upgrade to get AI feedback on every quiz.",
+        paywall: { reason: "analysis-limit", currentTier: "free", used: slot.used, limit: FREE_LIMITS.analysis },
+      }, { status: 402 });
     }
   }
 
@@ -324,16 +336,6 @@ export async function POST(req: NextRequest) {
       { error: "Couldn't save the analysis." },
       { status: 500 }
     );
-  }
-
-  // Increment quota only on first analysis for this attempt.
-  // We share the analyses_started counter with chapter quizzes —
-  // a free user's 1 analysis is cumulative across the app.
-  if (!existing) {
-    await admin
-      .from("users")
-      .update({ analyses_started: decision.used + 1 })
-      .eq("id", user.id);
   }
 
   return NextResponse.json({

@@ -7,6 +7,7 @@ import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { sendAdminSMS } from "@/lib/sms";
 import { consumeDeepDiveSlot, DAILY_DEEP_DIVE_LIMIT } from "@/lib/ai-rate-limit";
 import { ANALYSIS_JSON_SCHEMA, normalizeAnalysis } from "@/lib/analysis-contract";
+import { checkFreemium, FREE_LIMITS } from "@/lib/freemium";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -78,7 +79,6 @@ type AnalysisShape = {
   [key: string]: unknown;
 };
 
-const FREE_ANALYSES = 1;
 const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const SONNET_MODEL = "claude-sonnet-4-6";
 
@@ -146,42 +146,17 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // ---- Free-tier quota check ----
-  const { data: profile } = await supabase
-    .from("users")
-    .select("subscription_status, paid_until, analyses_taken")
-    .eq("id", user.id)
-    .maybeSingle<{
-      subscription_status: "free" | "trial" | "paid";
-      paid_until: string | null;
-      analyses_taken: number;
-    }>();
-
-  const paidUntil = profile?.paid_until
-    ? new Date(profile.paid_until).getTime()
-    : 0;
-  const isPaid =
-    profile?.subscription_status === "paid" && paidUntil > Date.now();
-  const used = profile?.analyses_taken ?? 0;
+  // Deep dives need only a paid-status read. Regular analyses use the
+  // atomic database function below, shared with mock analysis.
+  const paidDecision = await checkFreemium(supabase, user.id, "analysis");
+  const isPaid = paidDecision.isPaid;
 
   // Deep dives (Sonnet) are paid-only.
-  if (deepDive && !isPaid) {
+  if (deepDive && !paidDecision.isPaid) {
     return NextResponse.json(
       {
         error: "Deep dive is a paid feature.",
         paywall: { reason: "deep-dive", currentTier: "free" },
-      },
-      { status: 402 }
-    );
-  }
-
-  // Free tier: 1 analysis total. After that, paywall.
-  if (!isPaid && used >= FREE_ANALYSES && !existing) {
-    return NextResponse.json(
-      {
-        error:
-          "You've used your free deep analysis. Upgrade to unlock unlimited analyses + Deep Dive.",
-        paywall: { reason: "quota-exhausted", currentTier: "free", used, limit: FREE_ANALYSES },
       },
       { status: 402 }
     );
@@ -196,6 +171,23 @@ export async function POST(req: NextRequest) {
         },
         { status: 429 }
       );
+    }
+  } else {
+    const admin = createAdminSupabase();
+    const { data: slotRows, error: slotError } = await admin.rpc(
+      "consume_freemium_slot",
+      { p_user_id: user.id, p_gate: "analysis", p_limit: FREE_LIMITS.analysis },
+    );
+    const slot = Array.isArray(slotRows) ? slotRows[0] : slotRows;
+    if (slotError || !slot) {
+      console.error("[quiz/analyze] entitlement check failed", slotError);
+      return NextResponse.json({ error: "Couldn't verify your plan. Please try again." }, { status: 503 });
+    }
+    if (!slot.allowed) {
+      return NextResponse.json({
+        error: "You've used your free Deep Analysis. Upgrade to get AI feedback on every quiz.",
+        paywall: { reason: "quota-exhausted", currentTier: "free", used: slot.used, limit: FREE_LIMITS.analysis },
+      }, { status: 402 });
     }
   }
 
@@ -387,16 +379,6 @@ export async function POST(req: NextRequest) {
       { error: "Couldn't save the analysis." },
       { status: 500 }
     );
-  }
-
-  // Increment quota only for the FIRST analysis of this quiz (not for
-  // re-runs / deep-dive upgrades on a quiz that's already been analyzed).
-  if (!existing) {
-    const admin = createAdminSupabase();
-    await admin
-      .from("users")
-      .update({ analyses_taken: used + 1 })
-      .eq("id", user.id);
   }
 
   return NextResponse.json({

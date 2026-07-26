@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
-import { checkFreemium, paywallError } from "@/lib/freemium";
+import { FREE_LIMITS } from "@/lib/freemium";
 import { generateMockQuestions, type MockSection } from "@/lib/anthropic-mock";
 
 export const runtime = "nodejs";
@@ -42,13 +42,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing mockTestId." }, { status: 400 });
   }
 
-  // ---- 3. Freemium gate ----
-  const decision = await checkFreemium(supabase, user.id, "mock");
-  if (!decision.allowed) {
-    return NextResponse.json(paywallError(decision), { status: 402 });
-  }
-
-  // ---- 4. Load the mock catalog row + exam slug ----
+  // ---- 3. Load the mock catalog row + exam slug ----
   const { data: mockRow, error: mockErr } = await supabase
     .from("mock_tests")
     .select(
@@ -80,7 +74,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ---- 5. Don't create a second in-progress attempt for the same mock ----
+  // ---- 4. Don't create a second in-progress attempt for the same mock ----
   const admin = createAdminSupabase();
   const { data: existing } = await admin
     .from("mock_attempts")
@@ -96,6 +90,23 @@ export async function POST(req: NextRequest) {
     // Resume rather than duplicate. The freemium counter stays at its
     // current value (we never double-bumped).
     return NextResponse.json({ attemptId: existing.id, resumed: true });
+  }
+
+  // ---- 5. Atomically reserve the free mock before generation ----
+  const { data: slotRows, error: slotError } = await admin.rpc(
+    "consume_freemium_slot",
+    { p_user_id: user.id, p_gate: "mock", p_limit: FREE_LIMITS.mock },
+  );
+  const slot = Array.isArray(slotRows) ? slotRows[0] : slotRows;
+  if (slotError || !slot) {
+    console.error("[mock/start] entitlement check failed", slotError);
+    return NextResponse.json({ error: "Couldn't verify your plan. Please try again." }, { status: 503 });
+  }
+  if (!slot.allowed) {
+    return NextResponse.json({
+      error: "You've used your 1 free mock test. Upgrade to take more full-length mocks.",
+      paywall: { reason: "mock-limit", currentTier: "free", used: slot.used, limit: FREE_LIMITS.mock },
+    }, { status: 402 });
   }
 
   // ---- 6. Generate questions ----
@@ -152,14 +163,6 @@ export async function POST(req: NextRequest) {
       { error: "Couldn't save the questions. Please try again." },
       { status: 500 }
     );
-  }
-
-  // ---- 8. Bump the freemium counter ----
-  if (!decision.isPaid) {
-    await admin
-      .from("users")
-      .update({ mock_tests_started: decision.used + 1 })
-      .eq("id", user.id);
   }
 
   return NextResponse.json({ attemptId: attemptRow.id });
