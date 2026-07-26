@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Fraunces, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
@@ -123,22 +122,25 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`}>
+      <head>
+        {/* Native inline script intentionally runs during HTML parsing, before
+            Next hydrates or any Google tag is requested. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+              window.gtag('consent', 'default', {
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                analytics_storage: 'denied'
+              });
+            `,
+          }}
+        />
+      </head>
       <body className="bg-cream-100 text-cocoa-900 antialiased">
-        {/* Consent Mode's default must run before the Google tag on every
-            route. Storage remains denied until MarketingTracking receives an
-            explicit choice from the banner. */}
-        <Script id="examgrind-google-consent-default" strategy="beforeInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
-            window.gtag('consent', 'default', {
-              ad_storage: 'denied',
-              ad_user_data: 'denied',
-              ad_personalization: 'denied',
-              analytics_storage: 'denied'
-            });
-          `}
-        </Script>
         <ChickVariantProvider initialVariant={initialVariant}>
           <div className="flex min-h-[100svh] flex-col">
             <div className="flex-1">{children}</div>
