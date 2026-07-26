@@ -4,6 +4,7 @@ type Props = {
   readiness: number;
   attemptedTopics: number;
   totalTopics: number;
+  examName: string;
   strongestSubject: string | null;
 };
 
@@ -15,6 +16,7 @@ export default function ReadinessCard({
   readiness,
   attemptedTopics,
   totalTopics,
+  examName,
   strongestSubject,
 }: Props) {
   return (
@@ -28,7 +30,7 @@ export default function ReadinessCard({
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">Readiness signal</p>
             <h2 className="mt-1 font-serif text-xl font-semibold text-cocoa-900">Built from real practice</h2>
             <p className="mt-1 text-sm leading-6 text-cocoa-700">
-              {attemptedTopics} of {totalTopics} topics started
+              {attemptedTopics} of {totalTopics} {examName} topics started
               {strongestSubject ? ` · strongest progress: ${strongestSubject}` : ""}.
             </p>
           </div>

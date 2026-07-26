@@ -107,9 +107,9 @@ export default async function HomePage() {
   // shipping wrong subjects to a brand-new user.
   const { data: examRow } = await supabase
     .from("exams")
-    .select("id")
+    .select("id, name")
     .eq("slug", examSlug)
-    .maybeSingle<{ id: string }>();
+    .maybeSingle<{ id: string; name: string }>();
 
   let subjectsQuery = supabase
     .from("subjects")
@@ -120,6 +120,7 @@ export default async function HomePage() {
   }
   const { data: subjectsData } = await subjectsQuery;
   const subjects = (subjectsData ?? []) as Subject[];
+  const activeSubjectIds = new Set(subjects.map((subject) => subject.id));
 
   // ---- Per-subject progress ----
   // Total topics per subject — pre-aggregated in a DB view so we don't hit
@@ -129,6 +130,7 @@ export default async function HomePage() {
     subject_id: string;
     topic_count: number;
   }>) {
+    if (!activeSubjectIds.has(row.subject_id)) continue;
     totalTopicsBySubject.set(row.subject_id, row.topic_count);
   }
   const masteredBySubject = new Map<string, number>();
@@ -156,6 +158,10 @@ export default async function HomePage() {
       : topicNode.chapters;
     if (!chNode) continue;
     const subjId = chNode.subject_id;
+    // Mastery is loaded once for the signed-in user. Only include topics
+    // belonging to the active exam; otherwise switching exams would make
+    // the readiness denominator and score blend separate syllabi.
+    if (!activeSubjectIds.has(subjId)) continue;
     attemptedBySubject.set(subjId, (attemptedBySubject.get(subjId) ?? 0) + 1);
     readinessPointsBySubject.set(
       subjId,
@@ -237,6 +243,7 @@ export default async function HomePage() {
       ? topicNode.chapters[0]
       : topicNode.chapters);
     if (!topicNode || !chapterNode) continue;
+    if (!activeSubjectIds.has(chapterNode.subject_id)) continue;
     attemptedTopics.push({
       id: m.topic_id,
       name: topicNode.name,
@@ -474,6 +481,7 @@ export default async function HomePage() {
         readiness={readiness}
         attemptedTopics={attemptedTopicCount}
         totalTopics={totalTopics}
+        examName={examRow?.name ?? "selected-exam"}
         strongestSubject={strongestSubject}
       />
 
