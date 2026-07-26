@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { createAdminSupabase } from "@/lib/supabase/admin";
+import { FREE_LIMITS } from "@/lib/freemium";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,8 +24,6 @@ type GeneratedQuestion = {
 
 const MIN_Q = 5;
 const MAX_Q = 25;
-const FREE_QUIZ_LIMIT = 3;
-
 export async function POST(req: NextRequest) {
   // ---- 1. Auth ----
   const supabase = createServerSupabase();
@@ -52,38 +51,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: `questionCount must be between ${MIN_Q} and ${MAX_Q}.` },
       { status: 400 }
-    );
-  }
-
-  // ---- 2b. Free-tier quota check (lifetime 3 quiz starts) ----
-  const { data: gateProfile } = await supabase
-    .from("users")
-    .select("subscription_status, paid_until, quizzes_started")
-    .eq("id", user.id)
-    .maybeSingle<{
-      subscription_status: "free" | "trial" | "paid";
-      paid_until: string | null;
-      quizzes_started: number;
-    }>();
-  const paidUntil = gateProfile?.paid_until
-    ? new Date(gateProfile.paid_until).getTime()
-    : 0;
-  const isPaid =
-    gateProfile?.subscription_status === "paid" && paidUntil > Date.now();
-  const startedCount = gateProfile?.quizzes_started ?? 0;
-  if (!isPaid && startedCount >= FREE_QUIZ_LIMIT) {
-    return NextResponse.json(
-      {
-        error:
-          "You've used your 3 free quizzes. Upgrade to keep practicing.",
-        paywall: {
-          reason: "quiz-limit",
-          currentTier: gateProfile?.subscription_status ?? "free",
-          used: startedCount,
-          limit: FREE_QUIZ_LIMIT,
-        },
-      },
-      { status: 402 }
     );
   }
 
@@ -121,6 +88,40 @@ export async function POST(req: NextRequest) {
   const examSlug = topic.chapter.subject.exam?.slug ?? "cuet";
   const examName = topic.chapter.subject.exam?.name ?? "CUET UG";
   const ncertClass = topic.chapter.ncert_class; // 11 / 12 for NEET UG, null otherwise
+
+  // ---- 3b. Atomically reserve a free slot before AI generation ----
+  // This is a database row lock, not a read-then-write counter. Parallel
+  // requests can therefore never both see the same final free slot. Topic
+  // validation above intentionally happens first, so malformed requests do
+  // not burn an attempt.
+  const admin = createAdminSupabase();
+  const { data: slotRows, error: slotError } = await admin.rpc(
+    "consume_quiz_slot",
+    { p_user_id: user.id, p_limit: FREE_LIMITS.quiz },
+  );
+  const slot = Array.isArray(slotRows) ? slotRows[0] : slotRows;
+  if (slotError || !slot) {
+    console.error("[quiz/start] entitlement check failed", slotError);
+    return NextResponse.json(
+      { error: "Couldn't verify your plan. Please try again in a moment." },
+      { status: 503 },
+    );
+  }
+  if (!slot.allowed) {
+    return NextResponse.json(
+      {
+        error:
+          "You've used your 3 free quizzes. Upgrade to keep practicing.",
+        paywall: {
+          reason: "quiz-limit",
+          currentTier: "free",
+          used: slot.used,
+          limit: FREE_LIMITS.quiz,
+        },
+      },
+      { status: 402 }
+    );
+  }
 
   // ---- 4. Generate questions with Claude ----
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -281,17 +282,6 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
       { error: "Couldn't save questions. Please try again." },
       { status: 500 }
     );
-  }
-
-  // ---- 6. Bump the lifetime quiz-start counter (free-tier gate) ----
-  // Fire-and-forget; the quiz is already saved so a failed update isn't
-  // worth blocking the user on.
-  if (!isPaid) {
-    const admin = createAdminSupabase();
-    void admin
-      .from("users")
-      .update({ quizzes_started: startedCount + 1 })
-      .eq("id", user.id);
   }
 
   return NextResponse.json({ quizId: quizRow.id });
