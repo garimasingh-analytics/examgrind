@@ -48,6 +48,12 @@ type MasteryRow = {
   topics: { name: string } | { name: string }[] | null;
 };
 
+type PurchaseEntitlementRow = {
+  product: "analysis_credit" | "score_boost_21d";
+  remaining_uses: number;
+  expires_at: string | null;
+};
+
 export default async function ProfilePage() {
   const supabase = createServerSupabase();
 
@@ -80,6 +86,25 @@ export default async function ProfilePage() {
     profile?.subscription_status ?? "free",
     profile?.paid_until ?? null
   );
+
+  // One-time purchases are server-only records. Surface the active access on
+  // the profile so a student never has to wonder whether a ₹19/₹49 purchase
+  // actually reached their account.
+  const { data: purchaseRows } = await adminForChicks
+    .from("purchase_entitlements")
+    .select("product, remaining_uses, expires_at")
+    .eq("user_id", authUser.id)
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+  const activePurchases = (purchaseRows ?? []) as PurchaseEntitlementRow[];
+  const analysisCredits = activePurchases
+    .filter((purchase) => purchase.product === "analysis_credit")
+    .reduce((total, purchase) => total + purchase.remaining_uses, 0);
+  const activeScoreBoost = activePurchases
+    .filter((purchase) => purchase.product === "score_boost_21d" && purchase.expires_at)
+    .sort((a, b) => new Date(b.expires_at ?? 0).getTime() - new Date(a.expires_at ?? 0).getTime())[0];
+  const scoreBoostDaysLeft = activeScoreBoost?.expires_at
+    ? Math.max(1, Math.ceil((new Date(activeScoreBoost.expires_at).getTime() - Date.now()) / 86_400_000))
+    : 0;
 
   const fullName =
     (authUser.user_metadata?.full_name as string | undefined) ??
@@ -278,8 +303,11 @@ export default async function ProfilePage() {
       <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
         <PlanPanel
           subscriptionStatus={liveSubscriptionStatus}
+          paidUntil={profile?.paid_until ?? null}
           quizzesStarted={profile?.quizzes_started ?? 0}
           analysesTaken={profile?.analyses_started ?? 0}
+          analysisCredits={analysisCredits}
+          scoreBoostDaysLeft={scoreBoostDaysLeft}
         />
         {/* Cancel-subscription affordance — only shown for active paid */}
         {/* users. Two-tap confirmation so accidental clicks don't fire. */}

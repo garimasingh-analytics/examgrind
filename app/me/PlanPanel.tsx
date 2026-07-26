@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import UpgradeModal from "@/components/UpgradeModal";
 
 type Props = {
   subscriptionStatus: "free" | "trial" | "paid";
+  paidUntil: string | null;
   quizzesStarted: number;
   analysesTaken: number;
+  analysisCredits: number;
+  scoreBoostDaysLeft: number;
 };
 
 const FREE_QUIZ_LIMIT = 3;
@@ -14,14 +18,20 @@ const FREE_ANALYSIS_LIMIT = 1;
 
 export default function PlanPanel({
   subscriptionStatus,
+  paidUntil,
   quizzesStarted,
   analysesTaken,
+  analysisCredits,
+  scoreBoostDaysLeft,
 }: Props) {
   const [open, setOpen] = useState(false);
   const isPaid = subscriptionStatus === "paid";
 
   const quizLeft = Math.max(0, FREE_QUIZ_LIMIT - quizzesStarted);
   const analysisLeft = Math.max(0, FREE_ANALYSIS_LIMIT - analysesTaken);
+  const coachUntil = paidUntil
+    ? new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(paidUntil))
+    : null;
 
   return (
     <>
@@ -38,7 +48,12 @@ export default function PlanPanel({
               Plan
             </p>
             <p className="mt-1 font-serif text-2xl font-bold text-cocoa-900">
-              {isPaid ? "ExamGrind Premium 👑" : "Free"}
+              {isPaid ? "ExamGrind Coach 👑" : "Free plan"}
+            </p>
+            <p className="mt-1 text-xs text-cocoa-600">
+              {isPaid
+                ? `Coach is active${coachUntil ? ` until ${coachUntil}` : ""}.`
+                : "Your active purchases are listed below."}
             </p>
           </div>
           {!isPaid && (
@@ -68,6 +83,40 @@ export default function PlanPanel({
             />
           </div>
         )}
+
+        <div className="border-t border-cocoa-900/[0.06] bg-cream-50/70 p-4 sm:p-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">Your access</p>
+              <p className="mt-1 text-sm font-semibold text-cocoa-900">What you can use right now</p>
+            </div>
+            {isPaid && <span className="rounded-full bg-sun-400/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ember-700">Unlimited</span>}
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <AccessCard
+              icon="🔎"
+              title="AI Deep Analysis"
+              value={isPaid ? "Unlimited" : analysisCredits > 0 ? `${analysisCredits} ready` : analysisLeft > 0 ? `${analysisLeft} free left` : "None ready"}
+              detail={isPaid ? "Included with Coach." : analysisCredits > 0 ? "Your paid analysis credit is active." : analysisLeft > 0 ? "Use it after any completed quiz or mock." : "Buy one for ₹19 whenever you need it."}
+              active={isPaid || analysisCredits > 0 || analysisLeft > 0}
+            />
+            <AccessCard
+              icon="🗓️"
+              title="21-Day Score Boost"
+              value={isPaid ? "Included" : scoreBoostDaysLeft > 0 ? `${scoreBoostDaysLeft} days active` : "Not active"}
+              detail={isPaid ? "Your Coach plan includes ongoing planning." : scoreBoostDaysLeft > 0 ? "Your fixed personalised roadmap is ready." : "A fixed personal roadmap for ₹49."}
+              active={isPaid || scoreBoostDaysLeft > 0}
+              href={scoreBoostDaysLeft > 0 || isPaid ? "/score-boost" : undefined}
+            />
+            <AccessCard
+              icon="👑"
+              title="ExamGrind Coach"
+              value={isPaid ? "Active" : "Not active"}
+              detail={isPaid ? "Unlimited quizzes, mocks and analyses." : "Unlimited practice and continuous AI coaching for ₹199/month."}
+              active={isPaid}
+            />
+          </div>
+        </div>
       </div>
 
       <UpgradeModal
@@ -77,6 +126,32 @@ export default function PlanPanel({
       />
     </>
   );
+}
+
+function AccessCard({
+  icon,
+  title,
+  value,
+  detail,
+  active,
+  href,
+}: {
+  icon: string;
+  title: string;
+  value: string;
+  detail: string;
+  active: boolean;
+  href?: string;
+}) {
+  const body = <>
+    <div className="flex items-center justify-between gap-2"><span className="text-lg" aria-hidden>{icon}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${active ? "bg-moss-500/15 text-moss-700" : "bg-cocoa-100 text-cocoa-500"}`}>{active ? "Active" : "Locked"}</span></div>
+    <p className="mt-3 text-xs font-semibold text-cocoa-700">{title}</p>
+    <p className="mt-1 font-serif text-lg font-bold text-cocoa-900">{value}</p>
+    <p className="mt-1 text-[11px] leading-relaxed text-cocoa-500">{detail}</p>
+    {href && <p className="mt-3 text-xs font-bold text-ember-700">Open plan →</p>}
+  </>;
+  const className = "rounded-2xl border border-cocoa-900/[0.06] bg-cream-100 p-3.5 transition";
+  return href ? <Link href={href} className={`${className} hover:-translate-y-0.5 hover:bg-white`}>{body}</Link> : <div className={className}>{body}</div>;
 }
 
 function Meter({
