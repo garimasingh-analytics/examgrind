@@ -15,6 +15,8 @@ Product events are browser-side. Razorpay verification remains server-side; only
 
 `lib/product-analytics.ts` is the central typed event boundary. It calls `window.gtag("event", name, params)` only after consent.
 
+The Daily Mission CTA stores a 30-minute anonymous marker in browser session storage. Quiz completion consumes that marker once and emits `daily_mission_completed` only when at least one answer was submitted.
+
 ### Identity Management
 
 No GA4 user ID, traits, or groups are sent. This protects student privacy and keeps analytics anonymous.

@@ -18,6 +18,11 @@ events:
     locations: [{ file: components/DailyMissionCard.tsx, line: 68 }]
     properties: [mission_type]
     source: frontend
+  - name: daily_mission_completed
+    status: LIVE
+    locations: [{ file: app/quiz/[id]/QuizRunner.tsx, line: 195 }]
+    properties: [mission_type, question_count, correct_count]
+    source: frontend
   - name: mistake_book_viewed
     status: LIVE
     locations: [{ file: app/mistakes/MistakeBook.tsx, line: 31 }]
