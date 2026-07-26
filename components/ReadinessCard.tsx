@@ -33,8 +33,8 @@ export default function ReadinessCard({
             </p>
           </div>
         </div>
-        <Link href="/me" className="shrink-0 text-sm font-bold text-ember-700 hover:text-ember-800">
-          View progress →
+        <Link href="/weekly" className="shrink-0 text-sm font-bold text-ember-700 hover:text-ember-800">
+          Weekly proof →
         </Link>
       </div>
       <p className="mt-2 px-1 text-xs text-cocoa-500">
