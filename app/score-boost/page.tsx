@@ -8,21 +8,55 @@ import { ensureSubscriptionFreshness } from "@/lib/subscription";
 export const dynamic = "force-dynamic";
 
 type RoadmapDay = { day: number; subject: string; focus: string; action: string };
-type Entitlement = { id: string; expires_at: string; roadmap: RoadmapDay[] | null };
+type Entitlement = {
+  id: string;
+  starts_at: string;
+  expires_at: string;
+  roadmap: RoadmapDay[] | null;
+};
+type FocusSignal = { concept: string; evidence: string; severity: "high" | "medium" | "low" };
 
-function makeRoadmap(subjects: string[]): RoadmapDay[] {
-  const usable = subjects.length ? subjects : ["your selected exam syllabus"];
+function signalsFromAnalyses(analyses: Array<{ analysis: unknown }>): FocusSignal[] {
+  const seen = new Set<string>();
+  const signals: FocusSignal[] = [];
+  for (const row of analyses) {
+    const analysis = row.analysis && typeof row.analysis === "object"
+      ? row.analysis as { weaknesses?: unknown }
+      : null;
+    const weaknesses = Array.isArray(analysis?.weaknesses) ? analysis.weaknesses : [];
+    for (const item of weaknesses) {
+      if (!item || typeof item !== "object") continue;
+      const weakness = item as { concept?: unknown; evidence?: unknown; severity?: unknown };
+      const concept = typeof weakness.concept === "string" ? weakness.concept.trim() : "";
+      if (!concept || seen.has(concept.toLowerCase())) continue;
+      seen.add(concept.toLowerCase());
+      signals.push({
+        concept,
+        evidence: typeof weakness.evidence === "string" ? weakness.evidence.trim() : "",
+        severity: weakness.severity === "high" || weakness.severity === "low" ? weakness.severity : "medium",
+      });
+    }
+  }
+  return signals.sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.severity] - { high: 0, medium: 1, low: 2 }[b.severity]));
+}
+
+function makeRoadmap(subjects: string[], signals: FocusSignal[]): RoadmapDay[] {
+  const usableSubjects = subjects.length ? subjects : ["your selected exam syllabus"];
+  const usableSignals = signals.length
+    ? signals
+    : usableSubjects.map((subject) => ({ concept: subject, evidence: "Build a reliable baseline before moving on.", severity: "medium" as const }));
   return Array.from({ length: 21 }, (_, index) => {
     const day = index + 1;
-    const subject = usable[index % usable.length];
+    const signal = usableSignals[index % usableSignals.length];
+    const subject = signal.concept;
     const phase = day <= 7 ? "Foundation" : day <= 14 ? "Repair" : "Exam mode";
     const action = day % 7 === 0
-      ? "Review mistakes, revise your notes, then take one timed mixed quiz."
+      ? `Review every error around ${subject}, revise your notes, then take one timed mixed quiz.`
       : day <= 7
-      ? "Learn one small topic, attempt a focused quiz, and write down each error."
+      ? `Spend 20 minutes rebuilding ${subject}, then attempt a focused quiz and log each error.${signal.evidence ? ` Your recent signal: ${signal.evidence}` : ""}`
       : day <= 14
-      ? "Start with your weakest area, then do a timed repair round."
-      : "Take a timed mixed set, analyse every error, and revise the weakest concept.";
+      ? `Start with ${subject}, then do a timed repair round without notes.`
+      : `Take a timed mixed set with ${subject} in focus, analyse every error, and revise the rule you missed.`;
     return { day, subject, focus: phase, action };
   });
 }
@@ -40,7 +74,7 @@ export default async function ScoreBoostPage() {
   const isCoach = (await ensureSubscriptionFreshness(user.id, profile?.subscription_status ?? "free", profile?.paid_until ?? null)) === "paid";
   const { data: entitlement } = await admin
     .from("purchase_entitlements")
-    .select("id, expires_at, roadmap")
+    .select("id, starts_at, expires_at, roadmap")
     .eq("user_id", user.id)
     .eq("product", "score_boost_21d")
     .gt("expires_at", new Date().toISOString())
@@ -55,12 +89,26 @@ export default async function ScoreBoostPage() {
     const { data: subjects } = exam?.id
       ? await admin.from("subjects").select("name").eq("exam_id", exam.id).order("order_index", { ascending: true })
       : { data: [] as Array<{ name: string }> };
-    roadmap = makeRoadmap((subjects ?? []).map((subject) => subject.name));
+    // Score Boost is a fixed paid product: take one performance snapshot when
+    // the roadmap is first opened, then persist it. Later quizzes never
+    // silently rewrite the plan or consume additional AI credits.
+    const { data: analyses } = await admin
+      .from("quiz_analyses")
+      .select("analysis")
+      .eq("user_id", user.id)
+      .order("generated_at", { ascending: false })
+      .limit(5);
+    roadmap = makeRoadmap(
+      (subjects ?? []).map((subject) => subject.name),
+      signalsFromAnalyses((analyses ?? []) as Array<{ analysis: unknown }>)
+    );
     if (entitlement) {
       await admin.from("purchase_entitlements").update({ roadmap }).eq("id", entitlement.id);
     }
   }
-  const today = Math.max(1, Math.min(21, 21 - Math.ceil(((new Date(entitlement?.expires_at ?? Date.now()).getTime() - Date.now()) / 86400000))));
+  const today = entitlement
+    ? Math.max(1, Math.min(21, Math.floor((Date.now() - new Date(entitlement.starts_at).getTime()) / 86400000) + 1))
+    : 1;
   const todayPlan = roadmap[today - 1] ?? roadmap[0];
 
   return <main className="min-h-screen bg-warm-wash pb-16">
