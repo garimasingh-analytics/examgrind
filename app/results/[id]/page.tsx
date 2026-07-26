@@ -45,16 +45,16 @@ export default async function ResultsPage({ params }: Params) {
   const completed = !isEmpty && accuracy >= 70;
 
   // Pull current streak so we can flash a celebration if it's > 0.
-  // Also pulls subscription tier + analyses_taken for the deep analysis quota.
+  // Also pulls subscription tier + analyses_started for the deep analysis quota.
   const { data: profile } = await supabase
     .from("users")
-    .select("streak_count, last_active_date, subscription_status, analyses_taken, exam_choice")
+    .select("streak_count, last_active_date, subscription_status, analyses_started, exam_choice")
     .eq("id", user.id)
     .maybeSingle<{
       streak_count: number;
       last_active_date: string | null;
       subscription_status: "free" | "trial" | "paid";
-      analyses_taken: number;
+      analyses_started: number;
       exam_choice: string | null;
     }>();
   const examSlug = profile?.exam_choice ?? "cuet";
@@ -67,7 +67,7 @@ export default async function ResultsPage({ params }: Params) {
     .maybeSingle<{ analysis: AnalysisJson; is_deep_dive: boolean }>();
 
   const isPaid = profile?.subscription_status === "paid";
-  const freeAnalysisUsed = (profile?.analyses_taken ?? 0) >= 1;
+  const freeAnalysisUsed = (profile?.analyses_started ?? 0) >= 1;
   const today = new Date().toISOString().slice(0, 10);
   const streakActiveToday =
     profile?.last_active_date === today && (profile?.streak_count ?? 0) > 0;

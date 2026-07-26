@@ -19,7 +19,7 @@ type UserRow = {
   level: number;
   quizzes_taken: number;
   quizzes_started: number;
-  analyses_taken: number;
+  analyses_started: number;
   subscription_status: "free" | "trial" | "paid";
   streak_count: number;
   longest_streak: number;
@@ -60,7 +60,7 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from("users")
     .select(
-      "email, xp, level, quizzes_taken, quizzes_started, analyses_taken, subscription_status, streak_count, longest_streak, last_active_date, exam_choice, paid_until, streak_shields, total_shields_used"
+      "email, xp, level, quizzes_taken, quizzes_started, analyses_started, subscription_status, streak_count, longest_streak, last_active_date, exam_choice, paid_until, streak_shields, total_shields_used"
     )
     .eq("id", authUser.id)
     .maybeSingle<UserRow>();
@@ -169,7 +169,7 @@ export default async function ProfilePage() {
       name: "Deep learner",
       detail: "Used an AI Deep Analysis",
       icon: "🔎",
-      earned: (profile?.analyses_taken ?? 0) >= 1,
+      earned: (profile?.analyses_started ?? 0) >= 1,
     },
   ].filter((achievement) => achievement.earned);
 
@@ -279,7 +279,7 @@ export default async function ProfilePage() {
         <PlanPanel
           subscriptionStatus={liveSubscriptionStatus}
           quizzesStarted={profile?.quizzes_started ?? 0}
-          analysesTaken={profile?.analyses_taken ?? 0}
+          analysesTaken={profile?.analyses_started ?? 0}
         />
         {/* Cancel-subscription affordance — only shown for active paid */}
         {/* users. Two-tap confirmation so accidental clicks don't fire. */}
