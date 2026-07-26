@@ -1,0 +1,111 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Script from "next/script";
+import GoogleAdsTag from "@/components/GoogleAdsTag";
+import MetaPixel from "@/components/MetaPixel";
+
+const CONSENT_KEY = "examgrind-marketing-consent-v1";
+type Consent = "granted" | "denied" | null;
+
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+  }
+}
+
+const googleConsent = (value: Exclude<Consent, null>) => {
+  window.gtag?.("consent", "update", {
+    ad_storage: value,
+    ad_user_data: value,
+    ad_personalization: value,
+    analytics_storage: value,
+  });
+};
+
+/** Keeps non-essential tracking off the page until the visitor opts in. */
+export default function MarketingTracking() {
+  const [consent, setConsent] = useState<Consent>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    // Set the secure default before a visitor makes a choice. This queue is
+    // later consumed by the Google tag only after the visitor has opted in.
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || ((...args: unknown[]) => window.dataLayer?.push(args));
+    window.gtag("consent", "default", {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      analytics_storage: "denied",
+    });
+
+    const saved = window.localStorage.getItem(CONSENT_KEY);
+    if (saved === "granted" || saved === "denied") setConsent(saved);
+    setReady(true);
+
+    const openSettings = () => {
+      setConsent(null);
+      window.localStorage.removeItem(CONSENT_KEY);
+    };
+    window.addEventListener("examgrind:open-cookie-settings", openSettings);
+    return () => window.removeEventListener("examgrind:open-cookie-settings", openSettings);
+  }, []);
+
+  const save = (value: Exclude<Consent, null>) => {
+    window.localStorage.setItem(CONSENT_KEY, value);
+    setConsent(value);
+    googleConsent(value);
+  };
+
+  return (
+    <>
+      {consent === "granted" && (
+        <>
+          <GoogleAdsTag />
+          <MetaPixel />
+          <GoogleAnalyticsTag />
+        </>
+      )}
+
+      {ready && consent === null && (
+        <section
+          className="fixed inset-x-3 bottom-3 z-[100] mx-auto max-w-xl rounded-2xl border border-cocoa-900/10 bg-cream-50 p-4 shadow-[0_16px_50px_rgba(55,32,21,0.2)] sm:bottom-5 sm:p-5"
+          aria-label="Cookie preferences"
+          role="dialog"
+        >
+          <p className="font-semibold text-cocoa-900">Your privacy choices</p>
+          <p className="mt-1 text-sm leading-6 text-cocoa-600">
+            ExamGrind needs essential cookies to keep you signed in. With your
+            permission, we also use Google Analytics, Google Ads and Meta Pixel
+            to understand visits and improve our ads. We never send quiz answers
+            or payment details to these services.
+          </p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <button type="button" onClick={() => save("denied")} className="rounded-xl border border-cocoa-900/15 px-4 py-2.5 text-sm font-semibold text-cocoa-700 transition hover:bg-cream-100">
+              Reject non-essential
+            </button>
+            <button type="button" onClick={() => save("granted")} className="rounded-xl bg-coral-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-coral-600">
+              Accept analytics & ads
+            </button>
+          </div>
+          <a href="/privacy" className="mt-3 inline-block text-xs font-medium text-cocoa-600 underline underline-offset-2 hover:text-cocoa-900">
+            Read our Privacy Policy
+          </a>
+        </section>
+      )}
+    </>
+  );
+}
+
+function GoogleAnalyticsTag() {
+  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  if (!measurementId) return null;
+
+  return (
+    <Script id="examgrind-google-analytics" strategy="afterInteractive">
+      {`gtag('config', '${measurementId}', { anonymize_ip: true });`}
+    </Script>
+  );
+}
