@@ -10,6 +10,7 @@ export const ANALYTICS_EVENTS = {
   SIGN_UP: "sign_up",
   LOGIN: "login",
   DAILY_MISSION_STARTED: "daily_mission_started",
+  DAILY_MISSION_COMPLETED: "daily_mission_completed",
   MISTAKE_BOOK_VIEWED: "mistake_book_viewed",
   MISTAKE_TOPIC_RETRY_STARTED: "mistake_topic_retry_started",
   QUIZ_STARTED: "quiz_started",
@@ -55,6 +56,11 @@ export const trackLogin = () =>
 export const trackDailyMissionStarted = (params: {
   mission_type: "foundation" | "repair" | "revision" | "advance";
 }) => track(ANALYTICS_EVENTS.DAILY_MISSION_STARTED, params);
+export const trackDailyMissionCompleted = (params: {
+  mission_type: "foundation" | "repair" | "revision" | "advance";
+  question_count: number;
+  correct_count: number;
+}) => track(ANALYTICS_EVENTS.DAILY_MISSION_COMPLETED, params);
 export const trackMistakeBookViewed = (params: { mistake_count: number }) =>
   track(ANALYTICS_EVENTS.MISTAKE_BOOK_VIEWED, params);
 export const trackMistakeTopicRetryStarted = () =>

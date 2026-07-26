@@ -3,9 +3,16 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
-import { trackQuizCompleted, trackQuizStarted } from "@/lib/product-analytics";
+import {
+  trackDailyMissionCompleted,
+  trackQuizCompleted,
+  trackQuizStarted,
+} from "@/lib/product-analytics";
 
 type Letter = "A" | "B" | "C" | "D";
+type MissionType = "foundation" | "repair" | "revision" | "advance";
+const MISSION_CONTEXT_KEY = "examgrind:active-mission";
+const MISSION_CONTEXT_TTL_MS = 30 * 60_000;
 
 type ClientQuestion = {
   id: string;
@@ -53,6 +60,34 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
   const [skipStreak, setSkipStreak] = useState(0);
   const [secondsOnQuestion, setSecondsOnQuestion] = useState(0);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+
+  const trackMissionCompletion = (answeredCount: number, correctCount: number) => {
+    if (answeredCount === 0) return;
+    try {
+      const raw = window.sessionStorage.getItem(MISSION_CONTEXT_KEY);
+      if (!raw) return;
+      const context = JSON.parse(raw) as { type?: MissionType; startedAt?: number };
+      const missionType = context.type;
+      if (
+        (missionType !== "foundation" && missionType !== "repair" &&
+          missionType !== "revision" && missionType !== "advance") ||
+        !context.startedAt ||
+        Date.now() - context.startedAt > MISSION_CONTEXT_TTL_MS
+      ) {
+        window.sessionStorage.removeItem(MISSION_CONTEXT_KEY);
+        return;
+      }
+      trackDailyMissionCompleted({
+        mission_type: missionType,
+        question_count: questions.length,
+        correct_count: correctCount,
+      });
+      window.sessionStorage.removeItem(MISSION_CONTEXT_KEY);
+    } catch {
+      // Analytics must never interfere with quiz completion.
+      window.sessionStorage.removeItem(MISSION_CONTEXT_KEY);
+    }
+  };
 
   useEffect(() => {
     trackQuizStarted({ quiz_id: quizId, topic: topicLabel, question_count: questions.length });
@@ -157,6 +192,7 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
             skipped_count: Math.max(0, (body.total ?? questions.length) - answeredCount),
             duration_seconds: Math.max(1, Math.round(Object.values(finalTimes).reduce((sum, seconds) => sum + seconds, 0))),
           });
+          trackMissionCompletion(answeredCount, body.correct);
         }
         router.push(`/results/${quizId}`);
       } catch (e: unknown) {

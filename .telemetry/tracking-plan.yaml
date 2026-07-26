@@ -1,0 +1,50 @@
+meta:
+  product: ExamGrind
+  version: 1.1.0
+  created: 2026-07-26
+  updated: 2026-07-26
+  implementation: ga4_gtag
+  destinations: [ga4, google_ads, meta_pixel]
+  pii_policy: none
+  internal_user_policy: none
+
+entities:
+  user:
+    id_property: none
+    id_format: anonymous browser session
+    traits: []
+
+groups: []
+
+events:
+  - name: daily_mission_started
+    category: core_value
+    description: Student chooses the dashboard's recommended study action.
+    properties:
+      - { name: mission_type, type: string, required: true, enum: [foundation, repair, revision, advance] }
+  - name: daily_mission_completed
+    category: core_value
+    description: Student completes a non-empty quiz begun from the current dashboard mission.
+    properties:
+      - { name: mission_type, type: string, required: true, enum: [foundation, repair, revision, advance] }
+      - { name: question_count, type: integer, required: true }
+      - { name: correct_count, type: integer, required: true }
+  - name: quiz_completed
+    category: core_value
+    description: Student completes a quiz.
+    properties:
+      - { name: question_count, type: integer, required: true }
+      - { name: answered_count, type: integer, required: true }
+      - { name: correct_count, type: integer, required: true }
+      - { name: duration_seconds, type: integer, required: true }
+  - name: deep_analysis_completed
+    category: core_value
+    description: A requested analysis is rendered successfully.
+    properties:
+      - { name: analysis_kind, type: string, required: true, enum: [regular, deep_dive] }
+      - { name: source, type: string, required: true, enum: [quiz, mock] }
+  - name: subscription_purchased
+    category: billing
+    description: A verified Razorpay purchase returns control to the app.
+    properties:
+      - { name: plan, type: string, required: true, enum: [monthly_199] }

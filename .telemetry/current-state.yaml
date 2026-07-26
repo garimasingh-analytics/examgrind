@@ -1,0 +1,85 @@
+# Current State: reverse-engineered from codebase
+# Scanned: 2026-07-26
+# SDK: GA4 gtag.js, Google Ads gtag conversion, Meta Pixel
+
+events:
+  - name: sign_up
+    status: LIVE
+    locations: [{ file: components/MarketingTracking.tsx, line: 148 }]
+    properties: [method]
+    source: frontend
+  - name: login
+    status: LIVE
+    locations: [{ file: components/MarketingTracking.tsx, line: 148 }]
+    properties: [method]
+    source: frontend
+  - name: daily_mission_started
+    status: LIVE
+    locations: [{ file: components/DailyMissionCard.tsx, line: 68 }]
+    properties: [mission_type]
+    source: frontend
+  - name: mistake_book_viewed
+    status: LIVE
+    locations: [{ file: app/mistakes/MistakeBook.tsx, line: 31 }]
+    properties: [mistake_count]
+    source: frontend
+  - name: mistake_topic_retry_started
+    status: LIVE
+    locations: [{ file: app/mistakes/MistakeBook.tsx, line: 145 }]
+    properties: []
+    source: frontend
+  - name: quiz_started
+    status: LIVE
+    locations: [{ file: app/quiz/[id]/QuizRunner.tsx, line: 58 }]
+    properties: [quiz_id, topic, question_count]
+    source: frontend
+  - name: quiz_completed
+    status: LIVE
+    locations: [{ file: app/quiz/[id]/QuizRunner.tsx, line: 151 }]
+    properties: [quiz_id, question_count, answered_count, correct_count, wrong_count, skipped_count, duration_seconds]
+    source: frontend
+  - name: mock_started
+    status: LIVE
+    locations: [{ file: app/mock/start/[mockTestId]/StartMockButton.tsx, line: 57 }]
+    properties: [mock_test_id]
+    source: frontend
+  - name: mock_completed
+    status: LIVE
+    locations: [{ file: app/mock/take/[attemptId]/MockTakeClient.tsx, line: 195 }]
+    properties: [correct_count, wrong_count, unattempted_count, duration_seconds]
+    source: frontend
+  - name: deep_analysis_requested
+    status: LIVE
+    locations: [{ file: app/results/[id]/DeepAnalysis.tsx, line: 171 }]
+    properties: [analysis_kind, source]
+    source: frontend
+  - name: deep_analysis_completed
+    status: LIVE
+    locations: [{ file: app/results/[id]/DeepAnalysis.tsx, line: 203 }]
+    properties: [analysis_kind, source]
+    source: frontend
+  - name: deep_analysis_viewed
+    status: LIVE
+    locations: [{ file: app/results/[id]/DeepAnalysis.tsx, line: 160 }]
+    properties: [analysis_kind, source]
+    source: frontend
+  - name: subscription_checkout_started
+    status: LIVE
+    locations: [{ file: components/UpgradeModal.tsx, line: 128 }]
+    properties: [paywall_reason]
+    source: frontend
+  - name: subscription_purchased
+    status: LIVE
+    locations: [{ file: components/UpgradeModal.tsx, line: 188 }]
+    properties: [plan]
+    source: frontend
+
+identity:
+  identify_calls: []
+  group_calls: []
+
+patterns:
+  naming_style: snake_case
+  naming_format: action_object
+  centralized: true
+  error_handling: consent-gated, non-blocking browser wrapper

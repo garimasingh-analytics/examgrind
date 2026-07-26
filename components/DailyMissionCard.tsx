@@ -19,6 +19,16 @@ export default function DailyMissionCard({
   type,
   accuracy,
 }: Props) {
+  const startMission = () => {
+    // Quiz creation can take a minute, so preserve a short-lived anonymous
+    // source marker in this browser only. QuizRunner consumes it once after a
+    // real completion; it is never sent to the server or attached to a user.
+    window.sessionStorage.setItem(
+      "examgrind:active-mission",
+      JSON.stringify({ type, startedAt: Date.now() }),
+    );
+    trackDailyMissionStarted({ mission_type: type });
+  };
   const copy =
     type === "repair"
       ? {
@@ -65,7 +75,7 @@ export default function DailyMissionCard({
           </div>
           <Link
             href={href}
-            onClick={() => trackDailyMissionStarted({ mission_type: type })}
+            onClick={startMission}
             className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-sun-400 px-4 py-3 text-sm font-bold text-cocoa-900 shadow-warm transition hover:-translate-y-0.5 hover:bg-sun-300"
           >
             {copy.button} <span aria-hidden>→</span>
