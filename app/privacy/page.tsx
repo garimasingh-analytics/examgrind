@@ -48,10 +48,11 @@ export default function PrivacyPage() {
         </li>
         <li>
           A small set of cookies needed to keep you signed in (Supabase auth
-          session tokens). We also use Google Ads and Meta Pixel tags to measure
-          whether an advertisement resulted in a paid subscription. Google and Meta may set or read
-          advertising measurement cookies for this purpose; we do not send your
-          quiz answers or payment credentials to Google Ads.
+          session tokens). With your permission, we use Google Analytics, Google
+          Ads and Meta Pixel tags to understand visits and measure whether an
+          advertisement resulted in a paid subscription. Google and Meta may set
+          or read analytics and advertising measurement cookies for this purpose;
+          we do not send your quiz answers or payment credentials to them.
         </li>
       </ul>
 
@@ -99,7 +100,10 @@ export default function PrivacyPage() {
           browser. Standard web logs apply.
         </li>
         <li>
-          <strong>Google</strong> — provides the Sign-in with Google flow.
+          <strong>Google</strong> — provides the Sign-in with Google flow and,
+          where you opt in, Google Analytics and Google Ads measurement. Read
+          how Google uses information from sites and apps that use its services{" "}
+          <a href="https://policies.google.com/technologies/partner-sites" rel="noreferrer" target="_blank">here</a>.
         </li>
       </ul>
       <p>
@@ -107,7 +111,15 @@ export default function PrivacyPage() {
         information when required by a valid Indian legal process.
       </p>
 
-      <h2>4. Your rights under the DPDP Act, 2023</h2>
+      <h2>4. Cookie choices</h2>
+      <p>
+        Essential cookies are always used for sign-in, security and payments.
+        Analytics and advertising tags remain off unless you choose
+        &ldquo;Accept analytics &amp; ads&rdquo; in our cookie banner. You can change
+        your choice any time using &ldquo;Cookie settings&rdquo; in the footer.
+      </p>
+
+      <h2>5. Your rights under the DPDP Act, 2023</h2>
       <p>You have the right to:</p>
       <ul>
         <li>Access the personal data we hold about you.</li>
@@ -122,7 +134,7 @@ export default function PrivacyPage() {
         <a href="/contact">contact page</a>. We&apos;ll respond within 30 days.
       </p>
 
-      <h2>5. How long we keep your data</h2>
+      <h2>6. How long we keep your data</h2>
       <p>
         We keep account and quiz data for as long as your account is active.
         If you delete your account, we delete personal data within 30 days,
@@ -130,7 +142,7 @@ export default function PrivacyPage() {
         retain payment records for a longer period.
       </p>
 
-      <h2>6. Security</h2>
+      <h2>7. Security</h2>
       <p>
         Communication with the Service is encrypted in transit (TLS).
         Database access is restricted via row-level security policies — your
@@ -139,7 +151,7 @@ export default function PrivacyPage() {
         and contact us immediately if you suspect unauthorised access.
       </p>
 
-      <h2>7. Children</h2>
+      <h2>8. Children</h2>
       <p>
         ExamGrind is built for Indian competitive-exam aspirants (currently
         CUET UG, SSC CGL, and NEET UG). If you are under 18, you may use the
@@ -147,14 +159,14 @@ export default function PrivacyPage() {
         knowingly collect personal data from anyone under 13.
       </p>
 
-      <h2>8. Changes to this policy</h2>
+      <h2>9. Changes to this policy</h2>
       <p>
         We&apos;ll change the &ldquo;Last updated&rdquo; date at the top when
         we revise this policy. Material changes will be notified by email or
         in-app.
       </p>
 
-      <h2>9. Contact</h2>
+      <h2>10. Contact</h2>
       <p>
         Privacy questions, deletion requests, complaints — please use the{" "}
         <a href="/contact">contact page</a>.

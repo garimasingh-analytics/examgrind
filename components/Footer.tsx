@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CookieSettingsButton from "@/components/CookieSettingsButton";
 
 /**
  * Slim footer with legal links — Razorpay requires Terms / Privacy / Refund
@@ -17,6 +18,7 @@ export default function Footer() {
           <Link href="/privacy" className="hover:text-cocoa-900">Privacy</Link>
           <Link href="/refund" className="hover:text-cocoa-900">Refund</Link>
           <Link href="/contact" className="hover:text-cocoa-900">Contact</Link>
+          <CookieSettingsButton />
         </nav>
       </div>
     </footer>

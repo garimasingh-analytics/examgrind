@@ -8,8 +8,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { asChickVariant } from "@/lib/chicks";
 import FeedbackWidget from "@/components/FeedbackWidget";
-import GoogleAdsTag from "@/components/GoogleAdsTag";
-import MetaPixel from "@/components/MetaPixel";
+import MarketingTracking from "@/components/MarketingTracking";
 
 // Soft warm serif — used for headlines.
 const fraunces = Fraunces({
@@ -132,8 +131,7 @@ export default async function RootLayout({
         {/* strict-mode quiz/mock screens, /admin, and /share/[id]. The  */}
         {/* widget itself decides where to hide based on pathname.       */}
         <FeedbackWidget />
-        <GoogleAdsTag />
-        <MetaPixel />
+        <MarketingTracking />
       </body>
     </html>
   );
