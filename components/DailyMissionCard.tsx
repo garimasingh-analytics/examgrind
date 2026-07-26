@@ -9,6 +9,7 @@ type Props = {
   topicName: string | null;
   type: "foundation" | "repair" | "revision" | "advance";
   accuracy: number | null;
+  scoreBoostDay?: number | null;
 };
 
 /** One clear, evidence-based next study action for the dashboard. */
@@ -18,6 +19,7 @@ export default function DailyMissionCard({
   topicName,
   type,
   accuracy,
+  scoreBoostDay,
 }: Props) {
   const startMission = () => {
     // Quiz creation can take a minute, so preserve a short-lived anonymous
@@ -72,6 +74,14 @@ export default function DailyMissionCard({
             <p className="mt-2 text-sm leading-6 text-cream-100/80 sm:text-base">
               {copy.detail}
             </p>
+            {scoreBoostDay && (
+              <Link
+                href="/score-boost"
+                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-sun-300/35 bg-sun-400/15 px-3 py-2 text-xs font-bold text-sun-200 transition hover:bg-sun-400/25"
+              >
+                Your 21-Day Score Boost · Day {scoreBoostDay} of 21 <span aria-hidden>→</span>
+              </Link>
+            )}
           </div>
           <Link
             href={href}

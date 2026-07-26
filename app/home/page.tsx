@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 import Chick from "@/components/Chick";
 import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid";
 import ExamSwitcher from "@/components/ExamSwitcher";
@@ -129,6 +130,19 @@ export default async function HomePage() {
     profile?.subscription_status ?? "free",
     profile?.paid_until ?? null
   );
+  const admin = createAdminSupabase();
+  const { data: scoreBoostPurchase } = await admin
+    .from("purchase_entitlements")
+    .select("starts_at, expires_at")
+    .eq("user_id", authUser.id)
+    .eq("product", "score_boost_21d")
+    .gt("expires_at", new Date().toISOString())
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ starts_at: string; expires_at: string }>();
+  const scoreBoostDay = scoreBoostPurchase
+    ? Math.max(1, Math.min(21, Math.floor((Date.now() - new Date(scoreBoostPurchase.starts_at).getTime()) / 86_400_000) + 1))
+    : null;
 
   // Explicit two-query path: look up exam_id by slug, then filter subjects
   // by exam_id. We tried the nested-filter approach (.eq("exam.slug",...))
@@ -561,7 +575,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {mission && <DailyMissionCard {...mission} />}
+      {mission && <DailyMissionCard {...mission} scoreBoostDay={scoreBoostDay} />}
 
       <section className="mx-auto mt-5 grid max-w-5xl gap-3 px-4 sm:grid-cols-2 sm:px-6">
         <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
