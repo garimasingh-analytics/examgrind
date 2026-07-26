@@ -24,20 +24,20 @@ export default function DailyMissionCard({
       ? {
           eyebrow: "Today’s repair",
           title: `Strengthen ${topicName ?? subjectName}`,
-          detail: `Your best accuracy was ${accuracy}%. A short retry can turn this into a reliable topic.`,
+          detail: `AI Coach: you reached ${accuracy}% here before. Let’s repair it with one short retry and make this a reliable topic.`,
           button: "Repair this topic",
         }
       : type === "foundation"
       ? {
           eyebrow: "Today’s first step",
           title: `Start ${topicName ?? subjectName}`,
-          detail: "One focused quiz is enough to create a useful starting point for your study plan.",
+          detail: "AI Coach: one focused quiz is enough to give you a real starting point and personalise what comes next.",
           button: "Start today’s mission",
         }
       : {
           eyebrow: "Today’s next step",
           title: `Build ${topicName ?? subjectName}`,
-          detail: "Keep your momentum with one focused practice session.",
+          detail: "AI Coach: keep your momentum with one focused practice session—no need to decide what to study next.",
           button: "Continue learning",
         };
 
