@@ -88,7 +88,10 @@ export default async function WeeklyReportPage() {
     <main className="min-h-[100svh] bg-warm-wash pb-24">
       <header className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
         <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">ExamGrind</Link>
-        <Link href="/home" className="text-sm font-medium text-cocoa-500 hover:text-cocoa-900">← Home</Link>
+        <div className="flex items-center gap-3">
+          <Link href="/monthly" className="text-sm font-semibold text-ember-700 hover:text-ember-800">30-day view</Link>
+          <Link href="/home" className="text-sm font-medium text-cocoa-500 hover:text-cocoa-900">← Home</Link>
+        </div>
       </header>
       <section className="mx-auto max-w-3xl px-4 pt-4 sm:px-6 sm:pt-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">Weekly proof</p>
