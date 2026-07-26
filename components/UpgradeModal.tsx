@@ -40,17 +40,6 @@ type RazorpayOptions = {
 
 const CHECKOUT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
 
-// UPI-app deep links are routinely blocked by social-media webviews. Opening
-// Razorpay there leaves the customer on Razorpay's own "Processing" screen
-// even though no payment has reached our server. Detect those containers
-// before creating an order, so we can send the customer to a real browser.
-function isEmbeddedBrowser() {
-  if (typeof navigator === "undefined") return false;
-  return /\bwv\b|WebView|FBAN|FBAV|Instagram|LinkedInApp|TikTok|Snapchat|Line\//i.test(
-    navigator.userAgent
-  );
-}
-
 // Both the modal-open preloader and the purchase button can request this at
 // almost the same time. Keep one shared promise so a second caller never
 // attaches a `load` listener after the script has already fired its event.
@@ -126,39 +115,14 @@ export default function UpgradeModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [embeddedBrowser, setEmbeddedBrowser] = useState(false);
   const router = useRouter();
 
   // Preload the Razorpay checkout script as soon as the modal opens so
   // the click feels instant. No-op if it's already loaded.
   useEffect(() => {
     if (!open) return;
-    const embedded = isEmbeddedBrowser();
-    setEmbeddedBrowser(embedded);
-    // Do not preload a checkout that the current container cannot finish.
-    if (!embedded) void loadRazorpayScript();
+    void loadRazorpayScript();
   }, [open]);
-
-  const openInBrowser = async () => {
-    if (typeof window === "undefined") return;
-    const pageUrl = window.location.href;
-    const isAndroid = /Android/i.test(navigator.userAgent);
-
-    if (isAndroid) {
-      // Android's standard Chrome intent is the most reliable escape hatch
-      // from an in-app webview. If the host blocks it, the copied link below
-      // still gives the student a deterministic way to continue.
-      const withoutProtocol = pageUrl.replace(/^https?:\/\//, "");
-      window.location.href = `intent://${withoutProtocol}#Intent;scheme=https;package=com.android.chrome;end`;
-    }
-
-    try {
-      await navigator.clipboard.writeText(pageUrl);
-      setError("Open the copied ExamGrind link in Chrome or Safari, then choose your payment again.");
-    } catch {
-      setError("Open this ExamGrind page in Chrome or Safari, then choose your payment again.");
-    }
-  };
 
   if (!open) return null;
 
@@ -186,10 +150,6 @@ export default function UpgradeModal({
 
   const handleUpgrade = async () => {
     setError(null);
-    if (embeddedBrowser) {
-      await openInBrowser();
-      return;
-    }
     setLoading(true);
     trackSubscriptionCheckoutStarted({ paywall_reason: reason });
     try {
@@ -270,10 +230,6 @@ export default function UpgradeModal({
 
   const handleOneTimePurchase = async (product: OneTimeProduct) => {
     setError(null);
-    if (embeddedBrowser) {
-      await openInBrowser();
-      return;
-    }
     setLoading(true);
     try {
       // Use the same Razorpay Checkout transport as the working monthly
@@ -369,17 +325,6 @@ export default function UpgradeModal({
               <p className="mt-1 text-xs leading-relaxed text-cocoa-700">Unlimited quizzes, mocks and AI analyses, plus every ongoing premium tool.</p>
               <button onClick={handleUpgrade} disabled={loading || success} className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-4 py-2.5 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Opening checkout…" : "Upgrade to Coach"}</button>
             </div>
-          </div>
-          <div className="mt-3 rounded-2xl border border-sun-500/30 bg-sun-400/10 p-3 text-center">
-            <p className="text-xs leading-relaxed text-cocoa-700">
-              Paying by UPI from an app browser? Use Chrome or Safari so your UPI app can return safely after approval.
-            </p>
-            <button
-              onClick={openInBrowser}
-              className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-cocoa-900 px-4 py-2 text-xs font-bold text-cream-50"
-            >
-              Open in Chrome / Safari for UPI
-            </button>
           </div>
           <p className="mt-3 text-center text-[11px] text-cocoa-500">A rewarded ad option will appear here only after ad approval and verified completion are available.</p>
 
