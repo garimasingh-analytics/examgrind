@@ -4,6 +4,7 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import { fireAlert } from "@/lib/alert";
 import { sendPaymentConfirmation } from "@/lib/email";
 import { sendAdminSMS } from "@/lib/sms";
+import { isOneTimeProduct, ONE_TIME_PRODUCTS } from "@/lib/billing-products";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +18,7 @@ export const dynamic = "force-dynamic";
  *     URL: https://<your-domain>/api/billing/webhook
  *     Secret: a long random string — paste the same value into
  *             RAZORPAY_WEBHOOK_SECRET in Vercel env.
- *     Active events: subscription.activated, subscription.charged,
+ *     Active events: payment.captured, payment.failed, subscription.activated, subscription.charged,
  *                    subscription.cancelled, subscription.completed,
  *                    subscription.pending, subscription.halted,
  *                    subscription.paused, subscription.resumed,
@@ -285,6 +286,60 @@ export async function POST(req: NextRequest) {
           .from("subscriptions")
           .update({ state: sub.status })
           .eq("razorpay_subscription_id", sub.id));
+        break;
+      }
+
+      case "payment.captured": {
+        // One-time ₹19 / ₹49 checkouts may be completed after the student
+        // closes the browser. Reconcile from the order we created server-side
+        // rather than trusting client notes or the displayed amount.
+        if (!payment?.order_id) break;
+        const { data: order, error: orderError } = await admin
+          .from("payments")
+          .select("user_id, product, amount_paise, status")
+          .eq("razorpay_order_id", payment.order_id)
+          .maybeSingle<{
+            user_id: string;
+            product: string;
+            amount_paise: number;
+            status: string;
+          }>();
+        if (orderError) throw new Error(`payment order lookup: ${orderError.message}`);
+        // Subscription charges have a different entitlement path. Ignore
+        // unknown Razorpay orders instead of granting access from metadata.
+        if (!order || !isOneTimeProduct(order.product)) break;
+        const product = order.product;
+        const expected = ONE_TIME_PRODUCTS[product].pricePaise;
+        if (order.amount_paise !== expected || payment.amount !== expected) {
+          throw new Error(`payment amount mismatch for ${payment.order_id}`);
+        }
+
+        await requireWrite("one-time payment mirror update", admin
+          .from("payments")
+          .update({
+            razorpay_payment_id: payment.id,
+            amount_paise: expected,
+            status: "paid",
+          })
+          .eq("razorpay_order_id", payment.order_id));
+
+        const { error: entitlementError } = await admin.rpc("grant_one_time_entitlement", {
+          p_user_id: order.user_id,
+          p_product: product,
+          p_order_id: payment.order_id,
+          p_payment_id: payment.id,
+        });
+        if (entitlementError) throw new Error(`one-time entitlement grant: ${entitlementError.message}`);
+
+        // The checkout callback may have already handled this; grant is still
+        // idempotent, but avoid duplicate founder SMS/alerts.
+        if (order.status !== "paid") {
+          const label = ONE_TIME_PRODUCTS[product].label;
+          void fireAlert(`One-time purchase captured — ${label}`, {
+            user_id: order.user_id, payment_id: payment.id, product,
+          });
+          void sendAdminSMS(`ExamGrind: ${label} captured. pay=${payment.id.slice(-8)}`);
+        }
         break;
       }
 
