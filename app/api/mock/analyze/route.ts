@@ -155,8 +155,8 @@ export async function POST(req: NextRequest) {
     }
   } else {
     const { data: slotRows, error: slotError } = await admin.rpc(
-      "consume_freemium_slot",
-      { p_user_id: user.id, p_gate: "analysis", p_limit: FREE_LIMITS.analysis },
+      "consume_analysis_entitlement",
+      { p_user_id: user.id },
     );
     const slot = Array.isArray(slotRows) ? slotRows[0] : slotRows;
     if (slotError || !slot) {

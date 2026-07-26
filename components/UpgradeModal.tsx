@@ -6,6 +6,7 @@ import Chick from "@/components/Chick";
 import { trackPaidSubscriptionConversion } from "@/lib/google-ads";
 import { trackMetaSubscriptionPurchase } from "@/lib/meta-ads";
 import { trackSubscriptionCheckoutStarted, trackSubscriptionPurchased } from "@/lib/product-analytics";
+import type { OneTimeProduct } from "@/lib/billing-products";
 
 // Razorpay's checkout SDK injects itself into window when the script loads.
 declare global {
@@ -90,6 +91,7 @@ export default function UpgradeModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
 
   // Preload the Razorpay checkout script as soon as the modal opens so
@@ -202,6 +204,63 @@ export default function UpgradeModal({
     }
   };
 
+  const handleOneTimePurchase = async (product: OneTimeProduct) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const ok = await loadRazorpayScript();
+      if (!ok || !window.Razorpay) throw new Error("Couldn't load the payment provider. Check your connection and try again.");
+      const orderRes = await fetch("/api/billing/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product }),
+      });
+      const order = (await orderRes.json().catch(() => ({}))) as {
+        error?: string; orderId?: string; amount?: number; currency?: string; key?: string;
+        name?: string; description?: string; prefill?: { email?: string };
+      };
+      if (!orderRes.ok || !order.orderId || !order.key) throw new Error(order.error ?? "Couldn't start checkout.");
+      const rzp = new window.Razorpay({
+        key: order.key,
+        order_id: order.orderId,
+        amount: order.amount,
+        currency: order.currency,
+        name: order.name ?? "ExamGrind",
+        description: order.description ?? "ExamGrind purchase",
+        prefill: order.prefill,
+        theme: { color: "#FD7C29" },
+        handler: async (resp) => {
+          if (!resp.razorpay_payment_id || !resp.razorpay_signature || !resp.razorpay_order_id) {
+            setError("Payment completed, but verification details were missing. Please contact support.");
+            setLoading(false);
+            return;
+          }
+          const verify = await fetch("/api/billing/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(resp),
+          });
+          const verified = (await verify.json().catch(() => ({}))) as { error?: string };
+          if (!verify.ok) {
+            setError(verified.error ?? "Your payment needs verification. Please contact support.");
+            setLoading(false);
+            return;
+          }
+          setSuccessMessage(product === "analysis_credit" ? "AI Analysis added — use it on this result now." : "Your 21-Day Score Boost is active.");
+          setSuccess(true);
+          setLoading(false);
+          if (product === "score_boost_21d") router.push("/score-boost");
+          else router.refresh();
+        },
+        modal: { ondismiss: () => setLoading(false) },
+      });
+      rzp.open();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       role="dialog"
@@ -228,49 +287,17 @@ export default function UpgradeModal({
 
         {/* Body */}
         <div className="px-6 py-5">
-          {/* Anchor + actual price. ₹2,499 strikethrough = ~92% off
-              — feels like a real, time-bound launch deal rather than
-              a permanently fake one. Bumps believability vs a giant
-              99% anchor. */}
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-semibold text-cocoa-500 line-through decoration-cocoa-500/60">
-              ₹2,499
-            </span>
-            <span className="font-serif text-3xl font-bold text-cocoa-900">
-              ₹199
-            </span>
-            <span className="text-sm font-medium text-cocoa-700">/ month</span>
-            <span className="ml-2 rounded-full bg-ember-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-cream-50">
-              Launch offer
-            </span>
+          <div className="space-y-3">
+            <Offer title="1 AI Analysis" price="₹19" detail="One standard analysis for this quiz or mock." onClick={() => handleOneTimePurchase("analysis_credit")} disabled={loading || success} />
+            <Offer title="21-Day Score Boost" price="₹49" detail="A fixed study roadmap, daily targets and revision calendar. No auto-renewal." onClick={() => handleOneTimePurchase("score_boost_21d")} disabled={loading || success} />
+            <div className="rounded-2xl border border-ember-600/20 bg-sun-400/10 p-4">
+              <div className="flex items-baseline justify-between gap-3"><h3 className="font-bold text-cocoa-900">Coach</h3><span className="font-serif text-xl font-bold text-cocoa-900">₹199 <span className="font-sans text-xs font-medium">/ month</span></span></div>
+              <p className="mt-1 text-xs leading-relaxed text-cocoa-700">Unlimited quizzes, mocks and AI analyses, plus every ongoing premium tool.</p>
+              <button onClick={handleUpgrade} disabled={loading || success} className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-4 py-2.5 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Opening checkout…" : "Upgrade to Coach"}</button>
+            </div>
           </div>
-          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">
-            Auto-renews via UPI · Cancel any time
-          </p>
-          <ul className="mt-3 space-y-2.5">
-            <Feature>Unlimited quizzes — every subject, every topic</Feature>
-            <Feature>Unlimited full-length mock tests — real exam UX</Feature>
-            <Feature>Unlimited Deep Analyses on every quiz</Feature>
-            <Feature>
-              <span className="font-semibold">Deep Dive 👑</span> — exhaustive walkthroughs + 7-day plans
-            </Feature>
-            <Feature>Priority on every new feature</Feature>
-          </ul>
+          <p className="mt-3 text-center text-[11px] text-cocoa-500">A rewarded ad option will appear here only after ad approval and verified completion are available.</p>
 
-          <button
-            onClick={handleUpgrade}
-            disabled={loading || success}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-6 py-3.5 text-sm font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            <span>👑</span>
-            <span>
-              {success
-                ? "You're paid up! 🎉"
-                : loading
-                ? "Opening checkout…"
-                : "Upgrade — ₹199 / month"}
-            </span>
-          </button>
           <button
             onClick={onClose}
             disabled={loading}
@@ -292,7 +319,7 @@ export default function UpgradeModal({
               role="status"
               className="mt-3 rounded-xl bg-moss-500/15 px-4 py-2.5 text-center text-xs font-medium text-moss-700"
             >
-              Welcome aboard! Refresh the page to start unlimited practice.
+              {successMessage || "Welcome aboard! Refresh the page to start unlimited practice."}
             </p>
           )}
         </div>
@@ -301,16 +328,6 @@ export default function UpgradeModal({
   );
 }
 
-function Feature({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex items-start gap-2.5">
-      <span
-        className="mt-1 flex size-4 shrink-0 items-center justify-center rounded-full bg-ember-600 text-[10px] font-bold text-cream-50"
-        aria-hidden="true"
-      >
-        ✓
-      </span>
-      <span className="text-sm text-cocoa-900">{children}</span>
-    </li>
-  );
+function Offer({ title, price, detail, onClick, disabled }: { title: string; price: string; detail: string; onClick: () => void; disabled: boolean }) {
+  return <button onClick={onClick} disabled={disabled} className="w-full rounded-2xl border border-cocoa-900/[0.08] bg-cream-100 p-4 text-left transition hover:border-ember-600/35 hover:bg-sun-400/10 disabled:cursor-not-allowed disabled:opacity-60"><div className="flex items-baseline justify-between gap-3"><span className="font-bold text-cocoa-900">{title}</span><span className="font-serif text-xl font-bold text-cocoa-900">{price}</span></div><p className="mt-1 text-xs leading-relaxed text-cocoa-700">{detail}</p></button>;
 }

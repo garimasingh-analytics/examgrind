@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
+import {
+  isOneTimeProduct,
+  ONE_TIME_PRODUCTS,
+  type OneTimeProduct,
+} from "@/lib/billing-products";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,7 +14,7 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/billing/create-order
  *
- * Creates a Razorpay order for one month of ExamGrind paid tier (₹199).
+ * Creates a Razorpay order for a one-time ExamGrind product.
  * Returns the order ID + amount so the client can open Razorpay Checkout.
  *
  * Flow:
@@ -24,9 +29,9 @@ export const dynamic = "force-dynamic";
  * which the client posts to /api/billing/verify-payment for HMAC check.
  */
 
-const PRICE_PAISE = 19900; // ₹199 = 19900 paise
+type Body = { product?: OneTimeProduct };
 
-export async function POST() {
+export async function POST(req: Request) {
   const supabase = createServerSupabase();
   const {
     data: { user },
@@ -34,6 +39,13 @@ export async function POST() {
   if (!user) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
+
+  const body = await req.json().catch(() => ({} as Body));
+  if (!isOneTimeProduct(body.product)) {
+    return NextResponse.json({ error: "Choose a valid one-time product." }, { status: 400 });
+  }
+  const product = body.product;
+  const catalogProduct = ONE_TIME_PRODUCTS[product];
 
   const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -53,7 +65,7 @@ export async function POST() {
   let order;
   try {
     order = await razorpay.orders.create({
-      amount: PRICE_PAISE,
+      amount: catalogProduct.pricePaise,
       currency: "INR",
       // Receipt is shown in the Razorpay dashboard — make it traceable
       // back to our user without leaking PII.
@@ -61,7 +73,7 @@ export async function POST() {
       notes: {
         user_id: user.id,
         email: user.email ?? "",
-        product: "ExamGrind monthly",
+        product,
       },
     });
   } catch (e) {
@@ -78,23 +90,29 @@ export async function POST() {
   const { error: insertErr } = await admin.from("payments").insert({
     user_id: user.id,
     razorpay_order_id: order.id,
-    amount_paise: PRICE_PAISE,
+    amount_paise: catalogProduct.pricePaise,
     currency: "INR",
     status: "created",
+    product,
   });
   if (insertErr) {
-    // Non-fatal — the Razorpay order is created, and we'll capture the
-    // payment via the verify endpoint regardless. But log it.
+    // Do not return an order that we cannot bind to a product in our own
+    // database. A signed Razorpay payment without this row must never be
+    // able to infer an entitlement.
     console.error("[billing/create-order] mirror insert failed", insertErr);
+    return NextResponse.json(
+      { error: "Payment is temporarily unavailable. Please try again shortly." },
+      { status: 503 }
+    );
   }
 
   return NextResponse.json({
     orderId: order.id,
-    amount: PRICE_PAISE,
+    amount: catalogProduct.pricePaise,
     currency: "INR",
     key: keyId,
     name: "ExamGrind",
-    description: "ExamGrind monthly — unlimited quizzes + Deep Analysis",
+    description: catalogProduct.description,
     prefill: {
       email: user.email ?? "",
       // Razorpay also accepts name + contact; we don't store name yet.

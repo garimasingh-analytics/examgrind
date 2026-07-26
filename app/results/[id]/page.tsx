@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 import Chick from "@/components/Chick";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
@@ -68,6 +69,14 @@ export default async function ResultsPage({ params }: Params) {
 
   const isPaid = profile?.subscription_status === "paid";
   const freeAnalysisUsed = (profile?.analyses_started ?? 0) >= 1;
+  const { count: analysisCreditCount } = await createAdminSupabase()
+    .from("purchase_entitlements")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("product", "analysis_credit")
+    .gt("remaining_uses", 0)
+    .gt("expires_at", new Date().toISOString());
+  const hasAnalysisCredit = (analysisCreditCount ?? 0) > 0;
   const today = new Date().toISOString().slice(0, 10);
   const streakActiveToday =
     profile?.last_active_date === today && (profile?.streak_count ?? 0) > 0;
@@ -240,6 +249,7 @@ export default async function ResultsPage({ params }: Params) {
             initialAnalysis={existingAnalysis?.analysis ?? null}
             initialIsDeepDive={existingAnalysis?.is_deep_dive ?? false}
             freeAnalysisUsed={freeAnalysisUsed}
+            hasAnalysisCredit={hasAnalysisCredit}
             isPaid={isPaid}
           />
         </section>
