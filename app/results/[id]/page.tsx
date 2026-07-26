@@ -97,13 +97,21 @@ export default async function ResultsPage({ params }: Params) {
         detail: isEmpty
           ? "Start a short fresh round and answer at least one question to create your first signal."
           : `You are at ${accuracy}%. A focused retry is the fastest way to cross 70%.`,
-        href: quizRow.topic_id ? `/topic/${quizRow.topic_id}` : `/chapter/${quizRow.chapter_id}`,
+        href: quizRow.topic_id
+          ? `/topic/${quizRow.topic_id}`
+          : quizRow.chapter_id
+          ? `/chapter/${quizRow.chapter_id}`
+          : "/home",
         button: "Start a repair round",
       }
     : {
         title: "Build the next skill",
         detail: "You cleared this topic. Return to the chapter and take the next available step.",
-        href: `/chapter/${quizRow.chapter_id}`,
+        href: quizRow.chapter_id
+          ? `/chapter/${quizRow.chapter_id}`
+          : quizRow.topic_id
+          ? `/topic/${quizRow.topic_id}`
+          : "/home",
         button: "Continue the path",
       };
 
