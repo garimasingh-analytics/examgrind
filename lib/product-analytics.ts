@@ -3,9 +3,12 @@
 /**
  * Small, typed GA4 event boundary. Events are intentionally anonymous: no
  * email, name, answer text, question text, or payment identifiers are sent.
- * Calls are safe before consent because gtag is absent until consent is given.
+ * Calls before consent are discarded. Calls made after consent but just before
+ * Google finishes loading are safely queued by the Google tag bootstrap.
  */
 export const ANALYTICS_EVENTS = {
+  SIGN_UP: "sign_up",
+  LOGIN: "login",
   QUIZ_STARTED: "quiz_started",
   QUIZ_COMPLETED: "quiz_completed",
   MOCK_STARTED: "mock_started",
@@ -25,10 +28,25 @@ type EventName = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
 type EventParams = Record<string, string | number | boolean | undefined>;
 
 function track(name: EventName, params: EventParams) {
-  if (typeof window === "undefined" || !window.gtag) return;
+  // MarketingTracking installs a lightweight consent default before the
+  // Google tag itself loads. An event that occurred before consent must not
+  // be sent later if consent is granted; after consent, using the bootstrap
+  // queue avoids losing a click made during the short script-load window.
+  if (
+    typeof window === "undefined" ||
+    window.__examgrindMarketingConsent !== "granted" ||
+    !window.gtag
+  ) {
+    return false;
+  }
   window.gtag("event", name, params);
+  return true;
 }
 
+export const trackSignUp = () =>
+  track(ANALYTICS_EVENTS.SIGN_UP, { method: "google" });
+export const trackLogin = () =>
+  track(ANALYTICS_EVENTS.LOGIN, { method: "google" });
 export const trackQuizStarted = (params: { quiz_id: string; topic: string; question_count: number }) =>
   track(ANALYTICS_EVENTS.QUIZ_STARTED, params);
 export const trackQuizCompleted = (params: { quiz_id: string; question_count: number; answered_count: number; duration_seconds: number }) =>

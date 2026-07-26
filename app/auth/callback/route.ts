@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
 
   // We may swap the default landing destination for admins below.
   let finalNext = next;
+  let authEvent: "sign_up" | "login" | null = null;
 
   if (code) {
     const supabase = createServerSupabase();
@@ -75,27 +76,35 @@ export async function GET(request: NextRequest) {
         // First sign-in: create the row. examChoice may be null if the user
         // didn't go through an exam-card click — that's fine, /start/[slug]
         // will set it later.
-        await admin.from("users").insert({
+        const { error: insertError } = await admin.from("users").insert({
           id: user.id,
           email: user.email ?? "",
           exam_choice: examChoice,
         });
-        // AWAIT the welcome email send. Fire-and-forget gets killed by
-        // Vercel serverless lambda termination after the redirect response
-        // is sent — confirmed empirically. Adds ~1-2 sec to the OAuth round
-        // trip but guarantees delivery. SMTP failure won't break signup
-        // since sendEmail catches errors and returns false.
-        if (user.email) {
-          try {
-            // Pass the exam SLUG (cuet / ssc-cgl / neet-ug) so the email
-            // can render the exam-specific proof block. Falls back to neet-ug
-            // template if no exam was picked.
-            console.log("[auth/callback] sending welcome email to", user.email, "exam:", examChoice ?? "(none → default NEET)");
-            const sent = await sendWelcomeEmail(user.email, examChoice ?? undefined);
-            console.log("[auth/callback] welcome email send result:", sent);
-          } catch (e) {
-            console.error("[auth/callback] welcome email send threw:", e);
+        if (!insertError) {
+          authEvent = "sign_up";
+          // AWAIT the welcome email send. Fire-and-forget gets killed by
+          // Vercel serverless lambda termination after the redirect response
+          // is sent — confirmed empirically. Adds ~1-2 sec to the OAuth round
+          // trip but guarantees delivery. SMTP failure won't break signup
+          // since sendEmail catches errors and returns false.
+          if (user.email) {
+            try {
+              // Pass the exam SLUG (cuet / ssc-cgl / neet-ug) so the email
+              // can render the exam-specific proof block. Falls back to neet-ug
+              // template if no exam was picked.
+              console.log("[auth/callback] sending welcome email to", user.email, "exam:", examChoice ?? "(none → default NEET)");
+              const sent = await sendWelcomeEmail(user.email, examChoice ?? undefined);
+              console.log("[auth/callback] welcome email send result:", sent);
+            } catch (e) {
+              console.error("[auth/callback] welcome email send threw:", e);
+            }
           }
+        } else {
+          // A concurrent OAuth callback may have created the profile first.
+          // Treat that harmless race as a returning login; do not send a
+          // misleading signup event or a second welcome email.
+          console.error("[auth/callback] user row insert failed:", insertError);
         }
       } else if (examChoice && !existing.exam_choice) {
         // Returning user with no exam choice set yet — fill it in.
@@ -105,8 +114,18 @@ export async function GET(request: NextRequest) {
           .update({ exam_choice: examChoice })
           .eq("id", user.id);
       }
+
+      if (!authEvent) authEvent = "login";
     }
   }
 
-  return NextResponse.redirect(`${origin}${finalNext}`);
+  // `next` comes from the browser. Preserve in-app destinations but never
+  // turn the authentication callback into an open redirect.
+  const requestedDestination = new URL(finalNext, origin);
+  const destination =
+    requestedDestination.origin === origin
+      ? requestedDestination
+      : new URL("/home", origin);
+  if (authEvent) destination.searchParams.set("auth_event", authEvent);
+  return NextResponse.redirect(destination);
 }
