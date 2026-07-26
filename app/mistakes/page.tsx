@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { scopeQuizzesToActiveExam } from "@/lib/active-exam";
 import MistakeBook, { type Mistake } from "./MistakeBook";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +38,11 @@ export default async function MistakesPage() {
     .not("score", "is", null)
     .order("created_at", { ascending: false })
     .limit(200);
-  const quizzes = (quizzesRaw ?? []) as QuizRow[];
+  const quizzes = await scopeQuizzesToActiveExam(
+    supabase,
+    user.id,
+    (quizzesRaw ?? []) as QuizRow[],
+  );
   const quizById = new Map(quizzes.map((quiz) => [quiz.id, quiz]));
   const quizIds = quizzes.map((quiz) => quiz.id);
 

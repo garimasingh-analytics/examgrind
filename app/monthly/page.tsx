@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { scopeQuizzesToActiveExam } from "@/lib/active-exam";
 
 export const dynamic = "force-dynamic";
 
-type QuizRow = { id: string; subject: string; created_at: string };
+type QuizRow = { id: string; subject: string; topic_id: string | null; created_at: string };
 type QuestionRow = {
   quiz_id: string;
   correct_answer: string;
@@ -35,13 +36,17 @@ export default async function MonthlyReportPage() {
   const start = new Date(now - 28 * 86_400_000).toISOString();
   const { data: quizzesRaw } = await supabase
     .from("quizzes")
-    .select("id, subject, created_at")
+    .select("id, subject, topic_id, created_at")
     .eq("user_id", user.id)
     .not("score", "is", null)
     .gte("created_at", start)
     .order("created_at", { ascending: false })
     .limit(400);
-  const quizzes = (quizzesRaw ?? []) as QuizRow[];
+  const quizzes = await scopeQuizzesToActiveExam(
+    supabase,
+    user.id,
+    (quizzesRaw ?? []) as QuizRow[],
+  );
   const quizById = new Map(quizzes.map((quiz) => [quiz.id, quiz]));
   const quizIds = quizzes.map((quiz) => quiz.id);
 
