@@ -20,6 +20,14 @@ type Subject = {
   order_index: number;
 };
 
+type TodayQuiz = { id: string; topic_id: string | null };
+type TodayQuestion = {
+  quiz_id: string;
+  correct_answer: string;
+  user_answer: string | null;
+  time_taken: number | null;
+};
+
 type UserRow = {
   xp: number;
   level: number;
@@ -49,7 +57,23 @@ export default async function HomePage() {
   // Three of those queries are independent — profile, topic counts, and
   // mastery — so we fire them in parallel here. Subjects still needs the
   // user's exam_choice, so it stays sequential after the parallel batch.
-  const [profileRes, countsRes, masteryRes] = await Promise.all([
+  const indiaDateParts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(new Date());
+  const indiaPart = (type: Intl.DateTimeFormatPartTypes) => Number(
+    indiaDateParts.find((part) => part.type === type)?.value ?? 0,
+  );
+  // Store timestamps in UTC, but define "today" in the students' Indian
+  // timezone so a late-night practice session is never credited to tomorrow.
+  const todayIndiaStart = new Date(
+    Date.UTC(indiaPart("year"), indiaPart("month") - 1, indiaPart("day")) -
+      5.5 * 60 * 60 * 1000,
+  ).toISOString();
+
+  const [profileRes, countsRes, masteryRes, todayQuizzesRes] = await Promise.all([
     supabase
       .from("users")
       .select(
@@ -64,11 +88,19 @@ export default async function HomePage() {
       .from("user_topic_mastery")
       .select("topic_id, mastery_level, questions_attempted, questions_correct, last_quizzed_at, topics!inner(name, chapters!inner(subject_id))")
       .eq("user_id", authUser.id),
+    supabase
+      .from("quizzes")
+      .select("id, topic_id")
+      .eq("user_id", authUser.id)
+      .not("score", "is", null)
+      .gte("created_at", todayIndiaStart)
+      .limit(100),
   ]);
 
   let profile = profileRes.data;
   const countsData = countsRes.data;
   const masteryRaw = masteryRes.data;
+  const todayQuizzes = (todayQuizzesRes.data ?? []) as TodayQuiz[];
 
   if (!profile) {
     // Defensive insert on first visit. New rows get exam_choice='cuet'
@@ -121,6 +153,55 @@ export default async function HomePage() {
   const { data: subjectsData } = await subjectsQuery;
   const subjects = (subjectsData ?? []) as Subject[];
   const activeSubjectIds = new Set(subjects.map((subject) => subject.id));
+
+  // Today's dashboard proof follows the active exam too. Resolve quiz topics
+  // through chapters → subjects rather than relying on subject names, which
+  // can overlap between exams (for example Physics in CUET and NEET).
+  const todayTopicIds = todayQuizzes.flatMap((quiz) => quiz.topic_id ? [quiz.topic_id] : []);
+  const { data: todayTopicsRaw } = todayTopicIds.length > 0
+    ? await supabase
+        .from("topics")
+        .select("id, chapters!inner(subject_id)")
+        .in("id", todayTopicIds)
+    : { data: [] };
+  const activeTodayTopicIds = new Set(
+    ((todayTopicsRaw ?? []) as Array<{
+      id: string;
+      chapters: { subject_id: string } | { subject_id: string }[];
+    }>)
+      .filter((topic) => {
+        const chapter = Array.isArray(topic.chapters)
+          ? topic.chapters[0]
+          : topic.chapters;
+        return chapter && activeSubjectIds.has(chapter.subject_id);
+      })
+      .map((topic) => topic.id),
+  );
+  const activeTodayQuizIds = todayQuizzes
+    .filter((quiz) => quiz.topic_id && activeTodayTopicIds.has(quiz.topic_id))
+    .map((quiz) => quiz.id);
+  let todayQuestions: TodayQuestion[] = [];
+  if (activeTodayQuizIds.length > 0) {
+    const { data } = await supabase
+      .from("questions")
+      .select("quiz_id, correct_answer, user_answer, time_taken")
+      .in("quiz_id", activeTodayQuizIds)
+      .not("user_answer", "is", null)
+      .limit(500);
+    todayQuestions = (data ?? []) as TodayQuestion[];
+  }
+  const todayCorrect = todayQuestions.filter(
+    (question) => question.user_answer === question.correct_answer,
+  ).length;
+  const todayAccuracy = todayQuestions.length > 0
+    ? Math.round((todayCorrect / todayQuestions.length) * 100)
+    : 0;
+  const todayMinutes = Math.round(
+    todayQuestions.reduce(
+      (total, question) => total + Math.max(0, question.time_taken ?? 0),
+      0,
+    ) / 60,
+  );
 
   // ---- Per-subject progress ----
   // Total topics per subject — pre-aggregated in a DB view so we don't hit
@@ -477,6 +558,28 @@ export default async function HomePage() {
       )}
 
       {mission && <DailyMissionCard {...mission} />}
+      <section className="mx-auto mt-5 max-w-5xl px-4 sm:px-6">
+        <div className="rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-5 shadow-warm sm:p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">Today&apos;s proof</p>
+              <h2 className="mt-1 font-serif text-xl font-semibold text-cocoa-900">
+                {todayQuestions.length > 0 ? "Practice completed today" : "Your practice starts here"}
+              </h2>
+            </div>
+            <Link href="/weekly" className="text-sm font-bold text-ember-700 hover:text-ember-800">See weekly proof →</Link>
+          </div>
+          {todayQuestions.length > 0 ? (
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <TodayStat label="Questions" value={String(todayQuestions.length)} />
+              <TodayStat label="Accuracy" value={`${todayAccuracy}%`} />
+              <TodayStat label="Study time" value={`${todayMinutes} min`} />
+            </div>
+          ) : (
+            <p className="mt-3 text-sm leading-6 text-cocoa-700">Complete today&apos;s mission and your finished practice will appear here.</p>
+          )}
+        </div>
+      </section>
       <ReadinessCard
         readiness={readiness}
         attemptedTopics={attemptedTopicCount}
@@ -556,5 +659,14 @@ export default async function HomePage() {
         />
       </section>
     </main>
+  );
+}
+
+function TodayStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl bg-sun-500/10 p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-cocoa-500">{label}</p>
+      <p className="mt-1 font-serif text-xl font-bold text-cocoa-900">{value}</p>
+    </div>
   );
 }
