@@ -115,7 +115,6 @@ export default function UpgradeModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
 
   // Preload the Razorpay checkout script as soon as the modal opens so
@@ -232,53 +231,19 @@ export default function UpgradeModal({
     setError(null);
     setLoading(true);
     try {
-      const ok = await loadRazorpayScript();
-      if (!ok || !window.Razorpay) throw new Error("Couldn't load the payment provider. Check your connection and try again.");
       const orderRes = await fetch("/api/billing/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product }),
       });
       const order = (await orderRes.json().catch(() => ({}))) as {
-        error?: string; orderId?: string; amount?: number; currency?: string; key?: string;
-        name?: string; description?: string; prefill?: { email?: string };
+        error?: string; paymentUrl?: string;
       };
-      if (!orderRes.ok || !order.orderId || !order.key) throw new Error(order.error ?? "Couldn't start checkout.");
-      const rzp = new window.Razorpay({
-        key: order.key,
-        order_id: order.orderId,
-        amount: order.amount,
-        currency: order.currency,
-        name: order.name ?? "ExamGrind",
-        description: order.description ?? "ExamGrind purchase",
-        prefill: order.prefill,
-        theme: { color: "#FD7C29" },
-        handler: async (resp) => {
-          if (!resp.razorpay_payment_id || !resp.razorpay_signature || !resp.razorpay_order_id) {
-            setError("Payment completed, but verification details were missing. Please contact support.");
-            setLoading(false);
-            return;
-          }
-          const verify = await fetch("/api/billing/verify-payment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(resp),
-          });
-          const verified = (await verify.json().catch(() => ({}))) as { error?: string };
-          if (!verify.ok) {
-            setError(verified.error ?? "Your payment needs verification. Please contact support.");
-            setLoading(false);
-            return;
-          }
-          setSuccessMessage(product === "analysis_credit" ? "AI Analysis added — use it on this result now." : "Your 21-Day Score Boost is active.");
-          setSuccess(true);
-          setLoading(false);
-          if (product === "score_boost_21d") router.push("/score-boost");
-          else router.refresh();
-        },
-        modal: { ondismiss: () => setLoading(false) },
-      });
-      rzp.open();
+      if (!orderRes.ok || !order.paymentUrl) throw new Error(order.error ?? "Couldn't start checkout.");
+      // Hosted Razorpay checkout is reliable even when an extension blocks
+      // checkout.js. Entitlement is granted by the signed payment_link.paid
+      // webhook, never by this redirect.
+      window.location.assign(order.paymentUrl);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
       setLoading(false);
@@ -343,7 +308,7 @@ export default function UpgradeModal({
               role="status"
               className="mt-3 rounded-xl bg-moss-500/15 px-4 py-2.5 text-center text-xs font-medium text-moss-700"
             >
-              {successMessage || "Welcome aboard! Refresh the page to start unlimited practice."}
+              Welcome aboard! Refresh the page to start unlimited practice.
             </p>
           )}
         </div>
