@@ -106,6 +106,7 @@ type Props = {
   initialIsDeepDive: boolean;
   /** Has the user already used their free analysis? */
   freeAnalysisUsed: boolean;
+  hasAnalysisCredit?: boolean;
   isPaid: boolean;
   /**
    * Endpoint to POST to for analysis. Defaults to the chapter-quiz route.
@@ -132,6 +133,7 @@ export default function DeepAnalysis({
   initialAnalysis,
   initialIsDeepDive,
   freeAnalysisUsed,
+  hasAnalysisCredit = false,
   isPaid,
   analyzeEndpoint = "/api/quiz/analyze",
   analyzeIdField = "quizId",
@@ -244,7 +246,7 @@ export default function DeepAnalysis({
 
   /* ---------- Empty state: not yet analyzed ---------- */
   if (!analysis && !pending) {
-    const blocked = freeAnalysisUsed && !isPaid;
+    const blocked = freeAnalysisUsed && !isPaid && !hasAnalysisCredit;
     return (
       <div className="rounded-3xl border-2 border-dashed border-ember-600/30 bg-cream-50 p-6 sm:p-8">
         <div className="flex flex-col items-center text-center">
@@ -271,11 +273,11 @@ export default function DeepAnalysis({
                 You&apos;ve used your free analysis
               </p>
               <button
-                onClick={() => analyze(true)}
+                onClick={() => analyze(false)}
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-6 py-3 text-sm font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.02]"
               >
                 <span>👑</span>
-                <span>Upgrade for unlimited Deep Dives</span>
+                <span>Choose an analysis option</span>
               </button>
             </div>
           )}

@@ -28,6 +28,7 @@ type Props = {
   initialAnalysis: AnalysisJson | null;
   initialIsDeepDive: boolean;
   freeAnalysisUsed: boolean;
+  hasAnalysisCredit?: boolean;
   isPaid: boolean;
 };
 
@@ -36,6 +37,7 @@ export default function MockDeepAnalysisTrigger({
   initialAnalysis,
   initialIsDeepDive,
   freeAnalysisUsed,
+  hasAnalysisCredit = false,
   isPaid,
 }: Props) {
   return (
@@ -45,6 +47,7 @@ export default function MockDeepAnalysisTrigger({
       initialAnalysis={initialAnalysis}
       initialIsDeepDive={initialIsDeepDive}
       freeAnalysisUsed={freeAnalysisUsed}
+      hasAnalysisCredit={hasAnalysisCredit}
       isPaid={isPaid}
       analyzeEndpoint="/api/mock/analyze"
       analyzeIdField="attemptId"

@@ -142,6 +142,14 @@ export default async function MockResultsPage({ params }: PageProps) {
   const isPaid = liveSubStatus === "paid";
   const freeAnalysisUsed =
     (profileRes.data?.analyses_started ?? 0) >= FREE_LIMITS.analysis;
+  const { count: analysisCreditCount } = await admin
+    .from("purchase_entitlements")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("product", "analysis_credit")
+    .gt("remaining_uses", 0)
+    .gt("expires_at", new Date().toISOString());
+  const hasAnalysisCredit = (analysisCreditCount ?? 0) > 0;
 
   const maxScore = mock.total_questions * Number(mock.positive_marks);
   const accuracy = mock.total_questions
@@ -241,6 +249,7 @@ export default async function MockResultsPage({ params }: PageProps) {
           initialAnalysis={initialAnalysis}
           initialIsDeepDive={initialIsDeepDive}
           freeAnalysisUsed={freeAnalysisUsed}
+          hasAnalysisCredit={hasAnalysisCredit}
           isPaid={isPaid}
         />
 

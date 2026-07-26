@@ -5,6 +5,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { fireAlert } from "@/lib/alert";
 import { sendAdminSMS } from "@/lib/sms";
+import { isOneTimeProduct, ONE_TIME_PRODUCTS, type OneTimeProduct } from "@/lib/billing-products";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,8 +22,9 @@ export const dynamic = "force-dynamic";
  *   3. Recompute the HMAC: SHA256(order_id|payment_id, key_secret). If
  *      it doesn't match the signature Razorpay sent, this is either a
  *      replay attack or a man-in-the-middle — refuse.
- *   4. Mark the payments row paid + record signature for audit.
- *   5. Upgrade the user: subscription_status='paid', paid_until=now+30d.
+ *   4. Look up the server-created order. Its product and amount are never
+ *      accepted from the browser.
+ *   5. Mark the payment paid and grant only that product's entitlement.
  *   6. Fire a real-time alert so the founder sees revenue immediately.
  *   7. Invalidate /me and /home so the upgrade reflects instantly.
  */
@@ -32,9 +34,6 @@ type Body = {
   razorpay_payment_id?: string;
   razorpay_signature?: string;
 };
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const ENTITLEMENT_DAYS = 30;
 
 export async function POST(req: NextRequest) {
   const supabase = createServerSupabase();
@@ -98,6 +97,37 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminSupabase();
 
+  // An HMAC proves Razorpay signed the payment, but not which ExamGrind
+  // product it should unlock. Bind it to our original order before granting
+  // anything. This is the critical guard against a ₹19 order becoming ₹199
+  // membership access.
+  const { data: order, error: orderError } = await admin
+    .from("payments")
+    .select("user_id, amount_paise, product, status")
+    .eq("razorpay_order_id", razorpay_order_id)
+    .maybeSingle<{
+      user_id: string;
+      amount_paise: number;
+      product: string;
+      status: string;
+    }>();
+  if (orderError || !order || order.user_id !== user.id || !isOneTimeProduct(order.product)) {
+    void fireAlert("Verified Razorpay payment without a matching one-time order", {
+      user_id: user.id,
+      razorpay_order_id,
+      severity: "P1",
+    });
+    return NextResponse.json({ error: "This checkout could not be matched to your account." }, { status: 409 });
+  }
+  const product: OneTimeProduct = order.product;
+  const catalogProduct = ONE_TIME_PRODUCTS[product];
+  if (order.amount_paise !== catalogProduct.pricePaise) {
+    void fireAlert("Razorpay order amount does not match catalog", {
+      user_id: user.id, razorpay_order_id, product, severity: "P0",
+    });
+    return NextResponse.json({ error: "Checkout amount verification failed." }, { status: 409 });
+  }
+
   // Idempotent: if the webhook fires twice (Razorpay can replay), this
   // upsert keeps the row consistent and doesn't double-extend access.
   // The razorpay_payment_id has a UNIQUE constraint, so this is the
@@ -110,9 +140,10 @@ export async function POST(req: NextRequest) {
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
-        amount_paise: 19900,
+        amount_paise: catalogProduct.pricePaise,
         currency: "INR",
         status: "paid",
+        product,
       },
       { onConflict: "razorpay_payment_id" }
     );
@@ -128,43 +159,21 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Extend paid_until. If the user already has time on their plan, we
-  // STACK the entitlement (renew before expiry → 60 days). If they're
-  // lapsed, start fresh from now.
-  const { data: profile } = await admin
-    .from("users")
-    .select("paid_until")
-    .eq("id", user.id)
-    .maybeSingle<{ paid_until: string | null }>();
-
-  const now = Date.now();
-  const existingEnd = profile?.paid_until
-    ? new Date(profile.paid_until).getTime()
-    : 0;
-  const base = Math.max(existingEnd, now);
-  const newPaidUntil = new Date(base + ENTITLEMENT_DAYS * MS_PER_DAY);
-
-  const { error: userErr } = await admin
-    .from("users")
-    .update({
-      subscription_status: "paid",
-      paid_until: newPaidUntil.toISOString(),
-      last_razorpay_payment: razorpay_payment_id,
-    })
-    .eq("id", user.id);
-
-  if (userErr) {
-    console.error("[billing/verify] user upgrade failed", userErr);
-    void fireAlert("USER UPGRADE FAILED despite verified Razorpay payment", {
-      user_id: user.id,
-      razorpay_payment_id,
-      severity: "P0",
-      action: "Manually set subscription_status='paid' for this user",
+  const { error: entitlementError } = await admin.rpc("grant_one_time_entitlement", {
+    p_user_id: user.id,
+    p_product: product,
+    p_order_id: razorpay_order_id,
+    p_payment_id: razorpay_payment_id,
+  });
+  if (entitlementError) {
+    console.error("[billing/verify] one-time entitlement grant failed", entitlementError);
+    void fireAlert("ONE-TIME ENTITLEMENT FAILED despite verified payment", {
+      user_id: user.id, razorpay_payment_id, product, severity: "P0",
     });
     return NextResponse.json(
       {
         error:
-          "Your payment went through, but we couldn't activate your account immediately. Please refresh — if it still shows free, contact support and we'll fix it manually.",
+          "Your payment went through, but we couldn't activate it immediately. Please contact support with your payment ID.",
       },
       { status: 500 }
     );
@@ -172,16 +181,16 @@ export async function POST(req: NextRequest) {
 
   // Revenue ping 🎉
   void fireAlert(
-    `New paid user — ₹199 from ${user.email ?? "unknown"}`,
+    `One-time purchase — ${catalogProduct.label} from ${user.email ?? "unknown"}`,
     {
       user_id: user.id,
       razorpay_payment_id,
-      paid_until: newPaidUntil.toISOString(),
+      product,
     }
   );
   // 📱 real-time SMS to Malkin — one-time paid unlock
   void sendAdminSMS(
-    `ExamGrind: PAID Rs 199 from ${user.email ?? "unknown"}. pay=${razorpay_payment_id.slice(-8)}`
+    `ExamGrind: ${catalogProduct.label} bought by ${user.email ?? "unknown"}. pay=${razorpay_payment_id.slice(-8)}`
   );
 
   // The next render of /me and /home should see the upgrade.
@@ -190,6 +199,6 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     ok: true,
-    paid_until: newPaidUntil.toISOString(),
+    product,
   });
 }
