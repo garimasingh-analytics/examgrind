@@ -370,19 +370,17 @@ export default function UpgradeModal({
               <button onClick={handleUpgrade} disabled={loading || success} className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-4 py-2.5 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Opening checkout…" : "Upgrade to Coach"}</button>
             </div>
           </div>
-          {embeddedBrowser && (
-            <div className="mt-3 rounded-2xl border border-sun-500/30 bg-sun-400/10 p-3 text-center">
-              <p className="text-xs leading-relaxed text-cocoa-700">
-                UPI apps cannot reliably return to this in-app browser. Open ExamGrind in Chrome or Safari to pay securely.
-              </p>
-              <button
-                onClick={openInBrowser}
-                className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-cocoa-900 px-4 py-2 text-xs font-bold text-cream-50"
-              >
-                Open in Chrome / Safari
-              </button>
-            </div>
-          )}
+          <div className="mt-3 rounded-2xl border border-sun-500/30 bg-sun-400/10 p-3 text-center">
+            <p className="text-xs leading-relaxed text-cocoa-700">
+              Paying by UPI from an app browser? Use Chrome or Safari so your UPI app can return safely after approval.
+            </p>
+            <button
+              onClick={openInBrowser}
+              className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-cocoa-900 px-4 py-2 text-xs font-bold text-cream-50"
+            >
+              Open in Chrome / Safari for UPI
+            </button>
+          </div>
           <p className="mt-3 text-center text-[11px] text-cocoa-500">A rewarded ad option will appear here only after ad approval and verified completion are available.</p>
 
           <button
