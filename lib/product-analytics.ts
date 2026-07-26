@@ -9,6 +9,7 @@
 export const ANALYTICS_EVENTS = {
   SIGN_UP: "sign_up",
   LOGIN: "login",
+  DAILY_MISSION_STARTED: "daily_mission_started",
   QUIZ_STARTED: "quiz_started",
   QUIZ_COMPLETED: "quiz_completed",
   MOCK_STARTED: "mock_started",
@@ -47,6 +48,9 @@ export const trackSignUp = () =>
   track(ANALYTICS_EVENTS.SIGN_UP, { method: "google" });
 export const trackLogin = () =>
   track(ANALYTICS_EVENTS.LOGIN, { method: "google" });
+export const trackDailyMissionStarted = (params: {
+  mission_type: "foundation" | "repair" | "advance";
+}) => track(ANALYTICS_EVENTS.DAILY_MISSION_STARTED, params);
 export const trackQuizStarted = (params: { quiz_id: string; topic: string; question_count: number }) =>
   track(ANALYTICS_EVENTS.QUIZ_STARTED, params);
 export const trackQuizCompleted = (params: { quiz_id: string; question_count: number; answered_count: number; duration_seconds: number }) =>

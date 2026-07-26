@@ -5,6 +5,7 @@ import Chick from "@/components/Chick";
 import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
+import DailyMissionCard from "@/components/DailyMissionCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
 
@@ -60,7 +61,7 @@ export default async function HomePage() {
       .select("subject_id, topic_count"),
     supabase
       .from("user_topic_mastery")
-      .select("mastery_level, topics!inner(chapters!inner(subject_id))")
+      .select("topic_id, mastery_level, questions_attempted, questions_correct, topics!inner(name, chapters!inner(subject_id))")
       .eq("user_id", authUser.id),
   ]);
 
@@ -132,10 +133,13 @@ export default async function HomePage() {
   const masteredBySubject = new Map<string, number>();
   const attemptedBySubject = new Map<string, number>();
   for (const m of (masteryRaw ?? []) as Array<{
+    topic_id: string;
     mastery_level: string;
+    questions_attempted: number;
+    questions_correct: number;
     topics:
-      | { chapters: { subject_id: string } | { subject_id: string }[] }
-      | { chapters: { subject_id: string } | { subject_id: string }[] }[];
+      | { name: string; chapters: { subject_id: string } | { subject_id: string }[] }
+      | { name: string; chapters: { subject_id: string } | { subject_id: string }[] }[];
   }>) {
     const topicNode = Array.isArray(m.topics) ? m.topics[0] : m.topics;
     if (!topicNode) continue;
@@ -167,6 +171,74 @@ export default async function HomePage() {
   // pill is the fallback for when they click "Back to app" and want to
   // jump straight back.
   const isAdmin = isAdminEmail(authUser.email);
+
+  // Daily Mission uses only completed learning evidence: the weakest attempted
+  // topic gets priority; brand-new learners get the first available topic in
+  // their selected exam. No AI call or new table is required on page load.
+  type MissionTopic = { id: string; name: string; subjectId: string; accuracy: number };
+  const attemptedTopics: MissionTopic[] = [];
+  for (const m of (masteryRaw ?? []) as Array<{
+    topic_id: string;
+    questions_attempted: number;
+    questions_correct: number;
+    topics:
+      | { name: string; chapters: { subject_id: string } | { subject_id: string }[] }
+      | { name: string; chapters: { subject_id: string } | { subject_id: string }[] }[];
+  }>) {
+    if (m.questions_attempted <= 0) continue;
+    const topicNode = Array.isArray(m.topics) ? m.topics[0] : m.topics;
+    const chapterNode = topicNode && (Array.isArray(topicNode.chapters)
+      ? topicNode.chapters[0]
+      : topicNode.chapters);
+    if (!topicNode || !chapterNode) continue;
+    attemptedTopics.push({
+      id: m.topic_id,
+      name: topicNode.name,
+      subjectId: chapterNode.subject_id,
+      accuracy: m.questions_correct / m.questions_attempted,
+    });
+  }
+  const weakestTopic = attemptedTopics
+    .filter((topic) => topic.accuracy < 0.7)
+    .sort((a, b) => a.accuracy - b.accuracy)[0];
+
+  let mission: {
+    href: string;
+    subjectName: string;
+    topicName: string | null;
+    type: "foundation" | "repair" | "advance";
+    accuracy: number | null;
+  } | null = weakestTopic
+    ? {
+        href: `/topic/${weakestTopic.id}`,
+        subjectName: subjects.find((s) => s.id === weakestTopic.subjectId)?.name ?? "your subject",
+        topicName: weakestTopic.name,
+        type: "repair" as const,
+        accuracy: Math.round(weakestTopic.accuracy * 100),
+      }
+    : null;
+
+  if (!mission && subjects.length > 0) {
+    const nextSubject = [...subjects].sort((a, b) => {
+      const aProgress = (attemptedBySubject.get(a.id) ?? 0) / Math.max(totalTopicsBySubject.get(a.id) ?? 1, 1);
+      const bProgress = (attemptedBySubject.get(b.id) ?? 0) / Math.max(totalTopicsBySubject.get(b.id) ?? 1, 1);
+      return aProgress - bProgress;
+    })[0];
+    const { data: seedTopics } = await supabase
+      .from("topics")
+      .select("id, name, chapters!inner(subject_id)")
+      .eq("chapters.subject_id", nextSubject.id)
+      .order("order_index", { ascending: true })
+      .limit(1);
+    const seedTopic = seedTopics?.[0] as { id: string; name: string } | undefined;
+    mission = {
+      href: seedTopic ? `/topic/${seedTopic.id}` : `/subject/${nextSubject.id}`,
+      subjectName: nextSubject.name,
+      topicName: seedTopic?.name ?? null,
+      type: attemptedTopics.length === 0 ? "foundation" : "advance",
+      accuracy: null,
+    };
+  }
 
   // Streak gets shown only if it's still "alive" — i.e. the user practiced
   // today or yesterday. Otherwise we show 0 (the streak is broken even if
@@ -318,6 +390,8 @@ export default async function HomePage() {
           </div>
         </div>
       )}
+
+      {mission && <DailyMissionCard {...mission} />}
 
       {/* Greeting + chick */}
       <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
