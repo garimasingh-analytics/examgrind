@@ -40,11 +40,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({} as Body));
-  if (!isOneTimeProduct(body.product)) {
+  const body = (await req.json().catch(() => ({}))) as Body;
+  const requestedProduct: unknown = body.product;
+  if (!isOneTimeProduct(requestedProduct)) {
     return NextResponse.json({ error: "Choose a valid one-time product." }, { status: 400 });
   }
-  const product = body.product;
+  const product: OneTimeProduct = requestedProduct;
   const catalogProduct = ONE_TIME_PRODUCTS[product];
 
   const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;

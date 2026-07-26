@@ -32,34 +32,34 @@ export default function DailyMissionCard({
   const copy =
     type === "repair"
       ? {
-          eyebrow: "Today’s repair",
+          eyebrow: "Daily mission · today’s repair",
           title: `Strengthen ${topicName ?? subjectName}`,
           detail: `AI Coach: you reached ${accuracy}% here before. Let’s repair it with one short retry and make this a reliable topic.`,
           button: "Repair this topic",
         }
       : type === "foundation"
       ? {
-          eyebrow: "Today’s first step",
+          eyebrow: "Daily mission · today’s first step",
           title: `Start ${topicName ?? subjectName}`,
           detail: "AI Coach: one focused quiz is enough to give you a real starting point and personalise what comes next.",
           button: "Start today’s mission",
         }
       : type === "revision"
       ? {
-          eyebrow: "Revision due",
+          eyebrow: "Daily mission · revision due",
           title: `Recall ${topicName ?? subjectName}`,
           detail: "AI Coach: you have built this skill before. One short recall round now will help it stay reliable when the exam needs it.",
           button: "Start a recall round",
         }
       : {
-          eyebrow: "Today’s next step",
+          eyebrow: "Daily mission · today’s next step",
           title: `Build ${topicName ?? subjectName}`,
           detail: "AI Coach: keep your momentum with one focused practice session—no need to decide what to study next.",
           button: "Continue learning",
         };
 
   return (
-    <section className="mx-auto mt-7 max-w-5xl px-4 sm:px-6">
+    <section id="daily-mission" className="mx-auto mt-7 max-w-5xl scroll-mt-5 px-4 sm:px-6">
       <div className="overflow-hidden rounded-3xl border border-ember-600/20 bg-gradient-to-br from-cocoa-900 via-cocoa-900 to-ember-900 p-5 shadow-warm-lg sm:p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
