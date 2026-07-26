@@ -6,6 +6,7 @@ import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid"
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
 import DailyMissionCard from "@/components/DailyMissionCard";
+import ReadinessCard from "@/components/ReadinessCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
 
@@ -132,6 +133,13 @@ export default async function HomePage() {
   }
   const masteredBySubject = new Map<string, number>();
   const attemptedBySubject = new Map<string, number>();
+  const readinessPointsBySubject = new Map<string, number>();
+  const masteryWeight: Record<string, number> = {
+    novice: 0.25,
+    apprentice: 0.6,
+    adept: 0.8,
+    master: 1,
+  };
   for (const m of (masteryRaw ?? []) as Array<{
     topic_id: string;
     mastery_level: string;
@@ -149,6 +157,11 @@ export default async function HomePage() {
     if (!chNode) continue;
     const subjId = chNode.subject_id;
     attemptedBySubject.set(subjId, (attemptedBySubject.get(subjId) ?? 0) + 1);
+    readinessPointsBySubject.set(
+      subjId,
+      (readinessPointsBySubject.get(subjId) ?? 0) +
+        (masteryWeight[m.mastery_level] ?? 0),
+    );
     if (m.mastery_level === "master") {
       masteredBySubject.set(subjId, (masteredBySubject.get(subjId) ?? 0) + 1);
     }
@@ -171,6 +184,30 @@ export default async function HomePage() {
   // pill is the fallback for when they click "Back to app" and want to
   // jump straight back.
   const isAdmin = isAdminEmail(authUser.email);
+  const totalTopics = Array.from(totalTopicsBySubject.values()).reduce(
+    (total, count) => total + count,
+    0,
+  );
+  const attemptedTopicCount = Array.from(attemptedBySubject.values()).reduce(
+    (total, count) => total + count,
+    0,
+  );
+  const readinessPoints = Array.from(readinessPointsBySubject.values()).reduce(
+    (total, points) => total + points,
+    0,
+  );
+  const readiness = totalTopics > 0
+    ? Math.round((readinessPoints / totalTopics) * 100)
+    : 0;
+  const strongestSubject = [...subjects]
+    .filter((subject) => (attemptedBySubject.get(subject.id) ?? 0) > 0)
+    .sort(
+      (a, b) =>
+        (readinessPointsBySubject.get(b.id) ?? 0) /
+          Math.max(totalTopicsBySubject.get(b.id) ?? 1, 1) -
+        (readinessPointsBySubject.get(a.id) ?? 0) /
+          Math.max(totalTopicsBySubject.get(a.id) ?? 1, 1),
+    )[0]?.name ?? null;
 
   // Daily Mission uses only completed learning evidence: the weakest attempted
   // topic gets priority; brand-new learners get the first available topic in
@@ -392,6 +429,12 @@ export default async function HomePage() {
       )}
 
       {mission && <DailyMissionCard {...mission} />}
+      <ReadinessCard
+        readiness={readiness}
+        attemptedTopics={attemptedTopicCount}
+        totalTopics={totalTopics}
+        strongestSubject={strongestSubject}
+      />
 
       {/* Greeting + chick */}
       <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
