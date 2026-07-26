@@ -7,7 +7,7 @@ type Props = {
   href: string;
   subjectName: string;
   topicName: string | null;
-  type: "foundation" | "repair" | "advance";
+  type: "foundation" | "repair" | "revision" | "advance";
   accuracy: number | null;
 };
 
@@ -33,6 +33,13 @@ export default function DailyMissionCard({
           title: `Start ${topicName ?? subjectName}`,
           detail: "AI Coach: one focused quiz is enough to give you a real starting point and personalise what comes next.",
           button: "Start today’s mission",
+        }
+      : type === "revision"
+      ? {
+          eyebrow: "Revision due",
+          title: `Recall ${topicName ?? subjectName}`,
+          detail: "AI Coach: you have built this skill before. One short recall round now will help it stay reliable when the exam needs it.",
+          button: "Start a recall round",
         }
       : {
           eyebrow: "Today’s next step",
