@@ -434,6 +434,19 @@ export default async function HomePage() {
             Open →
           </span>
         </Link>
+        <Link
+          href="/mistakes"
+          className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-cocoa-900/[0.06] bg-cream-50 px-4 py-3 shadow-warm transition hover:-translate-y-0.5 hover:bg-white sm:px-5"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xl" aria-hidden>📘</span>
+            <div>
+              <p className="text-sm font-bold text-cocoa-900">Review your Mistake Book</p>
+              <p className="text-[11px] text-cocoa-700">Revisit incorrect answers and repair the topic behind them.</p>
+            </div>
+          </div>
+          <span className="shrink-0 text-xs font-bold text-cocoa-700">Open →</span>
+        </Link>
       </section>
 
       {/* Subject grid (Client Component handles search filter) */}
