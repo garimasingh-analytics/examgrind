@@ -54,6 +54,11 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
   },
   applicationName: "ExamGrind",
+  // Ownership verification only — this does not load advertising code or
+  // collect visitor data. Ads remain gated behind explicit consent.
+  other: {
+    "google-adsense-account": "ca-pub-2090215060427781",
+  },
   // iOS Safari needs these explicit tags to treat the site as a PWA when
   // installed via "Add to Home Screen" — the manifest alone isn't enough.
   appleWebApp: {
