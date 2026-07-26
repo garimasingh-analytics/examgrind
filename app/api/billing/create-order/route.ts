@@ -14,19 +14,18 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/billing/create-order
  *
- * Creates a Razorpay order for a one-time ExamGrind product.
- * Returns the order ID + amount so the client can open Razorpay Checkout.
+ * Creates a Razorpay-hosted payment link for a one-time ExamGrind product.
+ * This intentionally avoids depending on checkout.js: privacy extensions and
+ * restrictive in-app browsers commonly block that third-party script.
  *
  * Flow:
  *   1. Verify the caller is signed in.
- *   2. Create an order on Razorpay's side (server-only, uses key secret).
- *   3. Mirror the order to public.payments with status='created' so we
+ *   2. Create a hosted payment link on Razorpay's side (server-only).
+ *   3. Mirror the link to public.payments with status='created' so we
  *      can audit every attempt — even ones that never get paid.
  *   4. Return { orderId, amount, currency, key } to the client.
  *
- * The client then opens Razorpay Checkout with these values. On success
- * the SDK calls back with razorpay_payment_id + razorpay_signature
- * which the client posts to /api/billing/verify-payment for HMAC check.
+ * Razorpay posts payment_link.paid to our signed webhook after payment.
  */
 
 type Body = { product?: OneTimeProduct };
@@ -63,14 +62,21 @@ export async function POST(req: Request) {
     key_secret: keySecret,
   });
 
-  let order;
+  let paymentLink;
   try {
-    order = await razorpay.orders.create({
+    paymentLink = await razorpay.paymentLink.create({
       amount: catalogProduct.pricePaise,
       currency: "INR",
-      // Receipt is shown in the Razorpay dashboard — make it traceable
-      // back to our user without leaking PII.
-      receipt: `eg_${user.id.slice(0, 8)}_${Date.now()}`,
+      accept_partial: false,
+      reference_id: `eg_${user.id.slice(0, 8)}_${Date.now()}`,
+      description: catalogProduct.description,
+      customer: {
+        name: user.user_metadata.full_name ?? "ExamGrind student",
+        email: user.email ?? "",
+      },
+      notify: { email: false, sms: false },
+      callback_url: "https://www.examgrind.in/me?payment=processing",
+      callback_method: "get",
       notes: {
         user_id: user.id,
         email: user.email ?? "",
@@ -78,7 +84,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
-    console.error("[billing/create-order] Razorpay order failed", e);
+    console.error("[billing/create-order] Razorpay payment-link creation failed", e);
     return NextResponse.json(
       { error: "Couldn't start checkout. Please try again." },
       { status: 502 }
@@ -90,15 +96,16 @@ export async function POST(req: Request) {
   const admin = createAdminSupabase();
   const { error: insertErr } = await admin.from("payments").insert({
     user_id: user.id,
-    razorpay_order_id: order.id,
+    razorpay_order_id: paymentLink.id,
+    razorpay_payment_link_id: paymentLink.id,
     amount_paise: catalogProduct.pricePaise,
     currency: "INR",
     status: "created",
     product,
   });
   if (insertErr) {
-    // Do not return an order that we cannot bind to a product in our own
-    // database. A signed Razorpay payment without this row must never be
+    // Do not return a link that we cannot bind to a product in our own
+    // database. A payment without this row must never be
     // able to infer an entitlement.
     console.error("[billing/create-order] mirror insert failed", insertErr);
     return NextResponse.json(
@@ -108,15 +115,6 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({
-    orderId: order.id,
-    amount: catalogProduct.pricePaise,
-    currency: "INR",
-    key: keyId,
-    name: "ExamGrind",
-    description: catalogProduct.description,
-    prefill: {
-      email: user.email ?? "",
-      // Razorpay also accepts name + contact; we don't store name yet.
-    },
+    paymentUrl: paymentLink.short_url,
   });
 }
