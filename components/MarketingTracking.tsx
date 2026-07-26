@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Script from "next/script";
 import GoogleAdsTag from "@/components/GoogleAdsTag";
 import MetaPixel from "@/components/MetaPixel";
+import { trackLogin, trackSignUp } from "@/lib/product-analytics";
 
 const CONSENT_KEY = "examgrind-marketing-consent-v1";
 type Consent = "granted" | "denied" | null;
@@ -12,6 +13,8 @@ declare global {
   interface Window {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
+    __examgrindMarketingConsent?: "granted" | "denied";
+    __examgrindGoogleAnalyticsReady?: boolean;
   }
 }
 
@@ -28,6 +31,7 @@ const googleConsent = (value: Exclude<Consent, null>) => {
 export default function MarketingTracking() {
   const [consent, setConsent] = useState<Consent>(null);
   const [ready, setReady] = useState(false);
+  const [analyticsReady, setAnalyticsReady] = useState(false);
 
   useEffect(() => {
     // Set the secure default before a visitor makes a choice. This queue is
@@ -42,10 +46,18 @@ export default function MarketingTracking() {
     });
 
     const saved = window.localStorage.getItem(CONSENT_KEY);
-    if (saved === "granted" || saved === "denied") setConsent(saved);
+    if (saved === "granted" || saved === "denied") {
+      window.__examgrindMarketingConsent = saved;
+      setConsent(saved);
+    }
     setReady(true);
 
     const openSettings = () => {
+      // Opening settings withdraws the earlier choice until the visitor makes
+      // a new one. This immediately blocks product events and tells Google to
+      // stop optional storage while the banner is visible.
+      window.__examgrindMarketingConsent = "denied";
+      googleConsent("denied");
       setConsent(null);
       window.localStorage.removeItem(CONSENT_KEY);
     };
@@ -55,6 +67,7 @@ export default function MarketingTracking() {
 
   const save = (value: Exclude<Consent, null>) => {
     window.localStorage.setItem(CONSENT_KEY, value);
+    window.__examgrindMarketingConsent = value;
     setConsent(value);
     googleConsent(value);
   };
@@ -65,7 +78,8 @@ export default function MarketingTracking() {
         <>
           <GoogleAdsTag />
           <MetaPixel />
-          <GoogleAnalyticsTag />
+          <GoogleAnalyticsTag onReady={() => setAnalyticsReady(true)} />
+          {analyticsReady && <AuthLifecycleEvent />}
         </>
       )}
 
@@ -99,13 +113,47 @@ export default function MarketingTracking() {
   );
 }
 
-function GoogleAnalyticsTag() {
+function GoogleAnalyticsTag({ onReady }: { onReady: () => void }) {
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   if (!measurementId) return null;
 
   return (
-    <Script id="examgrind-google-analytics" strategy="afterInteractive">
+    <Script
+      id="examgrind-google-analytics"
+      strategy="afterInteractive"
+      onReady={() => {
+        window.__examgrindGoogleAnalyticsReady = true;
+        onReady();
+      }}
+    >
       {`gtag('config', '${measurementId}', { anonymize_ip: true });`}
     </Script>
   );
+}
+
+/** Emits one anonymous auth event after consent and GA are both ready. */
+function AuthLifecycleEvent() {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authEvent = params.get("auth_event");
+    if (authEvent !== "sign_up" && authEvent !== "login") return;
+
+    // A refresh before history is cleaned up must not inflate the event.
+    const eventKey = `examgrind:auth-event:${authEvent}:${window.location.pathname}`;
+    if (window.sessionStorage.getItem(eventKey)) return;
+
+    const sent = authEvent === "sign_up" ? trackSignUp() : trackLogin();
+    if (!sent) return;
+
+    window.sessionStorage.setItem(eventKey, "1");
+    params.delete("auth_event");
+    const query = params.toString();
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
+    );
+  }, []);
+
+  return null;
 }
