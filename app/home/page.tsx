@@ -567,7 +567,7 @@ export default async function HomePage() {
         <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cocoa-500">Today</p>
           <p className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">{todayQuestions.length} questions</p>
-          <p className="mt-1 text-xs text-cocoa-700">{todayQuestions.length > 0 ? `${todayAccuracy}% accuracy · ${todayMinutes} min` : "Complete the mission to create today’s proof."}</p>
+          <p className="mt-1 text-xs text-cocoa-700">{todayQuestions.length > 0 ? `${todayAccuracy}% accuracy · ${todayMinutes} min` : "Complete the Daily Mission above to create today’s proof."}</p>
         </Link>
         <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cocoa-500">{examRow?.name ?? "Selected exam"} readiness</p>
