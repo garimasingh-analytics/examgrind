@@ -6,6 +6,7 @@ import CountdownTimer from "@/components/CountdownTimer";
 import QuestionNavigator, {
   type NavQuestion,
 } from "@/components/QuestionNavigator";
+import { trackMockCompleted } from "@/lib/product-analytics";
 
 type Question = {
   index: number;
@@ -181,8 +182,23 @@ export default function MockTakeClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ attemptId }),
       });
-      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      const body = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        already?: boolean;
+        total_correct?: number;
+        total_wrong?: number;
+        total_unattempted?: number;
+        total_time_seconds?: number;
+      };
       if (!res.ok) throw new Error(body.error ?? "Couldn't submit.");
+      if (!body.already && typeof body.total_correct === "number") {
+        trackMockCompleted({
+          correct_count: body.total_correct,
+          wrong_count: body.total_wrong ?? 0,
+          unattempted_count: body.total_unattempted ?? 0,
+          duration_seconds: body.total_time_seconds ?? 0,
+        });
+      }
       router.push(`/mock/results/${attemptId}`);
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : "Couldn't submit.");

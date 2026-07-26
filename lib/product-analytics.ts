@@ -15,8 +15,10 @@ export const ANALYTICS_EVENTS = {
   QUIZ_STARTED: "quiz_started",
   QUIZ_COMPLETED: "quiz_completed",
   MOCK_STARTED: "mock_started",
+  MOCK_COMPLETED: "mock_completed",
   DEEP_ANALYSIS_REQUESTED: "deep_analysis_requested",
   DEEP_ANALYSIS_COMPLETED: "deep_analysis_completed",
+  DEEP_ANALYSIS_VIEWED: "deep_analysis_viewed",
   SUBSCRIPTION_CHECKOUT_STARTED: "subscription_checkout_started",
   SUBSCRIPTION_PURCHASED: "subscription_purchased",
 } as const;
@@ -59,14 +61,30 @@ export const trackMistakeTopicRetryStarted = () =>
   track(ANALYTICS_EVENTS.MISTAKE_TOPIC_RETRY_STARTED, {});
 export const trackQuizStarted = (params: { quiz_id: string; topic: string; question_count: number }) =>
   track(ANALYTICS_EVENTS.QUIZ_STARTED, params);
-export const trackQuizCompleted = (params: { quiz_id: string; question_count: number; answered_count: number; duration_seconds: number }) =>
+export const trackQuizCompleted = (params: {
+  quiz_id: string;
+  question_count: number;
+  answered_count: number;
+  correct_count: number;
+  wrong_count: number;
+  skipped_count: number;
+  duration_seconds: number;
+}) =>
   track(ANALYTICS_EVENTS.QUIZ_COMPLETED, params);
 export const trackMockStarted = (params: { mock_test_id: string }) =>
   track(ANALYTICS_EVENTS.MOCK_STARTED, params);
+export const trackMockCompleted = (params: {
+  correct_count: number;
+  wrong_count: number;
+  unattempted_count: number;
+  duration_seconds: number;
+}) => track(ANALYTICS_EVENTS.MOCK_COMPLETED, params);
 export const trackDeepAnalysisRequested = (params: { analysis_kind: "regular" | "deep_dive"; source: "quiz" | "mock" }) =>
   track(ANALYTICS_EVENTS.DEEP_ANALYSIS_REQUESTED, params);
 export const trackDeepAnalysisCompleted = (params: { analysis_kind: "regular" | "deep_dive"; source: "quiz" | "mock" }) =>
   track(ANALYTICS_EVENTS.DEEP_ANALYSIS_COMPLETED, params);
+export const trackDeepAnalysisViewed = (params: { analysis_kind: "regular" | "deep_dive"; source: "quiz" | "mock" }) =>
+  track(ANALYTICS_EVENTS.DEEP_ANALYSIS_VIEWED, params);
 export const trackSubscriptionCheckoutStarted = (params: { paywall_reason: string }) =>
   track(ANALYTICS_EVENTS.SUBSCRIPTION_CHECKOUT_STARTED, params);
 export const trackSubscriptionPurchased = () =>
