@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
 import UpgradeModal, { type PaywallReason } from "@/components/UpgradeModal";
 import { normalizeAnalysis } from "@/lib/analysis-contract";
-import { trackDeepAnalysisCompleted, trackDeepAnalysisRequested } from "@/lib/product-analytics";
+import {
+  trackDeepAnalysisCompleted,
+  trackDeepAnalysisRequested,
+  trackDeepAnalysisViewed,
+} from "@/lib/product-analytics";
 
 /* ------------------------------------------------------------------ *
  * Types — mirror the JSON shape Claude returns                       *
@@ -145,6 +149,19 @@ export default function DeepAnalysis({
     used?: number;
     limit?: number;
   }>(null);
+  const hasTrackedView = useRef(false);
+
+  // A completed request and a viewed analysis are different funnel steps:
+  // cached analyses can be viewed without a new model call, while a student
+  // can leave during generation. Track the visible result exactly once.
+  useEffect(() => {
+    if (!analysis || hasTrackedView.current) return;
+    hasTrackedView.current = true;
+    trackDeepAnalysisViewed({
+      analysis_kind: isDeepDive ? "deep_dive" : "regular",
+      source: analyzeEndpoint.includes("/mock/") ? "mock" : "quiz",
+    });
+  }, [analysis, analyzeEndpoint, isDeepDive]);
 
   const analyze = (deepDive: boolean) => {
     setError(null);

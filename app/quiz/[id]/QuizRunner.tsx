@@ -137,16 +137,27 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ quizId, answers, times: finalTimes }),
         });
+        const body = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          alreadyCompleted?: boolean;
+          correct?: number;
+          total?: number;
+        };
         if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
           throw new Error(body.error ?? `Failed (${res.status})`);
         }
-        trackQuizCompleted({
-          quiz_id: quizId,
-          question_count: questions.length,
-          answered_count: Object.values(answers).filter((answer) => answer != null).length,
-          duration_seconds: Math.max(1, Math.round(Object.values(finalTimes).reduce((sum, seconds) => sum + seconds, 0))),
-        });
+        if (!body.alreadyCompleted && typeof body.correct === "number") {
+          const answeredCount = Object.values(answers).filter((answer) => answer != null).length;
+          trackQuizCompleted({
+            quiz_id: quizId,
+            question_count: questions.length,
+            answered_count: answeredCount,
+            correct_count: body.correct,
+            wrong_count: Math.max(0, answeredCount - body.correct),
+            skipped_count: Math.max(0, (body.total ?? questions.length) - answeredCount),
+            duration_seconds: Math.max(1, Math.round(Object.values(finalTimes).reduce((sum, seconds) => sum + seconds, 0))),
+          });
+        }
         router.push(`/results/${quizId}`);
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : "Couldn't submit.";
