@@ -114,9 +114,12 @@ export default function PrivacyPage() {
       <h2>4. Cookie choices</h2>
       <p>
         Essential cookies are always used for sign-in, security and payments.
-        Analytics and advertising tags remain off unless you choose
-        &ldquo;Accept analytics &amp; ads&rdquo; in our cookie banner. You can change
-        your choice any time using &ldquo;Cookie settings&rdquo; in the footer.
+        Google&apos;s tag loads with all analytics and advertising storage denied,
+        so it cannot set marketing cookies before your choice. It may send a
+        cookieless consent signal to help us verify measurement and model
+        conversions. Full Analytics, Ads and Meta Pixel measurement starts only
+        if you choose &ldquo;Accept analytics &amp; ads&rdquo; in our cookie banner. You can
+        change your choice any time using &ldquo;Cookie settings&rdquo; in the footer.
       </p>
 
       <h2>5. Your rights under the DPDP Act, 2023</h2>
