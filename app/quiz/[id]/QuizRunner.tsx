@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
+import { trackQuizCompleted, trackQuizStarted } from "@/lib/product-analytics";
 
 type Letter = "A" | "B" | "C" | "D";
 
@@ -52,6 +53,10 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
   const [skipStreak, setSkipStreak] = useState(0);
   const [secondsOnQuestion, setSecondsOnQuestion] = useState(0);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+
+  useEffect(() => {
+    trackQuizStarted({ quiz_id: quizId, topic: topicLabel, question_count: questions.length });
+  }, [quizId, topicLabel, questions.length]);
 
   // Has the user invested anything yet? (At least one selected answer.)
   const hasProgress = useMemo(
@@ -136,6 +141,12 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
           const body = await res.json().catch(() => ({}));
           throw new Error(body.error ?? `Failed (${res.status})`);
         }
+        trackQuizCompleted({
+          quiz_id: quizId,
+          question_count: questions.length,
+          answered_count: Object.values(answers).filter((answer) => answer != null).length,
+          duration_seconds: Math.max(1, Math.round(Object.values(finalTimes).reduce((sum, seconds) => sum + seconds, 0))),
+        });
         router.push(`/results/${quizId}`);
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : "Couldn't submit.";

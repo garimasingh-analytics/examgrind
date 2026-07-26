@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
 import UpgradeModal, { type PaywallReason } from "@/components/UpgradeModal";
 import { normalizeAnalysis } from "@/lib/analysis-contract";
+import { trackDeepAnalysisCompleted, trackDeepAnalysisRequested } from "@/lib/product-analytics";
 
 /* ------------------------------------------------------------------ *
  * Types — mirror the JSON shape Claude returns                       *
@@ -148,6 +149,9 @@ export default function DeepAnalysis({
   const analyze = (deepDive: boolean) => {
     setError(null);
     setPaywall(null);
+    const source = analyzeEndpoint.includes("/mock/") ? "mock" : "quiz";
+    const analysisKind = deepDive ? "deep_dive" : "regular";
+    trackDeepAnalysisRequested({ analysis_kind: analysisKind, source });
     startTransition(async () => {
       try {
         const res = await fetch(analyzeEndpoint, {
@@ -179,6 +183,7 @@ export default function DeepAnalysis({
         if ("analysis" in body) {
           setAnalysis(normalizeAnalysis(body.analysis));
           setIsDeepDive(body.is_deep_dive);
+          trackDeepAnalysisCompleted({ analysis_kind: body.is_deep_dive ? "deep_dive" : "regular", source });
         }
       } catch (e: unknown) {
         setError(
