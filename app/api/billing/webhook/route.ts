@@ -45,12 +45,6 @@ type RazorpaySubscriptionEntity = {
   notes?: { user_id?: string; email?: string };
 };
 
-type RazorpayPaymentLinkEntity = {
-  id: string;
-  amount: number;
-  status: string;
-};
-
 type WebhookPayload = {
   event: string;
   payload: {
@@ -65,7 +59,6 @@ type WebhookPayload = {
         notes?: Record<string, string>;
       };
     };
-    payment_link?: { entity: RazorpayPaymentLinkEntity };
   };
 };
 
@@ -160,7 +153,6 @@ export async function POST(req: NextRequest) {
 
   const sub = body.payload.subscription?.entity;
   const payment = body.payload.payment?.entity;
-  const paymentLink = body.payload.payment_link?.entity;
 
   try {
     switch (body.event) {
@@ -345,52 +337,6 @@ export async function POST(req: NextRequest) {
           const label = ONE_TIME_PRODUCTS[product].label;
           void fireAlert(`One-time purchase captured — ${label}`, {
             user_id: order.user_id, payment_id: payment.id, product,
-          });
-          void sendAdminSMS(`ExamGrind: ${label} captured. pay=${payment.id.slice(-8)}`);
-        }
-        break;
-      }
-
-      case "payment_link.paid": {
-        // Hosted links are the durable fallback for browsers that block
-        // Razorpay checkout.js. Trust only the server-created link ID and
-        // the signed webhook payload — never callback query parameters.
-        if (!paymentLink || !payment?.id) break;
-        const { data: linkPayment, error: linkError } = await admin
-          .from("payments")
-          .select("user_id, product, amount_paise, status")
-          .eq("razorpay_order_id", paymentLink.id)
-          .maybeSingle<{
-            user_id: string;
-            product: string;
-            amount_paise: number;
-            status: string;
-          }>();
-        if (linkError) throw new Error(`payment-link lookup: ${linkError.message}`);
-        if (!linkPayment || !isOneTimeProduct(linkPayment.product)) break;
-        const product = linkPayment.product;
-        const expected = ONE_TIME_PRODUCTS[product].pricePaise;
-        if (linkPayment.amount_paise !== expected || paymentLink.amount !== expected || payment.amount !== expected) {
-          throw new Error(`payment-link amount mismatch for ${paymentLink.id}`);
-        }
-
-        await requireWrite("hosted payment mirror update", admin
-          .from("payments")
-          .update({ razorpay_payment_id: payment.id, amount_paise: expected, status: "paid" })
-          .eq("razorpay_order_id", paymentLink.id));
-
-        const { error: entitlementError } = await admin.rpc("grant_one_time_entitlement", {
-          p_user_id: linkPayment.user_id,
-          p_product: product,
-          p_order_id: paymentLink.id,
-          p_payment_id: payment.id,
-        });
-        if (entitlementError) throw new Error(`hosted entitlement grant: ${entitlementError.message}`);
-
-        if (linkPayment.status !== "paid") {
-          const label = ONE_TIME_PRODUCTS[product].label;
-          void fireAlert(`One-time purchase captured — ${label}`, {
-            user_id: linkPayment.user_id, payment_id: payment.id, product,
           });
           void sendAdminSMS(`ExamGrind: ${label} captured. pay=${payment.id.slice(-8)}`);
         }
