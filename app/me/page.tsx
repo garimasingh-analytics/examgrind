@@ -123,6 +123,55 @@ export default async function ProfilePage() {
   const masterTopics = masteryRows.filter((m) => m.mastery_level === "master");
   const adeptTopics = masteryRows.filter((m) => m.mastery_level === "adept");
   const masteredCount = masterTopics.length;
+  const questionsAttempted = masteryRows.reduce(
+    (total, row) => total + row.questions_attempted,
+    0,
+  );
+  const questionsCorrect = masteryRows.reduce(
+    (total, row) => total + row.questions_correct,
+    0,
+  );
+  const demonstratedAccuracy = questionsAttempted > 0
+    ? Math.round((questionsCorrect / questionsAttempted) * 100)
+    : 0;
+  const achievements = [
+    {
+      name: "First step",
+      detail: "Completed your first quiz",
+      icon: "🐣",
+      earned: (profile?.quizzes_taken ?? 0) >= 1,
+    },
+    {
+      name: "Question builder",
+      detail: "Answered 25 questions",
+      icon: "📚",
+      earned: questionsAttempted >= 25,
+    },
+    {
+      name: "Accuracy ace",
+      detail: "80% across 20+ questions",
+      icon: "🎯",
+      earned: questionsAttempted >= 20 && demonstratedAccuracy >= 80,
+    },
+    {
+      name: "Consistency champion",
+      detail: "Reached a 7-day streak",
+      icon: "🔥",
+      earned: (profile?.longest_streak ?? 0) >= 7,
+    },
+    {
+      name: "Topic master",
+      detail: "Mastered a topic at 95%+",
+      icon: "✨",
+      earned: masteredCount >= 1,
+    },
+    {
+      name: "Deep learner",
+      detail: "Used an AI Deep Analysis",
+      icon: "🔎",
+      earned: (profile?.analyses_taken ?? 0) >= 1,
+    },
+  ].filter((achievement) => achievement.earned);
 
   // ---- Cross-quiz weakness map ----
   // Pull every analysis the user has, aggregate weaknesses by concept.
@@ -344,6 +393,32 @@ export default async function ProfilePage() {
             )}
             accent="text-cocoa-900"
           />
+        </div>
+      </section>
+
+      {/* Earned milestones only — these are backed by persisted practice
+          evidence, never a manually awarded or speculative status. */}
+      <section className="mx-auto mt-10 max-w-3xl px-4 sm:px-6">
+        <div className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm sm:p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-serif text-xl font-bold text-cocoa-900">Earned milestones</h2>
+            <p className="text-xs text-cocoa-500">Built from completed practice</p>
+          </div>
+          {achievements.length > 0 ? (
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              {achievements.map((achievement) => (
+                <li key={achievement.name} className="flex items-center gap-3 rounded-2xl bg-sun-500/10 p-4">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cream-50 text-xl shadow-warm" aria-hidden>{achievement.icon}</span>
+                  <div>
+                    <p className="text-sm font-bold text-cocoa-900">{achievement.name}</p>
+                    <p className="mt-0.5 text-xs text-cocoa-700">{achievement.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm leading-6 text-cocoa-700">Your first completed quiz earns the First step milestone. Start today&apos;s mission to begin.</p>
+          )}
         </div>
       </section>
 
