@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
 import UpgradeModal, { type PaywallReason } from "@/components/UpgradeModal";
+import { trackMockStarted } from "@/lib/product-analytics";
 
 /**
  * Calls POST /api/mock/start. On success → push to /mock/take/[id].
@@ -53,6 +54,7 @@ export default function StartMockButton({ mockTestId }: { mockTestId: string }) 
       if (!res.ok || !body.attemptId) {
         throw new Error(body.error ?? "Couldn't start the mock.");
       }
+      trackMockStarted({ mock_test_id: mockTestId });
       router.push(`/mock/take/${body.attemptId}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");

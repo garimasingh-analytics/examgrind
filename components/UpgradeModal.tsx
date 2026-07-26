@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
 import { trackPaidSubscriptionConversion } from "@/lib/google-ads";
 import { trackMetaSubscriptionPurchase } from "@/lib/meta-ads";
+import { trackSubscriptionCheckoutStarted, trackSubscriptionPurchased } from "@/lib/product-analytics";
 
 // Razorpay's checkout SDK injects itself into window when the script loads.
 declare global {
@@ -124,6 +125,7 @@ export default function UpgradeModal({
   const handleUpgrade = async () => {
     setError(null);
     setLoading(true);
+    trackSubscriptionCheckoutStarted({ paywall_reason: reason });
     try {
       // 1. Razorpay SDK
       const ok = await loadRazorpayScript();
@@ -183,6 +185,7 @@ export default function UpgradeModal({
             trackPaidSubscriptionConversion(transactionId);
             trackMetaSubscriptionPurchase(transactionId);
           }
+          trackSubscriptionPurchased();
           setSuccess(true);
           setLoading(false);
           // Small delay so the webhook has time to land before /me re-fetches.
