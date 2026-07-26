@@ -6,7 +6,6 @@ import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid"
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
 import DailyMissionCard from "@/components/DailyMissionCard";
-import ReadinessCard from "@/components/ReadinessCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
 
@@ -451,11 +450,7 @@ export default async function HomePage() {
           {/* One-click exam switcher dropdown */}
           <ExamSwitcher currentSlug={examSlug} />
         </div>
-        <Link
-          href="/me"
-          className="flex items-center gap-2 transition hover:opacity-90 sm:gap-3"
-          title="View your profile"
-        >
+        <Link href="/me" className="flex items-center gap-2 transition hover:opacity-90" title="View your profile">
           {/* Premium badge — paid users only. Free users see nothing here */}
           {/* (the Upgrade button lives elsewhere). Lives next to streak so   */}
           {/* it reads as a status pill, not a CTA.                           */}
@@ -463,7 +458,7 @@ export default async function HomePage() {
           {/* Daily streak — only render the flame when streak > 0 */}
           {streak > 0 && (
             <div
-              className="flex items-center gap-1 rounded-full bg-ember-600/10 px-2.5 py-1.5 shadow-warm sm:gap-1.5 sm:px-3"
+              className="hidden items-center gap-1 rounded-full bg-ember-600/10 px-2.5 py-1.5 shadow-warm sm:flex"
               title={`${streak}-day streak · longest ${profile?.longest_streak ?? streak}`}
             >
               <span className="text-sm leading-none sm:text-base">🔥</span>
@@ -472,14 +467,11 @@ export default async function HomePage() {
               </span>
             </div>
           )}
-          <div className="flex items-center gap-1 rounded-full bg-cream-50 px-2.5 py-1.5 shadow-warm sm:gap-1.5 sm:px-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-cocoa-500 sm:text-xs">Lvl</span>
-            <span className="font-serif text-sm font-bold text-cocoa-900 sm:text-base">{level}</span>
-          </div>
-          <div className="flex items-center gap-1 rounded-full bg-cream-50 px-2.5 py-1.5 shadow-warm sm:gap-1.5 sm:px-3">
-            <span className="text-sm sm:text-base">⛁</span>
-            <span className="font-mono text-xs font-bold text-cocoa-900 sm:text-sm">{xp}</span>
-            <span className="text-[10px] text-cocoa-500 sm:text-xs">XP</span>
+          <div className="hidden items-center gap-1 rounded-full bg-cream-50 px-2.5 py-1.5 shadow-warm sm:flex">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-cocoa-500">Lvl</span>
+            <span className="font-serif text-sm font-bold text-cocoa-900">{level}</span>
+            <span className="ml-1 text-sm">⛁</span>
+            <span className="font-mono text-xs font-bold text-cocoa-900">{xp}</span>
           </div>
           {/* Explicit "Profile" pill — Garima flagged that the streak /
               Lvl / XP chips were the only way to reach /me but weren't
@@ -558,112 +550,41 @@ export default async function HomePage() {
         </div>
       )}
 
-      {mission && <DailyMissionCard {...mission} />}
-      <section className="mx-auto mt-5 max-w-5xl px-4 sm:px-6">
-        <div className="rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-5 shadow-warm sm:p-6">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">Today&apos;s proof</p>
-              <h2 className="mt-1 font-serif text-xl font-semibold text-cocoa-900">
-                {todayQuestions.length > 0 ? "Practice completed today" : "Your practice starts here"}
-              </h2>
-            </div>
-            <Link href="/weekly" className="text-sm font-bold text-ember-700 hover:text-ember-800">See weekly proof →</Link>
-          </div>
-          {todayQuestions.length > 0 ? (
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <TodayStat label="Questions" value={String(todayQuestions.length)} />
-              <TodayStat label="Accuracy" value={`${todayAccuracy}%`} />
-              <TodayStat label="Study time" value={`${todayMinutes} min`} />
-            </div>
-          ) : (
-            <p className="mt-3 text-sm leading-6 text-cocoa-700">Complete today&apos;s mission and your finished practice will appear here.</p>
-          )}
-        </div>
-      </section>
-      <ReadinessCard
-        readiness={readiness}
-        attemptedTopics={attemptedTopicCount}
-        totalTopics={totalTopics}
-        examName={examRow?.name ?? "selected-exam"}
-        strongestSubject={strongestSubject}
-      />
-
-      {/* Greeting + chick */}
       <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
-        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">
-              Hi, {firstName}
-            </p>
-            <h1 className="mt-2 font-serif text-4xl font-semibold leading-tight tracking-tight text-cocoa-900 sm:text-5xl">
-              What do you want to practice?
-            </h1>
-            <p className="mt-3 max-w-xl text-base text-cocoa-700">
-              Tap a subject. Walk the path. Earn XP.
-            </p>
+            <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">Hi, {firstName}</p>
+            <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-cocoa-900 sm:text-5xl">Your next best step.</h1>
+            <p className="mt-2 text-base text-cocoa-700">One focused session is enough for today.</p>
           </div>
-          <Chick state="idle" size={120} className="hidden sm:block" />
+          <Chick state="idle" size={92} className="hidden sm:block" />
         </div>
       </section>
 
-      {/* Mock test CTA — surfaces the new full-length mode. Stays subtle:
-          one row, not a giant banner, so it doesn't compete with the
-          chapter-quiz path that drives daily engagement. */}
-      <section className="mx-auto mt-6 max-w-5xl px-4 sm:px-6">
-        <Link
-          href="/mock"
-          className="flex items-center justify-between gap-3 rounded-2xl border border-cocoa-900/[0.06] bg-gradient-to-r from-sun-400/15 via-sun-500/10 to-ember-500/15 px-4 py-3 shadow-warm transition hover:-translate-y-0.5 sm:px-5 sm:py-3.5"
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-xl">📝</span>
-            <div>
-              <p className="text-sm font-bold text-cocoa-900">
-                Take a full-length mock test
-              </p>
-              <p className="text-[11px] text-cocoa-700">
-                Real exam timing, real scoring, sectional breakdown.
-              </p>
-            </div>
-          </div>
-          <span className="shrink-0 rounded-xl bg-cocoa-900 px-3 py-1.5 text-xs font-bold text-cream-50">
-            Open →
-          </span>
+      {mission && <DailyMissionCard {...mission} />}
+
+      <section className="mx-auto mt-5 grid max-w-5xl gap-3 px-4 sm:grid-cols-2 sm:px-6">
+        <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cocoa-500">Today</p>
+          <p className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">{todayQuestions.length} questions</p>
+          <p className="mt-1 text-xs text-cocoa-700">{todayQuestions.length > 0 ? `${todayAccuracy}% accuracy · ${todayMinutes} min` : "Complete the mission to create today’s proof."}</p>
         </Link>
-        <Link
-          href="/mistakes"
-          className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-cocoa-900/[0.06] bg-cream-50 px-4 py-3 shadow-warm transition hover:-translate-y-0.5 hover:bg-white sm:px-5"
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-xl" aria-hidden>📘</span>
-            <div>
-              <p className="text-sm font-bold text-cocoa-900">Review your Mistake Book</p>
-              <p className="text-[11px] text-cocoa-700">Revisit incorrect answers and repair the topic behind them.</p>
-            </div>
-          </div>
-          <span className="shrink-0 text-xs font-bold text-cocoa-700">Open →</span>
-        </Link>
-        <Link
-          href="/revision"
-          className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-cocoa-900/[0.06] bg-cream-50 px-4 py-3 shadow-warm transition hover:-translate-y-0.5 hover:bg-white sm:px-5"
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-xl" aria-hidden>🧠</span>
-            <div>
-              <p className="text-sm font-bold text-cocoa-900">Smart Revision</p>
-              <p className="text-[11px] text-cocoa-700">
-                {revisionDueTopics.length > 0
-                  ? `${revisionDueTopics.length} ${revisionDueTopics.length === 1 ? "topic is" : "topics are"} due for recall.`
-                  : "Your recall queue will appear here when a topic is due."}
-              </p>
-            </div>
-          </div>
-          <span className="shrink-0 text-xs font-bold text-cocoa-700">Open →</span>
+        <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cocoa-500">{examRow?.name ?? "Selected exam"} readiness</p>
+          <p className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">{readiness}%</p>
+          <p className="mt-1 text-xs text-cocoa-700">{attemptedTopicCount} of {totalTopics} topics started{strongestSubject ? ` · strongest: ${strongestSubject}` : ""}.</p>
         </Link>
       </section>
 
-      {/* Subject grid (Client Component handles search filter) */}
+      {/* The syllabus is the primary workspace. Everything else stays secondary. */}
       <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">Your syllabus</p>
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">Choose a subject</h2>
+          </div>
+          <Link href="/weekly" className="text-sm font-bold text-ember-700 hover:text-ember-800">Weekly proof →</Link>
+        </div>
         <SubjectGrid
           subjects={subjects.map<SubjectWithProgress>((s) => ({
             id: s.id,
@@ -676,15 +597,25 @@ export default async function HomePage() {
           }))}
         />
       </section>
+
+      <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">More study tools</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <CompactTool href="/mistakes" icon="📘" title="Mistake Book" detail="Repair incorrect answers." />
+          <CompactTool href="/revision" icon="🧠" title="Smart Revision" detail={revisionDueTopics.length > 0 ? `${revisionDueTopics.length} due for recall.` : "Recall when it is due."} />
+          <CompactTool href="/mock" icon="📝" title="Mock test" detail="Try full exam timing." />
+        </div>
+      </section>
     </main>
   );
 }
 
-function TodayStat({ label, value }: { label: string; value: string }) {
+function CompactTool({ href, icon, title, detail }: { href: string; icon: string; title: string; detail: string }) {
   return (
-    <div className="rounded-2xl bg-sun-500/10 p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-cocoa-500">{label}</p>
-      <p className="mt-1 font-serif text-xl font-bold text-cocoa-900">{value}</p>
-    </div>
+    <Link href={href} className="flex items-center gap-3 rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
+      <span className="text-xl" aria-hidden>{icon}</span>
+      <span className="min-w-0"><span className="block text-sm font-bold text-cocoa-900">{title}</span><span className="block truncate text-xs text-cocoa-700">{detail}</span></span>
+      <span className="ml-auto text-sm font-bold text-ember-700" aria-hidden>→</span>
+    </Link>
   );
 }
