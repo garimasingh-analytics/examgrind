@@ -24,6 +24,7 @@ type Period = "all" | "7" | "30";
 
 export default function MistakeBook({ mistakes }: { mistakes: Mistake[] }) {
   const [subject, setSubject] = useState("all");
+  const [topic, setTopic] = useState("all");
   const [period, setPeriod] = useState<Period>("all");
 
   useEffect(() => {
@@ -34,14 +35,26 @@ export default function MistakeBook({ mistakes }: { mistakes: Mistake[] }) {
     () => Array.from(new Set(mistakes.map((mistake) => mistake.subject))).sort(),
     [mistakes],
   );
+  const topics = useMemo(
+    () => Array.from(
+      new Set(
+        mistakes
+          .filter((mistake) => subject === "all" || mistake.subject === subject)
+          .map((mistake) => mistake.topic)
+          .filter((name): name is string => Boolean(name)),
+      ),
+    ).sort(),
+    [mistakes, subject],
+  );
   const filtered = useMemo(() => {
     const cutoff =
       period === "all" ? null : Date.now() - Number(period) * 86_400_000;
     return mistakes.filter((mistake) => {
       if (subject !== "all" && mistake.subject !== subject) return false;
+      if (topic !== "all" && mistake.topic !== topic) return false;
       return cutoff == null || new Date(mistake.createdAt).getTime() >= cutoff;
     });
-  }, [mistakes, period, subject]);
+  }, [mistakes, period, subject, topic]);
 
   if (mistakes.length === 0) {
     return (
@@ -73,11 +86,23 @@ export default function MistakeBook({ mistakes }: { mistakes: Mistake[] }) {
           <select
             aria-label="Filter mistakes by subject"
             value={subject}
-            onChange={(event) => setSubject(event.target.value)}
+            onChange={(event) => {
+              setSubject(event.target.value);
+              setTopic("all");
+            }}
             className="rounded-xl border border-cocoa-900/10 bg-white px-3 py-2 text-sm font-medium text-cocoa-900 outline-none focus:ring-2 focus:ring-ember-600/30"
           >
             <option value="all">All subjects</option>
             {subjects.map((name) => <option key={name} value={name}>{name}</option>)}
+          </select>
+          <select
+            aria-label="Filter mistakes by topic"
+            value={topic}
+            onChange={(event) => setTopic(event.target.value)}
+            className="rounded-xl border border-cocoa-900/10 bg-white px-3 py-2 text-sm font-medium text-cocoa-900 outline-none focus:ring-2 focus:ring-ember-600/30"
+          >
+            <option value="all">All topics</option>
+            {topics.map((name) => <option key={name} value={name}>{name}</option>)}
           </select>
           <select
             aria-label="Filter mistakes by date"
