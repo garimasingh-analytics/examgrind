@@ -51,7 +51,7 @@ export const trackSignUp = () =>
 export const trackLogin = () =>
   track(ANALYTICS_EVENTS.LOGIN, { method: "google" });
 export const trackDailyMissionStarted = (params: {
-  mission_type: "foundation" | "repair" | "advance";
+  mission_type: "foundation" | "repair" | "revision" | "advance";
 }) => track(ANALYTICS_EVENTS.DAILY_MISSION_STARTED, params);
 export const trackMistakeBookViewed = (params: { mistake_count: number }) =>
   track(ANALYTICS_EVENTS.MISTAKE_BOOK_VIEWED, params);

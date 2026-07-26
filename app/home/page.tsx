@@ -62,7 +62,7 @@ export default async function HomePage() {
       .select("subject_id, topic_count"),
     supabase
       .from("user_topic_mastery")
-      .select("topic_id, mastery_level, questions_attempted, questions_correct, topics!inner(name, chapters!inner(subject_id))")
+      .select("topic_id, mastery_level, questions_attempted, questions_correct, last_quizzed_at, topics!inner(name, chapters!inner(subject_id))")
       .eq("user_id", authUser.id),
   ]);
 
@@ -212,12 +212,21 @@ export default async function HomePage() {
   // Daily Mission uses only completed learning evidence: the weakest attempted
   // topic gets priority; brand-new learners get the first available topic in
   // their selected exam. No AI call or new table is required on page load.
-  type MissionTopic = { id: string; name: string; subjectId: string; accuracy: number };
+  type MissionTopic = {
+    id: string;
+    name: string;
+    subjectId: string;
+    accuracy: number;
+    masteryLevel: string;
+    lastQuizzedAt: string | null;
+  };
   const attemptedTopics: MissionTopic[] = [];
   for (const m of (masteryRaw ?? []) as Array<{
     topic_id: string;
     questions_attempted: number;
     questions_correct: number;
+    mastery_level: string;
+    last_quizzed_at: string | null;
     topics:
       | { name: string; chapters: { subject_id: string } | { subject_id: string }[] }
       | { name: string; chapters: { subject_id: string } | { subject_id: string }[] }[];
@@ -233,17 +242,39 @@ export default async function HomePage() {
       name: topicNode.name,
       subjectId: chapterNode.subject_id,
       accuracy: m.questions_correct / m.questions_attempted,
+      masteryLevel: m.mastery_level,
+      lastQuizzedAt: m.last_quizzed_at,
     });
   }
   const weakestTopic = attemptedTopics
     .filter((topic) => topic.accuracy < 0.7)
     .sort((a, b) => a.accuracy - b.accuracy)[0];
+  const revisionIntervalDays: Record<string, number> = {
+    novice: 1,
+    apprentice: 3,
+    adept: 7,
+    master: 14,
+  };
+  const revisionDue = attemptedTopics
+    .filter((topic) => {
+      if (topic.accuracy < 0.7 || !topic.lastQuizzedAt) return false;
+      const dueAt = new Date(topic.lastQuizzedAt).getTime() +
+        (revisionIntervalDays[topic.masteryLevel] ?? 3) * 86_400_000;
+      return dueAt <= Date.now();
+    })
+    .sort((a, b) => {
+      const aDueAt = new Date(a.lastQuizzedAt ?? 0).getTime() +
+        (revisionIntervalDays[a.masteryLevel] ?? 3) * 86_400_000;
+      const bDueAt = new Date(b.lastQuizzedAt ?? 0).getTime() +
+        (revisionIntervalDays[b.masteryLevel] ?? 3) * 86_400_000;
+      return aDueAt - bDueAt;
+    })[0];
 
   let mission: {
     href: string;
     subjectName: string;
     topicName: string | null;
-    type: "foundation" | "repair" | "advance";
+    type: "foundation" | "repair" | "revision" | "advance";
     accuracy: number | null;
   } | null = weakestTopic
     ? {
@@ -254,6 +285,16 @@ export default async function HomePage() {
         accuracy: Math.round(weakestTopic.accuracy * 100),
       }
     : null;
+
+  if (!mission && revisionDue) {
+    mission = {
+      href: `/topic/${revisionDue.id}`,
+      subjectName: subjects.find((s) => s.id === revisionDue.subjectId)?.name ?? "your subject",
+      topicName: revisionDue.name,
+      type: "revision",
+      accuracy: Math.round(revisionDue.accuracy * 100),
+    };
+  }
 
   if (!mission && subjects.length > 0) {
     const nextSubject = [...subjects].sort((a, b) => {
