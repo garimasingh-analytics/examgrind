@@ -91,6 +91,21 @@ export default async function ResultsPage({ params }: Params) {
   const subhead = isEmpty
     ? "Every question was skipped — give it another go when you're ready."
     : null;
+  const nextAction = isEmpty || accuracy < 70
+    ? {
+        title: `Repair ${quizRow.subtopic ?? quizRow.subject}`,
+        detail: isEmpty
+          ? "Start a short fresh round and answer at least one question to create your first signal."
+          : `You are at ${accuracy}%. A focused retry is the fastest way to cross 70%.`,
+        href: quizRow.topic_id ? `/topic/${quizRow.topic_id}` : `/chapter/${quizRow.chapter_id}`,
+        button: "Start a repair round",
+      }
+    : {
+        title: "Build the next skill",
+        detail: "You cleared this topic. Return to the chapter and take the next available step.",
+        href: `/chapter/${quizRow.chapter_id}`,
+        button: "Continue the path",
+      };
 
   return (
     <main className="bg-warm-wash min-h-[100svh] pb-24">
@@ -159,6 +174,19 @@ export default async function ResultsPage({ params }: Params) {
                   ? "Streak started — come back tomorrow to keep it going."
                   : `${streak}-day streak — keep it lit.`}
               </span>
+            </div>
+          )}
+
+          {(quizRow.topic_id || quizRow.chapter_id) && (
+            <div className="mt-6 rounded-2xl border border-ember-600/20 bg-ember-600/10 p-4 text-left sm:flex sm:items-center sm:justify-between sm:gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-ember-700">One next action</p>
+                <p className="mt-1 font-semibold text-cocoa-900">{nextAction.title}</p>
+                <p className="mt-1 text-sm leading-6 text-cocoa-700">{nextAction.detail}</p>
+              </div>
+              <Link href={nextAction.href} className="mt-3 inline-flex shrink-0 justify-center rounded-xl bg-ember-600 px-3 py-2.5 text-sm font-bold text-cream-50 transition hover:bg-ember-700 sm:mt-0">
+                {nextAction.button} →
+              </Link>
             </div>
           )}
 
