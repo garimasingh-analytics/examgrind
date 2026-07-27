@@ -508,6 +508,10 @@ export default async function HomePage() {
           {/* One-click exam switcher dropdown */}
           <ExamSwitcher currentSlug={examSlug} />
         </div>
+        <div className="flex items-center gap-2">
+          <Link href="/coach" className="inline-flex items-center gap-1 rounded-full border border-cocoa-900/[.1] bg-cream-50 px-2.5 py-1.5 text-xs font-bold text-cocoa-900 shadow-warm transition hover:-translate-y-0.5" title="Open ExamGrind Coach">
+            <span aria-hidden>🧠</span><span className="hidden sm:inline">Coach</span>
+          </Link>
         <Link href="/me" className="flex items-center gap-2 transition hover:opacity-90" title="View your profile">
           {/* Premium badge — paid users only. Free users see nothing here */}
           {/* (the Upgrade button lives elsewhere). Lives next to streak so   */}
@@ -543,6 +547,7 @@ export default async function HomePage() {
             </span>
           </div>
         </Link>
+        </div>
       </header>
 
       {/* Free-tier banner — visible only when relevant */}
