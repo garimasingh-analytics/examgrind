@@ -320,6 +320,11 @@ export default function UpgradeModal({
           <div className="space-y-3">
             <Offer title="1 AI Deep Analysis" price="₹19" detail="Find weak concepts, score impact and the next action for one completed quiz or mock." fit="Best for one result." onClick={() => handleOneTimePurchase("analysis_credit")} disabled={loading || success} />
             <Offer title="Personal 21-Day Score Boost" price="₹49" detail="A fixed weak-topic roadmap with daily targets and dated revision checkpoints. No auto-renewal." fit="Best for a focused sprint." onClick={() => handleOneTimePurchase("score_boost_21d")} disabled={loading || success} />
+            <div className="grid grid-cols-3 gap-2">
+              <Offer title="3 quizzes" price="₹49" detail="Use anytime" fit="Try again." onClick={() => handleOneTimePurchase("quiz_pack_3")} disabled={loading || success} compact />
+              <Offer title="10 quizzes" price="₹149" detail="Use anytime" fit="Popular." onClick={() => handleOneTimePurchase("quiz_pack_10")} disabled={loading || success} compact />
+              <Offer title="15 quizzes" price="₹199" detail="Use anytime" fit="Best pack." onClick={() => handleOneTimePurchase("quiz_pack_15")} disabled={loading || success} compact />
+            </div>
             <div className="rounded-2xl border border-ember-600/20 bg-sun-400/10 p-4">
               <div className="flex items-baseline justify-between gap-3"><h3 className="font-bold text-cocoa-900">ExamGrind Coach</h3><span className="font-serif text-xl font-bold text-cocoa-900">₹199 <span className="font-sans text-xs font-medium">/ month</span></span></div>
               <p className="mt-1 text-xs leading-relaxed text-cocoa-700">Unlimited quizzes, mocks and Deep Analyses, plus adaptive plans and every ongoing premium tool.</p>
@@ -359,6 +364,6 @@ export default function UpgradeModal({
   );
 }
 
-function Offer({ title, price, detail, fit, onClick, disabled }: { title: string; price: string; detail: string; fit: string; onClick: () => void; disabled: boolean }) {
-  return <button onClick={onClick} disabled={disabled} className="w-full rounded-2xl border border-cocoa-900/[0.08] bg-cream-100 p-4 text-left transition hover:border-ember-600/35 hover:bg-sun-400/10 disabled:cursor-not-allowed disabled:opacity-60"><div className="flex items-baseline justify-between gap-3"><span className="font-bold text-cocoa-900">{title}</span><span className="font-serif text-xl font-bold text-cocoa-900">{price}</span></div><p className="mt-1 text-xs leading-relaxed text-cocoa-700">{detail}</p><p className="mt-2 text-[11px] font-bold text-ember-700">{fit}</p></button>;
+function Offer({ title, price, detail, fit, onClick, disabled, compact = false }: { title: string; price: string; detail: string; fit: string; onClick: () => void; disabled: boolean; compact?: boolean }) {
+  return <button onClick={onClick} disabled={disabled} className={`w-full rounded-2xl border border-cocoa-900/[0.08] bg-cream-100 text-left transition hover:border-ember-600/35 hover:bg-sun-400/10 disabled:cursor-not-allowed disabled:opacity-60 ${compact ? "p-3" : "p-4"}`}><div className={`flex ${compact ? "flex-col" : "items-baseline justify-between gap-3"}`}><span className="font-bold text-cocoa-900">{title}</span><span className="font-serif text-xl font-bold text-cocoa-900">{price}</span></div><p className="mt-1 text-xs leading-relaxed text-cocoa-700">{detail}</p><p className="mt-2 text-[11px] font-bold text-ember-700">{fit}</p></button>;
 }
