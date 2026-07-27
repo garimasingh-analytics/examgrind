@@ -6,7 +6,7 @@ import Chick from "@/components/Chick";
 import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
-import DailyMissionCard from "@/components/DailyMissionCard";
+import DailyMissionCard, { type MissionStep } from "@/components/DailyMissionCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
 
@@ -370,54 +370,98 @@ export default async function HomePage() {
         (revisionIntervalDays[b.masteryLevel] ?? 3) * 86_400_000;
       return aDueAt - bDueAt;
     });
-  const revisionDue = revisionDueTopics[0];
+  // A daily mission is a compact study session, not a single quiz. We always
+  // lead with real learning evidence (repair + due recall), then use the
+  // least-covered subjects in the selected exam to fill the remaining steps.
+  // This remains deterministic and does not spend an AI credit on page load.
+  const missionSteps: MissionStep[] = [];
+  const missionTopicIds = new Set<string>();
+  const subjectNameFor = (subjectId: string) =>
+    subjects.find((subject) => subject.id === subjectId)?.name ?? "your subject";
+  const addMissionTopic = (
+    topic: MissionTopic,
+    type: MissionStep["type"],
+  ) => {
+    if (missionSteps.length >= 3 || missionTopicIds.has(topic.id)) return;
+    missionTopicIds.add(topic.id);
+    missionSteps.push({
+      href: `/topic/${topic.id}`,
+      subjectId: topic.subjectId,
+      subjectName: subjectNameFor(topic.subjectId),
+      topicName: topic.name,
+      type,
+      accuracy: Math.round(topic.accuracy * 100),
+      completed: activeTodayTopicIds.has(topic.id),
+    });
+  };
 
-  let mission: {
-    href: string;
-    subjectName: string;
-    topicName: string | null;
-    type: "foundation" | "repair" | "revision" | "advance";
-    accuracy: number | null;
-  } | null = weakestTopic
-    ? {
-        href: `/topic/${weakestTopic.id}`,
-        subjectName: subjects.find((s) => s.id === weakestTopic.subjectId)?.name ?? "your subject",
-        topicName: weakestTopic.name,
-        type: "repair" as const,
-        accuracy: Math.round(weakestTopic.accuracy * 100),
-      }
-    : null;
-
-  if (!mission && revisionDue) {
-    mission = {
-      href: `/topic/${revisionDue.id}`,
-      subjectName: subjects.find((s) => s.id === revisionDue.subjectId)?.name ?? "your subject",
-      topicName: revisionDue.name,
-      type: "revision",
-      accuracy: Math.round(revisionDue.accuracy * 100),
-    };
+  if (weakestTopic) addMissionTopic(weakestTopic, "repair");
+  for (const topic of revisionDueTopics) {
+    addMissionTopic(topic, "revision");
+    if (missionSteps.length >= 2) break;
   }
 
-  if (!mission && subjects.length > 0) {
-    const nextSubject = [...subjects].sort((a, b) => {
-      const aProgress = (attemptedBySubject.get(a.id) ?? 0) / Math.max(totalTopicsBySubject.get(a.id) ?? 1, 1);
-      const bProgress = (attemptedBySubject.get(b.id) ?? 0) / Math.max(totalTopicsBySubject.get(b.id) ?? 1, 1);
-      return aProgress - bProgress;
-    })[0];
-    const { data: seedTopics } = await supabase
+  const leastCoveredSubjects = [...subjects].sort((a, b) => {
+    const aProgress = (attemptedBySubject.get(a.id) ?? 0) /
+      Math.max(totalTopicsBySubject.get(a.id) ?? 1, 1);
+    const bProgress = (attemptedBySubject.get(b.id) ?? 0) /
+      Math.max(totalTopicsBySubject.get(b.id) ?? 1, 1);
+    return aProgress - bProgress;
+  });
+  const selectedMissionSubjectIds = new Set(missionSteps.map((step) => step.subjectId));
+  const seedSubjectIds = [
+    ...leastCoveredSubjects.filter((subject) => !selectedMissionSubjectIds.has(subject.id)),
+    ...leastCoveredSubjects,
+  ]
+    .map((subject) => subject.id)
+    .filter((id, index, ids) => ids.indexOf(id) === index)
+    .slice(0, Math.max(0, 3 - missionSteps.length));
+  if (seedSubjectIds.length > 0) {
+    const { data: seedTopicsRaw } = await supabase
       .from("topics")
       .select("id, name, chapters!inner(subject_id)")
-      .eq("chapters.subject_id", nextSubject.id)
+      .in("chapters.subject_id", seedSubjectIds)
       .order("order_index", { ascending: true })
-      .limit(1);
-    const seedTopic = seedTopics?.[0] as { id: string; name: string } | undefined;
-    mission = {
-      href: seedTopic ? `/topic/${seedTopic.id}` : `/subject/${nextSubject.id}`,
-      subjectName: nextSubject.name,
-      topicName: seedTopic?.name ?? null,
-      type: attemptedTopics.length === 0 ? "foundation" : "advance",
-      accuracy: null,
-    };
+      .limit(100);
+    const firstSeedBySubject = new Map<string, { id: string; name: string }>();
+    for (const raw of (seedTopicsRaw ?? []) as Array<{
+      id: string;
+      name: string;
+      chapters: { subject_id: string } | { subject_id: string }[];
+    }>) {
+      const chapter = Array.isArray(raw.chapters) ? raw.chapters[0] : raw.chapters;
+      if (chapter && !firstSeedBySubject.has(chapter.subject_id)) {
+        firstSeedBySubject.set(chapter.subject_id, { id: raw.id, name: raw.name });
+      }
+    }
+    for (const subjectId of seedSubjectIds) {
+      if (missionSteps.length >= 3) break;
+      const seedTopic = firstSeedBySubject.get(subjectId);
+      const subject = subjects.find((item) => item.id === subjectId);
+      if (!subject) continue;
+      if (seedTopic) {
+        missionTopicIds.add(seedTopic.id);
+        missionSteps.push({
+          href: `/topic/${seedTopic.id}`,
+          subjectId,
+          subjectName: subject.name,
+          topicName: seedTopic.name,
+          type: attemptedTopics.length === 0 ? "foundation" : "advance",
+          accuracy: null,
+          completed: activeTodayTopicIds.has(seedTopic.id),
+        });
+      } else {
+        missionSteps.push({
+          href: `/subject/${subject.id}`,
+          subjectId,
+          subjectName: subject.name,
+          topicName: null,
+          type: attemptedTopics.length === 0 ? "foundation" : "advance",
+          accuracy: null,
+          completed: false,
+        });
+      }
+    }
   }
 
   // Streak gets shown only if it's still "alive" — i.e. the user practiced
@@ -575,7 +619,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {mission && <DailyMissionCard {...mission} scoreBoostDay={scoreBoostDay} />}
+      {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} />}
 
       <section className="mx-auto mt-5 grid max-w-5xl gap-3 px-4 sm:grid-cols-2 sm:px-6">
         <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
