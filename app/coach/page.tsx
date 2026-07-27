@@ -155,9 +155,9 @@ export default async function CoachPage() {
         {actions.length === 0 && <div className="rounded-3xl border border-cocoa-900/[.07] bg-cream-50 p-6 text-cocoa-700 shadow-warm"><h2 className="font-serif text-2xl font-bold text-cocoa-900">Start with one focused quiz.</h2><p className="mt-2 text-sm">Once you complete it, your Coach will turn that result into a precise repair and revision plan.</p><Link href="/home" className="mt-4 inline-flex font-bold text-ember-700">Choose a subject →</Link></div>}
       </section>
       <section className="mx-auto mt-6 grid max-w-4xl gap-3 px-5 sm:grid-cols-3">
-        <CoachMetric label="Topics with evidence" value={String(signals.length)} detail="Topics Coach can personalise today." />
-        <CoachMetric label="Repair queue" value={String(weakSignals.length)} detail={weakSignals.length ? "Below 70% accuracy." : "No weak topics detected yet."} />
-        <CoachMetric label="Revision due" value={String(recallSignals.length)} detail={recallSignals.length ? "Recall before it fades." : "Nothing overdue right now."} />
+        <CoachMetric href="/home" label="Topics studied" value={String(signals.length)} detail="Open your syllabus and continue coverage." />
+        <CoachMetric href={weakSignals[0] ? `/topic/${weakSignals[0].topicId}` : "/mistakes"} label="Repair queue" value={String(weakSignals.length)} detail={weakSignals.length ? "Open your highest-impact repair." : "Open Mistake Book."} />
+        <CoachMetric href={recallSignals[0] ? `/topic/${recallSignals[0].topicId}` : "/revision"} label="Revision due" value={String(recallSignals.length)} detail={recallSignals.length ? "Start the next recall round." : "Open Smart Revision."} />
       </section>
       <section className="mx-auto mt-6 grid max-w-4xl gap-4 px-5 md:grid-cols-2">
         <div className="rounded-3xl border border-cocoa-900/[.07] bg-cream-50 p-5 shadow-warm"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Coach diagnosis</p><h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">What needs attention</h2>{weakSignals.length ? <ol className="mt-4 space-y-3">{weakSignals.map((signal, index) => <li key={signal.topicId} className="flex items-center justify-between gap-3 rounded-2xl bg-cream-100 px-3 py-3"><div><p className="text-sm font-bold text-cocoa-900">{index + 1}. {signal.topicName}</p><p className="text-xs text-cocoa-600">{subjectName(signal.subjectId)} · {Math.round(signal.accuracy * 100)}% accuracy</p></div><Link href={`/topic/${signal.topicId}`} className="text-xs font-bold text-ember-700">Repair →</Link></li>)}</ol> : <p className="mt-3 text-sm leading-6 text-cocoa-700">Complete a few quizzes and Coach will rank the concepts costing you the most marks.</p>}</div>
@@ -169,6 +169,6 @@ export default async function CoachPage() {
   );
 }
 
-function CoachMetric({ label, value, detail }: { label: string; value: string; detail: string }) {
-  return <div className="rounded-2xl border border-cocoa-900/[.07] bg-cream-50 p-4 shadow-warm"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">{label}</p><p className="mt-1 font-serif text-3xl font-bold text-cocoa-900">{value}</p><p className="mt-1 text-xs leading-relaxed text-cocoa-600">{detail}</p></div>;
+function CoachMetric({ href, label, value, detail }: { href: string; label: string; value: string; detail: string }) {
+  return <Link href={href} className="rounded-2xl border border-cocoa-900/[.07] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">{label}</p><p className="mt-1 font-serif text-3xl font-bold text-cocoa-900">{value}</p><p className="mt-1 text-xs leading-relaxed text-cocoa-600">{detail}</p><p className="mt-3 text-xs font-bold text-ember-700">Open →</p></Link>;
 }

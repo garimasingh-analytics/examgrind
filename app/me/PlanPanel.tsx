@@ -99,6 +99,8 @@ export default function PlanPanel({
               value={isPaid ? "Unlimited" : analysisCredits > 0 ? `${analysisCredits} ready` : analysisLeft > 0 ? `${analysisLeft} free left` : "None ready"}
               detail={isPaid ? "Included with Coach." : analysisCredits > 0 ? "Your paid analysis credit is active." : analysisLeft > 0 ? "Use it after any completed quiz or mock." : "Buy one for ₹19 whenever you need it."}
               active={isPaid || analysisCredits > 0 || analysisLeft > 0}
+              href={isPaid || analysisCredits > 0 || analysisLeft > 0 ? "/home" : undefined}
+              onClick={isPaid || analysisCredits > 0 || analysisLeft > 0 ? undefined : () => setOpen(true)}
             />
             <AccessCard
               icon="🗓️"
@@ -107,6 +109,7 @@ export default function PlanPanel({
               detail={isPaid ? "Your Coach plan includes ongoing planning." : scoreBoostDaysLeft > 0 ? "Your fixed personalised roadmap is ready." : "A fixed personal roadmap for ₹49."}
               active={isPaid || scoreBoostDaysLeft > 0}
               href={scoreBoostDaysLeft > 0 || isPaid ? "/score-boost" : undefined}
+              onClick={scoreBoostDaysLeft > 0 || isPaid ? undefined : () => setOpen(true)}
             />
             <AccessCard
               icon="👑"
@@ -114,6 +117,8 @@ export default function PlanPanel({
               value={isPaid ? "Active" : "Not active"}
               detail={isPaid ? "Unlimited quizzes, mocks and analyses." : "Unlimited practice and continuous AI coaching for ₹199/month."}
               active={isPaid}
+              href={isPaid ? "/coach" : undefined}
+              onClick={isPaid ? undefined : () => setOpen(true)}
             />
           </div>
         </div>
@@ -135,6 +140,7 @@ function AccessCard({
   detail,
   active,
   href,
+  onClick,
 }: {
   icon: string;
   title: string;
@@ -142,6 +148,7 @@ function AccessCard({
   detail: string;
   active: boolean;
   href?: string;
+  onClick?: () => void;
 }) {
   const body = <>
     <div className="flex items-center justify-between gap-2"><span className="text-lg" aria-hidden>{icon}</span><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${active ? "bg-moss-500/15 text-moss-700" : "bg-cocoa-100 text-cocoa-500"}`}>{active ? "Active" : "Locked"}</span></div>
@@ -151,7 +158,9 @@ function AccessCard({
     {href && <p className="mt-3 text-xs font-bold text-ember-700">Open plan →</p>}
   </>;
   const className = "rounded-2xl border border-cocoa-900/[0.06] bg-cream-100 p-3.5 transition";
-  return href ? <Link href={href} className={`${className} hover:-translate-y-0.5 hover:bg-white`}>{body}</Link> : <div className={className}>{body}</div>;
+  if (href) return <Link href={href} className={`${className} hover:-translate-y-0.5 hover:bg-white`}>{body}</Link>;
+  if (onClick) return <button type="button" onClick={onClick} className={`${className} w-full text-left hover:-translate-y-0.5 hover:bg-white`}>{body}</button>;
+  return <div className={className}>{body}</div>;
 }
 
 function Meter({
