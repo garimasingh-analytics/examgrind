@@ -6,6 +6,7 @@ import { trackDailyMissionStarted } from "@/lib/product-analytics";
 type Props = {
   steps: MissionStep[];
   scoreBoostDay?: number | null;
+  isCoach?: boolean;
 };
 
 export type MissionStep = {
@@ -47,6 +48,7 @@ const stepCopy = (step: MissionStep) => {
 export default function DailyMissionCard({
   steps,
   scoreBoostDay,
+  isCoach = false,
 }: Props) {
   const startMission = (type: MissionStep["type"]) => {
     // Quiz creation can take a minute, so preserve a short-lived anonymous
@@ -117,6 +119,15 @@ export default function DailyMissionCard({
             );
           })}
         </ol>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cream-50/10 bg-cocoa-950/20 px-4 py-3 text-xs">
+          <p className="text-cream-100/75">
+            <span className="font-bold text-sun-200">{isCoach ? "ExamGrind Coach is live." : "Want the plan to adapt after every quiz?"}</span>{" "}
+            {isCoach ? "Your briefing updates from your completed practice." : "Coach turns today’s evidence into an ongoing study plan."}
+          </p>
+          <Link href={isCoach ? "/coach" : "/me"} className="shrink-0 font-bold text-sun-200 hover:text-sun-100">
+            {isCoach ? "Open Coach briefing →" : "Explore Coach →"}
+          </Link>
+        </div>
       </div>
     </section>
   );

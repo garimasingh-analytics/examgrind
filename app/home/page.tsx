@@ -619,7 +619,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} />}
+      {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} isCoach={isPaid} />}
 
       <section className="mx-auto mt-5 grid max-w-5xl gap-3 px-4 sm:grid-cols-2 sm:px-6">
         <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
