@@ -70,6 +70,7 @@ export default function MarketingTracking() {
     window.__examgrindMarketingConsent = value;
     setConsent(value);
     googleConsent(value);
+    window.dispatchEvent(new Event("examgrind:marketing-consent"));
   };
 
   return (

@@ -7,6 +7,7 @@ import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid"
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
 import DailyMissionCard, { type MissionStep } from "@/components/DailyMissionCard";
+import AdSlot from "@/components/AdSlot";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
 
@@ -638,6 +639,7 @@ export default async function HomePage() {
           <p className="mt-1 text-xs text-cocoa-700">{attemptedTopicCount} of {totalTopics} topics started{strongestSubject ? ` · strongest: ${strongestSubject}` : ""}.</p>
         </Link>
       </section>
+      <AdSlot />
 
       {/* The syllabus is the primary workspace. Everything else stays secondary. */}
       <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
