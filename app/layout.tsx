@@ -150,6 +150,15 @@ export default async function RootLayout({
             `,
           }}
         />
+        {/* Kept in the document head on every route so AdSense can verify
+            this is the publisher's site during review. Actual ad requests
+            remain inside AdSlot and only happen after marketing consent. */}
+        <script
+          id="examgrind-adsense-loader"
+          async
+          crossOrigin="anonymous"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2090215060427781"
+        />
       </head>
       <body className="bg-cream-100 text-cocoa-900 antialiased">
         <NavigationFeedback />

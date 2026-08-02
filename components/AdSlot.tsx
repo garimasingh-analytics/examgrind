@@ -14,6 +14,7 @@ let loader: Promise<boolean> | null = null;
 
 function loadAdSense() {
   if (typeof window === "undefined") return Promise.resolve(false);
+  if (window.adsbygoogle) return Promise.resolve(true);
   if (loader) return loader;
 
   loader = new Promise((resolve) => {
