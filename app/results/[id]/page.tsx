@@ -219,24 +219,6 @@ export default async function ResultsPage({ params }: Params) {
             </div>
           )}
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            {quizRow.chapter_id && (
-              <Link
-                href={`/chapter/${quizRow.chapter_id}`}
-                className="inline-flex items-center justify-center rounded-2xl bg-ember-600 px-6 py-3 text-sm font-bold text-cream-50 shadow-warm transition hover:bg-ember-700"
-              >
-                Back to chapter
-              </Link>
-            )}
-            {quizRow.topic_id && (
-              <Link
-                href={`/topic/${quizRow.topic_id}`}
-                className="inline-flex items-center justify-center rounded-2xl border-2 border-cocoa-900/[0.08] bg-cream-50 px-6 py-3 text-sm font-bold text-cocoa-900 transition hover:border-cocoa-900/[0.2] hover:bg-white"
-              >
-                Try again
-              </Link>
-            )}
-          </div>
         </div>
       </section>
 
@@ -257,9 +239,7 @@ export default async function ResultsPage({ params }: Params) {
 
       {/* Per-question review */}
       <section className="mx-auto mt-10 max-w-2xl px-4 sm:px-6">
-        <h2 className="mb-4 font-serif text-xl font-bold text-cocoa-900">
-          Review
-        </h2>
+        <div className="mb-4"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Answer review</p><h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">Focus on what can earn you marks.</h2><p className="mt-1 text-sm text-cocoa-700">Incorrect and skipped questions are open below. Correct answers stay available, without taking over the page.</p></div>
         <ol className="space-y-4">
           {questions.map((q, i) => {
             const userLetter = q.user_answer as "A" | "B" | "C" | "D" | null;
@@ -271,28 +251,17 @@ export default async function ResultsPage({ params }: Params) {
               ({ A: q.option_a, B: q.option_b, C: q.option_c, D: q.option_d }[L]);
 
             return (
-              <li
-                key={q.id}
-                className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm"
-              >
-                <div className="flex items-start gap-3">
-                  <span
-                    className={[
+              <li key={q.id} className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm">
+                <details open={!wasRight} className="group">
+                  <summary className="flex cursor-pointer list-none items-start gap-3 p-5 marker:hidden">
+                    <span className={[
                       "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-                      wasRight
-                        ? "bg-moss-500 text-cream-50"
-                        : skipped
-                        ? "bg-cream-200 text-cocoa-500"
-                        : "bg-coral-500 text-cream-50",
-                    ].join(" ")}
-                  >
-                    {wasRight ? "✓" : skipped ? "—" : "✗"}
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-medium text-cocoa-900">
-                      <span className="font-mono text-xs text-cocoa-500">{i + 1}.</span>{" "}
-                      {q.question_text}
-                    </p>
+                      wasRight ? "bg-moss-500 text-cream-50" : skipped ? "bg-cream-200 text-cocoa-500" : "bg-coral-500 text-cream-50",
+                    ].join(" ")}>{wasRight ? "✓" : skipped ? "—" : "✗"}</span>
+                    <span className="min-w-0 flex-1"><span className="font-medium text-cocoa-900"><span className="font-mono text-xs text-cocoa-500">{i + 1}.</span>{" "}{q.question_text}</span><span className={`mt-1 block text-xs font-bold ${wasRight ? "text-moss-700" : skipped ? "text-cocoa-500" : "text-coral-500"}`}>{wasRight ? "Correct — tap to review" : skipped ? "Skipped — review the answer" : "Needs repair — review the answer"}</span></span>
+                    <span className="mt-1 text-xs font-bold text-cocoa-500 group-open:rotate-180">⌄</span>
+                  </summary>
+                  <div className="border-t border-cocoa-900/[.06] px-5 pb-5 pt-4">
 
                     <div className="mt-3 space-y-1.5 text-sm">
                       <p className="text-cocoa-700">
@@ -334,7 +303,7 @@ export default async function ResultsPage({ params }: Params) {
                       </p>
                     )}
                   </div>
-                </div>
+                </details>
               </li>
             );
           })}
