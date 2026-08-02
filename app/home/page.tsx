@@ -662,7 +662,6 @@ export default async function HomePage() {
       )}
 
       <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">Hi, {firstName}</p>
@@ -691,7 +690,6 @@ export default async function HomePage() {
           streak={streak}
           longestStreak={profile?.longest_streak ?? 0}
         />
-        </div>
       </section>
 
       {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} />}

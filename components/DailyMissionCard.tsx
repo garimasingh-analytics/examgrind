@@ -63,14 +63,14 @@ export default function DailyMissionCard({
 
   return (
     <section id="daily-mission" className="mx-auto mt-5 max-w-5xl scroll-mt-5 px-4 sm:px-6">
-      <div className="overflow-hidden rounded-3xl border border-ember-600/20 bg-gradient-to-br from-cocoa-800 via-cocoa-800 to-ember-800 p-4 shadow-warm-lg sm:p-5">
+      <div className="overflow-hidden rounded-3xl border border-sun-500/35 bg-gradient-to-br from-cream-50 via-sun-400/15 to-ember-500/10 p-4 shadow-warm-lg sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-sun-300">Daily mission · {completedCount} of {steps.length} steps done</p>
-            <h2 className="mt-1 font-serif text-2xl font-semibold text-cream-50">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-700">Daily mission · {completedCount} of {steps.length} steps done</p>
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">
               A complete study session, chosen for you.
             </h2>
-            <p className="mt-1.5 text-sm leading-5 text-cream-100/85">
+            <p className="mt-1.5 text-sm leading-5 text-cocoa-700">
               Repair, recall, and build coverage across your {steps.length > 1 ? "selected exam subjects" : "selected exam"}. Finish the steps in any order.
             </p>
             {scoreBoostDay && (
@@ -96,19 +96,19 @@ export default function DailyMissionCard({
           {steps.map((step, index) => {
             const copy = stepCopy(step);
             return (
-              <li key={`${step.type}-${step.href}`} className={`rounded-2xl border p-3 ${step.completed ? "border-moss-500/35 bg-moss-500/15" : "border-cream-50/25 bg-white/[.14]"}`}>
+              <li key={`${step.type}-${step.href}`} className={`rounded-2xl border p-3 ${step.completed ? "border-moss-500/35 bg-moss-500/15" : "border-cocoa-900/[.08] bg-white/85"}`}>
                 <div className="flex items-start gap-2">
                   <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${step.completed ? "bg-moss-400 text-cocoa-900" : "bg-sun-400 text-cocoa-900"}`}>
                     {step.completed ? "✓" : index + 1}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-sun-100">{copy.label}</p>
-                    <p className="mt-1 font-serif text-base font-semibold text-cream-50">{step.topicName ?? step.subjectName}</p>
-                    <p className="mt-1 text-xs text-cream-100/85">{step.subjectName} · {copy.detail}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ember-700">{copy.label}</p>
+                    <p className="mt-1 font-serif text-base font-semibold text-cocoa-900">{step.topicName ?? step.subjectName}</p>
+                    <p className="mt-1 text-xs text-cocoa-700">{step.subjectName} · {copy.detail}</p>
                   </div>
                 </div>
                 {!step.completed && (
-                  <Link href={step.href} onClick={() => startMission(step.type)} className="mt-2 inline-flex rounded-lg bg-white/10 px-2 py-1 text-xs font-extrabold text-white underline decoration-sun-300/80 underline-offset-2 hover:bg-white/20">
+                  <Link href={step.href} onClick={() => startMission(step.type)} className="mt-2 inline-flex rounded-lg bg-cocoa-900 px-2 py-1 text-xs font-extrabold text-cream-50 hover:bg-cocoa-800">
                     {copy.button} →
                   </Link>
                 )}
