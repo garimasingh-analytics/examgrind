@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Fraunces, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
@@ -153,14 +154,15 @@ export default async function RootLayout({
         {/* Kept in the document head on every route so AdSense can verify
             this is the publisher's site during review. Actual ad requests
             remain inside AdSlot and only happen after marketing consent. */}
-        <script
+      </head>
+      <body className="bg-cream-100 text-cocoa-900 antialiased">
+        <Script
           id="examgrind-adsense-loader"
           async
           crossOrigin="anonymous"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2090215060427781"
+          strategy="beforeInteractive"
         />
-      </head>
-      <body className="bg-cream-100 text-cocoa-900 antialiased">
         <NavigationFeedback />
         <ChickVariantProvider initialVariant={initialVariant}>
           <div className="flex min-h-[100svh] flex-col pb-20 md:pb-0">
