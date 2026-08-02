@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 /** Immediate feedback and warm prefetching for dynamic App Router pages. */
 export default function NavigationFeedback() {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [navigating, setNavigating] = useState(false);
   const prefetched = useRef(new Set<string>());
   const timeout = useRef<number | null>(null);
@@ -15,7 +14,7 @@ export default function NavigationFeedback() {
   useEffect(() => {
     setNavigating(false);
     if (timeout.current) window.clearTimeout(timeout.current);
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   useEffect(() => {
     const anchorFor = (target: EventTarget | null) => target instanceof Element ? target.closest<HTMLAnchorElement>('a[href^="/"]') : null;
