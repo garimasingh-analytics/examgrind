@@ -639,7 +639,10 @@ export default async function HomePage() {
           <p className="mt-1 text-xs text-cocoa-700">{attemptedTopicCount} of {totalTopics} topics started{strongestSubject ? ` · strongest: ${strongestSubject}` : ""}.</p>
         </Link>
       </section>
-      <AdSlot />
+      {/* Premium is a genuinely focused, ad-free study experience. The
+          AdSense tag lives inside AdSlot, so omitting this component also
+          prevents an Offerwall from being eligible on a paid user's Home. */}
+      {!isPaid && <AdSlot />}
 
       {/* The syllabus is the primary workspace. Everything else stays secondary. */}
       <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
