@@ -3,8 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #FFF8E8;
-  --foreground: #1F1A14;
+  --background: #FCF7EE;
+  --foreground: #1D1815;
+  --signal-paper: #FFFCF6;
+  --signal-ink: #1D1815;
+  --signal-ember: #E7613E;
+  --signal-violet: #6659C9;
+  --signal-proof: #39765A;
+  --signal-sun: #F5C64D;
 }
 
 html {
@@ -25,18 +31,63 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+::selection {
+  background: rgba(245, 198, 77, 0.52);
+  color: var(--foreground);
+}
+
 /* Soft, warm gradient washes — used behind hero areas. */
 .bg-warm-wash {
   background:
     radial-gradient(circle at 12% 18%, rgba(253, 203, 64, 0.18) 0%, transparent 50%),
     radial-gradient(circle at 88% 80%, rgba(253, 124, 41, 0.12) 0%, transparent 50%),
-    #FFF8E8;
+    #FCF7EE;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Shared Prep Signal surfaces. Use one accent per composition—these are
+     intentionally restrained so a study screen never feels like a game. */
+  .eg-paper {
+    border: 1px solid rgba(29, 24, 21, 0.08);
+    background: rgba(255, 252, 246, 0.92);
+    box-shadow: 0 1px 0 rgba(29, 24, 21, 0.04), 0 14px 32px -18px rgba(29, 24, 21, 0.18);
+  }
+
+  .eg-kicker {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .eg-signal-line {
+    background: linear-gradient(90deg, var(--signal-ember), var(--signal-sun), var(--signal-proof));
+    background-size: 200% 100%;
+  }
+
+  .eg-press {
+    transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 160ms ease, background-color 160ms ease;
+  }
+  .eg-press:hover { transform: translateY(-2px); }
+  .eg-press:active { transform: translateY(1px) scale(0.985); }
+  .eg-press:focus-visible { outline: 3px solid rgba(102, 89, 201, 0.45); outline-offset: 3px; }
+
+  /* Reserved for the Vault, onboarding and Score Boost: book motion belongs
+     to meaningful reveals, never to routine navigation. */
+  .eg-book-scene { perspective: 1400px; }
+  .eg-book-page {
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform 520ms cubic-bezier(0.22, 0.8, 0.18, 1), box-shadow 520ms ease;
+  }
+  .eg-book-scene:hover .eg-book-page { transform: rotateY(-7deg); }
+
+  .eg-page-enter { animation: eg-page-enter 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
   /* Reader styles for /terms /privacy /refund /contact */
   .prose-legal h2 {
@@ -174,6 +225,11 @@ body {
   50%      { transform: translateY(-3px) scale(1.015); }
 }
 
+@keyframes eg-page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* happy: gentle rhythmic sway */
 @keyframes chick-happy-sway {
   0%, 100% { transform: rotate(-3deg) translateY(0); }
@@ -263,5 +319,8 @@ body {
   .chick-beak-click,
   .chick-tear,
   .chick-sparkle { animation: none !important; }
+  .eg-page-enter { animation: none !important; }
+  .eg-book-page { transition: none !important; }
+  .eg-book-scene:hover .eg-book-page { transform: none; }
   html { scroll-behavior: auto; }
 }

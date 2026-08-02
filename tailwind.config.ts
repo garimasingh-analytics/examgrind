@@ -9,43 +9,40 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm Maxima-inspired palette
+        // Prep Signal — quiet paper base with one deliberate accent per task.
         cream: {
-          50:  "#FFFDF6",
-          100: "#FFF8E8",
-          200: "#FBEFD0",
-          300: "#F4E0A8",
+          50:  "#FFFCF6",
+          100: "#FCF7EE",
+          200: "#F3E8D7",
+          300: "#E7D4B6",
         },
         sun: {
-          // Maxima yellow — also our chick's body
-          400: "#FFD668",
-          500: "#FDCB40",
-          600: "#E5B225",
+          400: "#F8D66A",
+          500: "#F5C64D",
+          600: "#C99525",
         },
         ember: {
-          // Maxima orange — for level-ups & hero CTAs
-          500: "#FD7C29",
-          600: "#FD4401",
-          700: "#C2350A",
+          500: "#ED875F",
+          600: "#E7613E",
+          700: "#B8462B",
         },
         cocoa: {
-          // Warm dark text colors (never pure black)
-          500: "#5C4C3F",
-          700: "#3A2F26",
-          900: "#1F1A14",
+          500: "#786B5E",
+          700: "#40372F",
+          900: "#1D1815",
         },
         moss: {
-          500: "#16A34A", // success
+          500: "#39765A",
         },
         coral: {
-          500: "#E07856", // soft "wrong" — never harsh red
+          500: "#D6654E", // soft "wrong" — never harsh red
         },
         violet: {
-          500: "#7C5CFC",
-          600: "#6246EA",
+          500: "#8174D9",
+          600: "#6659C9",
         },
         indigo: {
-          600: "#4456D9",
+          600: "#5C98B9",
         },
       },
       fontFamily: {
@@ -54,11 +51,11 @@ const config: Config = {
         // Body: friendly geometric sans
         sans:    ["var(--font-dm-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         // Numbers / counters
-        mono:    ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        mono:    ["var(--font-jetbrains-mono)", "ui-monospace", "monospace"],
       },
       boxShadow: {
-        warm:     "0 1px 0 0 rgba(31, 26, 20, 0.04), 0 8px 24px -8px rgba(31, 26, 20, 0.10)",
-        "warm-lg":"0 2px 0 0 rgba(31, 26, 20, 0.04), 0 24px 48px -16px rgba(31, 26, 20, 0.16)",
+        warm:     "0 1px 0 0 rgba(29, 24, 21, 0.04), 0 10px 28px -12px rgba(29, 24, 21, 0.12)",
+        "warm-lg":"0 2px 0 0 rgba(29, 24, 21, 0.04), 0 26px 56px -20px rgba(29, 24, 21, 0.18)",
       },
       borderRadius: {
         "4xl": "2rem",

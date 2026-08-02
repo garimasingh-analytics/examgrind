@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, DM_Sans } from "next/font/google";
+import { Fraunces, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import RegisterSW from "@/components/RegisterSW";
@@ -9,6 +9,7 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import { asChickVariant } from "@/lib/chicks";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import MarketingTracking from "@/components/MarketingTracking";
+import StudyDock from "@/components/StudyDock";
 
 // Soft warm serif — used for headlines.
 const fraunces = Fraunces({
@@ -23,6 +24,13 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-dm-sans",
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
@@ -103,10 +111,12 @@ export default async function RootLayout({
   // Server-side: fetch the signed-in user's selected chick so the
   // provider hydrates without a flash of "classic" first.
   let initialVariant: ReturnType<typeof asChickVariant> = "classic";
+  let isSignedIn = false;
   try {
     const supabase = createServerSupabase();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
+      isSignedIn = true;
       const admin = createAdminSupabase();
       const { data: row } = await admin
         .from("users")
@@ -121,7 +131,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* Native inline script intentionally runs during HTML parsing, before
             Next hydrates or any Google tag is requested. */}
@@ -142,11 +152,12 @@ export default async function RootLayout({
       </head>
       <body className="bg-cream-100 text-cocoa-900 antialiased">
         <ChickVariantProvider initialVariant={initialVariant}>
-          <div className="flex min-h-[100svh] flex-col">
+          <div className="flex min-h-[100svh] flex-col pb-20 md:pb-0">
             <div className="flex-1">{children}</div>
             <Footer />
           </div>
         </ChickVariantProvider>
+        <StudyDock signedIn={isSignedIn} />
         {/* One-shot service worker registration so PWA install becomes */}
         {/* available on Android Chrome / iOS Safari. Skips localhost. */}
         <RegisterSW />
