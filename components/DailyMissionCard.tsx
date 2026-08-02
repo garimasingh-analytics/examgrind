@@ -59,7 +59,8 @@ export default function DailyMissionCard({
     trackDailyMissionStarted({ mission_type: type });
   };
   const completedCount = steps.filter((step) => step.completed).length;
-  const nextStep = steps.find((step) => !step.completed) ?? steps[0];
+  const nextStep = steps.find((step) => !step.completed);
+  const missionComplete = steps.length > 0 && completedCount === steps.length;
 
   return (
     <section id="daily-mission" className="mx-auto mt-5 max-w-5xl scroll-mt-5 px-4 sm:px-6">
@@ -68,27 +69,36 @@ export default function DailyMissionCard({
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-700">Daily mission · {completedCount} of {steps.length} steps done</p>
             <h2 className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">
-              A complete study session, chosen for you.
+              {missionComplete ? "Today’s mission is complete." : "Your next three study moves."}
             </h2>
             <p className="mt-1.5 text-sm leading-5 text-cocoa-700">
-              Repair, recall, and build coverage across your {steps.length > 1 ? "selected exam subjects" : "selected exam"}. Finish the steps in any order.
+              {missionComplete
+                ? "You repaired, recalled, and built coverage today. Your next revision will surface here when it is due."
+                : `Repair, recall, and build coverage across your ${steps.length > 1 ? "selected exam subjects" : "selected exam"}. Finish the steps in any order.`}
             </p>
             {scoreBoostDay && (
               <Link
                 href="/score-boost"
-                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-sun-300/35 bg-sun-400/15 px-3 py-2 text-xs font-bold text-sun-200 transition hover:bg-sun-400/25"
+                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-sun-500/35 bg-sun-400/15 px-3 py-2 text-xs font-bold text-ember-800 transition hover:bg-sun-400/25"
               >
                 Your 21-Day Score Boost · Day {scoreBoostDay} of 21 <span aria-hidden>→</span>
               </Link>
             )}
           </div>
-          {nextStep && (
+          {nextStep ? (
             <Link
               href={nextStep.href}
               onClick={() => startMission(nextStep.type)}
               className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-sun-400 px-4 py-3 text-sm font-bold text-cocoa-900 shadow-warm transition hover:-translate-y-0.5 hover:bg-sun-300"
             >
               Start next step <span aria-hidden>→</span>
+            </Link>
+          ) : (
+            <Link
+              href="/weekly"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-cocoa-900 px-4 py-3 text-sm font-bold text-cream-50 shadow-warm transition hover:-translate-y-0.5 hover:bg-cocoa-800"
+            >
+              See your progress <span aria-hidden>→</span>
             </Link>
           )}
         </div>
@@ -112,7 +122,7 @@ export default function DailyMissionCard({
                     {copy.button} →
                   </Link>
                 )}
-                {step.completed && <p className="mt-3 text-xs font-bold text-moss-300">Done today</p>}
+                {step.completed && <p className="mt-3 text-xs font-bold text-moss-700">Done today</p>}
               </li>
             );
           })}
