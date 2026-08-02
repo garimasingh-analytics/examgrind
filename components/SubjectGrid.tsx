@@ -38,7 +38,7 @@ export default function SubjectGrid({ subjects }: Props) {
   return (
     <>
       {/* Search */}
-      <div className="mb-6 flex items-center justify-between gap-3">
+      <div className="syllabus-search mb-4 flex items-center justify-between gap-3">
         <div className="relative flex-1">
           <span
             className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-cocoa-500"
@@ -54,7 +54,7 @@ export default function SubjectGrid({ subjects }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search subjects…"
-            className="w-full rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 py-3 pl-11 pr-4 text-sm text-cocoa-900 placeholder:text-cocoa-500 shadow-warm transition focus:border-ember-600/50 focus:outline-none focus:ring-2 focus:ring-ember-600/20"
+            className="w-full rounded-2xl border border-cocoa-900/[0.12] bg-cream-50 py-3 pl-11 pr-4 text-sm text-cocoa-900 placeholder:text-cocoa-500 transition focus:border-ember-600/50 focus:outline-none focus:ring-2 focus:ring-ember-600/20"
             aria-label="Search subjects"
           />
           {query && (
@@ -79,17 +79,18 @@ export default function SubjectGrid({ subjects }: Props) {
       {/* Grid or empty state */}
       {filtered.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {filtered.map((s) => {
+          {filtered.map((s, index) => {
             const pct = s.total > 0 ? Math.round((s.attempted / s.total) * 100) : 0;
             return (
               <Link
                 key={s.id}
                 href={`/subject/${s.id}`}
-                className="group flex flex-col rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm transition hover:-translate-y-0.5 hover:border-cocoa-900/[0.12] hover:bg-white hover:shadow-warm-lg"
+                className={`subject-page subject-page-${index % 4}`}
               >
-                <span className="mb-3 inline-flex size-10 items-center justify-center rounded-xl bg-sun-500/15 font-serif text-lg font-bold text-cocoa-900">
+                <span className="subject-stamp" aria-hidden>
                   {s.icon ?? s.name.charAt(0)}
                 </span>
+                <span className="subject-squiggle" aria-hidden>⌁</span>
                 <h3 className="font-serif text-base font-semibold leading-snug text-cocoa-900">
                   {s.name}
                 </h3>
@@ -102,9 +103,9 @@ export default function SubjectGrid({ subjects }: Props) {
                   <div className="mt-4">
                     {s.attempted > 0 ? (
                       <>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-cream-200">
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-cocoa-900/10">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-sun-500 to-ember-600 transition-all"
+                            className="h-full rounded-full bg-cocoa-900 transition-all"
                             style={{ width: `${pct}%` }}
                           />
                         </div>

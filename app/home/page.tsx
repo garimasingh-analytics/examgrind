@@ -644,12 +644,13 @@ export default async function HomePage() {
           prevents an Offerwall from being eligible on a paid user's Home. */}
       {!isPaid && <AdSlot />}
 
-      {/* The syllabus is the primary workspace. Everything else stays secondary. */}
+      {/* The syllabus is the next page of the student's daily issue. */}
       <section id="subjects" className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
+        <div className="syllabus-issue">
+        <div className="syllabus-head flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">{hasStudyProfile ? "Your chosen subjects" : "Your syllabus"}</p>
-            <h2 className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">{hasStudyProfile ? "Your preparation, in one place" : "Choose a subject"}</h2>
+            <p className="eg-kicker text-cream-50/70">Chapter two · {hasStudyProfile ? "your chosen subjects" : "your syllabus"}</p>
+            <h2 className="mt-1 max-w-md font-serif text-3xl font-semibold leading-[.92] tracking-[-.045em] text-cream-50">{hasStudyProfile ? "Turn subjects into proof." : "Choose your first chapter."}</h2>
           </div>
           <div className="flex items-center gap-3">
             <StudyPlanSetup
@@ -662,9 +663,11 @@ export default async function HomePage() {
               initialDailyStudyMinutes={studyPreference?.daily_study_minutes ?? null}
               needsSetup={!hasStudyProfile}
             />
-            <Link href="/weekly" className="text-sm font-bold text-ember-700 hover:text-ember-800">Weekly proof →</Link>
+            <Link href="/weekly" className="rounded-full border border-cream-50/30 px-3 py-2 text-xs font-bold text-cream-50 transition hover:bg-cream-50/10">Weekly proof →</Link>
           </div>
         </div>
+        <div className="syllabus-body">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="max-w-md text-sm leading-5 text-cocoa-700">Every subject is a page. Open one, pick the exact concept, and leave with a score signal—not just a completed task.</p><span className="font-mono text-[10px] font-bold uppercase tracking-[.15em] text-ember-700">{studySubjects.length} subjects in play</span></div>
         <SubjectGrid
           subjects={studySubjects.map<SubjectWithProgress>((s) => ({
             id: s.id,
@@ -676,15 +679,19 @@ export default async function HomePage() {
             mastered: masteredBySubject.get(s.id) ?? 0,
           }))}
         />
+        </div>
+        </div>
       </section>
 
       <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
-        <div className="flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">When you need it</p><h2 className="mt-1 font-serif text-xl font-semibold text-cocoa-900">Study tools</h2></div><p className="hidden text-xs text-cocoa-500 sm:block">These stay out of your way until you need them.</p></div>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="tool-issue">
+        <div className="flex items-end justify-between gap-3"><div><p className="eg-kicker text-ember-700">Margin notes</p><h2 className="mt-1 font-serif text-2xl font-semibold tracking-[-.04em] text-cocoa-900">Tools for the moments that matter.</h2></div><p className="hidden max-w-xs text-right text-xs leading-5 text-cocoa-700 sm:block">Use these when you need a different way in—not as another dashboard to maintain.</p></div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <CompactTool href="/vault" icon="🗂️" title="Study Vault" detail="Create flashcards and mnemonics." />
           <CompactTool href="/mistakes" icon="📘" title="Mistake Book" detail="Repair incorrect answers." />
           <CompactTool href="/revision" icon="🧠" title="Smart Revision" detail={revisionDueTopics.length > 0 ? `${revisionDueTopics.length} due for recall.` : "Recall when it is due."} />
           <CompactTool href="/mock" icon="📝" title="Mock test" detail="Try full exam timing." />
+        </div>
         </div>
       </section>
     </main>
@@ -693,7 +700,7 @@ export default async function HomePage() {
 
 function CompactTool({ href, icon, title, detail }: { href: string; icon: string; title: string; detail: string }) {
   return (
-    <Link href={href} className="flex items-center gap-3 rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
+    <Link href={href} className="tool-note">
       <span className="text-xl" aria-hidden>{icon}</span>
       <span className="min-w-0"><span className="block text-sm font-bold text-cocoa-900">{title}</span><span className="block truncate text-xs text-cocoa-700">{detail}</span></span>
       <span className="ml-auto text-sm font-bold text-ember-700" aria-hidden>→</span>
