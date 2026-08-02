@@ -99,25 +99,32 @@ export default async function ChapterPage({ params }: Params) {
         </Link>
       </header>
 
-      {/* Title block */}
-      <section className="mx-auto max-w-3xl px-4 pt-2 text-center sm:px-6 sm:pt-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
+      {/* A chapter is an illustrated route, not a dry topic index. */}
+      <section className="mx-auto max-w-3xl px-4 pt-2 sm:px-6 sm:pt-6">
+        <div className="chapter-cover">
+        <div className="relative z-10 max-w-lg">
+        <p className="eg-kicker text-sun-400">
           {chapter.cuet_unit ?? "Chapter"}
         </p>
-        <h1 className="mt-2 font-serif text-4xl font-semibold leading-tight tracking-tight text-cocoa-900 sm:text-5xl">
+        <h1 className="mt-2 font-serif text-4xl font-semibold leading-[.9] tracking-[-.055em] text-cream-50 sm:text-5xl">
           {chapter.name}
         </h1>
-        <p className="mt-3 text-base text-cocoa-700">
+        <p className="mt-4 max-w-md text-base leading-6 text-cream-200">
           {topics.length > 0
-            ? `Walk the path. ${topics.length} topic${topics.length === 1 ? "" : "s"}.`
+            ? `${topics.length} topic${topics.length === 1 ? "" : "s"}. Follow the marks, choose the next open page, and make a visible move.`
             : "Topics for this chapter are coming soon."}
         </p>
+        </div>
+        <div className="chapter-cover-meta relative z-10"><span>{enriched.filter((topic) => topic.status === "completed").length} stamped</span><span>{topics.length} pages</span></div>
+        <Chick state="idle" size={100} className="chapter-cover-chick" /><span className="chapter-cover-star" aria-hidden>✦</span><span className="chapter-cover-loop" aria-hidden />
+        </div>
       </section>
 
       {/* The Path */}
       {topics.length > 0 ? (
-        <section className="mx-auto mt-12 max-w-md px-6">
-          <ol className="relative">
+        <section className="chapter-atlas mx-auto mt-8 max-w-md px-6">
+          <div className="chapter-atlas-head"><p className="eg-kicker">Your route</p><p>One open page at a time</p></div>
+          <ol className="topic-atlas relative">
             {enriched.map((t, i) => (
               <PathNode key={t.id} topic={t} index={i} total={enriched.length} />
             ))}
@@ -252,8 +259,9 @@ function PathNode({
   return (
     <li
       className={[
-        "relative flex pb-12 last:pb-0",
-        align === "left" ? "justify-start pl-2" : "justify-end pr-2",
+        "topic-node relative flex pb-12 last:pb-0",
+        align === "left" ? "topic-node-left justify-start pl-2" : "topic-node-right justify-end pr-2",
+        `topic-node-${topic.status}`,
       ].join(" ")}
     >
       {/* Curved connector to the next node (skip if last) */}
@@ -261,7 +269,7 @@ function PathNode({
         <span
           aria-hidden="true"
           className={[
-            "absolute top-20 z-0 h-12 w-2/3 border-cream-300",
+            "topic-connector absolute top-20 z-0 h-12 w-2/3 border-cream-300",
             align === "left"
               ? "left-12 border-b-[3px] border-r-[3px] rounded-br-[3rem]"
               : "right-12 border-b-[3px] border-l-[3px] rounded-bl-[3rem]",
@@ -270,11 +278,11 @@ function PathNode({
       )}
 
       {topic.status === "locked" ? (
-        <div className="z-10 cursor-not-allowed">{Inner}</div>
+        <div className="topic-node-inner z-10 cursor-not-allowed">{Inner}</div>
       ) : (
         <Link
           href={`/topic/${topic.id}`}
-          className="z-10 transition hover:-translate-y-0.5"
+          className="topic-node-inner z-10 transition hover:-translate-y-0.5"
         >
           {Inner}
         </Link>

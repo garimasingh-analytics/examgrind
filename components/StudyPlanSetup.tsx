@@ -91,7 +91,7 @@ export default function StudyPlanSetup({
         </button>
       )}
       {open && (
-        <div className="onboarding-backdrop fixed inset-0 z-[70] overflow-y-auto px-4 py-6 sm:py-10">
+        <div className="onboarding-backdrop fixed inset-0 z-[100] overflow-y-auto px-4 py-6 sm:py-10" style={{ backgroundColor: "#1D1815" }}>
           <section role="dialog" aria-modal="true" aria-labelledby="study-plan-title" className="onboarding-sheet mx-auto max-w-2xl">
             <div className="onboarding-top"><span className="eg-kicker text-sun-400">ExamGrind · your study story</span><div className="onboarding-steps" aria-label={`Step ${step + 1} of 3`}><span className={step >= 0 ? "is-active" : ""} /><span className={step >= 1 ? "is-active" : ""} /><span className={step >= 2 ? "is-active" : ""} /></div></div>
 

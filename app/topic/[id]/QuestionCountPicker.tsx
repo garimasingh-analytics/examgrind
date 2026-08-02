@@ -140,9 +140,9 @@ export default function QuestionCountPicker({
         </div>
       )}
 
-    <div className="rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-7 shadow-warm-lg">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
-        How many questions?
+    <div className="quiz-builder">
+      <p className="eg-kicker text-ember-700">
+        Build your round
       </p>
 
       <div className="mt-5 flex items-center justify-center gap-4">
@@ -191,7 +191,7 @@ export default function QuestionCountPicker({
         <span>{MAX}</span>
       </div>
 
-      <div className="mt-6 flex items-center justify-between rounded-2xl bg-sun-500/15 px-4 py-3">
+      <div className="quiz-builder-xp mt-6 flex items-center justify-between rounded-2xl px-4 py-3">
         <span className="text-sm font-medium text-cocoa-700">Earn up to</span>
         <span className="font-serif text-xl font-bold text-cocoa-900 tabular-nums">
           {maxXp} XP
@@ -225,7 +225,7 @@ export default function QuestionCountPicker({
       {isBlocked ? (
         <button
           onClick={() => setPaywall({ reason: "quiz-limit", used: 3, limit: 3 })}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-6 py-4 text-base font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.01] active:scale-[0.99]"
+          className="quiz-builder-cta mt-3 flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.01] active:scale-[0.99]"
         >
           <span>👑</span>
           <span>Upgrade — ₹199 / month</span>
@@ -234,7 +234,7 @@ export default function QuestionCountPicker({
         <button
           onClick={start}
           disabled={pending}
-          className="mt-3 flex w-full items-center justify-center rounded-2xl bg-ember-600 px-6 py-4 text-base font-bold text-cream-50 shadow-warm-lg transition hover:bg-ember-700 active:scale-[0.99] disabled:opacity-60"
+          className="quiz-builder-cta quiz-builder-start mt-3 flex w-full items-center justify-center rounded-2xl px-6 py-4 text-base font-bold text-cream-50 shadow-warm-lg transition active:scale-[0.99] disabled:opacity-60"
         >
           {pending ? "Preparing your quiz…" : "Start quiz"}
         </button>

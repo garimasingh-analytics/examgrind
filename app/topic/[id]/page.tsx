@@ -78,30 +78,30 @@ export default async function TopicLauncherPage({ params }: Params) {
         </Link>
       </header>
 
-      <section className="mx-auto max-w-2xl px-4 pt-4 sm:px-6 sm:pt-8">
-        <div className="flex flex-col items-center text-center">
-          <Chick state="idle" size={140} className="mb-6" />
+      <section className="topic-launch mx-auto max-w-2xl px-4 pt-4 sm:px-6 sm:pt-8">
+        <div className="topic-launch-intro flex flex-col items-center text-center">
+          <Chick state="idle" size={126} className="mb-5" />
 
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
+          <p className="eg-kicker text-sun-400">
             {topic.chapter.subject.name} · {topic.chapter.name}
           </p>
-          <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight tracking-tight text-cocoa-900 sm:text-5xl">
+          <h1 className="mt-3 font-serif text-4xl font-semibold leading-[.9] tracking-[-.055em] text-cream-50 sm:text-5xl">
             {topic.name}
           </h1>
 
           {previouslyAttempted ? (
-            <p className="mt-3 text-base text-cocoa-700">
+            <p className="mt-4 max-w-lg text-base leading-6 text-cream-200">
               You&apos;ve practiced this before — best accuracy <span className="font-semibold text-cocoa-900">{accuracy}%</span>. Let&apos;s go again.
             </p>
           ) : (
-            <p className="mt-3 text-base text-cocoa-700">
+            <p className="mt-4 max-w-lg text-base leading-6 text-cream-200">
               First time on this topic. Pick how many questions you want.
             </p>
           )}
         </div>
 
         {/* The slider lives in a Client Component */}
-        <div className="mt-10">
+        <div className="mt-6 px-2 sm:px-6">
           <QuestionCountPicker
             topicId={topic.id}
             freeQuizzesLeft={freeQuizzesLeft}
