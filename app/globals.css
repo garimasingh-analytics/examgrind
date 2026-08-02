@@ -275,9 +275,28 @@ body {
 .landing-book-scene.is-open .landing-book-cover { transform:rotateY(-164deg) translateZ(4px); box-shadow:5px 10px 22px rgba(0,0,0,.20); }
 .landing-book-scene.is-open .landing-book-open-page { opacity:1; }
 .landing-book-scene.is-open .landing-book-shadow { opacity:.55; transform:rotateX(70deg) translateX(16px) scale(.88); }
+
+/* Signed-in daily briefing: two paper pages, one decision. */
+.home-spread-scene { perspective: 1800px; }
+.home-spread { position:relative; display:grid; overflow:hidden; grid-template-columns:1.12fr .88fr; min-height:31rem; border:1px solid rgba(29,24,21,.11); border-radius:2rem; background:#FFFCF6; box-shadow:0 30px 70px -32px rgba(29,24,21,.35); transform-style:preserve-3d; transition:transform 500ms cubic-bezier(.2,.8,.2,1), box-shadow 500ms ease; }
+.home-spread::before { content:""; position:absolute; z-index:2; top:0; bottom:0; left:55.3%; width:18px; background:linear-gradient(90deg,rgba(29,24,21,.11),rgba(255,255,255,.86) 47%,rgba(29,24,21,.07)); box-shadow:0 0 14px rgba(29,24,21,.08); pointer-events:none; }
+.home-spread::after { content:""; position:absolute; inset:10px -11px -11px 11px; z-index:-1; border:1px solid rgba(29,24,21,.09); border-radius:2rem; background:#E7D4B6; transform:translateZ(-16px); }
+.home-spread:hover { transform:rotateX(1deg) rotateY(-1.5deg) translateY(-3px); box-shadow:0 38px 80px -35px rgba(29,24,21,.42); }
+.home-spread-left { position:relative; display:flex; flex-direction:column; min-height:100%; padding:2rem; background:radial-gradient(circle at 12% 12%,rgba(245,198,77,.35),transparent 31%),linear-gradient(145deg,#FFFCF6,#F3E8D7); }
+.home-spread-left::after { content:""; position:absolute; right:-6%; bottom:-15%; width:72%; height:45%; border:2px solid rgba(184,70,43,.18); border-radius:50%; transform:rotate(-20deg); pointer-events:none; }
+.home-spread-right { position:relative; padding:2rem; background:linear-gradient(160deg,#FFFCF6,#F7F0E4); }
+@media (max-width: 640px) {
+  .home-spread { grid-template-columns:1fr; min-height:0; border-radius:1.55rem; }
+  .home-spread::before { display:none; }
+  .home-spread-left, .home-spread-right { padding:1.35rem; }
+  .home-spread-left { min-height:26rem; }
+  .home-spread-right { border-top:1px solid rgba(29,24,21,.08); }
+  .home-spread::after { inset:7px -6px -7px 6px; border-radius:1.55rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   .landing-book-cover, .landing-book-open-page, .landing-book-shadow { transition:none !important; }
   .landing-book-scene.is-open .landing-book-cover { transform:rotateY(-148deg) translateZ(4px); }
+  .home-spread, .home-spread:hover { transition:none !important; transform:none !important; }
 }
 
 /* happy: gentle rhythmic sway */
