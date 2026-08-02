@@ -522,6 +522,36 @@ export default async function HomePage() {
   const firstName =
     fullName.trim().split(/\s+/)[0] ||
     (authUser.email?.split("@")[0] ?? "there");
+  const primaryMission = missionSteps.find((step) => !step.completed) ?? null;
+  const signal = primaryMission
+    ? primaryMission.type === "repair"
+      ? {
+          eyebrow: "Repair signal",
+          title: `${primaryMission.topicName ?? primaryMission.subjectName} is costing you marks.`,
+          detail: primaryMission.accuracy == null
+            ? "A focused round now turns a weak area into a usable mark."
+            : `Your earlier accuracy here was ${primaryMission.accuracy}%. Fix this before moving on.`,
+          action: "Repair it now",
+        }
+      : primaryMission.type === "revision"
+      ? {
+          eyebrow: "Recall signal",
+          title: `${primaryMission.topicName ?? primaryMission.subjectName} is ready to recall.`,
+          detail: "A short recall round now keeps what you learned from fading.",
+          action: "Start recall",
+        }
+      : {
+          eyebrow: "Build signal",
+          title: `Start ${primaryMission.topicName ?? primaryMission.subjectName}.`,
+          detail: "One focused session is enough to move your preparation forward today.",
+          action: "Start this topic",
+        }
+    : {
+        eyebrow: "Today’s proof",
+        title: "Your mission is complete.",
+        detail: "Your next repair or recall signal will appear here when it is due.",
+        action: "See weekly proof",
+      };
 
   return (
     <main className="bg-warm-wash min-h-[100svh] pb-20">
@@ -652,56 +682,64 @@ export default async function HomePage() {
         </div>
       )}
 
-      <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
-        <div className="rounded-3xl border border-cocoa-900/[.07] bg-gradient-to-br from-cream-50 via-cream-50 to-sun-400/10 px-5 py-6 shadow-warm sm:px-7 sm:py-7">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">Hi, {firstName}</p>
-            <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-cocoa-900 sm:text-4xl">Your next best step.</h1>
-            <p className="mt-2 text-sm text-cocoa-700 sm:text-base">One focused session is enough for today. Start there; the rest can wait.</p>
-            {hasStudyProfile && (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                {examDaysLeft !== null && examDaysLeft >= 0 && (
-                  <span className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-3 py-1 text-xs font-extrabold tracking-wide text-white shadow-warm">
-                    {examDaysLeft === 0 ? "Your exam is today" : `${examDaysLeft} days to go`}
-                  </span>
+      <section className="eg-page-enter mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
+        <div className="relative overflow-hidden rounded-[2rem] bg-cocoa-900 px-5 py-6 text-cream-50 shadow-warm-lg sm:px-8 sm:py-8">
+          <div className="absolute -right-20 -top-24 size-72 rounded-full bg-sun-400/20 blur-3xl" aria-hidden />
+          <div className="absolute -bottom-24 left-1/3 size-56 rounded-full bg-violet-600/25 blur-3xl" aria-hidden />
+          <div className="relative grid gap-7 lg:grid-cols-[1.25fr_.75fr] lg:items-end">
+            <div>
+              <p className="eg-kicker text-sun-400">Today’s study signal · Hi, {firstName}</p>
+              <h1 className="mt-3 max-w-2xl font-serif text-4xl font-semibold leading-[0.98] tracking-tight text-cream-50 sm:text-5xl">
+                {signal.title}
+              </h1>
+              <p className="mt-4 max-w-xl text-sm leading-6 text-cream-200 sm:text-base">
+                {signal.detail}
+              </p>
+              <Link
+                href={primaryMission ? "#daily-mission" : "/weekly"}
+                className="eg-press mt-6 inline-flex items-center gap-2 rounded-2xl bg-sun-400 px-4 py-3 text-sm font-extrabold text-cocoa-900 shadow-warm"
+              >
+                {signal.action} <span aria-hidden>→</span>
+              </Link>
+            </div>
+            <div className="eg-book-scene">
+              <div className="eg-book-page eg-signal-orbit relative rounded-3xl border border-cream-50/15 bg-cream-50/10 p-4 backdrop-blur-sm sm:p-5">
+                <div className="pointer-events-none absolute inset-x-4 -bottom-3 h-5 rounded-b-3xl border border-cream-50/10 bg-violet-600/25 [transform:translateZ(-16px)]" aria-hidden />
+                <div className="relative flex items-start justify-between gap-4">
+                  <div>
+                    <p className="eg-kicker text-cream-200/70">Your exam</p>
+                    <p className="mt-1 font-serif text-xl font-semibold text-cream-50">{examRow?.name ?? "Your selected exam"}</p>
+                  </div>
+                  <Chick state="idle" size={62} className="shrink-0" />
+                </div>
+                {hasStudyProfile && examDaysLeft !== null && examDaysLeft >= 0 ? (
+                  <p className="relative mt-5 font-mono text-3xl font-bold tracking-tight text-sun-400">
+                    {examDaysLeft === 0 ? "TODAY" : `${examDaysLeft} DAYS`}
+                  </p>
+                ) : (
+                  <p className="relative mt-5 text-sm font-semibold leading-6 text-cream-200">Choose your subjects and date below to turn this into your personal countdown.</p>
                 )}
-                <p className="text-sm font-semibold text-ember-700">
-                  {studySubjects.length} chosen {studySubjects.length === 1 ? "subject" : "subjects"}
-                  {studyPreference?.daily_study_minutes ? ` · ${studyPreference.daily_study_minutes} min/day` : ""}
-                  {studyPreference?.target_exam_date ? ` · target ${new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${studyPreference.target_exam_date}T00:00:00`))}` : ""}
-                </p>
+                <p className="relative mt-1 text-xs font-semibold text-cream-200/75">{hasStudyProfile ? "until your target exam" : "your preparation, your pace"}</p>
               </div>
-            )}
+            </div>
           </div>
-          <Chick state="idle" size={92} className="hidden sm:block" />
-        </div>
-        <MonthlyProgressCalendar
-          today={today}
-          activeDates={activeDateKeys}
-          streak={streak}
-          longestStreak={profile?.longest_streak ?? 0}
-        />
+          <div className="relative mt-7 grid gap-2 border-t border-cream-50/15 pt-4 sm:grid-cols-[1fr_1fr_auto] sm:items-center">
+            <div><p className="eg-kicker text-cream-200/65">Today</p><p className="mt-1 text-sm font-bold text-cream-50">{todayQuestions.length} questions{todayQuestions.length > 0 ? ` · ${todayAccuracy}% · ${todayMinutes} min` : " · ready when you are"}</p></div>
+            <div><p className="eg-kicker text-cream-200/65">Readiness</p><p className="mt-1 text-sm font-bold text-cream-50">{readiness}% · {attemptedTopicCount}/{totalTopics} topics started</p></div>
+            <MonthlyProgressCalendar today={today} activeDates={activeDateKeys} streak={streak} longestStreak={profile?.longest_streak ?? 0} />
+          </div>
         </div>
       </section>
 
       {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} />}
 
-      <section className="mx-auto mt-4 max-w-5xl px-4 sm:px-6">
-        <Link href="/weekly" className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl border border-cocoa-900/[.07] bg-cream-50 px-4 py-3 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
-          <span><span className="block text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">Today</span><span className="mt-0.5 block text-sm font-bold text-cocoa-900">{todayQuestions.length} questions{todayQuestions.length > 0 ? ` · ${todayAccuracy}% · ${todayMinutes} min` : ""}</span></span>
-          <span className="hidden h-7 w-px bg-cocoa-900/[.08] sm:block" />
-          <span><span className="block text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">Readiness</span><span className="mt-0.5 block text-sm font-bold text-cocoa-900">{readiness}% · {attemptedTopicCount}/{totalTopics} started</span></span>
-          <span className="ml-auto text-xs font-bold text-ember-700">Weekly proof →</span>
-        </Link>
-      </section>
       {/* Premium is a genuinely focused, ad-free study experience. The
           AdSense tag lives inside AdSlot, so omitting this component also
           prevents an Offerwall from being eligible on a paid user's Home. */}
       {!isPaid && <AdSlot />}
 
       {/* The syllabus is the primary workspace. Everything else stays secondary. */}
-      <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
+      <section id="subjects" className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">{hasStudyProfile ? "Your chosen subjects" : "Your syllabus"}</p>

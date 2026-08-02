@@ -87,6 +87,11 @@ body {
   }
   .eg-book-scene:hover .eg-book-page { transform: rotateY(-7deg); }
 
+  .eg-signal-orbit {
+    transform-style: preserve-3d;
+    animation: eg-signal-orbit 7s ease-in-out infinite;
+  }
+
   .eg-page-enter { animation: eg-page-enter 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
   /* Reader styles for /terms /privacy /refund /contact */
@@ -230,6 +235,11 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes eg-signal-orbit {
+  0%, 100% { transform: rotateY(-4deg) rotateX(2deg) translateY(0); }
+  50% { transform: rotateY(4deg) rotateX(-2deg) translateY(-5px); }
+}
+
 /* happy: gentle rhythmic sway */
 @keyframes chick-happy-sway {
   0%, 100% { transform: rotate(-3deg) translateY(0); }
@@ -322,5 +332,6 @@ body {
   .eg-page-enter { animation: none !important; }
   .eg-book-page { transition: none !important; }
   .eg-book-scene:hover .eg-book-page { transform: none; }
+  .eg-signal-orbit { animation: none !important; transform: none !important; }
   html { scroll-behavior: auto; }
 }
