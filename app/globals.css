@@ -240,6 +240,46 @@ body {
   50% { transform: rotateY(4deg) rotateX(-2deg) translateY(-5px); }
 }
 
+/* --------------------------------------------------------------------------
+   Public landing: interactive study book. Kept CSS-only for fast first paint.
+   -------------------------------------------------------------------------- */
+.landing-book-scene {
+  position: relative;
+  display: block;
+  width: min(19rem, 76vw);
+  aspect-ratio: 0.72;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  -webkit-tap-highlight-color: transparent;
+}
+.landing-book-scene:focus-visible { outline: 3px solid #F5C64D; outline-offset: 8px; border-radius: 1.5rem; }
+.landing-book-shadow { position: absolute; inset: auto 8% -7% 8%; height: 16%; border-radius: 50%; background: rgba(0,0,0,.35); filter: blur(18px); transform: rotateX(70deg); transition: transform 600ms ease, opacity 600ms ease; }
+.landing-book-back, .landing-book-pages, .landing-book-cover, .landing-book-open-page { position: absolute; inset: 0; border-radius: .8rem 1.45rem 1.45rem .8rem; }
+.landing-book-back { background: #B8462B; transform: translateZ(-30px) rotateY(-2deg); box-shadow: 13px 20px 34px rgba(0,0,0,.38); }
+.landing-book-pages { inset: .7rem .55rem .55rem .7rem; background: repeating-linear-gradient(0deg, #F3E8D7 0 2px, #E7D4B6 2px 3px); transform: translateZ(-12px); }
+.landing-book-cover { overflow: hidden; color: #1D1815; background: linear-gradient(140deg, #F8D66A, #F5C64D 58%, #E7613E); transform-origin: left center; transform: rotateY(0deg) translateZ(2px); transition: transform 900ms cubic-bezier(.2,.8,.15,1), box-shadow 900ms ease; box-shadow: inset -14px 0 24px rgba(29,24,21,.13); }
+.landing-book-cover::after { content:""; position:absolute; width:130%; height:45%; left:-20%; bottom:-8%; border-radius:50%; border:2px solid rgba(29,24,21,.16); transform:rotate(-18deg); }
+.landing-book-spine { position:absolute; inset:0 auto 0 0; width:1rem; background:rgba(29,24,21,.16); box-shadow: inset -2px 0 rgba(255,252,246,.2); }
+.landing-book-cover-copy { position:absolute; inset:1.4rem 1.25rem 1.25rem 2.1rem; display:flex; flex-direction:column; align-items:flex-start; text-align:left; }
+.landing-book-kicker, .landing-book-open-kicker { font-size:.6rem; letter-spacing:.18em; font-weight:900; }
+.landing-book-title { margin-top:1.25rem; font-family:var(--font-fraunces), Georgia, serif; font-weight:800; font-size:clamp(2.2rem, 9vw, 3.7rem); line-height:.82; letter-spacing:-.08em; }
+.landing-book-mark { margin-top:auto; font-family:var(--font-jetbrains-mono), monospace; font-size:.75rem; font-weight:800; }
+.landing-book-open-page { display:flex; flex-direction:column; overflow:hidden; padding:1.45rem 1.1rem 1.2rem 2rem; color:#1D1815; text-align:left; background:#FFFCF6; opacity:0; transform:translateZ(0) rotateY(0deg); transition:opacity 350ms ease 260ms; }
+.landing-book-open-title { margin-top:.75rem; font-family:var(--font-fraunces), Georgia, serif; font-size:clamp(1.8rem, 7vw, 2.8rem); line-height:.9; font-weight:800; letter-spacing:-.06em; }
+.landing-book-chick { position:absolute; right:.75rem; bottom:2.1rem; }
+.landing-book-open-line { position:absolute; right:.9rem; bottom:1.4rem; width:61%; height:3px; background:linear-gradient(90deg,#E7613E,#F5C64D); }
+.landing-book-open-small { margin-top:auto; font-size:.58rem; letter-spacing:.11em; font-weight:800; text-transform:uppercase; color:#786B5E; }
+.landing-book-scene.is-open .landing-book-cover { transform:rotateY(-164deg) translateZ(4px); box-shadow:5px 10px 22px rgba(0,0,0,.20); }
+.landing-book-scene.is-open .landing-book-open-page { opacity:1; }
+.landing-book-scene.is-open .landing-book-shadow { opacity:.55; transform:rotateX(70deg) translateX(16px) scale(.88); }
+@media (prefers-reduced-motion: reduce) {
+  .landing-book-cover, .landing-book-open-page, .landing-book-shadow { transition:none !important; }
+  .landing-book-scene.is-open .landing-book-cover { transform:rotateY(-148deg) translateZ(4px); }
+}
+
 /* happy: gentle rhythmic sway */
 @keyframes chick-happy-sway {
   0%, 100% { transform: rotate(-3deg) translateY(0); }

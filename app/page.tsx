@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Chick from "@/components/Chick";
 import WaitlistModal from "@/components/WaitlistModal";
+import LandingBook from "@/components/LandingBook";
 
 /**
  * Public landing page — multi-exam positioning.
@@ -20,61 +20,68 @@ import WaitlistModal from "@/components/WaitlistModal";
  */
 export default function LandingPage() {
   return (
-    <main className="bg-warm-wash min-h-[100svh]">
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
-        <span className="font-serif text-xl font-bold text-cocoa-900">
-          ExamGrind
-        </span>
+    <main className="min-h-[100svh] overflow-hidden bg-cream-100">
+      <header className="absolute inset-x-0 top-0 z-10 mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8 sm:py-7">
+        <span className="font-serif text-xl font-bold tracking-tight text-cream-50 sm:text-2xl">ExamGrind</span>
+        <Link href="/home" className="eg-press rounded-full border border-cream-50/25 px-3.5 py-2 text-xs font-bold text-cream-50 hover:bg-cream-50 hover:text-cocoa-900 sm:px-4">
+          Open your study →
+        </Link>
       </header>
 
-      {/* Hero */}
-      <section className="mx-auto flex max-w-3xl flex-col items-center px-6 pb-12 pt-8 text-center sm:pt-16">
-        <Chick state="idle" size={160} className="mb-7" />
+      {/* Opening chapter — this is intentionally not a dashboard. */}
+      <section className="relative isolate min-h-[100svh] overflow-hidden bg-cocoa-900 px-5 pb-12 pt-28 text-cream-50 sm:px-8 sm:pt-32">
+        <div className="pointer-events-none absolute -left-24 top-1/4 size-80 rounded-full bg-ember-600/35 blur-[100px]" aria-hidden />
+        <div className="pointer-events-none absolute -right-28 bottom-0 size-96 rounded-full bg-violet-600/35 blur-[120px]" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,252,246,.45)_1px,transparent_1px),linear-gradient(90deg,rgba(255,252,246,.45)_1px,transparent_1px)] [background-size:38px_38px]" aria-hidden />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:min-h-[calc(100svh-8rem)] lg:grid-cols-[1.05fr_.95fr] lg:gap-8">
+          <div className="max-w-2xl">
+            <p className="eg-kicker text-sun-400">A study coach for serious aspirants</p>
+            <h1 className="mt-5 font-serif text-5xl font-semibold leading-[.91] tracking-[-0.055em] text-cream-50 sm:text-7xl lg:text-8xl">
+              Stop guessing.<br />Start gaining marks.
+            </h1>
+            <p className="mt-7 max-w-xl text-base leading-7 text-cream-200 sm:text-lg">
+              ExamGrind turns each wrong answer into a precise next step—so your preparation becomes a story of marks recovered, not random quizzes completed.
+            </p>
+            <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+              <a href="#pick-your-exam" className="eg-press inline-flex items-center gap-2 rounded-2xl bg-sun-400 px-5 py-3.5 text-base font-extrabold text-cocoa-900 shadow-warm-lg">
+                Begin your chapter <span aria-hidden>↓</span>
+              </a>
+              <Link href="/diagnose" className="eg-press rounded-2xl border border-cream-50/25 px-5 py-3.5 text-sm font-bold text-cream-50 hover:bg-cream-50/10">
+                Take the 60-sec diagnosis
+              </Link>
+            </div>
+            <p className="mt-4 text-xs font-semibold text-cream-200/65">Free to start · ₹199/month for the full Coach · no credit card</p>
+          </div>
+          <div className="flex min-h-[21rem] items-center justify-center lg:min-h-[34rem]">
+            <LandingBook />
+          </div>
+        </div>
+        <a href="#the-problem" className="absolute bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-[.2em] text-cream-200/70 transition hover:text-sun-400">Turn the page ↓</a>
+      </section>
 
-        <h1 className="text-balance font-serif text-5xl font-semibold leading-[1.05] tracking-tight text-cocoa-900 sm:text-6xl md:text-7xl">
-          Know exactly what to study next.
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-xl text-balance text-lg leading-relaxed text-cocoa-700">
-          AI-diagnosed practice for India&apos;s biggest competitive exams.
-          Every wrong answer comes with a concept-level explanation —
-          not just a red X.
-        </p>
-
-        <div className="mt-9 flex flex-col items-center gap-3">
-          {/* Multi-exam launch: don't expose a single "Sign in" CTA from   */}
-          {/* the hero. Users must pick an exam first so their exam_choice  */}
-          {/* gets recorded correctly. Anchor link below scrolls to picker. */}
-          <a
-            href="#pick-your-exam"
-            className="inline-flex items-center justify-center rounded-2xl bg-cocoa-900 px-7 py-3.5 text-base font-bold text-cream-50 shadow-warm transition hover:bg-cocoa-700"
-          >
-            Pick your exam ↓
-          </a>
-          <Link
-            href="/diagnose"
-            className="inline-flex items-center justify-center rounded-2xl border-2 border-cocoa-900/20 bg-cream-50 px-6 py-2.5 text-sm font-bold text-cocoa-900 transition hover:border-coral-500 hover:text-coral-700"
-          >
-            ⚡ Or try the 60-sec weakness diagnosis (no signup)
-          </Link>
-          <p className="text-sm text-cocoa-500">
-            Free to start · ₹199/month after · No credit card
-          </p>
+      <section id="the-problem" className="bg-cream-100 px-5 py-20 sm:px-8 sm:py-28">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.72fr_1.28fr] lg:items-start">
+          <p className="eg-kicker text-ember-700">The problem with preparation</p>
+          <div>
+            <h2 className="max-w-4xl font-serif text-4xl font-semibold leading-[.98] tracking-[-.045em] text-cocoa-900 sm:text-6xl">Your syllabus is huge. Your time is not. Generic practice makes that worse.</h2>
+            <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              <StoryStep number="01" title="Attempt" body="Practice a real exam-style set." />
+              <StoryStep number="02" title="Understand" body="See the exact concept behind each lost mark." />
+              <StoryStep number="03" title="Recover" body="Return to the right repair and recall at the right time." />
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Exam picker */}
-      <section id="pick-your-exam" className="mx-auto max-w-5xl px-6 pb-20 scroll-mt-6">
-        <div className="mb-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
-            Pick your exam
-          </p>
-          <h2 className="mt-2 font-serif text-3xl font-bold text-cocoa-900 sm:text-4xl">
-            One platform. Every exam.
-          </h2>
-        </div>
+      <section id="pick-your-exam" className="scroll-mt-6 bg-cocoa-900 px-5 py-20 sm:px-8 sm:py-28">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-10 max-w-2xl">
+            <p className="eg-kicker text-sun-400">Choose your first chapter</p>
+            <h2 className="mt-3 font-serif text-4xl font-semibold leading-none tracking-[-.04em] text-cream-50 sm:text-5xl">Your exam gets its own study system.</h2>
+          </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <ExamCard
             slug="cuet"
             name="CUET UG"
@@ -100,39 +107,27 @@ export default function LandingPage() {
             status="suggest"
           />
         </div>
+        </div>
       </section>
 
-      {/* USP — Why ExamGrind */}
-      <section className="bg-cream-50 py-20">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="mb-12 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
-              Why ExamGrind
-            </p>
-            <h2 className="mt-2 font-serif text-3xl font-bold text-cocoa-900 sm:text-4xl">
-              Smarter than a mock test. Cheaper than coaching.
-            </h2>
+      {/* This is the product's visual promise: diagnosis, repair, proof. */}
+      <section className="relative overflow-hidden bg-violet-600 px-5 py-20 text-cream-50 sm:px-8 sm:py-28">
+        <div className="pointer-events-none absolute -right-20 top-12 size-96 rounded-full border-[48px] border-sun-400/25" aria-hidden />
+        <div className="relative mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
+          <div>
+            <p className="eg-kicker text-sun-400">What makes it different</p>
+            <h2 className="mt-4 max-w-xl font-serif text-4xl font-semibold leading-[.95] tracking-[-.045em] sm:text-6xl">A quiz is just the beginning of the conversation.</h2>
           </div>
-
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <Benefit
-              title="AI tells you exactly what's weak"
-              body="Every wrong answer comes with a concept-level diagnosis. No more guessing which topic to revise."
-            />
-            <Benefit
-              title="Practice that compounds"
-              body="Daily streaks, mastery indicators, and a weakness heatmap across every quiz you've ever taken."
-            />
-            <Benefit
-              title="₹199/month. No trap pricing."
-              body="No ₹15K coaching plans. No upsells. No fake discounts. Practice as much as you want."
-            />
+          <div className="grid gap-3">
+            <Benefit title="Diagnosis, not a red cross" body="Every wrong answer is traced to the idea, shortcut, or trap that caused it." />
+            <Benefit title="A repair path that remembers" body="Your weak concepts and recall schedule return when they are most useful—not when you happen to remember them." />
+            <Benefit title="Visible proof that you are moving" body="See practice, accuracy, and readiness build into a preparation you can trust." />
           </div>
         </div>
       </section>
 
       {/* FAQ — answers the "is this real?" anxiety before they bounce */}
-      <section className="mx-auto max-w-3xl px-6 py-20">
+      <section className="mx-auto max-w-3xl px-5 py-20 sm:px-8 sm:py-28">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
             Questions students ask
@@ -171,7 +166,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="mx-auto max-w-5xl px-6 py-10 text-center text-xs text-cocoa-500">
+      <footer className="mx-auto max-w-5xl px-5 py-10 text-center text-xs text-cocoa-500 sm:px-8">
         <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
           <Link href="/terms" className="hover:text-cocoa-900">Terms</Link>
           <Link href="/privacy" className="hover:text-cocoa-900">Privacy</Link>
@@ -211,7 +206,7 @@ function ExamCard({
       : "bg-cocoa-500/10 text-cocoa-500";
 
   const card = (
-    <div className="group flex h-full flex-col rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm transition hover:-translate-y-0.5 hover:shadow-warm-lg">
+    <div className="eg-press group flex h-full flex-col rounded-[1.6rem] border border-cream-50/15 bg-cream-50 p-5 shadow-warm-lg transition hover:bg-cream-100">
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-serif text-xl font-bold text-cocoa-900">
           {name}
@@ -258,11 +253,21 @@ function ExamCard({
 
 function Benefit({ title, body }: { title: string; body: string }) {
   return (
-    <div>
-      <h3 className="font-serif text-xl font-bold text-cocoa-900">
+    <div className="rounded-3xl border border-cream-50/20 bg-cream-50/10 p-5 backdrop-blur-sm">
+      <h3 className="font-serif text-xl font-bold text-cream-50">
         {title}
       </h3>
-      <p className="mt-2 text-sm leading-relaxed text-cocoa-700">{body}</p>
+      <p className="mt-2 text-sm leading-relaxed text-cream-200">{body}</p>
+    </div>
+  );
+}
+
+function StoryStep({ number, title, body }: { number: string; title: string; body: string }) {
+  return (
+    <div className="eg-paper rounded-3xl p-5">
+      <p className="font-mono text-xs font-bold text-ember-700">{number}</p>
+      <h3 className="mt-5 font-serif text-2xl font-bold text-cocoa-900">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-cocoa-700">{body}</p>
     </div>
   );
 }
