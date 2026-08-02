@@ -127,6 +127,24 @@ export default async function ScoreBoostPage() {
     <section className="mx-auto max-w-3xl px-5">{founderPreview && !isCoach && !entitlement && <p className="mb-3 rounded-xl bg-sun-400/20 px-3 py-2 text-center text-xs font-bold text-cocoa-900">Founder preview — students need an active Score Boost or Coach plan to see this.</p>}<div className="rounded-3xl bg-cocoa-900 p-6 text-cream-50 shadow-warm-lg sm:p-8"><Chick state="excited" size={84}/><p className="mt-3 text-xs font-bold uppercase tracking-[.18em] text-sun-400">21-Day Score Boost</p><h1 className="mt-1 font-serif text-3xl font-bold">A clear plan. One day at a time.</h1><p className="mt-2 max-w-xl text-sm text-cream-100/80">This is your fixed roadmap. It does not auto-renew or make extra AI calls.</p></div>
       <div className="mt-6 rounded-3xl border border-ember-600/20 bg-cream-50 p-5 shadow-warm"><p className="text-xs font-bold uppercase tracking-wider text-ember-700">Day {today} · today&apos;s target</p><h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">{todayPlan.subject}</h2><p className="mt-1 text-sm font-semibold text-cocoa-700">{todayPlan.focus}</p><p className="mt-3 text-sm leading-relaxed text-cocoa-700">{todayPlan.action}</p><p className="mt-3 rounded-xl bg-sun-400/15 px-3 py-2 text-xs font-semibold text-cocoa-700">Today&apos;s completion rule: one focused practice session, then review every error before you stop.</p><Link href="/home" className="mt-4 inline-flex rounded-xl bg-ember-600 px-4 py-2.5 text-sm font-bold text-cream-50">Start today&apos;s practice</Link></div>
       <section className="mt-6 rounded-3xl border border-cocoa-900/[.06] bg-cream-50 p-5 shadow-warm"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Fixed revision calendar</p><h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">Your planned recall checkpoints</h2><p className="mt-1 text-sm text-cocoa-700">These dates are part of your ₹49 plan. Revisit the concepts you repaired instead of only moving forward.</p><ol className="mt-4 grid gap-3 sm:grid-cols-4">{revisionDays.map(({ day, date }) => <li key={day} className={`rounded-2xl border p-3 ${day < today ? "border-moss-500/25 bg-moss-500/10" : day === today ? "border-ember-600/30 bg-sun-400/15" : "border-cocoa-900/[.06] bg-cream-100"}`}><p className="text-[10px] font-bold uppercase tracking-wider text-cocoa-500">Day {day}</p><p className="mt-1 font-serif text-lg font-bold text-cocoa-900">{formatDay(date)}</p><p className="mt-1 text-[11px] leading-relaxed text-cocoa-700">{day === 21 ? "Final mixed review" : "Recall + error review"}</p></li>)}</ol></section>
-      <ol className="mt-6 space-y-3">{roadmap.map((day) => <li key={day.day} className="rounded-2xl border border-cocoa-900/[.06] bg-cream-50 p-4"><div className="flex items-baseline justify-between gap-3"><strong className="text-cocoa-900">Day {day.day}: {day.subject}</strong><span className="text-xs font-semibold text-cocoa-500">{day.focus}</span></div><p className="mt-1 text-sm text-cocoa-700">{day.action}</p></li>)}</ol>
+      <section className="mt-6 rounded-3xl border border-cocoa-900/[.06] bg-cream-50 p-5 shadow-warm">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Your roadmap</p>
+            <h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">21 days, without the overwhelm.</h2>
+          </div>
+          <span className="rounded-full bg-sun-400/15 px-3 py-1 text-xs font-bold text-ember-700">Day {today} of 21</span>
+        </div>
+        <p className="mt-2 text-sm leading-6 text-cocoa-700">Your next target is always above. Open the full route only when you want to look ahead—not every time you study.</p>
+        <details className="group mt-4 rounded-2xl border border-cocoa-900/[.08] bg-cream-100/70">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-bold text-cocoa-900 marker:content-none">
+            View the complete 21-day route
+            <span className="text-ember-700 transition group-open:rotate-45" aria-hidden>+</span>
+          </summary>
+          <ol className="space-y-2 border-t border-cocoa-900/[.06] p-3">
+            {roadmap.map((day) => <li key={day.day} className={`rounded-xl border p-3 ${day.day === today ? "border-ember-600/25 bg-sun-400/10" : day.day < today ? "border-moss-500/20 bg-moss-500/[.06]" : "border-cocoa-900/[.06] bg-cream-50"}`}><div className="flex items-baseline justify-between gap-3"><strong className="text-sm text-cocoa-900">Day {day.day}: {day.subject}</strong><span className="shrink-0 text-[11px] font-semibold text-cocoa-500">{day.focus}</span></div><p className="mt-1 text-sm leading-6 text-cocoa-700">{day.action}</p></li>)}
+          </ol>
+        </details>
+      </section>
     </section></main>;
 }
