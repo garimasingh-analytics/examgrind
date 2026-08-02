@@ -183,6 +183,9 @@ export default async function HomePage() {
         .maybeSingle<StudyPreference>()
     : { data: null };
   const studyPreference = studyPreferenceRaw as StudyPreference | null;
+  const examDaysLeft = studyPreference?.target_exam_date
+    ? Math.ceil((new Date(`${studyPreference.target_exam_date}T00:00:00+05:30`).getTime() - Date.now()) / 86_400_000)
+    : null;
   const allExamSubjectIds = new Set(subjects.map((subject) => subject.id));
   const preferredSubjectIds = new Set(
     (studyPreference?.selected_subject_ids ?? []).filter((id) => allExamSubjectIds.has(id)),
@@ -649,11 +652,18 @@ export default async function HomePage() {
             <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-cocoa-900 sm:text-5xl">Your next best step.</h1>
             <p className="mt-2 text-base text-cocoa-700">One focused session is enough for today.</p>
             {hasStudyProfile && (
-              <p className="mt-2 text-sm font-semibold text-ember-700">
-                {studySubjects.length} chosen {studySubjects.length === 1 ? "subject" : "subjects"}
-                {studyPreference?.daily_study_minutes ? ` · ${studyPreference.daily_study_minutes} min/day` : ""}
-                {studyPreference?.target_exam_date ? ` · target ${new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${studyPreference.target_exam_date}T00:00:00`))}` : ""}
-              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {examDaysLeft !== null && examDaysLeft >= 0 && (
+                  <span className="rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-3 py-1 text-xs font-extrabold tracking-wide text-white shadow-warm">
+                    {examDaysLeft === 0 ? "Your exam is today" : `${examDaysLeft} days to go`}
+                  </span>
+                )}
+                <p className="text-sm font-semibold text-ember-700">
+                  {studySubjects.length} chosen {studySubjects.length === 1 ? "subject" : "subjects"}
+                  {studyPreference?.daily_study_minutes ? ` · ${studyPreference.daily_study_minutes} min/day` : ""}
+                  {studyPreference?.target_exam_date ? ` · target ${new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${studyPreference.target_exam_date}T00:00:00`))}` : ""}
+                </p>
+              </div>
             )}
           </div>
           <Chick state="idle" size={92} className="hidden sm:block" />

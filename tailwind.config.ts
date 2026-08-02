@@ -40,6 +40,13 @@ const config: Config = {
         coral: {
           500: "#E07856", // soft "wrong" — never harsh red
         },
+        violet: {
+          500: "#7C5CFC",
+          600: "#6246EA",
+        },
+        indigo: {
+          600: "#4456D9",
+        },
       },
       fontFamily: {
         // Display: warm, slightly playful serif
