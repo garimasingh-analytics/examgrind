@@ -376,10 +376,19 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      {/* Stats grid */}
+      {/* A short snapshot is useful at a glance; the detailed evidence lives
+          below rather than competing with the access panel above. */}
       <section className="mx-auto mt-10 max-w-3xl px-4 sm:px-6">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label="Level" value={profile?.level ?? 1} accent="text-cocoa-900" />
+        <div className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-4 shadow-warm sm:p-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">Study snapshot</p>
+              <h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">Your progress, at a glance</h2>
+            </div>
+            <Link href="/home" className="text-xs font-bold text-ember-700 hover:underline">Keep going →</Link>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Stat label="Level" value={profile?.level ?? 1} accent="text-cocoa-900" />
           <Stat
             label="XP"
             value={profile?.xp ?? 0}
@@ -402,25 +411,11 @@ export default async function ProfilePage() {
             value={profile?.quizzes_taken ?? 0}
             accent="text-cocoa-900"
           />
-          <Stat
-            label="Topics mastered"
-            value={masteredCount}
-            suffix="✨"
-            accent="text-ember-700"
-          />
-          <Stat
-            label="Adept topics"
-            value={adeptTopics.length}
-            accent="text-cocoa-900"
-          />
-          <Stat
-            label="In progress"
-            value={Math.max(
-              0,
-              masteryRows.length - masteredCount - adeptTopics.length
-            )}
-            accent="text-cocoa-900"
-          />
+          </div>
+          <p className="mt-4 border-t border-cocoa-900/[0.06] pt-3 text-xs text-cocoa-600">
+            <span className="font-bold text-cocoa-900">Topic progress:</span>{" "}
+            {masteredCount} mastered · {adeptTopics.length} strong · {Math.max(0, masteryRows.length - masteredCount - adeptTopics.length)} in progress
+          </p>
         </div>
       </section>
 

@@ -158,9 +158,10 @@ export default async function MockHubPage() {
         )}
 
         {/* Hero */}
-        <div className="flex items-start gap-3">
-          <Chick state="idle" size={56} />
-          <div>
+        <div className="rounded-3xl border border-ember-500/15 bg-gradient-to-br from-sun-400/15 via-cream-50 to-ember-500/10 p-5 shadow-warm sm:p-7">
+          <div className="flex items-start gap-3">
+            <Chick state="idle" size={56} />
+            <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cocoa-500">
               {examName} mock tests
             </p>
@@ -174,6 +175,11 @@ export default async function MockHubPage() {
                 ? `${freeLeft} free mock left this account. Choose carefully — quitting still burns it.`
                 : "You've used your free mock. Upgrade to keep practicing under real conditions."}
             </p>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2 text-xs font-semibold text-cocoa-700">
+            <span className="rounded-full bg-cream-50 px-3 py-1.5 shadow-warm">Timed like the real paper</span>
+            <span className="rounded-full bg-cream-50 px-3 py-1.5 shadow-warm">Score + repair plan after submission</span>
           </div>
         </div>
 
@@ -184,6 +190,8 @@ export default async function MockHubPage() {
               key={m.id}
               mock={m}
               sections={(m as unknown as { sections: Section[] }).sections}
+              isPaid={isPaid}
+              freeLeft={freeLeft}
             />
           ))}
         </div>
@@ -271,9 +279,13 @@ function StatusPill({
 function MockCardLink({
   mock,
   sections,
+  isPaid,
+  freeLeft,
 }: {
   mock: MockCard;
   sections: Section[];
+  isPaid: boolean;
+  freeLeft: number;
 }) {
   const mins = Math.round(mock.duration_seconds / 60);
   return (
@@ -285,8 +297,8 @@ function MockCardLink({
         <h3 className="font-serif text-lg font-bold text-cocoa-900">
           {mock.display_name}
         </h3>
-        <span className="rounded-full bg-moss-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-moss-700">
-          Free sample
+        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${isPaid ? "bg-sun-400/20 text-ember-700" : freeLeft > 0 ? "bg-moss-500/15 text-moss-700" : "bg-cocoa-100 text-cocoa-600"}`}>
+          {isPaid ? "Coach access" : freeLeft > 0 ? "Free access" : "Upgrade to start"}
         </span>
       </div>
       {mock.description && (
