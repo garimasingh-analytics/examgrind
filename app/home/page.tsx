@@ -725,7 +725,8 @@ export default async function HomePage() {
 
       <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">More study tools</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <CompactTool href="/vault" icon="🗂️" title="Study Vault" detail="Create flashcards and mnemonics." />
           <CompactTool href="/mistakes" icon="📘" title="Mistake Book" detail="Repair incorrect answers." />
           <CompactTool href="/revision" icon="🧠" title="Smart Revision" detail={revisionDueTopics.length > 0 ? `${revisionDueTopics.length} due for recall.` : "Recall when it is due."} />
           <CompactTool href="/mock" icon="📝" title="Mock test" detail="Try full exam timing." />
