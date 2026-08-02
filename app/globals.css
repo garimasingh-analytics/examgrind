@@ -263,15 +263,15 @@ body {
 .landing-book-cover { overflow: hidden; color: #1D1815; background: linear-gradient(140deg, #F8D66A, #F5C64D 58%, #E7613E); transform-origin: left center; transform: rotateY(0deg) translateZ(2px); transition: transform 900ms cubic-bezier(.2,.8,.15,1), box-shadow 900ms ease; box-shadow: inset -14px 0 24px rgba(29,24,21,.13); }
 .landing-book-cover::after { content:""; position:absolute; width:130%; height:45%; left:-20%; bottom:-8%; border-radius:50%; border:2px solid rgba(29,24,21,.16); transform:rotate(-18deg); }
 .landing-book-spine { position:absolute; inset:0 auto 0 0; width:1rem; background:rgba(29,24,21,.16); box-shadow: inset -2px 0 rgba(255,252,246,.2); }
-.landing-book-cover-copy { position:absolute; inset:1.4rem 1.25rem 1.25rem 2.1rem; display:flex; flex-direction:column; align-items:flex-start; text-align:left; }
+.landing-book-cover-copy { position:absolute; inset:1.4rem 1.1rem 1.25rem 2.05rem; display:flex; flex-direction:column; align-items:flex-start; text-align:left; }
 .landing-book-kicker, .landing-book-open-kicker { font-size:.6rem; letter-spacing:.18em; font-weight:900; }
-.landing-book-title { margin-top:1.25rem; font-family:var(--font-fraunces), Georgia, serif; font-weight:800; font-size:clamp(2.2rem, 9vw, 3.7rem); line-height:.82; letter-spacing:-.08em; }
+.landing-book-title { width:100%; margin-top:1.25rem; font-family:var(--font-fraunces), Georgia, serif; font-weight:800; font-size:clamp(1.7rem, 7.3vw, 3rem); line-height:.84; letter-spacing:-.07em; }
 .landing-book-mark { margin-top:auto; font-family:var(--font-jetbrains-mono), monospace; font-size:.75rem; font-weight:800; }
-.landing-book-open-page { display:flex; flex-direction:column; overflow:hidden; padding:1.45rem 1.1rem 1.2rem 2rem; color:#1D1815; text-align:left; background:#FFFCF6; opacity:0; transform:translateZ(0) rotateY(0deg); transition:opacity 350ms ease 260ms; }
+.landing-book-open-page { display:flex; flex-direction:column; overflow:hidden; padding:1.45rem 1.1rem 2.6rem 2rem; color:#1D1815; text-align:left; background:#FFFCF6; opacity:0; transform:translateZ(0) rotateY(0deg); transition:opacity 350ms ease 260ms; }
 .landing-book-open-title { margin-top:.75rem; font-family:var(--font-fraunces), Georgia, serif; font-size:clamp(1.8rem, 7vw, 2.8rem); line-height:.9; font-weight:800; letter-spacing:-.06em; }
-.landing-book-chick { position:absolute; right:.75rem; bottom:2.1rem; }
-.landing-book-open-line { position:absolute; right:.9rem; bottom:1.4rem; width:61%; height:3px; background:linear-gradient(90deg,#E7613E,#F5C64D); }
-.landing-book-open-small { margin-top:auto; font-size:.58rem; letter-spacing:.11em; font-weight:800; text-transform:uppercase; color:#786B5E; }
+.landing-book-chick { position:absolute; right:.75rem; bottom:3.15rem; }
+.landing-book-open-line { position:absolute; left:2rem; bottom:1.75rem; width:43%; height:3px; background:linear-gradient(90deg,#E7613E,#F5C64D); }
+.landing-book-open-small { position:absolute; left:2rem; bottom:.65rem; font-size:.58rem; letter-spacing:.11em; font-weight:800; text-transform:uppercase; color:#786B5E; }
 .landing-book-scene.is-open .landing-book-cover { transform:rotateY(-164deg) translateZ(4px); box-shadow:5px 10px 22px rgba(0,0,0,.20); }
 .landing-book-scene.is-open .landing-book-open-page { opacity:1; }
 .landing-book-scene.is-open .landing-book-shadow { opacity:.55; transform:rotateX(70deg) translateX(16px) scale(.88); }
