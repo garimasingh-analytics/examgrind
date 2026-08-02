@@ -267,7 +267,7 @@ export default async function ProfilePage() {
     .slice(0, 5);
 
   return (
-    <main className="bg-warm-wash min-h-[100svh] pb-24">
+    <main className="profile-stage min-h-[100svh] pb-24">
       <header className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
         <Link
           href="/home"
@@ -285,7 +285,7 @@ export default async function ProfilePage() {
 
       {/* Identity */}
       <section className="mx-auto max-w-3xl px-4 pt-4 sm:px-6 sm:pt-8">
-        <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:gap-8 sm:text-left">
+        <div className="profile-cover flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:gap-8 sm:text-left">
           <Chick state="idle" size={120} />
           <div className="flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
@@ -300,7 +300,7 @@ export default async function ProfilePage() {
       </section>
 
       {/* Plan panel — tier + freemium meters + upgrade CTA */}
-      <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
+      <section className="profile-access mx-auto mt-8 max-w-3xl px-4 sm:px-6">
         <PlanPanel
           subscriptionStatus={liveSubscriptionStatus}
           paidUntil={profile?.paid_until ?? null}
@@ -340,7 +340,7 @@ export default async function ProfilePage() {
       {/* Exam switcher — three pills, current one highlighted. Clicks go */}
       {/* through /start/[slug] which upserts exam_choice + bounces to /home */}
       <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
-        <div className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
+        <div className="profile-exam-card rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="font-serif text-xl font-bold text-cocoa-900">
               Your exam
@@ -379,7 +379,7 @@ export default async function ProfilePage() {
       {/* A short snapshot is useful at a glance; the detailed evidence lives
           below rather than competing with the access panel above. */}
       <section className="mx-auto mt-10 max-w-3xl px-4 sm:px-6">
-        <div className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-4 shadow-warm sm:p-5">
+        <div className="profile-snapshot rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-4 shadow-warm sm:p-5">
           <div className="flex items-baseline justify-between gap-3">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">Study snapshot</p>

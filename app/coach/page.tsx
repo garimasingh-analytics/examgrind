@@ -140,21 +140,21 @@ export default async function CoachPage() {
   ].filter(Boolean) as Array<{ label: string; title: string; detail: string; href: string; cta: string }>;
 
   return (
-    <main className="min-h-[100svh] bg-warm-wash pb-20">
+    <main className="coach-stage min-h-[100svh] pb-20">
       <header className="mx-auto flex max-w-4xl items-center justify-between px-5 py-5">
         <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900">ExamGrind</Link>
         <Link href="/home" className="text-sm font-bold text-ember-700">Home →</Link>
       </header>
       <section className="mx-auto max-w-4xl px-5 pt-4">
         {founderPreview && !isCoach && <p className="mb-3 rounded-xl bg-sun-400/20 px-3 py-2 text-center text-xs font-bold text-cocoa-900">Founder preview — students need an active Coach plan to use this live briefing.</p>}
-        <div className="rounded-3xl bg-gradient-to-br from-cocoa-900 via-cocoa-900 to-ember-900 p-6 text-cream-50 shadow-warm-lg sm:p-8">
+        <div className="coach-cover rounded-3xl bg-gradient-to-br from-cocoa-900 via-cocoa-900 to-ember-900 p-6 text-cream-50 shadow-warm-lg sm:p-8">
           <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-sun-300">ExamGrind Coach · live briefing</p><h1 className="mt-2 font-serif text-3xl font-bold sm:text-4xl">Here&apos;s exactly what to do next.</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-cream-100/80">{today} · Based on your completed {exam?.name ?? "exam"} practice. This briefing changes after each finished quiz or mock.</p></div><Chick state="excited" size={76} /></div>
         </div>
       </section>
       <section className="mx-auto mt-6 max-w-4xl px-5">
-        <div className="mb-3"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Your adaptive action queue</p><h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">No generic motivation. Just the next best work.</h2></div>
-        <ol className="grid gap-4 md:grid-cols-3">
-          {actions.map((action, index) => <li key={action.href} className="flex min-h-64 flex-col rounded-3xl border border-cocoa-900/[.07] bg-cream-50 p-5 shadow-warm"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-sun-400 text-xs font-bold text-cocoa-900">{index + 1}</span><p className="mt-4 text-[10px] font-bold uppercase tracking-[.16em] text-ember-700">{action.label}</p><h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">{action.title}</h2><p className="mt-2 flex-1 text-sm leading-6 text-cocoa-700">{action.detail}</p><Link href={action.href} className="mt-5 inline-flex font-bold text-ember-700 hover:text-ember-800">{action.cta} →</Link></li>)}
+        <div className="coach-section-head mb-3"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Your adaptive action queue</p><h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">No generic motivation. Just the next best work.</h2></div>
+        <ol className="coach-action-grid grid gap-4 md:grid-cols-3">
+          {actions.map((action, index) => <li key={action.href} className="coach-action-card flex min-h-64 flex-col rounded-3xl border border-cocoa-900/[.07] bg-cream-50 p-5 shadow-warm"><span className="coach-action-number flex h-7 w-7 items-center justify-center rounded-full bg-sun-400 text-xs font-bold text-cocoa-900">{index + 1}</span><p className="mt-4 text-[10px] font-bold uppercase tracking-[.16em] text-ember-700">{action.label}</p><h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">{action.title}</h2><p className="mt-2 flex-1 text-sm leading-6 text-cocoa-700">{action.detail}</p><Link href={action.href} className="mt-5 inline-flex font-bold text-ember-700 hover:text-ember-800">{action.cta} →</Link></li>)}
         </ol>
         {actions.length === 0 && <div className="rounded-3xl border border-cocoa-900/[.07] bg-cream-50 p-6 text-cocoa-700 shadow-warm"><h2 className="font-serif text-2xl font-bold text-cocoa-900">Start with one focused quiz.</h2><p className="mt-2 text-sm">Once you complete it, your Coach will turn that result into a precise repair and revision plan.</p><Link href="/home" className="mt-4 inline-flex font-bold text-ember-700">Choose a subject →</Link></div>}
       </section>
@@ -173,5 +173,5 @@ export default async function CoachPage() {
 }
 
 function CoachMetric({ href, label, value, detail }: { href: string; label: string; value: string; detail: string }) {
-  return <Link href={href} className="rounded-2xl border border-cocoa-900/[.07] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">{label}</p><p className="mt-1 font-serif text-3xl font-bold text-cocoa-900">{value}</p><p className="mt-1 text-xs leading-relaxed text-cocoa-600">{detail}</p><p className="mt-3 text-xs font-bold text-ember-700">Open →</p></Link>;
+  return <Link href={href} className="coach-metric rounded-2xl border border-cocoa-900/[.07] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">{label}</p><p className="mt-1 font-serif text-3xl font-bold text-cocoa-900">{value}</p><p className="mt-1 text-xs leading-relaxed text-cocoa-600">{detail}</p><p className="mt-3 text-xs font-bold text-ember-700">Open →</p></Link>;
 }

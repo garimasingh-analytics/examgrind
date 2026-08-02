@@ -36,13 +36,13 @@ export default function PlanPanel({
   return (
     <>
       <div
-        className={`overflow-hidden rounded-3xl border shadow-warm-lg ${
+        className={`plan-ledger overflow-hidden rounded-3xl border shadow-warm-lg ${
           isPaid
             ? "border-sun-500/30 bg-gradient-to-br from-sun-400/10 to-ember-500/10"
             : "border-cocoa-900/[0.06] bg-cream-50"
         }`}
       >
-        <div className="flex items-center justify-between gap-3 px-5 py-4 sm:px-6">
+        <div className="plan-ledger-head flex items-center justify-between gap-3 px-5 py-4 sm:px-6">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cocoa-500">
               Plan
@@ -92,7 +92,7 @@ export default function PlanPanel({
             </div>
             {isPaid && <span className="rounded-full bg-sun-400/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ember-700">Unlimited</span>}
           </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div className="plan-access-grid mt-3 grid gap-3 sm:grid-cols-3">
             <AccessCard
               icon="🔎"
               title="AI Deep Analysis"
@@ -157,7 +157,7 @@ function AccessCard({
     <p className="mt-1 text-[11px] leading-relaxed text-cocoa-500">{detail}</p>
     {href && <p className="mt-3 text-xs font-bold text-ember-700">Open plan →</p>}
   </>;
-  const className = "rounded-2xl border border-cocoa-900/[0.06] bg-cream-100 p-3.5 transition";
+  const className = "plan-access-card rounded-2xl border border-cocoa-900/[0.06] bg-cream-100 p-3.5 transition";
   if (href) return <Link href={href} className={`${className} hover:-translate-y-0.5 hover:bg-white`}>{body}</Link>;
   if (onClick) return <button type="button" onClick={onClick} className={`${className} w-full text-left hover:-translate-y-0.5 hover:bg-white`}>{body}</button>;
   return <div className={className}>{body}</div>;

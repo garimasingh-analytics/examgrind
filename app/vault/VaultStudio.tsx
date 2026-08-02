@@ -34,7 +34,7 @@ export default function VaultStudio({ subjects, initialItems, isCoach, founderPr
     [activeSetId, flashcards],
   );
   return <>
-    <section className="rounded-3xl border border-violet-600/15 bg-gradient-to-br from-violet-600 to-indigo-600 p-5 text-white shadow-warm-lg sm:p-7">
+    <section className="vault-cover rounded-3xl border border-violet-600/15 bg-gradient-to-br from-violet-600 to-indigo-600 p-5 text-white shadow-warm-lg sm:p-7">
       <p className="text-xs font-bold uppercase tracking-[.18em] text-white/70">Study Vault</p>
       <h1 className="mt-2 font-serif text-3xl font-bold sm:text-4xl">Turn any topic into something you can recall.</h1>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-white/85">Build a compact flashcard set and a useful mnemonic, then keep it here for rapid revision.</p>
@@ -50,13 +50,13 @@ export default function VaultStudio({ subjects, initialItems, isCoach, founderPr
       {founderPreview && !isCoach && <p className="mt-3 text-xs text-white/75">Founder preview — student accounts receive one free saved set before Coach.</p>}
     </section>
 
-    <section className="mt-7 grid gap-5 lg:grid-cols-[1.3fr_.7fr]">
-      <div className="rounded-3xl border border-cocoa-900/[.08] bg-cream-50 p-5 shadow-warm"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Flashcard sets</p><h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">Recall, don&apos;t just reread.</h2>
+    <section className="vault-shelves mt-7 grid gap-5 lg:grid-cols-[1.3fr_.7fr]">
+      <div className="vault-shelf rounded-3xl border border-cocoa-900/[.08] bg-cream-50 p-5 shadow-warm"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Flashcard sets</p><h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">Recall, don&apos;t just reread.</h2>
         {flashcards.length === 0 ? <EmptyState text="Your first set will appear here, ready for a proper tap-to-flip review." /> : <>
           {activeSet ? <FlashcardSession set={activeSet} onClose={() => setActiveSetId(null)} /> : <div className="mt-4 space-y-3">{flashcards.map((set) => <article key={set.id} className="rounded-2xl border border-cocoa-900/[.06] bg-cream-100 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-bold text-cocoa-900">{set.topic}</h3><p className="mt-1 text-xs text-cocoa-600">{(set.content.cards ?? []).length} active-recall cards · saved {new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short" }).format(new Date(set.created_at))}</p></div><button type="button" onClick={() => setActiveSetId(set.id)} className="shrink-0 rounded-xl bg-cocoa-900 px-3 py-2 text-xs font-extrabold text-cream-50 transition hover:bg-cocoa-800">Study cards →</button></div></article>)}</div>}
         </>}
       </div>
-      <aside className="rounded-3xl border border-cocoa-900/[.08] bg-cream-50 p-5 shadow-warm"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Memory hooks</p><h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">Mnemonics</h2>{mnemonics.length === 0 ? <EmptyState text="Useful memory structures will collect here." /> : <div className="mt-4 space-y-3">{mnemonics.map((item) => <article key={item.id} className="rounded-2xl border border-violet-600/15 bg-violet-600/[.06] p-4"><p className="text-xs font-bold uppercase tracking-[.13em] text-violet-600">{item.topic}</p><p className="mt-2 font-serif text-lg font-bold text-cocoa-900">{item.content.phrase}</p><p className="mt-2 text-sm leading-6 text-cocoa-700">{item.content.explanation}</p></article>)}</div>}</aside>
+      <aside className="vault-memory-shelf rounded-3xl border border-cocoa-900/[.08] bg-cream-50 p-5 shadow-warm"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Memory hooks</p><h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">Mnemonics</h2>{mnemonics.length === 0 ? <EmptyState text="Useful memory structures will collect here." /> : <div className="mt-4 space-y-3">{mnemonics.map((item) => <article key={item.id} className="rounded-2xl border border-violet-600/15 bg-violet-600/[.06] p-4"><p className="text-xs font-bold uppercase tracking-[.13em] text-violet-600">{item.topic}</p><p className="mt-2 font-serif text-lg font-bold text-cocoa-900">{item.content.phrase}</p><p className="mt-2 text-sm leading-6 text-cocoa-700">{item.content.explanation}</p></article>)}</div>}</aside>
     </section>
   </>;
 }

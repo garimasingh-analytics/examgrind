@@ -110,12 +110,12 @@ export default async function RevisionPage() {
   queue.sort((a, b) => a.dueAt - b.dueAt);
 
   return (
-    <main className="min-h-[100svh] bg-warm-wash pb-24">
+    <main className="revision-stage min-h-[100svh] pb-24">
       <header className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
         <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">ExamGrind</Link>
         <Link href="/home" className="text-sm font-medium text-cocoa-500 hover:text-cocoa-900">← Home</Link>
       </header>
-      <section className="mx-auto max-w-3xl px-4 pt-4 sm:px-6 sm:pt-8">
+      <section className="revision-cover mx-auto max-w-3xl px-4 pt-4 sm:px-6 sm:pt-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">Smart revision · {exam.name}</p>
         <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-cocoa-900 sm:text-5xl">Recall before you forget.</h1>
         <p className="mt-3 max-w-2xl text-base leading-7 text-cocoa-700">This queue uses your completed practice and a simple spaced schedule. Weak topics stay in your Mistake Book; these are the skills you have already started to build.</p>
@@ -129,10 +129,10 @@ export default async function RevisionPage() {
             <Link href="/home" className="mt-5 inline-flex rounded-2xl bg-cocoa-900 px-4 py-3 text-sm font-bold text-cream-50 transition hover:bg-cocoa-800">Choose a topic →</Link>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="revision-queue space-y-3">
             <p className="text-sm font-semibold text-cocoa-700">{queue.length} {queue.length === 1 ? "topic" : "topics"} ready for a short recall round.</p>
             {queue.map((topic) => (
-              <article key={topic.id} className="flex flex-col gap-4 rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-5 shadow-warm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <article key={topic.id} className="revision-ticket flex flex-col gap-4 rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-5 shadow-warm sm:flex-row sm:items-center sm:justify-between sm:p-6">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cocoa-500">{topic.subject} · {dueCopy(topic.dueAt)}</p>
                   <h2 className="mt-1 font-serif text-xl font-semibold text-cocoa-900">{topic.name}</h2>
