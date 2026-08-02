@@ -58,6 +58,22 @@ export async function POST(request: NextRequest) {
     subjectName = subject.name;
   }
 
+  // Check storage before calling the model. This prevents a failed or stale
+  // Supabase schema from consuming AI credits for material that cannot be kept.
+  const { error: vaultStorageError } = await admin
+    .from("study_vault_items")
+    .select("id", { head: true })
+    .limit(1);
+  if (vaultStorageError) {
+    console.error("[vault/generate] storage unavailable before generation", {
+      code: vaultStorageError.code,
+      message: vaultStorageError.message,
+    });
+    return NextResponse.json({
+      error: "Study Vault is temporarily unavailable. Please try again in a moment.",
+    }, { status: 503 });
+  }
+
   // A free account gets one durable sample set. Coach membership makes this
   // a working study tool rather than an unbounded AI-cost loophole. Founder
   // preview stays open so launch material can be checked without checkout.
@@ -65,7 +81,19 @@ export async function POST(request: NextRequest) {
   const isCoach = profile?.subscription_status === "paid" && paidUntil > Date.now();
   const isFounder = isAdminEmail(profile?.email);
   if (!isCoach && !isFounder) {
-    const { count } = await admin.from("study_vault_items").select("id", { count: "exact", head: true }).eq("user_id", user.id);
+    const { count, error: vaultCountError } = await admin
+      .from("study_vault_items")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id);
+    if (vaultCountError) {
+      console.error("[vault/generate] free-limit check failed", {
+        code: vaultCountError.code,
+        message: vaultCountError.message,
+      });
+      return NextResponse.json({
+        error: "Study Vault is temporarily unavailable. Please try again in a moment.",
+      }, { status: 503 });
+    }
     if ((count ?? 0) >= 2) return NextResponse.json({
       error: "Your free Study Vault set is saved. Coach unlocks unlimited new sets.",
       paywall: { reason: "vault-limit" },
