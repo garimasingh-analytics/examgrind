@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
 import { trackPaidSubscriptionConversion } from "@/lib/google-ads";
 import { trackMetaSubscriptionPurchase } from "@/lib/meta-ads";
-import { trackSubscriptionCheckoutStarted, trackSubscriptionPurchased } from "@/lib/product-analytics";
+import { trackAccessOptionSelected, trackCheckoutDismissed, trackCheckoutOpened, trackPaywallViewed, trackPurchaseCompleted, trackSubscriptionCheckoutStarted, trackSubscriptionPurchased } from "@/lib/product-analytics";
 import type { OneTimeProduct } from "@/lib/billing-products";
 
 // Razorpay's checkout SDK injects itself into window when the script loads.
@@ -122,7 +122,8 @@ export default function UpgradeModal({
   useEffect(() => {
     if (!open) return;
     void loadRazorpayScript();
-  }, [open]);
+    trackPaywallViewed({ paywall_reason: reason });
+  }, [open, reason]);
 
   if (!open) return null;
 
@@ -151,6 +152,7 @@ export default function UpgradeModal({
   const handleUpgrade = async () => {
     setError(null);
     setLoading(true);
+    trackAccessOptionSelected({ product: "coach_monthly", paywall_reason: reason });
     trackSubscriptionCheckoutStarted({ paywall_reason: reason });
     try {
       // 1. Razorpay SDK
@@ -212,15 +214,17 @@ export default function UpgradeModal({
             trackMetaSubscriptionPurchase(transactionId);
           }
           trackSubscriptionPurchased();
+          trackPurchaseCompleted({ product: "coach_monthly", checkout_type: "subscription" });
           setSuccess(true);
           setLoading(false);
           // Small delay so the webhook has time to land before /me re-fetches.
           setTimeout(() => router.refresh(), 1500);
         },
         modal: {
-          ondismiss: () => setLoading(false),
+          ondismiss: () => { trackCheckoutDismissed({ product: "coach_monthly", checkout_type: "subscription" }); setLoading(false); },
         },
       });
+      trackCheckoutOpened({ product: "coach_monthly", checkout_type: "subscription" });
       rzp.open();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
@@ -231,6 +235,7 @@ export default function UpgradeModal({
   const handleOneTimePurchase = async (product: OneTimeProduct) => {
     setError(null);
     setLoading(true);
+    trackAccessOptionSelected({ product, paywall_reason: reason });
     try {
       // Use the same Razorpay Checkout transport as the working monthly
       // subscription. The only difference is an Order (one charge) rather
@@ -279,11 +284,13 @@ export default function UpgradeModal({
           }
           setSuccess(true);
           setLoading(false);
+          trackPurchaseCompleted({ product, checkout_type: "one_time" });
           if (product === "score_boost_21d") router.push("/score-boost");
           else router.refresh();
         },
-        modal: { ondismiss: () => setLoading(false) },
+        modal: { ondismiss: () => { trackCheckoutDismissed({ product, checkout_type: "one_time" }); setLoading(false); } },
       });
+      trackCheckoutOpened({ product, checkout_type: "one_time" });
       rzp.open();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");

@@ -48,3 +48,32 @@ events:
     description: A verified Razorpay purchase returns control to the app.
     properties:
       - { name: plan, type: string, required: true, enum: [monthly_199] }
+  - name: paywall_viewed
+    category: conversion
+    description: Student sees the access-choice modal.
+    properties:
+      - { name: paywall_reason, type: string, required: true }
+  - name: access_option_selected
+    category: conversion
+    description: Student selects an offer before Razorpay opens.
+    properties:
+      - { name: product, type: string, required: true, enum: [analysis_credit, score_boost_21d, quiz_pack_3, quiz_pack_10, quiz_pack_15, coach_monthly] }
+      - { name: paywall_reason, type: string, required: true }
+  - name: checkout_opened
+    category: conversion
+    description: Razorpay checkout has opened after an offer selection.
+    properties:
+      - { name: product, type: string, required: true }
+      - { name: checkout_type, type: string, required: true, enum: [one_time, subscription] }
+  - name: checkout_dismissed
+    category: conversion
+    description: Student closes Razorpay checkout before completion.
+    properties:
+      - { name: product, type: string, required: true }
+      - { name: checkout_type, type: string, required: true, enum: [one_time, subscription] }
+  - name: purchase_completed
+    category: conversion
+    description: A successful client payment return has been verified or acknowledged.
+    properties:
+      - { name: product, type: string, required: true }
+      - { name: checkout_type, type: string, required: true, enum: [one_time, subscription] }

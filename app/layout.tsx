@@ -10,6 +10,7 @@ import { asChickVariant } from "@/lib/chicks";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import MarketingTracking from "@/components/MarketingTracking";
 import StudyDock from "@/components/StudyDock";
+import NavigationFeedback from "@/components/NavigationFeedback";
 
 // Soft warm serif — used for headlines.
 const fraunces = Fraunces({
@@ -151,6 +152,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="bg-cream-100 text-cocoa-900 antialiased">
+        <NavigationFeedback />
         <ChickVariantProvider initialVariant={initialVariant}>
           <div className="flex min-h-[100svh] flex-col pb-20 md:pb-0">
             <div className="flex-1">{children}</div>
