@@ -116,7 +116,7 @@ export default async function ChapterPage({ params }: Params) {
         </p>
         </div>
         <div className="chapter-cover-meta relative z-10"><span>{enriched.filter((topic) => topic.status === "completed").length} stamped</span><span>{topics.length} pages</span></div>
-        <Chick state="idle" size={100} className="chapter-cover-chick" /><span className="chapter-cover-star" aria-hidden>✦</span><span className="chapter-cover-loop" aria-hidden />
+        <div className="chapter-cover-guide"><span className="chapter-cover-loop" aria-hidden /><span className="chapter-cover-star" aria-hidden>✦</span><Chick state="idle" size={92} /></div>
         </div>
       </section>
 
@@ -163,7 +163,6 @@ function PathNode({
   index: number;
   total: number;
 }) {
-  const align = index % 2 === 0 ? "left" : "right";
   const isLast = index === total - 1;
 
   // Map cumulative mastery → completed-circle styling.
@@ -259,8 +258,7 @@ function PathNode({
   return (
     <li
       className={[
-        "topic-node relative flex pb-12 last:pb-0",
-        align === "left" ? "topic-node-left justify-start pl-2" : "topic-node-right justify-end pr-2",
+        "topic-node relative flex justify-center pb-14 last:pb-0",
         `topic-node-${topic.status}`,
       ].join(" ")}
     >
@@ -269,10 +267,7 @@ function PathNode({
         <span
           aria-hidden="true"
           className={[
-            "topic-connector absolute top-20 z-0 h-12 w-2/3 border-cream-300",
-            align === "left"
-              ? "left-12 border-b-[3px] border-r-[3px] rounded-br-[3rem]"
-              : "right-12 border-b-[3px] border-l-[3px] rounded-bl-[3rem]",
+            "topic-connector absolute left-1/2 top-24 z-0 h-16 border-l-2 border-dashed",
           ].join(" ")}
         />
       )}

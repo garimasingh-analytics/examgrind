@@ -78,7 +78,7 @@ export default async function SubjectPage({ params }: Params) {
         </p>
         <div className="mt-7 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-[.13em] text-cream-50"><span className="rounded-full border border-cream-50/20 bg-cream-50/10 px-3 py-2">{chapters.length} chapters</span><span className="rounded-full border border-cream-50/20 bg-cream-50/10 px-3 py-2">Choose a chapter ↓</span></div>
         </div>
-        <div className="subject-cover-chick"><Chick state="idle" size={106} /></div><span className="subject-cover-orbit" aria-hidden>✦</span><span className="subject-cover-squiggle" aria-hidden>⌁</span>
+        <div className="subject-cover-guide"><span className="subject-cover-orbit" aria-hidden /><span className="subject-cover-orbit-star" aria-hidden>✦</span><Chick state="idle" size={98} /></div><span className="subject-cover-squiggle" aria-hidden>⌁</span>
         </div>
       </section>
 
