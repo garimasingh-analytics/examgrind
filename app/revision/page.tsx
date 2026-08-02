@@ -23,6 +23,7 @@ type RevisionTopic = {
   lastQuizzedAt: string;
   dueAt: number;
 };
+type StudyPreference = { selected_subject_ids: string[] };
 
 const INTERVAL_DAYS: Record<string, number> = {
   novice: 1,
@@ -56,7 +57,7 @@ export default async function RevisionPage() {
     .maybeSingle<{ id: string; name: string }>();
   if (!exam) redirect("/home");
 
-  const [{ data: subjectsRaw }, { data: masteryRaw }] = await Promise.all([
+  const [{ data: subjectsRaw }, { data: masteryRaw }, { data: preferenceRaw }] = await Promise.all([
     supabase
       .from("subjects")
       .select("id, name")
@@ -65,11 +66,22 @@ export default async function RevisionPage() {
       .from("user_topic_mastery")
       .select("topic_id, mastery_level, questions_attempted, questions_correct, last_quizzed_at, topics!inner(name, chapters!inner(subject_id))")
       .eq("user_id", user.id),
+    supabase
+      .from("user_exam_preferences")
+      .select("selected_subject_ids")
+      .eq("user_id", user.id)
+      .eq("exam_id", exam.id)
+      .maybeSingle<StudyPreference>(),
   ]);
 
-  const subjectNames = new Map(
-    ((subjectsRaw ?? []) as Array<{ id: string; name: string }>).map((subject) => [subject.id, subject.name]),
-  );
+  const examSubjects = (subjectsRaw ?? []) as Array<{ id: string; name: string }>;
+  const examSubjectIds = new Set(examSubjects.map((subject) => subject.id));
+  const selectedIds = (preferenceRaw?.selected_subject_ids ?? [])
+    .filter((id) => examSubjectIds.has(id));
+  const studySubjects = selectedIds.length > 0
+    ? examSubjects.filter((subject) => selectedIds.includes(subject.id))
+    : examSubjects;
+  const subjectNames = new Map(studySubjects.map((subject) => [subject.id, subject.name]));
   const now = Date.now();
   const queue: RevisionTopic[] = [];
   for (const mastery of (masteryRaw ?? []) as MasteryRow[]) {

@@ -8,6 +8,7 @@ import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
 import DailyMissionCard, { type MissionStep } from "@/components/DailyMissionCard";
 import AdSlot from "@/components/AdSlot";
+import StudyPlanSetup from "@/components/StudyPlanSetup";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
 
@@ -41,6 +42,13 @@ type UserRow = {
   quizzes_started: number;
   exam_choice: string | null;
   paid_until: string | null;
+};
+
+type StudyPreference = {
+  selected_subject_ids: string[];
+  target_exam_date: string | null;
+  target_score: string | null;
+  daily_study_minutes: number | null;
 };
 
 // Exam display copy now lives inside ExamSwitcher — this header used to
@@ -166,7 +174,27 @@ export default async function HomePage() {
   }
   const { data: subjectsData } = await subjectsQuery;
   const subjects = (subjectsData ?? []) as Subject[];
-  const activeSubjectIds = new Set(subjects.map((subject) => subject.id));
+  const { data: studyPreferenceRaw } = examRow?.id
+    ? await admin
+        .from("user_exam_preferences")
+        .select("selected_subject_ids, target_exam_date, target_score, daily_study_minutes")
+        .eq("user_id", authUser.id)
+        .eq("exam_id", examRow.id)
+        .maybeSingle<StudyPreference>()
+    : { data: null };
+  const studyPreference = studyPreferenceRaw as StudyPreference | null;
+  const allExamSubjectIds = new Set(subjects.map((subject) => subject.id));
+  const preferredSubjectIds = new Set(
+    (studyPreference?.selected_subject_ids ?? []).filter((id) => allExamSubjectIds.has(id)),
+  );
+  const hasStudyProfile = preferredSubjectIds.size > 0;
+  // Until the student completes setup, preserve the existing whole-exam
+  // experience behind the required setup sheet. Once saved, every home
+  // calculation below switches to only their actual papers.
+  const studySubjects = hasStudyProfile
+    ? subjects.filter((subject) => preferredSubjectIds.has(subject.id))
+    : subjects;
+  const activeSubjectIds = new Set(studySubjects.map((subject) => subject.id));
 
   // Today's dashboard proof follows the active exam too. Resolve quiz topics
   // through chapters → subjects rather than relying on subject names, which
@@ -300,7 +328,7 @@ export default async function HomePage() {
   const readiness = totalTopics > 0
     ? Math.round((readinessPoints / totalTopics) * 100)
     : 0;
-  const strongestSubject = [...subjects]
+  const strongestSubject = [...studySubjects]
     .filter((subject) => (attemptedBySubject.get(subject.id) ?? 0) > 0)
     .sort(
       (a, b) =>
@@ -378,7 +406,7 @@ export default async function HomePage() {
   const missionSteps: MissionStep[] = [];
   const missionTopicIds = new Set<string>();
   const subjectNameFor = (subjectId: string) =>
-    subjects.find((subject) => subject.id === subjectId)?.name ?? "your subject";
+    studySubjects.find((subject) => subject.id === subjectId)?.name ?? "your subject";
   const addMissionTopic = (
     topic: MissionTopic,
     type: MissionStep["type"],
@@ -402,7 +430,7 @@ export default async function HomePage() {
     if (missionSteps.length >= 2) break;
   }
 
-  const leastCoveredSubjects = [...subjects].sort((a, b) => {
+  const leastCoveredSubjects = [...studySubjects].sort((a, b) => {
     const aProgress = (attemptedBySubject.get(a.id) ?? 0) /
       Math.max(totalTopicsBySubject.get(a.id) ?? 1, 1);
     const bProgress = (attemptedBySubject.get(b.id) ?? 0) /
@@ -438,7 +466,7 @@ export default async function HomePage() {
     for (const subjectId of seedSubjectIds) {
       if (missionSteps.length >= 3) break;
       const seedTopic = firstSeedBySubject.get(subjectId);
-      const subject = subjects.find((item) => item.id === subjectId);
+      const subject = studySubjects.find((item) => item.id === subjectId);
       if (!subject) continue;
       if (seedTopic) {
         missionTopicIds.add(seedTopic.id);
@@ -620,6 +648,13 @@ export default async function HomePage() {
             <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">Hi, {firstName}</p>
             <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-cocoa-900 sm:text-5xl">Your next best step.</h1>
             <p className="mt-2 text-base text-cocoa-700">One focused session is enough for today.</p>
+            {hasStudyProfile && (
+              <p className="mt-2 text-sm font-semibold text-ember-700">
+                {studySubjects.length} chosen {studySubjects.length === 1 ? "subject" : "subjects"}
+                {studyPreference?.daily_study_minutes ? ` · ${studyPreference.daily_study_minutes} min/day` : ""}
+                {studyPreference?.target_exam_date ? ` · target ${new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(`${studyPreference.target_exam_date}T00:00:00`))}` : ""}
+              </p>
+            )}
           </div>
           <Chick state="idle" size={92} className="hidden sm:block" />
         </div>
@@ -648,13 +683,25 @@ export default async function HomePage() {
       <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">Your syllabus</p>
-            <h2 className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">Choose a subject</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">{hasStudyProfile ? "Your chosen subjects" : "Your syllabus"}</p>
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">{hasStudyProfile ? "Your preparation, in one place" : "Choose a subject"}</h2>
           </div>
-          <Link href="/weekly" className="text-sm font-bold text-ember-700 hover:text-ember-800">Weekly proof →</Link>
+          <div className="flex items-center gap-3">
+            <StudyPlanSetup
+              examSlug={examSlug}
+              examName={examRow?.name ?? "selected exam"}
+              subjects={subjects}
+              initialSubjectIds={hasStudyProfile ? Array.from(preferredSubjectIds) : []}
+              initialTargetExamDate={studyPreference?.target_exam_date ?? null}
+              initialTargetScore={studyPreference?.target_score ?? null}
+              initialDailyStudyMinutes={studyPreference?.daily_study_minutes ?? null}
+              needsSetup={!hasStudyProfile}
+            />
+            <Link href="/weekly" className="text-sm font-bold text-ember-700 hover:text-ember-800">Weekly proof →</Link>
+          </div>
         </div>
         <SubjectGrid
-          subjects={subjects.map<SubjectWithProgress>((s) => ({
+          subjects={studySubjects.map<SubjectWithProgress>((s) => ({
             id: s.id,
             name: s.name,
             cuet_code: s.cuet_code,

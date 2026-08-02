@@ -5,6 +5,7 @@ type ServerSupabase = ReturnType<typeof createServerSupabase>;
 type ExamProfile = { exam_choice: string | null };
 type ExamRow = { id: string };
 type SubjectRow = { id: string };
+type StudyPreferenceRow = { selected_subject_ids: string[] };
 type TopicRow = {
   id: string;
   chapters: { subject_id: string } | { subject_id: string }[];
@@ -42,9 +43,20 @@ export async function scopeQuizzesToActiveExam<T extends { topic_id: string | nu
     .from("subjects")
     .select("id")
     .eq("exam_id", exam.id);
-  const activeSubjectIds = new Set(
+  const allExamSubjectIds = new Set(
     ((subjectsRaw ?? []) as SubjectRow[]).map((subject) => subject.id),
   );
+  const { data: preference } = await supabase
+    .from("user_exam_preferences")
+    .select("selected_subject_ids")
+    .eq("user_id", userId)
+    .eq("exam_id", exam.id)
+    .maybeSingle<StudyPreferenceRow>();
+  const selectedIds = (preference?.selected_subject_ids ?? [])
+    .filter((id) => allExamSubjectIds.has(id));
+  const activeSubjectIds = selectedIds.length > 0
+    ? new Set(selectedIds)
+    : allExamSubjectIds;
   if (activeSubjectIds.size === 0) return [];
 
   const topicIds = quizzes.flatMap((quiz) => quiz.topic_id ? [quiz.topic_id] : []);

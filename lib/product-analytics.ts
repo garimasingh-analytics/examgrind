@@ -22,6 +22,7 @@ export const ANALYTICS_EVENTS = {
   DEEP_ANALYSIS_VIEWED: "deep_analysis_viewed",
   SUBSCRIPTION_CHECKOUT_STARTED: "subscription_checkout_started",
   SUBSCRIPTION_PURCHASED: "subscription_purchased",
+  STUDY_PLAN_SAVED: "study_plan_saved",
 } as const;
 
 declare global {
@@ -95,3 +96,5 @@ export const trackSubscriptionCheckoutStarted = (params: { paywall_reason: strin
   track(ANALYTICS_EVENTS.SUBSCRIPTION_CHECKOUT_STARTED, params);
 export const trackSubscriptionPurchased = () =>
   track(ANALYTICS_EVENTS.SUBSCRIPTION_PURCHASED, { plan: "monthly_199" });
+export const trackStudyPlanSaved = (params: { exam: string; subject_count: number; daily_minutes: number }) =>
+  track(ANALYTICS_EVENTS.STUDY_PLAN_SAVED, params);

@@ -8,6 +8,7 @@ import { ensureSubscriptionFreshness } from "@/lib/subscription";
 export const dynamic = "force-dynamic";
 
 type Subject = { id: string; name: string };
+type StudyPreference = { selected_subject_ids: string[] };
 type TopicSignal = {
   topicId: string;
   topicName: string;
@@ -56,10 +57,19 @@ export default async function CoachPage() {
     .select("id, name")
     .eq("slug", examSlug)
     .maybeSingle<{ id: string; name: string }>();
-  const { data: subjectRows } = exam?.id
-    ? await supabase.from("subjects").select("id, name").eq("exam_id", exam.id).order("order_index")
-    : { data: [] };
-  const subjects = (subjectRows ?? []) as Subject[];
+  const [{ data: subjectRows }, { data: preferenceRaw }] = exam?.id
+    ? await Promise.all([
+        supabase.from("subjects").select("id, name").eq("exam_id", exam.id).order("order_index"),
+        supabase.from("user_exam_preferences").select("selected_subject_ids").eq("user_id", user.id).eq("exam_id", exam.id).maybeSingle<StudyPreference>(),
+      ])
+    : [{ data: [] }, { data: null }];
+  const examSubjects = (subjectRows ?? []) as Subject[];
+  const examSubjectIds = new Set(examSubjects.map((subject) => subject.id));
+  const selectedIds = (preferenceRaw?.selected_subject_ids ?? [])
+    .filter((id) => examSubjectIds.has(id));
+  const subjects = selectedIds.length > 0
+    ? examSubjects.filter((subject) => selectedIds.includes(subject.id))
+    : examSubjects;
   const activeSubjectIds = new Set(subjects.map((subject) => subject.id));
   const subjectName = (id: string) => subjects.find((subject) => subject.id === id)?.name ?? "your subject";
 
