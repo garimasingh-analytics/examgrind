@@ -74,19 +74,33 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Every selected subject must belong to this exam." }, { status: 400 });
   }
 
-  const { error: saveError } = await admin
+  const profile = {
+    user_id: user.id,
+    exam_id: exam.id,
+    selected_subject_ids: subjectIds,
+    target_exam_date: targetExamDate,
+    target_score: targetScore,
+    daily_study_minutes: dailyStudyMinutes,
+    onboarding_completed_at: new Date().toISOString(),
+  };
+
+  const { error: adminSaveError } = await admin
     .from("user_exam_preferences")
-    .upsert({
-      user_id: user.id,
-      exam_id: exam.id,
-      selected_subject_ids: subjectIds,
-      target_exam_date: targetExamDate,
-      target_score: targetScore,
-      daily_study_minutes: dailyStudyMinutes,
-      onboarding_completed_at: new Date().toISOString(),
-    }, { onConflict: "user_id,exam_id" });
-  if (saveError) {
-    console.error("[me/study-profile] save failed", saveError);
+    .upsert(profile, { onConflict: "user_id,exam_id" });
+
+  // The user's cookie-authenticated client is a safe fallback: the table's
+  // RLS policies allow only user_id = auth.uid(). This keeps plan saving
+  // working if the privileged REST path is temporarily unavailable.
+  if (adminSaveError) {
+    const { error: ownerSaveError } = await supabase
+      .from("user_exam_preferences")
+      .upsert(profile, { onConflict: "user_id,exam_id" });
+    if (!ownerSaveError) return NextResponse.json({ ok: true });
+
+    console.error("[me/study-profile] save failed", {
+      admin: { code: adminSaveError.code, message: adminSaveError.message },
+      owner: { code: ownerSaveError.code, message: ownerSaveError.message },
+    });
     return NextResponse.json({ error: "Couldn't save your study plan. Please try again." }, { status: 500 });
   }
 
