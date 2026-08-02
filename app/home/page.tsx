@@ -53,7 +53,10 @@ type StudyPreference = {
 // show a static pill from the EXAM_DISPLAY map, replaced by the
 // switcher dropdown so users can change exam in one click.
 
-export default async function HomePage() {
+type HomeProps = { searchParams: Promise<{ onboarding?: string }> };
+
+export default async function HomePage({ searchParams }: HomeProps) {
+  const { onboarding } = await searchParams;
   const supabase = createServerSupabase();
 
   const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -662,6 +665,7 @@ export default async function HomePage() {
               initialTargetScore={studyPreference?.target_score ?? null}
               initialDailyStudyMinutes={studyPreference?.daily_study_minutes ?? null}
               needsSetup={!hasStudyProfile}
+              forceOpen={isAdmin && onboarding === "preview"}
             />
             <Link href="/weekly" className="rounded-full border border-cream-50/30 px-3 py-2 text-xs font-bold text-cream-50 transition hover:bg-cream-50/10">Weekly proof →</Link>
           </div>
