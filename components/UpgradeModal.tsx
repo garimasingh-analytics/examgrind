@@ -135,7 +135,7 @@ export default function UpgradeModal({
       ? "You've used your free analysis"
       : reason === "deep-dive"
       ? "Deep Dive is a paid feature"
-      : "Unlock everything";
+      : "Choose the access that fits today";
 
   const sub =
     reason === "quiz-limit"
@@ -146,7 +146,7 @@ export default function UpgradeModal({
       ? "Upgrade to keep diagnosing every quiz."
       : reason === "deep-dive"
       ? "Deep Dive uses our most thorough model — exhaustive walkthroughs, second-order patterns, a 7-day plan."
-      : "Get the full ExamGrind experience for ₹199 / month.";
+      : "Start small with a one-time purchase, or choose Coach for unlimited practice every month.";
 
   const handleUpgrade = async () => {
     setError(null);
@@ -318,6 +318,7 @@ export default function UpgradeModal({
         {/* Body */}
         <div className="px-6 py-5">
           <div className="space-y-3">
+            <div className="flex items-center gap-3"><span className="h-px flex-1 bg-cocoa-900/[.08]" /><p className="text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">One-time access · no renewal</p><span className="h-px flex-1 bg-cocoa-900/[.08]" /></div>
             <Offer title="1 AI Deep Analysis" price="₹19" detail="Find weak concepts, score impact and the next action for one completed quiz or mock." fit="Best for one result." onClick={() => handleOneTimePurchase("analysis_credit")} disabled={loading || success} />
             <Offer title="Personal 21-Day Score Boost" price="₹49" detail="A fixed weak-topic roadmap with daily targets and dated revision checkpoints. No auto-renewal." fit="Best for a focused sprint." onClick={() => handleOneTimePurchase("score_boost_21d")} disabled={loading || success} />
             <div className="grid grid-cols-3 gap-2">
@@ -325,14 +326,14 @@ export default function UpgradeModal({
               <Offer title="10 quizzes" price="₹149" detail="Use anytime" fit="Popular." onClick={() => handleOneTimePurchase("quiz_pack_10")} disabled={loading || success} compact />
               <Offer title="15 quizzes" price="₹199" detail="Use anytime" fit="Best pack." onClick={() => handleOneTimePurchase("quiz_pack_15")} disabled={loading || success} compact />
             </div>
-            <div className="rounded-2xl border border-ember-600/20 bg-sun-400/10 p-4">
-              <div className="flex items-baseline justify-between gap-3"><h3 className="font-bold text-cocoa-900">ExamGrind Coach</h3><span className="font-serif text-xl font-bold text-cocoa-900">₹199 <span className="font-sans text-xs font-medium">/ month</span></span></div>
-              <p className="mt-1 text-xs leading-relaxed text-cocoa-700">Unlimited quizzes, mocks and Deep Analyses, plus adaptive plans and every ongoing premium tool.</p>
-              <p className="mt-2 text-[11px] font-bold text-ember-700">Best value for regular practice.</p>
+            <div className="rounded-2xl border-2 border-ember-600/25 bg-gradient-to-br from-sun-400/20 to-ember-500/10 p-4">
+              <div className="flex items-baseline justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-ember-700">Monthly membership</p><h3 className="mt-1 font-bold text-cocoa-900">ExamGrind Coach</h3></div><span className="font-serif text-xl font-bold text-cocoa-900">₹199 <span className="font-sans text-xs font-medium">/ month</span></span></div>
+              <ul className="mt-3 grid gap-1.5 text-xs font-medium text-cocoa-800 sm:grid-cols-2"><li>✓ Unlimited quizzes</li><li>✓ Unlimited Deep Analyses</li><li>✓ Full mocks</li><li>✓ Live Coach + revision queue</li></ul>
+              <p className="mt-3 text-[11px] font-bold text-ember-700">Best value if you practice more than 15 quizzes this month.</p>
               <button onClick={handleUpgrade} disabled={loading || success} className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-4 py-2.5 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Opening checkout…" : "Upgrade to Coach"}</button>
+              <p className="mt-2 text-center text-[10px] text-cocoa-600">Auto-renews monthly through Razorpay. Cancel anytime from Profile.</p>
             </div>
           </div>
-          <p className="mt-3 text-center text-[11px] text-cocoa-500">A rewarded ad option will appear here only after ad approval and verified completion are available.</p>
 
           <button
             onClick={onClose}
