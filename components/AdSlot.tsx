@@ -70,6 +70,8 @@ export default function AdSlot({ className = "" }: { className?: string }) {
       setStatus(nextStatus === "unfilled" ? "unfilled" : "filled");
     });
     observer.observe(slot, { attributes: true, attributeFilter: ["data-ad-status"] });
+    const initialStatus = slot.getAttribute("data-ad-status");
+    if (initialStatus) setStatus(initialStatus === "unfilled" ? "unfilled" : "filled");
 
     void loadAdSense().then((ready) => {
       if (!active) return;
