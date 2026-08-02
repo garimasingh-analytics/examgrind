@@ -9,6 +9,7 @@ import PremiumBadge from "@/components/PremiumBadge";
 import DailyMissionCard, { type MissionStep } from "@/components/DailyMissionCard";
 import AdSlot from "@/components/AdSlot";
 import StudyPlanSetup from "@/components/StudyPlanSetup";
+import MonthlyProgressCalendar from "@/components/MonthlyProgressCalendar";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
 
@@ -29,6 +30,7 @@ type TodayQuestion = {
   user_answer: string | null;
   time_taken: number | null;
 };
+type ActivityQuiz = { created_at: string };
 
 type UserRow = {
   xp: number;
@@ -66,12 +68,13 @@ export default async function HomePage() {
   // Three of those queries are independent — profile, topic counts, and
   // mastery — so we fire them in parallel here. Subjects still needs the
   // user's exam_choice, so it stays sequential after the parallel batch.
-  const indiaDateParts = new Intl.DateTimeFormat("en-GB", {
+  const indiaDateFormatter = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Kolkata",
     year: "numeric",
     month: "numeric",
     day: "numeric",
-  }).formatToParts(new Date());
+  });
+  const indiaDateParts = indiaDateFormatter.formatToParts(new Date());
   const indiaPart = (type: Intl.DateTimeFormatPartTypes) => Number(
     indiaDateParts.find((part) => part.type === type)?.value ?? 0,
   );
@@ -81,8 +84,13 @@ export default async function HomePage() {
     Date.UTC(indiaPart("year"), indiaPart("month") - 1, indiaPart("day")) -
       5.5 * 60 * 60 * 1000,
   ).toISOString();
+  const indiaDateKey = (value: Date | string) => {
+    const parts = indiaDateFormatter.formatToParts(new Date(value));
+    const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? "00";
+    return `${part("year")}-${part("month").padStart(2, "0")}-${part("day").padStart(2, "0")}`;
+  };
 
-  const [profileRes, countsRes, masteryRes, todayQuizzesRes] = await Promise.all([
+  const [profileRes, countsRes, masteryRes, todayQuizzesRes, activityRes] = await Promise.all([
     supabase
       .from("users")
       .select(
@@ -104,12 +112,22 @@ export default async function HomePage() {
       .not("score", "is", null)
       .gte("created_at", todayIndiaStart)
       .limit(100),
+    supabase
+      .from("quizzes")
+      .select("created_at")
+      .eq("user_id", authUser.id)
+      .not("score", "is", null)
+      .gte("created_at", new Date(Date.now() - 35 * 86_400_000).toISOString())
+      .limit(500),
   ]);
 
   let profile = profileRes.data;
   const countsData = countsRes.data;
   const masteryRaw = masteryRes.data;
   const todayQuizzes = (todayQuizzesRes.data ?? []) as TodayQuiz[];
+  const activeDateKeys = Array.from(new Set(
+    ((activityRes.data ?? []) as ActivityQuiz[]).map((quiz) => indiaDateKey(quiz.created_at)),
+  ));
 
   if (!profile) {
     // Defensive insert on first visit. New rows get exam_choice='cuet'
@@ -499,10 +517,8 @@ export default async function HomePage() {
   // Streak gets shown only if it's still "alive" — i.e. the user practiced
   // today or yesterday. Otherwise we show 0 (the streak is broken even if
   // we haven't yet reset it in the DB on this view).
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date(Date.now() - 86_400_000)
-    .toISOString()
-    .slice(0, 10);
+  const today = indiaDateKey(new Date());
+  const yesterday = indiaDateKey(new Date(Date.now() - 86_400_000));
   const lastDate = profile?.last_active_date ?? null;
   const streakAlive = lastDate === today || lastDate === yesterday;
   const streak = streakAlive ? profile?.streak_count ?? 0 : 0;
@@ -646,6 +662,7 @@ export default async function HomePage() {
       )}
 
       <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">Hi, {firstName}</p>
@@ -668,9 +685,16 @@ export default async function HomePage() {
           </div>
           <Chick state="idle" size={92} className="hidden sm:block" />
         </div>
+        <MonthlyProgressCalendar
+          today={today}
+          activeDates={activeDateKeys}
+          streak={streak}
+          longestStreak={profile?.longest_streak ?? 0}
+        />
+        </div>
       </section>
 
-      {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} isCoach={isPaid} />}
+      {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} />}
 
       <section className="mx-auto mt-5 grid max-w-5xl gap-3 px-4 sm:grid-cols-2 sm:px-6">
         <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">

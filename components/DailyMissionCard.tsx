@@ -6,7 +6,6 @@ import { trackDailyMissionStarted } from "@/lib/product-analytics";
 type Props = {
   steps: MissionStep[];
   scoreBoostDay?: number | null;
-  isCoach?: boolean;
 };
 
 export type MissionStep = {
@@ -48,7 +47,6 @@ const stepCopy = (step: MissionStep) => {
 export default function DailyMissionCard({
   steps,
   scoreBoostDay,
-  isCoach = false,
 }: Props) {
   const startMission = (type: MissionStep["type"]) => {
     // Quiz creation can take a minute, so preserve a short-lived anonymous
@@ -64,15 +62,15 @@ export default function DailyMissionCard({
   const nextStep = steps.find((step) => !step.completed) ?? steps[0];
 
   return (
-    <section id="daily-mission" className="mx-auto mt-7 max-w-5xl scroll-mt-5 px-4 sm:px-6">
-      <div className="overflow-hidden rounded-3xl border border-ember-600/20 bg-gradient-to-br from-cocoa-900 via-cocoa-900 to-ember-900 p-5 shadow-warm-lg sm:p-6">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <section id="daily-mission" className="mx-auto mt-5 max-w-5xl scroll-mt-5 px-4 sm:px-6">
+      <div className="overflow-hidden rounded-3xl border border-ember-600/20 bg-gradient-to-br from-cocoa-800 via-cocoa-800 to-ember-800 p-4 shadow-warm-lg sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-sun-300">Daily mission · {completedCount} of {steps.length} steps done</p>
-            <h2 className="mt-2 font-serif text-2xl font-semibold text-cream-50 sm:text-3xl">
+            <h2 className="mt-1 font-serif text-2xl font-semibold text-cream-50">
               A complete study session, chosen for you.
             </h2>
-            <p className="mt-2 text-sm leading-6 text-cream-100/80 sm:text-base">
+            <p className="mt-1.5 text-sm leading-5 text-cream-100/85">
               Repair, recall, and build coverage across your {steps.length > 1 ? "selected exam subjects" : "selected exam"}. Finish the steps in any order.
             </p>
             {scoreBoostDay && (
@@ -94,23 +92,23 @@ export default function DailyMissionCard({
             </Link>
           )}
         </div>
-        <ol className="mt-5 grid gap-3 md:grid-cols-3">
+        <ol className="mt-4 grid gap-2 md:grid-cols-3">
           {steps.map((step, index) => {
             const copy = stepCopy(step);
             return (
-              <li key={`${step.type}-${step.href}`} className={`rounded-2xl border p-4 ${step.completed ? "border-moss-500/35 bg-moss-500/15" : "border-cream-50/15 bg-cream-50/10"}`}>
+              <li key={`${step.type}-${step.href}`} className={`rounded-2xl border p-3 ${step.completed ? "border-moss-500/35 bg-moss-500/15" : "border-cream-50/25 bg-white/[.14]"}`}>
                 <div className="flex items-start gap-2">
                   <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${step.completed ? "bg-moss-400 text-cocoa-900" : "bg-sun-400 text-cocoa-900"}`}>
                     {step.completed ? "✓" : index + 1}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-sun-200">{copy.label}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-sun-100">{copy.label}</p>
                     <p className="mt-1 font-serif text-base font-semibold text-cream-50">{step.topicName ?? step.subjectName}</p>
-                    <p className="mt-1 text-xs text-cream-100/70">{step.subjectName} · {copy.detail}</p>
+                    <p className="mt-1 text-xs text-cream-100/85">{step.subjectName} · {copy.detail}</p>
                   </div>
                 </div>
                 {!step.completed && (
-                  <Link href={step.href} onClick={() => startMission(step.type)} className="mt-3 inline-flex text-xs font-bold text-sun-200 hover:text-sun-100">
+                  <Link href={step.href} onClick={() => startMission(step.type)} className="mt-2 inline-flex rounded-lg bg-white/10 px-2 py-1 text-xs font-extrabold text-white underline decoration-sun-300/80 underline-offset-2 hover:bg-white/20">
                     {copy.button} →
                   </Link>
                 )}
@@ -119,15 +117,6 @@ export default function DailyMissionCard({
             );
           })}
         </ol>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cream-50/10 bg-cocoa-950/20 px-4 py-3 text-xs">
-          <p className="text-cream-100/75">
-            <span className="font-bold text-sun-200">{isCoach ? "ExamGrind Coach is live." : "Want the plan to adapt after every quiz?"}</span>{" "}
-            {isCoach ? "Your briefing updates from your completed practice." : "Coach turns today’s evidence into an ongoing study plan."}
-          </p>
-          <Link href={isCoach ? "/coach" : "/me"} className="shrink-0 font-bold text-sun-200 hover:text-sun-100">
-            {isCoach ? "Open Coach briefing →" : "Explore Coach →"}
-          </Link>
-        </div>
       </div>
     </section>
   );
