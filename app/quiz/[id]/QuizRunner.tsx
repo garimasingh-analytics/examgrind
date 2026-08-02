@@ -216,9 +216,9 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
   const optionLetters: Letter[] = ["A", "B", "C", "D"];
 
   return (
-    <main className="bg-warm-wash min-h-[100svh] pb-24">
+    <main className="quiz-stage min-h-[100svh] pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-cocoa-900/[0.04] bg-cream-100/85 backdrop-blur">
+      <header className="quiz-toolbar sticky top-0 z-10 border-b border-cocoa-900/[0.04] bg-cream-100/85 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <button
             onClick={requestQuit}
@@ -260,7 +260,7 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
           <Chick state={chickState} size={56} />
         </div>
         {/* Progress bar */}
-        <div className="h-1.5 w-full bg-cream-200">
+        <div className="quiz-progress h-1.5 w-full bg-cream-200">
           <div
             className="h-full bg-gradient-to-r from-sun-500 to-ember-600 transition-all duration-300"
             style={{ width: `${progressPct}%` }}
@@ -268,9 +268,13 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
         </div>
       </header>
 
-      <section className="mx-auto max-w-2xl px-6 pt-10">
+      <section className="quiz-paper mx-auto max-w-2xl px-6 py-10 sm:mt-8 sm:px-10 sm:py-12">
+        <div className="quiz-paper-kicker">
+          <span>Exam focus</span>
+          <span>{selected ? "Answer chosen" : "Choose your best answer"}</span>
+        </div>
         {/* Question */}
-        <h1 className="font-serif text-2xl font-semibold leading-snug text-cocoa-900 sm:text-3xl">
+        <h1 key={current.id} className="quiz-question font-serif text-2xl font-semibold leading-snug text-cocoa-900 sm:text-3xl">
           {current.question}
         </h1>
 
@@ -284,7 +288,7 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
                   onClick={() => choose(L)}
                   disabled={submitting}
                   className={[
-                    "flex w-full items-start gap-4 rounded-2xl border-2 px-5 py-4 text-left transition",
+                    "quiz-option flex w-full items-start gap-4 rounded-2xl border-2 px-5 py-4 text-left transition",
                     "shadow-warm",
                     isSelected
                       ? "border-ember-600 bg-ember-600/5"
@@ -293,7 +297,7 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
                 >
                   <span
                     className={[
-                      "flex size-9 shrink-0 items-center justify-center rounded-xl font-serif text-base font-bold",
+                      "quiz-option-letter flex size-9 shrink-0 items-center justify-center rounded-xl font-serif text-base font-bold",
                       isSelected
                         ? "bg-ember-600 text-cream-50"
                         : "bg-cream-200 text-cocoa-700",
@@ -329,7 +333,7 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
             onClick={nextOrSubmit}
             disabled={submitting}
             className={[
-              "inline-flex shrink-0 items-center justify-center rounded-2xl px-5 py-3 text-sm font-bold shadow-warm transition sm:px-6",
+              "quiz-next inline-flex shrink-0 items-center justify-center rounded-2xl px-5 py-3 text-sm font-bold shadow-warm transition sm:px-6",
               selected
                 ? "bg-ember-600 text-cream-50 hover:bg-ember-700"
                 : "bg-cocoa-900/10 text-cocoa-500",

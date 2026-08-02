@@ -248,9 +248,10 @@ export default function DeepAnalysis({
   if (!analysis && !pending) {
     const blocked = freeAnalysisUsed && !isPaid && !hasAnalysisCredit;
     return (
-      <div className="rounded-3xl border-2 border-dashed border-ember-600/30 bg-cream-50 p-6 sm:p-8">
+      <div className="analysis-invite rounded-3xl border-2 border-ember-600/30 bg-cream-50 p-6 sm:p-8">
         <div className="flex flex-col items-center text-center">
-          <Chick state="idle" size={96} />
+          <div className="analysis-chick-frame"><Chick state="idle" size={92} /></div>
+          <p className="analysis-eyebrow mt-3">Your answer trail</p>
           <h2 className="mt-3 font-serif text-2xl font-bold text-cocoa-900 sm:text-3xl">
             See exactly where you went wrong
           </h2>
@@ -262,7 +263,7 @@ export default function DeepAnalysis({
           {!blocked ? (
             <button
               onClick={() => analyze(false)}
-              className="mt-5 inline-flex items-center justify-center gap-2 rounded-2xl bg-ember-600 px-6 py-3 text-sm font-bold text-cream-50 shadow-warm transition hover:bg-ember-700"
+              className="analysis-primary mt-5 inline-flex items-center justify-center gap-2 rounded-2xl bg-ember-600 px-6 py-3 text-sm font-bold text-cream-50 shadow-warm transition hover:bg-ember-700"
             >
               <span>✨</span>
               <span>Analyze my quiz</span>
@@ -309,8 +310,8 @@ export default function DeepAnalysis({
   /* ---------- Loading ---------- */
   if (pending && !analysis) {
     return (
-      <div className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-8 text-center shadow-warm-lg">
-        <Chick state="idle" size={96} className="mx-auto" />
+      <div className="analysis-loading rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-8 text-center shadow-warm-lg">
+        <div className="analysis-chick-frame mx-auto"><Chick state="idle" size={92} /></div>
         <h2 className="mt-3 font-serif text-2xl font-bold text-cocoa-900">
           Reading your answers…
         </h2>
@@ -328,9 +329,9 @@ export default function DeepAnalysis({
   if (!analysis) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="analysis-dossier space-y-6">
       {/* Verdict banner */}
-      <div className="rounded-3xl border border-cocoa-900/[0.06] bg-gradient-to-br from-cream-50 to-cream-100 p-6 shadow-warm-lg">
+      <div className="analysis-cover rounded-3xl border border-cocoa-900/[0.06] bg-gradient-to-br from-cream-50 to-cream-100 p-6 shadow-warm-lg">
         <div className="flex items-start gap-4">
           <Chick state="happy" size={64} />
           <div className="min-w-0 flex-1">
@@ -346,7 +347,7 @@ export default function DeepAnalysis({
 
       {/* Strengths + Weaknesses */}
       {analysis.strengths.length > 0 && (
-        <section>
+        <section className="analysis-section">
           <h3 className="mb-3 font-serif text-lg font-bold text-cocoa-900">
             What&apos;s working
           </h3>
@@ -368,7 +369,7 @@ export default function DeepAnalysis({
       )}
 
       {analysis.weaknesses.length > 0 && (
-        <section>
+        <section className="analysis-section">
           <h3 className="mb-3 font-serif text-lg font-bold text-cocoa-900">
             Where to focus
           </h3>
@@ -388,7 +389,7 @@ export default function DeepAnalysis({
 
       {/* Patterns */}
       {analysis.patterns.length > 0 && (
-        <section className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
+        <section className="analysis-note rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
           <h3 className="font-serif text-lg font-bold text-cocoa-900">Patterns</h3>
           <ul className="mt-3 space-y-2">
             {analysis.patterns.map((p, i) => (
@@ -403,7 +404,7 @@ export default function DeepAnalysis({
 
       {/* Pacing — only renders when time data was recorded */}
       {analysis.pacing && (
-        <section className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
+        <section className="analysis-note rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
           <div className="flex items-center justify-between gap-3">
             <h3 className="font-serif text-lg font-bold text-cocoa-900">
               ⏱ Pacing
@@ -491,7 +492,7 @@ export default function DeepAnalysis({
       )}
 
       {/* Study plan */}
-      <section className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
+      <section className="analysis-note rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-5 shadow-warm">
         <h3 className="font-serif text-lg font-bold text-cocoa-900">Study next</h3>
         <ul className="mt-3 space-y-3">
           <PlanRow label="Next 15 min" value={analysis.studyPlan.next_15_min} />
@@ -502,7 +503,7 @@ export default function DeepAnalysis({
 
       {/* Deep Dive upgrade button (if not already deep-dived) */}
       {!isDeepDive && (
-        <div className="rounded-3xl border-2 border-dashed border-sun-500/40 bg-sun-500/5 p-5 text-center">
+        <div className="analysis-deep-dive rounded-3xl border-2 border-sun-500/40 bg-sun-500/5 p-5 text-center">
           <p className="font-semibold text-cocoa-900">
             Want exhaustive walkthroughs + a 7-day plan?
           </p>
@@ -558,7 +559,7 @@ function WeaknessCard({
   const sevDots = weakness.severity === "high" ? "●●●" : weakness.severity === "medium" ? "●●○" : "●○○";
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm">
+    <article className="analysis-weakness overflow-hidden rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm">
       {/* Header */}
       <header className="flex items-start gap-3 border-b border-cocoa-900/[0.04] px-5 py-4">
         <span className={`mt-0.5 font-mono text-xs font-bold leading-none ${sevColor}`} aria-label={`severity ${weakness.severity}`}>

@@ -125,7 +125,7 @@ export default async function ResultsPage({ params }: Params) {
       };
 
   return (
-    <main className="bg-warm-wash min-h-[100svh] pb-24">
+    <main className="results-stage min-h-[100svh] pb-24">
       <header className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex items-center gap-2 sm:gap-3">
           <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
@@ -154,10 +154,10 @@ export default async function ResultsPage({ params }: Params) {
 
       {/* Score panel */}
       <section className="mx-auto max-w-2xl px-4 pt-4 sm:px-6 sm:pt-8">
-        <div className="rounded-4xl border border-cocoa-900/[0.06] bg-cream-50 p-6 shadow-warm-lg sm:p-10">
+        <div className="result-dossier rounded-4xl border border-cocoa-900/[0.06] bg-cream-50 p-6 shadow-warm-lg sm:p-10">
           <div className="flex flex-col items-center text-center">
-            <Chick state={chickState} size={140} />
-            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
+            <div className="result-chick-frame"><Chick state={chickState} size={126} /></div>
+            <p className="result-kicker mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-cocoa-500">
               {quizRow.subject} · {quizRow.subtopic}
             </p>
             <h1 className="mt-2 font-serif text-4xl font-semibold leading-tight text-cocoa-900 sm:text-5xl">
@@ -169,7 +169,7 @@ export default async function ResultsPage({ params }: Params) {
           </div>
 
           {!isEmpty && (
-            <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="result-stat-grid mt-8 grid grid-cols-3 gap-2 sm:gap-3">
               <Stat label="Correct" value={`${correct} / ${total}`} />
               <Stat label="Accuracy" value={`${accuracy}%`} accent="text-ember-600" />
               <Stat label="XP earned" value={`+${xp}`} accent="text-sun-600" />
@@ -195,7 +195,7 @@ export default async function ResultsPage({ params }: Params) {
           )}
 
           {(quizRow.topic_id || quizRow.chapter_id) && (
-            <div className="mt-6 rounded-2xl border border-ember-600/20 bg-ember-600/10 p-4 text-left sm:flex sm:items-center sm:justify-between sm:gap-4">
+            <div className="result-next-action mt-6 rounded-2xl border border-ember-600/20 bg-ember-600/10 p-4 text-left sm:flex sm:items-center sm:justify-between sm:gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-ember-700">One next action</p>
                 <p className="mt-1 font-semibold text-cocoa-900">{nextAction.title}</p>
@@ -238,8 +238,8 @@ export default async function ResultsPage({ params }: Params) {
       )}
 
       {/* Per-question review */}
-      <section className="mx-auto mt-10 max-w-2xl px-4 sm:px-6">
-        <div className="mb-4"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Answer review</p><h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">Focus on what can earn you marks.</h2><p className="mt-1 text-sm text-cocoa-700">Incorrect and skipped questions are open below. Correct answers stay available, without taking over the page.</p></div>
+      <section className="result-review mx-auto mt-10 max-w-2xl px-4 sm:px-6">
+        <div className="result-review-head mb-4"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Answer review</p><h2 className="mt-1 font-serif text-xl font-bold text-cocoa-900">Focus on what can earn you marks.</h2><p className="mt-1 text-sm text-cocoa-700">Incorrect and skipped questions are open below. Correct answers stay available, without taking over the page.</p></div>
         <ol className="space-y-4">
           {questions.map((q, i) => {
             const userLetter = q.user_answer as "A" | "B" | "C" | "D" | null;
@@ -251,7 +251,7 @@ export default async function ResultsPage({ params }: Params) {
               ({ A: q.option_a, B: q.option_b, C: q.option_c, D: q.option_d }[L]);
 
             return (
-              <li key={q.id} className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm">
+              <li key={q.id} className={`review-item rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm ${wasRight ? "is-right" : "is-repair"}`}>
                 <details open={!wasRight} className="group">
                   <summary className="flex cursor-pointer list-none items-start gap-3 p-5 marker:hidden">
                     <span className={[
@@ -323,7 +323,7 @@ function Stat({
   accent?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-cocoa-900/[0.06] bg-cream-100 p-4 text-center">
+    <div className="result-stat rounded-2xl border border-cocoa-900/[0.06] bg-cream-100 p-4 text-center">
       <p className="text-[10px] font-semibold uppercase tracking-widest text-cocoa-500">
         {label}
       </p>
