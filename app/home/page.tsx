@@ -349,15 +349,6 @@ export default async function HomePage() {
   const readiness = totalTopics > 0
     ? Math.round((readinessPoints / totalTopics) * 100)
     : 0;
-  const strongestSubject = [...studySubjects]
-    .filter((subject) => (attemptedBySubject.get(subject.id) ?? 0) > 0)
-    .sort(
-      (a, b) =>
-        (readinessPointsBySubject.get(b.id) ?? 0) /
-          Math.max(totalTopicsBySubject.get(b.id) ?? 1, 1) -
-        (readinessPointsBySubject.get(a.id) ?? 0) /
-          Math.max(totalTopicsBySubject.get(a.id) ?? 1, 1),
-    )[0]?.name ?? null;
 
   // Daily Mission uses only completed learning evidence: the weakest attempted
   // topic gets priority; brand-new learners get the first available topic in
@@ -662,11 +653,12 @@ export default async function HomePage() {
       )}
 
       <section className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 sm:pt-10">
+        <div className="rounded-3xl border border-cocoa-900/[.07] bg-gradient-to-br from-cream-50 via-cream-50 to-sun-400/10 px-5 py-6 shadow-warm sm:px-7 sm:py-7">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-medium uppercase tracking-widest text-cocoa-500">Hi, {firstName}</p>
-            <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-cocoa-900 sm:text-5xl">Your next best step.</h1>
-            <p className="mt-2 text-base text-cocoa-700">One focused session is enough for today.</p>
+            <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-cocoa-900 sm:text-4xl">Your next best step.</h1>
+            <p className="mt-2 text-sm text-cocoa-700 sm:text-base">One focused session is enough for today. Start there; the rest can wait.</p>
             {hasStudyProfile && (
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {examDaysLeft !== null && examDaysLeft >= 0 && (
@@ -690,20 +682,17 @@ export default async function HomePage() {
           streak={streak}
           longestStreak={profile?.longest_streak ?? 0}
         />
+        </div>
       </section>
 
       {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} />}
 
-      <section className="mx-auto mt-5 grid max-w-5xl gap-3 px-4 sm:grid-cols-2 sm:px-6">
-        <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cocoa-500">Today</p>
-          <p className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">{todayQuestions.length} questions</p>
-          <p className="mt-1 text-xs text-cocoa-700">{todayQuestions.length > 0 ? `${todayAccuracy}% accuracy · ${todayMinutes} min` : "Complete the Daily Mission above to create today’s proof."}</p>
-        </Link>
-        <Link href="/weekly" className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-4 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cocoa-500">{examRow?.name ?? "Selected exam"} readiness</p>
-          <p className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">{readiness}%</p>
-          <p className="mt-1 text-xs text-cocoa-700">{attemptedTopicCount} of {totalTopics} topics started{strongestSubject ? ` · strongest: ${strongestSubject}` : ""}.</p>
+      <section className="mx-auto mt-4 max-w-5xl px-4 sm:px-6">
+        <Link href="/weekly" className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl border border-cocoa-900/[.07] bg-cream-50 px-4 py-3 shadow-warm transition hover:-translate-y-0.5 hover:bg-white">
+          <span><span className="block text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">Today</span><span className="mt-0.5 block text-sm font-bold text-cocoa-900">{todayQuestions.length} questions{todayQuestions.length > 0 ? ` · ${todayAccuracy}% · ${todayMinutes} min` : ""}</span></span>
+          <span className="hidden h-7 w-px bg-cocoa-900/[.08] sm:block" />
+          <span><span className="block text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">Readiness</span><span className="mt-0.5 block text-sm font-bold text-cocoa-900">{readiness}% · {attemptedTopicCount}/{totalTopics} started</span></span>
+          <span className="ml-auto text-xs font-bold text-ember-700">Weekly proof →</span>
         </Link>
       </section>
       {/* Premium is a genuinely focused, ad-free study experience. The
@@ -746,8 +735,8 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">More study tools</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-cocoa-500">When you need it</p><h2 className="mt-1 font-serif text-xl font-semibold text-cocoa-900">Study tools</h2></div><p className="hidden text-xs text-cocoa-500 sm:block">These stay out of your way until you need them.</p></div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <CompactTool href="/vault" icon="🗂️" title="Study Vault" detail="Create flashcards and mnemonics." />
           <CompactTool href="/mistakes" icon="📘" title="Mistake Book" detail="Repair incorrect answers." />
           <CompactTool href="/revision" icon="🧠" title="Smart Revision" detail={revisionDueTopics.length > 0 ? `${revisionDueTopics.length} due for recall.` : "Recall when it is due."} />
