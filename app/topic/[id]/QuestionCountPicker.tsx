@@ -141,11 +141,12 @@ export default function QuestionCountPicker({
       )}
 
     <div className="quiz-builder">
-      <p className="eg-kicker text-ember-700">
-        Build your round
+      <p className="quiz-builder-kicker eg-kicker text-ember-700">
+        Your practice round
       </p>
+      <p className="quiz-builder-intro">Short enough to begin now. Long enough to show you a real pattern.</p>
 
-      <div className="mt-5 flex items-center justify-center gap-4">
+      <div className="quiz-builder-counter mt-5 flex items-center justify-center gap-4">
         <button
           onClick={() => setCount(Math.max(MIN, count - 1))}
           disabled={count <= MIN || pending}

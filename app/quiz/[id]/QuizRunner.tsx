@@ -27,6 +27,8 @@ type Props = {
   quizId: string;
   topicLabel: string;
   questions: ClientQuestion[];
+  /** Founder-only visual review route. Never posts answers or consumes quota. */
+  previewResultsHref?: string;
 };
 
 /**
@@ -41,7 +43,7 @@ type Props = {
  *  but that requires sending correct answers to the client, which lets
  *  users cheat by inspecting the DOM.)
  */
-export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
+export default function QuizRunner({ quizId, topicLabel, questions, previewResultsHref }: Props) {
   const router = useRouter();
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, Letter | null>>({});
@@ -164,6 +166,10 @@ export default function QuizRunner({ quizId, topicLabel, questions }: Props) {
   };
 
   const submit = (finalTimes: Record<string, number>) => {
+    if (previewResultsHref) {
+      router.push(previewResultsHref);
+      return;
+    }
     setError(null);
     startSubmit(async () => {
       try {

@@ -62,7 +62,7 @@ export default async function TopicLauncherPage({ params }: Params) {
     : null;
 
   return (
-    <main className="bg-warm-wash min-h-[100svh] pb-20">
+    <main className="topic-stage min-h-[100svh] pb-20">
       <header className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex items-center gap-2 sm:gap-3">
           <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900 sm:text-xl">
@@ -80,9 +80,9 @@ export default async function TopicLauncherPage({ params }: Params) {
 
       <section className="topic-launch mx-auto max-w-2xl px-4 pt-4 sm:px-6 sm:pt-8">
         <div className="topic-launch-intro flex flex-col items-center text-center">
-          <Chick state="idle" size={126} className="mb-5" />
+          <div className="topic-launch-chick"><Chick state="idle" size={108} /></div>
 
-          <p className="eg-kicker text-sun-400">
+          <p className="topic-launch-kicker eg-kicker text-sun-400">
             {topic.chapter.subject.name} · {topic.chapter.name}
           </p>
           <h1 className="mt-3 font-serif text-4xl font-semibold leading-[.9] tracking-[-.055em] text-cream-50 sm:text-5xl">
@@ -90,18 +90,18 @@ export default async function TopicLauncherPage({ params }: Params) {
           </h1>
 
           {previouslyAttempted ? (
-            <p className="mt-4 max-w-lg text-base leading-6 text-cream-200">
-              You&apos;ve practiced this before — best accuracy <span className="font-semibold text-cocoa-900">{accuracy}%</span>. Let&apos;s go again.
+            <p className="topic-launch-copy mt-4 max-w-lg text-base leading-6 text-cream-200">
+              You&apos;ve practiced this before — best accuracy <span className="topic-launch-score font-semibold">{accuracy}%</span>. Let&apos;s make it reliable.
             </p>
           ) : (
-            <p className="mt-4 max-w-lg text-base leading-6 text-cream-200">
-              First time on this topic. Pick how many questions you want.
+            <p className="topic-launch-copy mt-4 max-w-lg text-base leading-6 text-cream-200">
+              First pass. Choose a short, serious round and create your first proof point.
             </p>
           )}
         </div>
 
         {/* The slider lives in a Client Component */}
-        <div className="mt-6 px-2 sm:px-6">
+        <div className="topic-builder-wrap mt-6 px-2 sm:px-6">
           <QuestionCountPicker
             topicId={topic.id}
             freeQuizzesLeft={freeQuizzesLeft}
