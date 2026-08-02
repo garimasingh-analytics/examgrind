@@ -285,6 +285,22 @@ body {
 .home-spread-left { position:relative; display:flex; flex-direction:column; min-height:100%; padding:2rem; background:radial-gradient(circle at 12% 12%,rgba(245,198,77,.35),transparent 31%),linear-gradient(145deg,#FFFCF6,#F3E8D7); }
 .home-spread-left::after { content:""; position:absolute; right:-6%; bottom:-15%; width:72%; height:45%; border:2px solid rgba(184,70,43,.18); border-radius:50%; transform:rotate(-20deg); pointer-events:none; }
 .home-spread-right { position:relative; padding:2rem; background:linear-gradient(160deg,#FFFCF6,#F7F0E4); }
+
+/* Today’s Issue — three actions should feel like a short visual story, not a dashboard grid. */
+.issue-shell { position:relative; overflow:hidden; border:1px solid rgba(29,24,21,.1); border-radius:2rem; background:#FFFCF6; box-shadow:0 30px 70px -34px rgba(29,24,21,.34); }
+.issue-cover { position:relative; overflow:hidden; min-height:15rem; padding:1.5rem 1.5rem 1.2rem; background:#1D1815; color:#FFFCF6; }
+.issue-cover h1 { white-space:pre-line; }
+.issue-sun { position:absolute; right:-4.5rem; bottom:-5.5rem; width:17rem; height:17rem; border-radius:50%; background:#F5C64D; box-shadow:inset 0 0 0 18px rgba(29,24,21,.08); }
+.issue-scribble { position:absolute; right:3.4rem; top:2.8rem; z-index:2; color:#E7613E; font-family:var(--font-fraunces),serif; font-size:6rem; line-height:1; transform:rotate(-25deg); animation:issue-scribble 3.6s ease-in-out infinite; }
+.issue-route { position:absolute; z-index:3; right:8%; left:8%; top:15.35rem; display:flex; justify-content:space-between; pointer-events:none; }
+.issue-route::before { content:""; position:absolute; top:9px; right:4%; left:4%; border-top:2px dashed rgba(29,24,21,.28); }
+.issue-route span { position:relative; display:block; width:20px; height:20px; border:4px solid #FFFCF6; border-radius:50%; background:#1D1815; box-shadow:0 2px 0 rgba(29,24,21,.16); }
+.issue-page { position:relative; display:flex; min-height:19rem; flex-direction:column; overflow:hidden; border:1px solid rgba(29,24,21,.12); border-radius:1.5rem; padding:1.25rem; color:#1D1815; transition:transform 260ms cubic-bezier(.2,.8,.2,1), box-shadow 260ms ease; }
+.issue-page:hover { z-index:4; transform:translateY(-7px) rotate(-1deg); box-shadow:0 20px 32px -18px rgba(29,24,21,.35); }
+.issue-page.is-done { filter:saturate(.58); }
+.issue-repair { background:#EF765E; }.issue-recall { background:#8878E3; }.issue-build { background:#F5C64D; }
+.issue-doodle { position:absolute; right:-.8rem; top:2.7rem; width:8.7rem; height:8.7rem; opacity:.28; transform:rotate(-10deg); }
+@keyframes issue-scribble { 0%,100%{transform:rotate(-25deg) translateY(0)} 50%{transform:rotate(-20deg) translateY(-5px)} }
 @media (max-width: 640px) {
   .home-spread { grid-template-columns:1fr; min-height:0; border-radius:1.55rem; }
   .home-spread::before { display:none; }
@@ -292,11 +308,13 @@ body {
   .home-spread-left { min-height:26rem; }
   .home-spread-right { border-top:1px solid rgba(29,24,21,.08); }
   .home-spread::after { inset:7px -6px -7px 6px; border-radius:1.55rem; }
+  .issue-shell { border-radius:1.55rem; }.issue-cover { min-height:14rem; padding:1.3rem; }.issue-route { display:none; }.issue-page { min-height:16rem; }.issue-page:hover { transform:none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .landing-book-cover, .landing-book-open-page, .landing-book-shadow { transition:none !important; }
   .landing-book-scene.is-open .landing-book-cover { transform:rotateY(-148deg) translateZ(4px); }
   .home-spread, .home-spread:hover { transition:none !important; transform:none !important; }
+  .issue-scribble { animation:none !important; }
 }
 
 /* happy: gentle rhythmic sway */

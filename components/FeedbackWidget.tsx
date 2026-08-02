@@ -84,15 +84,15 @@ export default function FeedbackWidget() {
 
   return (
     <>
-      {/* Floating trigger */}
+      {/* Quiet edge tab: always reachable, but it never competes with study actions. */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-cocoa-900 px-4 py-2.5 text-xs font-bold text-cream-50 shadow-warm-lg transition hover:scale-[1.03] sm:bottom-6 sm:right-6 sm:px-5 sm:py-3 sm:text-sm"
+        className="fixed bottom-24 right-3 z-40 flex size-10 items-center justify-center rounded-full bg-cocoa-900 text-sm text-cream-50 shadow-warm transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-coral-500 sm:bottom-auto sm:right-0 sm:top-1/2 sm:h-auto sm:w-9 sm:-translate-y-1/2 sm:rounded-r-none sm:rounded-l-xl sm:px-2 sm:py-3 sm:[writing-mode:vertical-rl]"
         aria-label="Send feedback"
         title="Found a bug? Want a feature? Tell us!"
       >
         <span aria-hidden>💬</span>
-        <span>Feedback</span>
+        <span className="sr-only sm:not-sr-only sm:mt-1 sm:text-[10px] sm:font-bold sm:tracking-[0.12em]">Feedback</span>
       </button>
 
       {/* Modal */}

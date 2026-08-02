@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import Chick from "@/components/Chick";
 import { trackDailyMissionStarted } from "@/lib/product-analytics";
 
 type Props = {
   steps: MissionStep[];
   scoreBoostDay?: number | null;
+  firstName?: string;
+  examName?: string;
+  daysLeft?: number | null;
+  todayProof?: string;
+  readinessProof?: string;
 };
 
 export type MissionStep = {
@@ -18,116 +24,48 @@ export type MissionStep = {
   completed: boolean;
 };
 
-const stepCopy = (step: MissionStep) => {
-  if (step.type === "repair") return {
-    label: "Repair a weak area",
-    detail: step.accuracy == null
-      ? "Turn a weak spot into a reliable mark."
-      : `Earlier accuracy: ${step.accuracy}%.`,
-    button: "Repair",
-  };
-  if (step.type === "revision") return {
-    label: "Recall before you forget",
-    detail: "A short recall round keeps this topic exam-ready.",
-    button: "Recall",
-  };
-  if (step.type === "foundation") return {
-    label: "Build your base",
-    detail: "Start this topic to create your first signal.",
-    button: "Start",
-  };
-  return {
-    label: "Build fresh coverage",
-    detail: "Move one under-covered subject forward today.",
-    button: "Build",
-  };
+type IssueTone = "repair" | "recall" | "build";
+type IssueCopy = { label: string; time: string; note: string; button: string; colour: IssueTone };
+
+const copy = (step: MissionStep): IssueCopy => {
+  if (step.type === "repair") return { label: "Repair", time: "12 min", note: step.accuracy == null ? "Turn this weak spot into a usable mark." : `Earlier accuracy: ${step.accuracy}%.`, button: "Repair marks", colour: "repair" };
+  if (step.type === "revision") return { label: "Recall", time: "8 min", note: "Bring it back before it starts to fade.", button: "Recall now", colour: "recall" };
+  return { label: "Build", time: "10 min", note: step.type === "foundation" ? "Create your first proof point here." : "Move this under-covered area forward.", button: "Build coverage", colour: "build" };
 };
 
-/** A short, evidence-based study session rather than a single quiz prompt. */
-export default function DailyMissionCard({
-  steps,
-  scoreBoostDay,
-}: Props) {
-  const startMission = (type: MissionStep["type"]) => {
-    // Quiz creation can take a minute, so preserve a short-lived anonymous
-    // source marker in this browser only. QuizRunner consumes it once after a
-    // real completion; it is never sent to the server or attached to a user.
-    window.sessionStorage.setItem(
-      "examgrind:active-mission",
-      JSON.stringify({ type, startedAt: Date.now() }),
-    );
+export default function DailyMissionCard({ steps, scoreBoostDay, firstName = "there", examName = "your exam", daysLeft, todayProof, readinessProof }: Props) {
+  const completedCount = steps.filter((step) => step.completed).length;
+  const complete = steps.length > 0 && completedCount === steps.length;
+  const minutes = steps.reduce((total, step) => total + Number.parseInt(copy(step).time, 10), 0);
+  const start = (type: MissionStep["type"]) => {
+    window.sessionStorage.setItem("examgrind:active-mission", JSON.stringify({ type, startedAt: Date.now() }));
     trackDailyMissionStarted({ mission_type: type });
   };
-  const completedCount = steps.filter((step) => step.completed).length;
-  const nextStep = steps.find((step) => !step.completed);
-  const missionComplete = steps.length > 0 && completedCount === steps.length;
 
-  return (
-    <section id="daily-mission" className="mx-auto mt-5 max-w-5xl scroll-mt-5 px-4 sm:px-6">
-      <div className="overflow-hidden rounded-3xl border border-sun-500/35 bg-gradient-to-br from-cream-50 via-sun-400/15 to-ember-500/10 p-4 shadow-warm-lg sm:p-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-700">Daily mission · {completedCount} of {steps.length} steps done</p>
-            <h2 className="mt-1 font-serif text-2xl font-semibold text-cocoa-900">
-              {missionComplete ? "Today’s mission is complete." : "Your next three study moves."}
-            </h2>
-            <p className="mt-1.5 text-sm leading-5 text-cocoa-700">
-              {missionComplete
-                ? "You repaired, recalled, and built coverage today. Your next revision will surface here when it is due."
-                : `Repair, recall, and build coverage across your ${steps.length > 1 ? "selected exam subjects" : "selected exam"}. Finish the steps in any order.`}
-            </p>
-            {scoreBoostDay && (
-              <Link
-                href="/score-boost"
-                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-sun-500/35 bg-sun-400/15 px-3 py-2 text-xs font-bold text-ember-800 transition hover:bg-sun-400/25"
-              >
-                Your 21-Day Score Boost · Day {scoreBoostDay} of 21 <span aria-hidden>→</span>
-              </Link>
-            )}
-          </div>
-          {nextStep ? (
-            <Link
-              href={nextStep.href}
-              onClick={() => startMission(nextStep.type)}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-sun-400 px-4 py-3 text-sm font-bold text-cocoa-900 shadow-warm transition hover:-translate-y-0.5 hover:bg-sun-300"
-            >
-              Start next step <span aria-hidden>→</span>
-            </Link>
-          ) : (
-            <Link
-              href="/weekly"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-cocoa-900 px-4 py-3 text-sm font-bold text-cream-50 shadow-warm transition hover:-translate-y-0.5 hover:bg-cocoa-800"
-            >
-              See your progress <span aria-hidden>→</span>
-            </Link>
-          )}
-        </div>
-        <ol className="mt-4 grid gap-2 md:grid-cols-3">
-          {steps.map((step, index) => {
-            const copy = stepCopy(step);
-            return (
-              <li key={`${step.type}-${step.href}`} className={`rounded-2xl border p-3 ${step.completed ? "border-moss-500/35 bg-moss-500/15" : "border-cocoa-900/[.08] bg-white/85"}`}>
-                <div className="flex items-start gap-2">
-                  <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${step.completed ? "bg-moss-400 text-cocoa-900" : "bg-sun-400 text-cocoa-900"}`}>
-                    {step.completed ? "✓" : index + 1}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ember-700">{copy.label}</p>
-                    <p className="mt-1 font-serif text-base font-semibold text-cocoa-900">{step.topicName ?? step.subjectName}</p>
-                    <p className="mt-1 text-xs text-cocoa-700">{step.subjectName} · {copy.detail}</p>
-                  </div>
-                </div>
-                {!step.completed && (
-                  <Link href={step.href} onClick={() => startMission(step.type)} className="mt-2 inline-flex rounded-lg bg-cocoa-900 px-2 py-1 text-xs font-extrabold text-cream-50 hover:bg-cocoa-800">
-                    {copy.button} →
-                  </Link>
-                )}
-                {step.completed && <p className="mt-3 text-xs font-bold text-moss-700">Done today</p>}
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-    </section>
-  );
+  return <section id="daily-mission" className="mx-auto max-w-5xl scroll-mt-5 px-4 pt-6 sm:px-6 sm:pt-10">
+    <div className="issue-shell">
+      <header className="issue-cover">
+        <div className="relative z-10 flex items-start justify-between gap-3"><div><p className="eg-kicker text-sun-400">Today&apos;s issue · {examName}</p><h1 className="mt-2 font-serif text-4xl font-semibold leading-[.9] tracking-[-.055em] text-cream-50 sm:text-5xl">{complete ? "Issue closed.\nGood work." : `Hi, ${firstName}.\nBuild your edge.`}</h1></div><Chick state={complete ? "excited" : "idle"} size={88} /></div>
+        <div className="relative z-10 mt-9 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-cream-50/15 pt-4 text-xs font-bold text-cream-200"><span>{steps.length} MOVES</span><span>{minutes} MINUTES</span><span>{daysLeft == null ? "SET YOUR EXAM DATE" : daysLeft === 0 ? "EXAM TODAY" : `${daysLeft} DAYS TO GO`}</span></div>
+        <span className="issue-sun" aria-hidden /><span className="issue-scribble" aria-hidden>↝</span>
+      </header>
+      <div className="issue-route" aria-hidden><span /><span /><span /></div>
+      <ol className="grid gap-3 p-3 sm:grid-cols-3 sm:p-5">
+        {steps.map((step, index) => {
+          const item = copy(step);
+          return <li key={`${step.type}-${step.href}`} className={`issue-page issue-${item.colour} ${step.completed ? "is-done" : ""}`}>
+            <IssueDoodle type={item.colour} />
+            <div className="relative z-10 flex items-start justify-between gap-3"><p className="eg-kicker">{String(index + 1).padStart(2, "0")} · {item.label}</p><span className="font-mono text-[11px] font-bold">{step.completed ? "DONE" : item.time}</span></div>
+            <div className="relative z-10 mt-auto pt-16"><p className="font-serif text-3xl font-semibold leading-[.92] tracking-[-.05em]">{step.topicName ?? step.subjectName}</p><p className="mt-3 max-w-[16rem] text-sm leading-5">{step.subjectName} · {item.note}</p>{step.completed ? <p className="mt-5 inline-flex rounded-full border border-current/25 px-3 py-1.5 text-xs font-extrabold">Stamped today ✓</p> : <Link href={step.href} onClick={() => start(step.type)} className="eg-press mt-5 inline-flex items-center gap-2 rounded-2xl bg-cocoa-900 px-3.5 py-2.5 text-xs font-extrabold text-cream-50 shadow-warm">{item.button} <span aria-hidden>→</span></Link>}</div>
+          </li>;
+        })}
+      </ol>
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-cocoa-900/[.08] bg-cream-50 px-5 py-4 text-xs font-semibold text-cocoa-700"><span>{todayProof ?? "Your first completed quiz creates today’s proof."}</span><span>{readinessProof ?? "Your readiness will build from real practice."}</span>{scoreBoostDay && <Link href="/score-boost" className="font-bold text-ember-700">Score Boost · Day {scoreBoostDay} →</Link>}</footer>
+    </div>
+  </section>;
+}
+
+function IssueDoodle({ type }: { type: "repair" | "recall" | "build" }) {
+  const path = type === "repair" ? <><circle cx="47" cy="47" r="27" /><path d="m35 47 8 8 17-19" /></> : type === "recall" ? <><path d="M72 40A28 28 0 1 0 69 62" /><path d="m70 28 4 14-14-3" /></> : <><path d="M47 73V39" /><path d="M47 53C23 50 21 31 24 25c18 0 26 11 23 28Z" /><path d="M48 61c19-3 25-18 22-27-17 0-24 11-22 27Z" /></>;
+  return <svg className="issue-doodle" viewBox="0 0 94 94" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>{path}</svg>;
 }

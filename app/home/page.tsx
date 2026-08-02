@@ -8,8 +8,6 @@ import PremiumBadge from "@/components/PremiumBadge";
 import DailyMissionCard, { type MissionStep } from "@/components/DailyMissionCard";
 import AdSlot from "@/components/AdSlot";
 import StudyPlanSetup from "@/components/StudyPlanSetup";
-import MonthlyProgressCalendar from "@/components/MonthlyProgressCalendar";
-import StudySignalSpread from "@/components/StudySignalSpread";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
 
@@ -30,8 +28,6 @@ type TodayQuestion = {
   user_answer: string | null;
   time_taken: number | null;
 };
-type ActivityQuiz = { created_at: string };
-
 type UserRow = {
   xp: number;
   level: number;
@@ -90,7 +86,7 @@ export default async function HomePage() {
     return `${part("year")}-${part("month").padStart(2, "0")}-${part("day").padStart(2, "0")}`;
   };
 
-  const [profileRes, countsRes, masteryRes, todayQuizzesRes, activityRes] = await Promise.all([
+  const [profileRes, countsRes, masteryRes, todayQuizzesRes] = await Promise.all([
     supabase
       .from("users")
       .select(
@@ -112,22 +108,12 @@ export default async function HomePage() {
       .not("score", "is", null)
       .gte("created_at", todayIndiaStart)
       .limit(100),
-    supabase
-      .from("quizzes")
-      .select("created_at")
-      .eq("user_id", authUser.id)
-      .not("score", "is", null)
-      .gte("created_at", new Date(Date.now() - 35 * 86_400_000).toISOString())
-      .limit(500),
   ]);
 
   let profile = profileRes.data;
   const countsData = countsRes.data;
   const masteryRaw = masteryRes.data;
   const todayQuizzes = (todayQuizzesRes.data ?? []) as TodayQuiz[];
-  const activeDateKeys = Array.from(new Set(
-    ((activityRes.data ?? []) as ActivityQuiz[]).map((quiz) => indiaDateKey(quiz.created_at)),
-  ));
 
   if (!profile) {
     // Defensive insert on first visit. New rows get exam_choice='cuet'
@@ -522,37 +508,6 @@ export default async function HomePage() {
   const firstName =
     fullName.trim().split(/\s+/)[0] ||
     (authUser.email?.split("@")[0] ?? "there");
-  const primaryMission = missionSteps.find((step) => !step.completed) ?? null;
-  const signal = primaryMission
-    ? primaryMission.type === "repair"
-      ? {
-          eyebrow: "Repair signal",
-          title: `${primaryMission.topicName ?? primaryMission.subjectName} is costing you marks.`,
-          detail: primaryMission.accuracy == null
-            ? "A focused round now turns a weak area into a usable mark."
-            : `Your earlier accuracy here was ${primaryMission.accuracy}%. Fix this before moving on.`,
-          action: "Repair it now",
-        }
-      : primaryMission.type === "revision"
-      ? {
-          eyebrow: "Recall signal",
-          title: `${primaryMission.topicName ?? primaryMission.subjectName} is ready to recall.`,
-          detail: "A short recall round now keeps what you learned from fading.",
-          action: "Start recall",
-        }
-      : {
-          eyebrow: "Build signal",
-          title: `Start ${primaryMission.topicName ?? primaryMission.subjectName}.`,
-          detail: "One focused session is enough to move your preparation forward today.",
-          action: "Start this topic",
-        }
-    : {
-        eyebrow: "Today’s proof",
-        title: "Your mission is complete.",
-        detail: "Your next repair or recall signal will appear here when it is due.",
-        action: "See weekly proof",
-      };
-
   return (
     <main className="bg-warm-wash min-h-[100svh] pb-20">
       {/* Header */}
@@ -682,22 +637,7 @@ export default async function HomePage() {
         </div>
       )}
 
-      <StudySignalSpread
-        firstName={firstName}
-        eyebrow={signal.eyebrow}
-        title={signal.title}
-        detail={signal.detail}
-        action={signal.action}
-        actionHref={primaryMission ? "#daily-mission" : "/weekly"}
-        examName={examRow?.name ?? "Your selected exam"}
-        countdown={hasStudyProfile && examDaysLeft !== null && examDaysLeft >= 0 ? (examDaysLeft === 0 ? "EXAM TODAY" : `${examDaysLeft} DAYS`) : null}
-        todayProof={`${todayQuestions.length} questions${todayQuestions.length > 0 ? ` · ${todayAccuracy}% · ${todayMinutes} min` : " · ready when you are"}`}
-        readinessProof={`${readiness}% · ${attemptedTopicCount}/${totalTopics} topics`}
-      >
-        <MonthlyProgressCalendar variant="paper" today={today} activeDates={activeDateKeys} streak={streak} longestStreak={profile?.longest_streak ?? 0} />
-      </StudySignalSpread>
-
-      {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} />}
+      {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} firstName={firstName} examName={examRow?.name ?? "Your selected exam"} daysLeft={hasStudyProfile ? examDaysLeft : null} todayProof={`${todayQuestions.length} questions${todayQuestions.length > 0 ? ` · ${todayAccuracy}% · ${todayMinutes} min` : " · ready when you are"}`} readinessProof={`${readiness}% · ${attemptedTopicCount}/${totalTopics} topics started`} />}
 
       {/* Premium is a genuinely focused, ad-free study experience. The
           AdSense tag lives inside AdSlot, so omitting this component also
