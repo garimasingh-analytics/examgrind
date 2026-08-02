@@ -7,7 +7,7 @@
 create table if not exists public.user_exam_preferences (
   user_id uuid not null references public.users(id) on delete cascade,
   exam_id uuid not null references public.exams(id) on delete cascade,
-  selected_subject_ids uuid[] not null,
+  selected_subject_ids text[] not null,
   target_exam_date date,
   target_score text,
   daily_study_minutes integer,
