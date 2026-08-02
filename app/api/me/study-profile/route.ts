@@ -43,14 +43,14 @@ export async function PUT(request: NextRequest) {
     ? body.dailyStudyMinutes
     : Number(body.dailyStudyMinutes);
 
-  if (!examSlug || subjectIds.length === 0 || subjectIds.length > 12) {
-    return NextResponse.json({ error: "Choose between 1 and 12 subjects." }, { status: 400 });
+  if (!examSlug || subjectIds.length === 0) {
+    return NextResponse.json({ error: "Choose at least one subject." }, { status: 400 });
   }
   if (targetExamDate && !ISO_DATE.test(targetExamDate)) {
     return NextResponse.json({ error: "Use a valid exam date." }, { status: 400 });
   }
-  if (!Number.isInteger(dailyStudyMinutes) || dailyStudyMinutes < 15 || dailyStudyMinutes > 600) {
-    return NextResponse.json({ error: "Choose 15 minutes to 10 hours a day." }, { status: 400 });
+  if (!Number.isInteger(dailyStudyMinutes) || dailyStudyMinutes < 15 || dailyStudyMinutes > 840) {
+    return NextResponse.json({ error: "Choose 15 minutes to 14 hours a day." }, { status: 400 });
   }
 
   // Service role is used only after auth.getUser verified the caller. This

@@ -46,7 +46,7 @@ export default function StudyPlanSetup({
     setError("");
     setSelectedIds((current) => current.includes(id)
       ? current.filter((value) => value !== id)
-      : current.length < 12 ? [...current, id] : current,
+      : [...current, id],
     );
   };
 
@@ -109,7 +109,7 @@ export default function StudyPlanSetup({
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
               <label className="block text-sm font-bold text-cocoa-900">Exam date<input type="date" value={targetExamDate} onChange={(event) => setTargetExamDate(event.target.value)} className="mt-2 w-full rounded-xl border border-cocoa-900/[0.12] bg-white px-3 py-2 text-sm font-medium text-cocoa-900" /></label>
               <label className="block text-sm font-bold text-cocoa-900">Target score / rank<input type="text" maxLength={60} value={targetScore} onChange={(event) => setTargetScore(event.target.value)} placeholder="e.g. 720 / 99 percentile" className="mt-2 w-full rounded-xl border border-cocoa-900/[0.12] bg-white px-3 py-2 text-sm font-medium text-cocoa-900 placeholder:text-cocoa-400" /></label>
-              <label className="block text-sm font-bold text-cocoa-900">Study time<select value={dailyStudyMinutes} onChange={(event) => setDailyStudyMinutes(Number(event.target.value))} className="mt-2 w-full rounded-xl border border-cocoa-900/[0.12] bg-white px-3 py-2 text-sm font-medium text-cocoa-900"><option value={30}>30 min/day</option><option value={45}>45 min/day</option><option value={60}>1 hr/day</option><option value={90}>1.5 hr/day</option><option value={120}>2 hr/day</option><option value={180}>3 hr/day</option></select></label>
+              <label className="block text-sm font-bold text-cocoa-900">Study time<select value={dailyStudyMinutes} onChange={(event) => setDailyStudyMinutes(Number(event.target.value))} className="mt-2 w-full rounded-xl border border-cocoa-900/[0.12] bg-white px-3 py-2 text-sm font-medium text-cocoa-900"><option value={30}>30 min/day</option><option value={45}>45 min/day</option><option value={60}>1 hr/day</option><option value={90}>1.5 hr/day</option><option value={120}>2 hr/day</option><option value={180}>3 hr/day</option><option value={240}>4 hr/day</option><option value={300}>5 hr/day</option><option value={360}>6 hr/day</option><option value={420}>7 hr/day</option><option value={480}>8 hr/day</option><option value={540}>9 hr/day</option><option value={600}>10 hr/day</option><option value={660}>11 hr/day</option><option value={720}>12 hr/day</option><option value={780}>13 hr/day</option><option value={840}>14 hr/day</option></select></label>
             </div>
             {error && <p role="alert" className="mt-4 rounded-xl bg-coral-500/10 px-3 py-2 text-sm font-semibold text-ember-800">{error}</p>}
             <div className="mt-7 flex flex-wrap justify-end gap-3">
