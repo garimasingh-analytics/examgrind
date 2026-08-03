@@ -18,7 +18,13 @@ export default function CinematicLanding() {
   return <main className="editorial-gallery">
     <header className="egallery-nav">
       <Link href="/" className="egallery-logo"><i />EXAMGRIND</Link>
-      <Link href="/home" className="egallery-resume">I already study here</Link>
+      <button
+        type="button"
+        className="egallery-resume"
+        onClick={() => window.location.assign("/home")}
+      >
+        I already study here
+      </button>
     </header>
 
     <section className="egallery-hero" aria-labelledby="egallery-title">
