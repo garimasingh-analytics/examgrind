@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Script from "next/script";
 import MetaPixel from "@/components/MetaPixel";
+import { trackSignUpConversion } from "@/lib/google-ads";
 import { trackLogin, trackSignUp } from "@/lib/product-analytics";
 import { GOOGLE_ADS_ID } from "@/components/GoogleAdsTag";
 
@@ -148,6 +149,10 @@ function AuthLifecycleEvent() {
 
     const sent = authEvent === "sign_up" ? trackSignUp() : trackLogin();
     if (!sent) return;
+
+    if (authEvent === "sign_up") {
+      trackSignUpConversion();
+    }
 
     window.sessionStorage.setItem(eventKey, "1");
     params.delete("auth_event");
