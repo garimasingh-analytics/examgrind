@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Chick from "@/components/Chick";
 import {
   trackLandingBookOpened,
@@ -10,190 +10,107 @@ import {
 } from "@/lib/product-analytics";
 
 const exams = [
-  { slug: "cuet", name: "CUET UG", subjects: "12 subjects · NCERT-aligned", mark: "C" },
-  { slug: "ssc-cgl", name: "SSC CGL", subjects: "Quant · Reasoning · English · GA", mark: "S" },
-  { slug: "neet-ug", name: "NEET UG", subjects: "Physics · Chemistry · Biology", mark: "N" },
+  { slug: "cuet", name: "CUET UG", line: "12 subjects · NCERT-aligned", mark: "C" },
+  { slug: "ssc-cgl", name: "SSC CGL", line: "Quant · Reasoning · English · GA", mark: "S" },
+  { slug: "neet-ug", name: "NEET UG", line: "Physics · Chemistry · Biology", mark: "N" },
 ] as const;
 
-function Scribble({ children, className = "" }: { children: string; className?: string }) {
-  return <span aria-hidden className={`landing-scribble ${className}`}>{children}</span>;
-}
+type Exam = (typeof exams)[number]["slug"];
+const pageCount = 5;
 
 export default function CinematicLanding() {
-  const [bookOpen, setBookOpen] = useState(false);
-  const [activeExam, setActiveExam] = useState<(typeof exams)[number]["slug"]>("ssc-cgl");
+  const [opened, setOpened] = useState(false);
+  const [page, setPage] = useState(0);
+  const [direction, setDirection] = useState<"forward" | "back">("forward");
+  const [exam, setExam] = useState<Exam>("ssc-cgl");
+  const chosen = exams.find((item) => item.slug === exam) ?? exams[1];
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setBookOpen(true), 520);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  const revealBook = () => {
-    if (!bookOpen) trackLandingBookOpened();
-    setBookOpen((open) => !open);
+  const openBook = () => {
+    if (!opened) trackLandingBookOpened();
+    setOpened(true);
+  };
+  const turn = (next: number) => {
+    setDirection(next > page ? "forward" : "back");
+    setPage(next);
   };
 
-  const selected = exams.find((exam) => exam.slug === activeExam) ?? exams[1];
-
   return (
-    <main className="cinematic-landing">
-      <header className="landing-nav">
-        <Link href="/" className="landing-logo" aria-label="ExamGrind home">
-          <span className="landing-logo-dot" aria-hidden />
-          EXAMGRIND
+    <main className={`storybook-landing ${opened ? "book-is-open" : ""}`}>
+      <header className="storybook-nav">
+        <Link href="/" className="storybook-logo"><span aria-hidden /> EXAMGRIND</Link>
+        <Link href="/home" className="storybook-resume" onClick={() => trackLandingCtaClicked({ placement: "hero" })}>
+          I already study here <span aria-hidden>→</span>
         </Link>
-        <Link href="/home" className="landing-quiet-link">I already study here <span aria-hidden>↗</span></Link>
       </header>
 
-      <section className="landing-hero" aria-labelledby="landing-title">
-        <div className="landing-grain" aria-hidden />
-        <div className="landing-sun landing-sun-one" aria-hidden />
-        <div className="landing-sun landing-sun-two" aria-hidden />
-        <Scribble className="landing-scribble-one">✦</Scribble>
-        <Scribble className="landing-scribble-two">↗</Scribble>
-
-        <div className="landing-hero-copy">
-          <p className="landing-eyebrow"><span>●</span> FOR THE STUDENT WHO WANTS A REAL PLAN</p>
-          <h1 id="landing-title">
-            Your score has<br />a story.<br /><em>Let&apos;s change it.</em>
-          </h1>
-          <p className="landing-lede">
-            One honest diagnostic turns the next thing you study into the right thing to study.
-          </p>
-          <a
-            href="#choose"
-            onClick={() => trackLandingCtaClicked({ placement: "hero" })}
-            className="landing-primary-cta"
-          >
-            Start my free diagnostic <span aria-hidden>↓</span>
-          </a>
-          <p className="landing-proof">3 free quizzes · no card · built for CUET, SSC CGL &amp; NEET UG</p>
-        </div>
-
-        <button
-          type="button"
-          className={`story-book ${bookOpen ? "is-open" : ""}`}
-          onClick={revealBook}
-          aria-label={bookOpen ? "Close the ExamGrind story book" : "Open the ExamGrind story book"}
-        >
-          <span className="story-book-shadow" aria-hidden />
-          <span className="story-book-pages" aria-hidden />
-          <span className="story-book-cover" aria-hidden>
-            <span className="story-book-cover-kicker">EXAMGRIND</span>
-            <span className="story-book-cover-title">YOUR<br />NEXT<br />CHAPTER</span>
-            <span className="story-book-cover-index">ISSUE 01</span>
-            <span className="story-book-cover-doodle">✶</span>
-          </span>
-          <span className="story-book-spread" aria-hidden>
-            <span className="story-book-page-left">
-              <span className="story-book-page-kicker">THE TURNING POINT</span>
-              <strong>There is no<br />such thing as<br />&ldquo;bad at<br />everything.&rdquo;</strong>
-              <span className="story-book-note">There are only concepts waiting to be found.</span>
-            </span>
-            <span className="story-book-page-right">
-              <span className="story-book-sticker">TODAY</span>
-              <span className="story-book-chick"><Chick state="excited" size={78} /></span>
-              <span className="story-book-signal">72<span>%</span></span>
-              <span className="story-book-signal-label">marks ready to recover</span>
-            </span>
-          </span>
-          <span className="story-book-hint">Tap to turn the page</span>
-        </button>
-      </section>
-
-      <section className="landing-manifesto" aria-labelledby="manifesto-title">
-        <p className="landing-section-number">01 / THE PROBLEM</p>
-        <div>
-          <p className="landing-handwritten">The old way:</p>
-          <h2 id="manifesto-title">More quizzes.<br />More panic.<br /><span>Same blind spots.</span></h2>
-        </div>
-        <p className="landing-manifesto-copy">Most practice apps count your attempts. ExamGrind follows the marks you lost, finds the reason, then gives you a path back.</p>
-      </section>
-
-      <section className="landing-proof-section" aria-labelledby="proof-title">
-        <div className="landing-section-heading">
-          <p className="landing-section-number">02 / THE DIFFERENCE</p>
-          <h2 id="proof-title">A real study coach<br />leaves <em>evidence.</em></h2>
-        </div>
-        <div className="landing-proof-grid">
-          <article className="landing-proof-card proof-attempt">
-            <span className="landing-card-index">01</span>
-            <span className="landing-card-icon">?</span>
-            <h3>Attempt</h3>
-            <p>Practice an exam-style set in the subject you actually chose.</p>
-          </article>
-          <article className="landing-proof-card proof-diagnose">
-            <span className="landing-card-index">02</span>
-            <span className="landing-card-icon">✦</span>
-            <h3>Diagnose</h3>
-            <p>See the concept, trap, and repair step behind every lost mark.</p>
-          </article>
-          <article className="landing-proof-card proof-recover">
-            <span className="landing-card-index">03</span>
-            <span className="landing-card-icon">↗</span>
-            <h3>Recover</h3>
-            <p>Return to it through your repair and revision queues—at the right time.</p>
-          </article>
-        </div>
-        <div className="landing-margin-note"><span>not another quiz app</span><i aria-hidden>↘</i></div>
-      </section>
-
-      <section id="choose" className="landing-exam-section" aria-labelledby="exam-title">
-        <div className="landing-exam-intro">
-          <p className="landing-section-number">03 / YOUR STARTING LINE</p>
-          <h2 id="exam-title">Choose your<br /><em>battlefield.</em></h2>
-          <p>No generic dashboard. Your chapters, countdown, questions, and next steps begin with one exam.</p>
-        </div>
-        <div className="landing-exam-stage">
-          <div className="landing-exam-tabs" role="tablist" aria-label="Choose your exam">
-            {exams.map((exam) => (
-              <button
-                type="button"
-                key={exam.slug}
-                role="tab"
-                aria-selected={activeExam === exam.slug}
-                className={activeExam === exam.slug ? "is-active" : ""}
-                onClick={() => setActiveExam(exam.slug)}
-              >
-                <span>{exam.mark}</span>{exam.name}
-              </button>
-            ))}
+      {!opened ? (
+        <section className="storybook-cover-stage" aria-labelledby="storybook-title">
+          <div className="storybook-cover-copy">
+            <p>FOR THE STUDENT WHO WANTS A REAL PLAN</p>
+            <h1 id="storybook-title">Your score<br />has a story.<br /><em>Let&apos;s change it.</em></h1>
+            <span className="storybook-arrow" aria-hidden>↘</span>
           </div>
-          <div className="landing-exam-preview">
-            <div className="landing-preview-paper">
-              <p>YOUR {selected.name} CHAPTER</p>
-              <h3>Find the 3 topics<br />costing you marks.</h3>
-              <div className="landing-preview-topics">
-                <span>01 · REPAIR</span><span>02 · BUILD</span><span>03 · RECALL</span>
-              </div>
-              <p className="landing-preview-subjects">{selected.subjects}</p>
-              <Link
-                href={`/start/${selected.slug}`}
-                onClick={() => trackLandingExamSelected({ exam: selected.slug })}
-                className="landing-preview-cta"
-              >
-                Start with {selected.name} <span aria-hidden>→</span>
-              </Link>
+          <button type="button" className="storybook-cover" onClick={openBook} aria-label="Open your ExamGrind study story">
+            <span className="storybook-cover-shine" aria-hidden />
+            <span className="storybook-cover-kicker">EXAMGRIND · ISSUE 01</span>
+            <strong>YOUR<br />NEXT<br />CHAPTER</strong>
+            <span className="storybook-cover-mark" aria-hidden>✦</span>
+            <span className="storybook-cover-foot">TAP TO OPEN</span>
+          </button>
+          <button type="button" onClick={openBook} className="storybook-open-cta">Open your study story <span aria-hidden>↓</span></button>
+        </section>
+      ) : (
+        <section className="storybook-reader" aria-label="ExamGrind study story">
+          <div className="storybook-reader-glow" aria-hidden />
+          <div className="storybook-book-shell">
+            <div className="storybook-book-topbar">
+              <span>EXAMGRIND · YOUR STUDY STORY</span>
+              <span>{String(page + 1).padStart(2, "0")} / {String(pageCount).padStart(2, "0")}</span>
             </div>
-            <div className="landing-preview-orbit" aria-hidden><Chick state="happy" size={92} /></div>
-            <Scribble className="landing-preview-star">✦</Scribble>
+            <div className={`storybook-spread turn-${direction}`} key={`${page}-${exam}`}>
+              <div className="storybook-left-page">
+                <p className="storybook-page-label">{String(page + 1).padStart(2, "0")} · {page === 0 ? "START HERE" : page === 1 ? "THE DIFFERENCE" : page === 2 ? "YOUR EXAM" : page === 3 ? "YOUR ACCESS" : "THE FIRST MOVE"}</p>
+                <PageLeft page={page} />
+              </div>
+              <div className="storybook-right-page">
+                <PageRight page={page} exam={exam} setExam={setExam} chosen={chosen} />
+              </div>
+            </div>
+            <div className="storybook-reader-controls">
+              <button type="button" onClick={() => turn(page - 1)} disabled={page === 0}>← Back</button>
+              <div className="storybook-progress" aria-label={`Page ${page + 1} of ${pageCount}`}>
+                {Array.from({ length: pageCount }, (_, index) => <span key={index} className={index === page ? "active" : index < page ? "read" : ""} />)}
+              </div>
+              {page < pageCount - 1 ? (
+                <button type="button" onClick={() => turn(page + 1)}>Turn page <span aria-hidden>→</span></button>
+              ) : (
+                <Link href={`/start/${exam}`} onClick={() => trackLandingExamSelected({ exam })}>Begin <span aria-hidden>→</span></Link>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="landing-closing" aria-labelledby="closing-title">
-        <div className="landing-closing-paper">
-          <p className="landing-section-number">READY WHEN YOU ARE</p>
-          <h2 id="closing-title">The next mark<br />can be <em>yours.</em></h2>
-          <p>Begin with three free quizzes. Upgrade only when your own study story proves it is worth it.</p>
-          <a href="#choose" onClick={() => trackLandingCtaClicked({ placement: "closing" })} className="landing-primary-cta">Choose my exam <span aria-hidden>↑</span></a>
-        </div>
-      </section>
-
-      <footer className="landing-footer">
-        <p>© {new Date().getFullYear()} ExamGrind · Made for serious Indian aspirants.</p>
-        <nav aria-label="Legal"><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link><Link href="/refund">Refunds</Link><Link href="/contact">Contact</Link></nav>
+      <footer className="storybook-footer">
+        <span>© {new Date().getFullYear()} ExamGrind</span>
+        <nav><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link><Link href="/contact">Contact</Link></nav>
       </footer>
     </main>
   );
+}
+
+function PageLeft({ page }: { page: number }) {
+  if (page === 0) return <><h2>There is no such thing as<br /><em>&ldquo;bad at everything.&rdquo;</em></h2><p className="storybook-body-copy">There are only concepts waiting to be found. Start with one honest attempt; we&apos;ll make the next step specific.</p><span className="storybook-margin-note">not a timetable<br />you&apos;ll ignore <b>↘</b></span></>;
+  if (page === 1) return <><h2>Practice should leave<br /><em>proof.</em></h2><p className="storybook-body-copy">Not a red cross. Not a vague score. Evidence of exactly where marks were lost—and where they can come back.</p><div className="storybook-path"><span>ATTEMPT</span><i /><span>DIAGNOSE</span><i /><span>RECOVER</span></div></>;
+  if (page === 2) return <><h2>Your exam is not<br /><em>every exam.</em></h2><p className="storybook-body-copy">Your chapters, questions, countdown and repair queue should match the paper you are actually preparing for.</p><span className="storybook-margin-note">pick one<br />battlefield <b>↓</b></span></>;
+  if (page === 3) return <><h2>Start free.<br />Upgrade when your<br /><em>study proves it.</em></h2><p className="storybook-body-copy">No card. Three free quizzes to see the system. The Coach unlocks when you want unlimited practice and analysis.</p></>;
+  return <><h2>One honest test.<br /><em>A clearer next day.</em></h2><p className="storybook-body-copy">Choose your exam, take the diagnostic, and get the first proof point in your own study story.</p><span className="storybook-margin-note">this is where<br />your chapter starts <b>→</b></span></>;
+}
+
+function PageRight({ page, exam, setExam, chosen }: { page: number; exam: Exam; setExam: (exam: Exam) => void; chosen: (typeof exams)[number] }) {
+  if (page === 0) return <div className="storybook-chick-page"><span className="storybook-sticker">TODAY</span><div className="storybook-chick-orbit"><Chick state="excited" size={110} /></div><strong>1 honest<br />diagnostic</strong><span>knows more than<br />10 random quizzes.</span></div>;
+  if (page === 1) return <div className="storybook-evidence-page"><div><span>WRONG ANSWER</span><b>Reversible reactions &amp; Kc/Kp</b><small>Not “weak at Chemistry.” A specific repair.</small></div><div><span>NEXT STEP</span><b>8 questions + short recall</b><small>Added to your queue at the right time.</small></div><span className="storybook-evidence-doodle" aria-hidden>✦</span></div>;
+  if (page === 2) return <div className="storybook-exam-page"><div className="storybook-exam-tabs">{exams.map((item) => <button type="button" key={item.slug} className={exam === item.slug ? "active" : ""} onClick={() => setExam(item.slug)}><span>{item.mark}</span>{item.name}</button>)}</div><div className="storybook-exam-card"><p>YOUR {chosen.name} CHAPTER</p><b>Find the 3 topics<br />costing you marks.</b><span>{chosen.line}</span><i aria-hidden>✦</i></div></div>;
+  if (page === 3) return <div className="storybook-access-page"><div><span>FREE START</span><b>3 quizzes</b><small>See your baseline. No card.</small></div><div className="featured"><span>COACH · ₹199/MONTH</span><b>Unlimited practice + deep analysis</b><small>Your repair, revision and study direction stay connected.</small></div><p>Cancel any time. Upgrade only when you are ready.</p></div>;
+  return <div className="storybook-final-page"><div className="storybook-final-orbit"><Chick state="happy" size={118} /></div><span>YOUR NEXT CHAPTER</span><b>{chosen.name}</b><p>Start with the diagnostic. It is free.</p></div>;
 }
