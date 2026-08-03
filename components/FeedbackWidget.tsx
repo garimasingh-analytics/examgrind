@@ -31,6 +31,7 @@ export default function FeedbackWidget() {
 
   // Hide on strict-mode quiz/mock screens and on /admin.
   const hidden =
+    pathname === "/" ||
     pathname?.startsWith("/quiz/") ||
     pathname?.startsWith("/mock/take/") ||
     pathname?.startsWith("/admin") ||

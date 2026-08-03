@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import CookieSettingsButton from "@/components/CookieSettingsButton";
 
 /**
@@ -6,7 +9,12 @@ import CookieSettingsButton from "@/components/CookieSettingsButton";
  * / Contact to be linked from every page on the live site.
  */
 export default function Footer() {
+  const pathname = usePathname();
   const year = new Date().getFullYear();
+  // The public landing has its own integrated editorial footer. Rendering
+  // this utility footer underneath it breaks the deliberate closing scene.
+  if (pathname === "/") return null;
+
   return (
     <footer className="border-t border-cocoa-900/[0.06] bg-cream-50/40 py-6">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 text-center sm:flex-row sm:justify-between sm:px-6 sm:text-left">

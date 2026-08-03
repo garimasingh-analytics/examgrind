@@ -28,6 +28,9 @@ export const ANALYTICS_EVENTS = {
   CHECKOUT_DISMISSED: "checkout_dismissed",
   PURCHASE_COMPLETED: "purchase_completed",
   STUDY_PLAN_SAVED: "study_plan_saved",
+  LANDING_BOOK_OPENED: "landing_book_opened",
+  LANDING_CTA_CLICKED: "landing_cta_clicked",
+  LANDING_EXAM_SELECTED: "landing_exam_selected",
 } as const;
 
 declare global {
@@ -109,3 +112,9 @@ export const trackCheckoutDismissed = (params: { product: AccessProduct; checkou
 export const trackPurchaseCompleted = (params: { product: AccessProduct; checkout_type: "one_time" | "subscription" }) => track(ANALYTICS_EVENTS.PURCHASE_COMPLETED, params);
 export const trackStudyPlanSaved = (params: { exam: string; subject_count: number; daily_minutes: number }) =>
   track(ANALYTICS_EVENTS.STUDY_PLAN_SAVED, params);
+export const trackLandingBookOpened = () =>
+  track(ANALYTICS_EVENTS.LANDING_BOOK_OPENED, {});
+export const trackLandingCtaClicked = (params: { placement: "hero" | "closing" }) =>
+  track(ANALYTICS_EVENTS.LANDING_CTA_CLICKED, params);
+export const trackLandingExamSelected = (params: { exam: "cuet" | "ssc-cgl" | "neet-ug" }) =>
+  track(ANALYTICS_EVENTS.LANDING_EXAM_SELECTED, params);

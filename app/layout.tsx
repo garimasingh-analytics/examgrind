@@ -138,6 +138,7 @@ export default async function RootLayout({
         {/* Native inline script intentionally runs during HTML parsing, before
             Next hydrates or any Google tag is requested. */}
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
