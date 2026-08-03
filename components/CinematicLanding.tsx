@@ -67,7 +67,7 @@ export default function CinematicLanding() {
               <span>EXAMGRIND · YOUR STUDY STORY</span>
               <span>{String(page + 1).padStart(2, "0")} / {String(pageCount).padStart(2, "0")}</span>
             </div>
-            <div className={`storybook-spread turn-${direction}`} key={`${page}-${exam}`}>
+            <div className={`storybook-spread page-${page} turn-${direction}`} key={`${page}-${exam}`}>
               <div className="storybook-left-page">
                 <p className="storybook-page-label">{String(page + 1).padStart(2, "0")} · {page === 0 ? "START HERE" : page === 1 ? "THE DIFFERENCE" : page === 2 ? "YOUR EXAM" : page === 3 ? "YOUR ACCESS" : "THE FIRST MOVE"}</p>
                 <PageLeft page={page} />
