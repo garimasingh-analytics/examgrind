@@ -9,6 +9,8 @@ import {
   trackDeepAnalysisCompleted,
   trackDeepAnalysisRequested,
   trackDeepAnalysisViewed,
+  trackRecoveryMapActionClicked,
+  trackRecoveryMapViewed,
 } from "@/lib/product-analytics";
 
 /* ------------------------------------------------------------------ *
@@ -152,6 +154,7 @@ export default function DeepAnalysis({
     limit?: number;
   }>(null);
   const hasTrackedView = useRef(false);
+  const hasTrackedRecoveryMap = useRef(false);
 
   // A completed request and a viewed analysis are different funnel steps:
   // cached analyses can be viewed without a new model call, while a student
@@ -164,6 +167,15 @@ export default function DeepAnalysis({
       source: analyzeEndpoint.includes("/mock/") ? "mock" : "quiz",
     });
   }, [analysis, analyzeEndpoint, isDeepDive]);
+
+  useEffect(() => {
+    if (!analysis || analysis.weaknesses.length === 0 || hasTrackedRecoveryMap.current) return;
+    hasTrackedRecoveryMap.current = true;
+    trackRecoveryMapViewed({
+      source: analyzeEndpoint.includes("/mock/") ? "mock" : "quiz",
+      priority_count: Math.min(analysis.weaknesses.length, 3),
+    });
+  }, [analysis, analyzeEndpoint]);
 
   const analyze = (deepDive: boolean) => {
     setError(null);
@@ -345,6 +357,13 @@ export default function DeepAnalysis({
         </div>
       </div>
 
+      {analysis.weaknesses.length > 0 && (
+        <RecoveryMap
+          weaknesses={analysis.weaknesses}
+          source={analyzeEndpoint.includes("/mock/") ? "mock" : "quiz"}
+        />
+      )}
+
       {/* Strengths + Weaknesses */}
       {analysis.strengths.length > 0 && (
         <section className="analysis-section">
@@ -377,6 +396,7 @@ export default function DeepAnalysis({
             {analysis.weaknesses.map((w, i) => (
               <WeaknessCard
                 key={i}
+                id={`repair-${i + 1}`}
                 weakness={w}
                 onDrill={() => drill(w.improve.practice.concept_focus, w.improve.practice.drill_size)}
                 drilling={drilling}
@@ -539,12 +559,71 @@ export default function DeepAnalysis({
  * Weakness card — the three-rung ladder (READ / WORK / PRACTICE)     *
  * ------------------------------------------------------------------ */
 
+function RecoveryMap({
+  weaknesses,
+  source,
+}: {
+  weaknesses: Weakness[];
+  source: "quiz" | "mock";
+}) {
+  const rank = { high: 0, medium: 1, low: 2 } as const;
+  const priorities = weaknesses
+    .map((weakness, originalIndex) => ({ weakness, originalIndex }))
+    .sort((a, b) => rank[a.weakness.severity] - rank[b.weakness.severity])
+    .slice(0, 3);
+
+  return (
+    <section className="analysis-recovery-map overflow-hidden rounded-3xl border border-ember-600/25 bg-ember-600/[0.07] p-5 shadow-warm">
+      <div className="flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-ember-600 text-lg" aria-hidden="true">↗</span>
+        <div>
+          <p className="analysis-eyebrow text-ember-700">Your marks recovery map</p>
+          <h3 className="mt-1 font-serif text-xl font-bold text-cocoa-900">Start with the highest-return repair.</h3>
+          <p className="mt-1 text-sm leading-6 text-cocoa-700">These are ranked by the strength of the mistake signal in this attempt—not a promise of marks.</p>
+        </div>
+      </div>
+      <ol className="mt-5 space-y-3">
+        {priorities.map(({ weakness, originalIndex }, index) => {
+          const minutes = weakness.improve.read.minutes + Math.max(5, weakness.improve.practice.drill_size);
+          const signal = weakness.severity === "high" ? "Strong signal" : weakness.severity === "medium" ? "Clear signal" : "Early signal";
+          return (
+            <li key={`${weakness.concept}-${index}`} className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 px-4 py-3">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-cocoa-900 text-xs font-bold text-cream-50">{index + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-semibold text-cocoa-900">{weakness.concept}</p>
+                    <span className="rounded-full bg-ember-600/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ember-700">{signal}</span>
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-cocoa-600">{weakness.evidence}</p>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-cocoa-700">{minutes}–{minutes + 10} min repair · {weakness.improve.practice.drill_size} targeted questions</span>
+                    <a
+                      href={`#repair-${originalIndex + 1}`}
+                      onClick={() => trackRecoveryMapActionClicked({ source, priority_position: index + 1 })}
+                      className="text-xs font-bold text-ember-700 underline decoration-ember-600/30 underline-offset-4 transition hover:text-ember-800"
+                    >
+                      Open repair →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
 function WeaknessCard({
+  id,
   weakness,
   onDrill,
   drilling,
   topicAvailable,
 }: {
+  id: string;
   weakness: Weakness;
   onDrill: () => void;
   drilling: boolean;
@@ -559,7 +638,7 @@ function WeaknessCard({
   const sevDots = weakness.severity === "high" ? "●●●" : weakness.severity === "medium" ? "●●○" : "●○○";
 
   return (
-    <article className="analysis-weakness overflow-hidden rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm">
+    <article id={id} className="analysis-weakness scroll-mt-6 overflow-hidden rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm">
       {/* Header */}
       <header className="flex items-start gap-3 border-b border-cocoa-900/[0.04] px-5 py-4">
         <span className={`mt-0.5 font-mono text-xs font-bold leading-none ${sevColor}`} aria-label={`severity ${weakness.severity}`}>

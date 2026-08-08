@@ -36,6 +36,8 @@ export const ANALYTICS_EVENTS = {
   DIAGNOSIS_COMPLETED: "diagnosis_completed",
   DIAGNOSIS_RESULT_VIEWED: "diagnosis_result_viewed",
   DIAGNOSIS_SIGNUP_CLICKED: "diagnosis_signup_clicked",
+  RECOVERY_MAP_VIEWED: "recovery_map_viewed",
+  RECOVERY_MAP_ACTION_CLICKED: "recovery_map_action_clicked",
 } as const;
 
 declare global {
@@ -149,3 +151,11 @@ export const trackDiagnosisSignupClicked = (params: {
   exam: DiagnosisExam;
   next_step: "full_diagnostic" | "chapter_quiz";
 }) => track(ANALYTICS_EVENTS.DIAGNOSIS_SIGNUP_CLICKED, params);
+export const trackRecoveryMapViewed = (params: {
+  source: "quiz" | "mock";
+  priority_count: number;
+}) => track(ANALYTICS_EVENTS.RECOVERY_MAP_VIEWED, params);
+export const trackRecoveryMapActionClicked = (params: {
+  source: "quiz" | "mock";
+  priority_position: number;
+}) => track(ANALYTICS_EVENTS.RECOVERY_MAP_ACTION_CLICKED, params);
