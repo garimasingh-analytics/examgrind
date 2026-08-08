@@ -31,6 +31,11 @@ export const ANALYTICS_EVENTS = {
   LANDING_BOOK_OPENED: "landing_book_opened",
   LANDING_CTA_CLICKED: "landing_cta_clicked",
   LANDING_EXAM_SELECTED: "landing_exam_selected",
+  DIAGNOSIS_STARTED: "diagnosis_started",
+  DIAGNOSIS_QUESTION_ANSWERED: "diagnosis_question_answered",
+  DIAGNOSIS_COMPLETED: "diagnosis_completed",
+  DIAGNOSIS_RESULT_VIEWED: "diagnosis_result_viewed",
+  DIAGNOSIS_SIGNUP_CLICKED: "diagnosis_signup_clicked",
 } as const;
 
 declare global {
@@ -118,3 +123,29 @@ export const trackLandingCtaClicked = (params: { placement: "hero" | "closing" }
   track(ANALYTICS_EVENTS.LANDING_CTA_CLICKED, params);
 export const trackLandingExamSelected = (params: { exam: "cuet" | "ssc-cgl" | "neet-ug" }) =>
   track(ANALYTICS_EVENTS.LANDING_EXAM_SELECTED, params);
+
+type DiagnosisExam = "cuet" | "ssc-cgl" | "neet-ug";
+
+export const trackDiagnosisStarted = (params: {
+  exam: DiagnosisExam;
+  question_count: number;
+}) => track(ANALYTICS_EVENTS.DIAGNOSIS_STARTED, params);
+export const trackDiagnosisQuestionAnswered = (params: {
+  exam: DiagnosisExam;
+  question_number: number;
+}) => track(ANALYTICS_EVENTS.DIAGNOSIS_QUESTION_ANSWERED, params);
+export const trackDiagnosisCompleted = (params: {
+  exam: DiagnosisExam;
+  question_count: number;
+  answered_count: number;
+  correct_count: number;
+  duration_seconds: number;
+}) => track(ANALYTICS_EVENTS.DIAGNOSIS_COMPLETED, params);
+export const trackDiagnosisResultViewed = (params: {
+  exam: DiagnosisExam;
+  score_band: "0_1" | "2_3" | "4_5";
+}) => track(ANALYTICS_EVENTS.DIAGNOSIS_RESULT_VIEWED, params);
+export const trackDiagnosisSignupClicked = (params: {
+  exam: DiagnosisExam;
+  next_step: "full_diagnostic" | "chapter_quiz";
+}) => track(ANALYTICS_EVENTS.DIAGNOSIS_SIGNUP_CLICKED, params);

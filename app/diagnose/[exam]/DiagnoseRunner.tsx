@@ -4,6 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Chick from "@/components/Chick";
 import type { DiagnoseExam } from "@/lib/diagnose-questions";
+import {
+  trackDiagnosisCompleted,
+  trackDiagnosisQuestionAnswered,
+  trackDiagnosisResultViewed,
+  trackDiagnosisSignupClicked,
+  trackDiagnosisStarted,
+} from "@/lib/product-analytics";
 
 type PublicQuestion = {
   id: string;
@@ -48,6 +55,8 @@ export default function DiagnoseRunner({ exam, examLabel, tagline, questions }: 
   const [result, setResult] = useState<GradeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const submitOnceRef = useRef(false);
+  const startedAtRef = useRef<number | null>(null);
+  const answeredQuestionIndexesRef = useRef(new Set<number>());
 
   useEffect(() => {
     if (phase !== "running") return;
@@ -76,6 +85,15 @@ export default function DiagnoseRunner({ exam, examLabel, tagline, questions }: 
       });
       if (!r.ok) throw new Error(`Server returned ${r.status}`);
       const data = (await r.json()) as GradeResult;
+      trackDiagnosisCompleted({
+        exam,
+        question_count: questions.length,
+        answered_count: answers.filter((answer) => answer !== null).length,
+        correct_count: data.score,
+        duration_seconds: startedAtRef.current
+          ? Math.max(0, Math.round((Date.now() - startedAtRef.current) / 1000))
+          : TOTAL_SECONDS - secondsLeft,
+      });
       setResult(data);
       setPhase("result");
     } catch (e) {
@@ -101,7 +119,11 @@ export default function DiagnoseRunner({ exam, examLabel, tagline, questions }: 
           Real PYQ traps. Pick the best option. The AI will tell you which concept you got wrong and where to drill.
         </p>
         <button
-          onClick={() => setPhase("running")}
+          onClick={() => {
+            startedAtRef.current = Date.now();
+            trackDiagnosisStarted({ exam, question_count: questions.length });
+            setPhase("running");
+          }}
           className="mt-8 inline-flex items-center justify-center rounded-2xl bg-cocoa-900 px-8 py-3.5 text-base font-bold text-cream-50 shadow-warm transition hover:bg-cocoa-700"
         >
           Start the 90-second diagnosis →
@@ -174,6 +196,13 @@ export default function DiagnoseRunner({ exam, examLabel, tagline, questions }: 
               <li key={letter}>
                 <button
                   onClick={() => {
+                    if (!answeredQuestionIndexesRef.current.has(activeIndex)) {
+                      answeredQuestionIndexesRef.current.add(activeIndex);
+                      trackDiagnosisQuestionAnswered({
+                        exam,
+                        question_number: activeIndex + 1,
+                      });
+                    }
                     const next = [...answers];
                     next[activeIndex] = letter;
                     setAnswers(next);
@@ -246,6 +275,13 @@ function DiagnoseResult({
 }) {
   const wrongCount = result.total - result.score;
   const examStartHref = `/start/${exam === "neet-ug" ? "neet-ug" : exam}`;
+
+  useEffect(() => {
+    trackDiagnosisResultViewed({
+      exam,
+      score_band: result.score <= 1 ? "0_1" : result.score <= 3 ? "2_3" : "4_5",
+    });
+  }, [exam, result.score]);
 
   return (
     <section className="mx-auto max-w-2xl px-6 py-10">
@@ -330,6 +366,12 @@ function DiagnoseResult({
         </p>
         <Link
           href={examStartHref}
+          onClick={() =>
+            trackDiagnosisSignupClicked({
+              exam,
+              next_step: wrongCount > 0 ? "full_diagnostic" : "chapter_quiz",
+            })
+          }
           className="mt-4 inline-flex items-center justify-center rounded-2xl bg-cream-50 px-6 py-3 text-base font-bold text-cocoa-900 transition hover:bg-cream-100"
         >
           Sign up free →
