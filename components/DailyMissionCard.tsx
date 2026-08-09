@@ -22,21 +22,23 @@ export type MissionStep = {
   type: "foundation" | "repair" | "revision" | "advance";
   accuracy: number | null;
   completed: boolean;
+  minutes: number;
+  reason: string;
 };
 
 type IssueTone = "repair" | "recall" | "build";
 type IssueCopy = { label: string; time: string; note: string; button: string; colour: IssueTone };
 
 const copy = (step: MissionStep): IssueCopy => {
-  if (step.type === "repair") return { label: "Repair", time: "12 min", note: step.accuracy == null ? "Turn this weak spot into a usable mark." : `Earlier accuracy: ${step.accuracy}%.`, button: "Repair marks", colour: "repair" };
-  if (step.type === "revision") return { label: "Recall", time: "8 min", note: "Bring it back before it starts to fade.", button: "Recall now", colour: "recall" };
-  return { label: "Build", time: "10 min", note: step.type === "foundation" ? "Create your first proof point here." : "Move this under-covered area forward.", button: "Build coverage", colour: "build" };
+  if (step.type === "repair") return { label: "Repair", time: `${step.minutes} min`, note: step.accuracy == null ? step.reason : `Earlier accuracy: ${step.accuracy}% · ${step.reason}`, button: "Repair marks", colour: "repair" };
+  if (step.type === "revision") return { label: "Recall", time: `${step.minutes} min`, note: step.reason, button: "Recall now", colour: "recall" };
+  return { label: "Build", time: `${step.minutes} min`, note: step.reason, button: "Build coverage", colour: "build" };
 };
 
 export default function DailyMissionCard({ steps, scoreBoostDay, firstName = "there", examName = "your exam", daysLeft, todayProof, readinessProof }: Props) {
   const completedCount = steps.filter((step) => step.completed).length;
   const complete = steps.length > 0 && completedCount === steps.length;
-  const minutes = steps.reduce((total, step) => total + Number.parseInt(copy(step).time, 10), 0);
+  const minutes = steps.reduce((total, step) => total + step.minutes, 0);
   const start = (type: MissionStep["type"]) => {
     window.sessionStorage.setItem("examgrind:active-mission", JSON.stringify({ type, startedAt: Date.now() }));
     trackDailyMissionStarted({ mission_type: type });
@@ -46,7 +48,7 @@ export default function DailyMissionCard({ steps, scoreBoostDay, firstName = "th
     <div className="issue-shell">
       <header className="issue-cover">
         <div className="relative z-10 flex items-start justify-between gap-3"><div><p className="eg-kicker text-sun-400">Today&apos;s issue · {examName}</p><h1 className="mt-2 font-serif text-4xl font-semibold leading-[.9] tracking-[-.055em] text-cream-50 sm:text-5xl">{complete ? "Issue closed.\nGood work." : `Hi, ${firstName}.\nBuild your edge.`}</h1></div><Chick state={complete ? "excited" : "idle"} size={88} /></div>
-        <div className="relative z-10 mt-9 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-cream-50/15 pt-4 text-xs font-bold text-cream-200"><span>{steps.length} MOVES</span><span>{minutes} MINUTES</span><span>{daysLeft == null ? "SET YOUR EXAM DATE" : daysLeft === 0 ? "EXAM TODAY" : `${daysLeft} DAYS TO GO`}</span></div>
+        <div className="relative z-10 mt-9 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-cream-50/15 pt-4 text-xs font-bold text-cream-200"><span>{steps.length} MOVES</span><span>{minutes} MIN STARTING BLOCK</span><span>{daysLeft == null ? "SET YOUR EXAM DATE" : daysLeft === 0 ? "EXAM TODAY" : `${daysLeft} DAYS TO GO`}</span></div>
         <span className="issue-sun" aria-hidden /><span className="issue-scribble" aria-hidden>↝</span>
       </header>
       <div className="issue-route" aria-hidden><span /><span /><span /></div>
@@ -60,7 +62,7 @@ export default function DailyMissionCard({ steps, scoreBoostDay, firstName = "th
           </li>;
         })}
       </ol>
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-cocoa-900/[.08] bg-cream-50 px-5 py-4 text-xs font-semibold text-cocoa-700"><span>{todayProof ?? "Your first completed quiz creates today’s proof."}</span><span>{readinessProof ?? "Your readiness will build from real practice."}</span>{scoreBoostDay && <Link href="/score-boost" className="font-bold text-ember-700">Score Boost · Day {scoreBoostDay} →</Link>}</footer>
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-cocoa-900/[.08] bg-cream-50 px-5 py-4 text-xs font-semibold text-cocoa-700"><span>{todayProof ?? "Your first completed quiz creates today’s proof."}</span><span>{readinessProof ?? "Your readiness will build from real practice."}</span><span className="font-bold text-cocoa-900">Chosen from your weak signals, revision due dates, and coverage gaps.</span>{scoreBoostDay && <Link href="/score-boost" className="font-bold text-ember-700">Score Boost · Day {scoreBoostDay} →</Link>}</footer>
     </div>
   </section>;
 }

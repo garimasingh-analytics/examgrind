@@ -400,10 +400,14 @@ export default async function HomePage({ searchParams }: HomeProps) {
         (revisionIntervalDays[b.masteryLevel] ?? 3) * 86_400_000;
       return aDueAt - bDueAt;
     });
-  // A daily mission is a compact study session, not a single quiz. We always
-  // lead with real learning evidence (repair + due recall), then use the
-  // least-covered subjects in the selected exam to fill the remaining steps.
-  // This remains deterministic and does not spend an AI credit on page load.
+  // Preparation Autopilot: build a compact, high-return starting block from
+  // real learning evidence. The number of moves adapts to the time the
+  // student chose in their study profile, while an imminent exam shifts the
+  // balance toward recall rather than new coverage. This remains deterministic
+  // and does not spend an AI credit on page load.
+  const chosenStudyMinutes = Math.max(30, studyPreference?.daily_study_minutes ?? 30);
+  const missionStepLimit = chosenStudyMinutes >= 120 ? 5 : chosenStudyMinutes >= 75 ? 4 : chosenStudyMinutes >= 45 ? 3 : 2;
+  const isFinalStretch = examDaysLeft != null && examDaysLeft >= 0 && examDaysLeft <= 14;
   const missionSteps: MissionStep[] = [];
   const missionTopicIds = new Set<string>();
   const subjectNameFor = (subjectId: string) =>
@@ -411,8 +415,9 @@ export default async function HomePage({ searchParams }: HomeProps) {
   const addMissionTopic = (
     topic: MissionTopic,
     type: MissionStep["type"],
+    reason: string,
   ) => {
-    if (missionSteps.length >= 3 || missionTopicIds.has(topic.id)) return;
+    if (missionSteps.length >= missionStepLimit || missionTopicIds.has(topic.id)) return;
     missionTopicIds.add(topic.id);
     missionSteps.push({
       href: `/topic/${topic.id}`,
@@ -422,13 +427,15 @@ export default async function HomePage({ searchParams }: HomeProps) {
       type,
       accuracy: Math.round(topic.accuracy * 100),
       completed: activeTodayTopicIds.has(topic.id),
+      minutes: type === "repair" ? 15 : type === "revision" ? 10 : 12,
+      reason,
     });
   };
 
-  if (weakestTopic) addMissionTopic(weakestTopic, "repair");
+  if (weakestTopic) addMissionTopic(weakestTopic, "repair", "Lowest recent accuracy in your active exam.");
   for (const topic of revisionDueTopics) {
-    addMissionTopic(topic, "revision");
-    if (missionSteps.length >= 2) break;
+    addMissionTopic(topic, "revision", isFinalStretch ? "Due for recall during your final revision stretch." : "Due for recall before this concept fades.");
+    if (missionSteps.length >= (isFinalStretch ? 3 : 2)) break;
   }
 
   const leastCoveredSubjects = [...studySubjects].sort((a, b) => {
@@ -445,7 +452,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
   ]
     .map((subject) => subject.id)
     .filter((id, index, ids) => ids.indexOf(id) === index)
-    .slice(0, Math.max(0, 3 - missionSteps.length));
+    .slice(0, Math.max(0, missionStepLimit - missionSteps.length));
   if (seedSubjectIds.length > 0) {
     const { data: seedTopicsRaw } = await supabase
       .from("topics")
@@ -465,7 +472,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
       }
     }
     for (const subjectId of seedSubjectIds) {
-      if (missionSteps.length >= 3) break;
+      if (missionSteps.length >= missionStepLimit) break;
       const seedTopic = firstSeedBySubject.get(subjectId);
       const subject = studySubjects.find((item) => item.id === subjectId);
       if (!subject) continue;
@@ -479,6 +486,10 @@ export default async function HomePage({ searchParams }: HomeProps) {
           type: attemptedTopics.length === 0 ? "foundation" : "advance",
           accuracy: null,
           completed: activeTodayTopicIds.has(seedTopic.id),
+          minutes: attemptedTopics.length === 0 ? 12 : 15,
+          reason: attemptedTopics.length === 0
+            ? "A clean first proof point for this exam."
+            : "This subject has less coverage than the rest of your active preparation.",
         });
       } else {
         missionSteps.push({
@@ -489,6 +500,8 @@ export default async function HomePage({ searchParams }: HomeProps) {
           type: attemptedTopics.length === 0 ? "foundation" : "advance",
           accuracy: null,
           completed: false,
+          minutes: 12,
+          reason: "Open this subject to choose the first concept to build.",
         });
       }
     }
