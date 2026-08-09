@@ -14,7 +14,7 @@ declare global {
  * Performance Max should optimize for. transaction_id prevents duplicate
  * reporting if Razorpay invokes its success callback more than once.
  */
-export function trackPaidSubscriptionConversion(transactionId: string) {
+export function trackPaidSubscriptionConversion(transactionId: string, value = 199) {
   if (typeof window === "undefined") return;
 
   window.dataLayer = window.dataLayer ?? [];
@@ -26,7 +26,7 @@ export function trackPaidSubscriptionConversion(transactionId: string) {
 
   gtag("event", "conversion", {
     send_to: PAID_SUBSCRIPTION_DESTINATION,
-    value: 199,
+    value,
     currency: "INR",
     transaction_id: transactionId,
   });

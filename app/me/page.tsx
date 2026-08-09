@@ -49,7 +49,7 @@ type MasteryRow = {
 };
 
 type PurchaseEntitlementRow = {
-  product: "analysis_credit" | "score_boost_21d";
+  product: "analysis_credit" | "score_boost_21d" | "quiz_pack_3" | "quiz_pack_10" | "quiz_pack_15" | "coach_yearly";
   remaining_uses: number;
   expires_at: string | null;
 };
@@ -105,6 +105,10 @@ export default async function ProfilePage() {
   const scoreBoostDaysLeft = activeScoreBoost?.expires_at
     ? Math.max(1, Math.ceil((new Date(activeScoreBoost.expires_at).getTime() - Date.now()) / 86_400_000))
     : 0;
+  const annualAccess = activePurchases
+    .filter((purchase) => purchase.product === "coach_yearly" && purchase.expires_at)
+    .sort((a, b) => new Date(b.expires_at ?? 0).getTime() - new Date(a.expires_at ?? 0).getTime())[0];
+  const isAnnualCoach = liveSubscriptionStatus === "paid" && Boolean(annualAccess);
 
   const fullName =
     (authUser.user_metadata?.full_name as string | undefined) ??
@@ -308,10 +312,11 @@ export default async function ProfilePage() {
           analysesTaken={profile?.analyses_started ?? 0}
           analysisCredits={analysisCredits}
           scoreBoostDaysLeft={scoreBoostDaysLeft}
+          paidPlan={isAnnualCoach ? "annual" : "monthly"}
         />
         {/* Cancel-subscription affordance — only shown for active paid */}
         {/* users. Two-tap confirmation so accidental clicks don't fire. */}
-        {liveSubscriptionStatus === "paid" && (
+        {liveSubscriptionStatus === "paid" && !isAnnualCoach && (
           <div className="mt-3 flex justify-end">
             <CancelSubButton paidUntil={profile?.paid_until ?? null} />
           </div>

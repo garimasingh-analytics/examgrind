@@ -4,14 +4,14 @@ declare global {
   }
 }
 
-/** Records a completed ₹199 subscription for Meta Ads optimisation. */
-export function trackMetaSubscriptionPurchase(transactionId: string) {
+/** Records a completed paid access purchase for Meta Ads optimisation. */
+export function trackMetaSubscriptionPurchase(transactionId: string, value = 199) {
   if (typeof window === "undefined" || !window.fbq) return;
 
   window.fbq(
     "track",
     "Purchase",
-    { value: 199, currency: "INR" },
+    { value, currency: "INR" },
     { eventID: transactionId }
   );
 }

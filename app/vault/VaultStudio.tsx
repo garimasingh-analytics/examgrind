@@ -6,7 +6,7 @@ type Subject = { id: string; name: string };
 type Card = { front: string; back: string; hint: string };
 type VaultItem = { id: string; item_type: "flashcard_set" | "mnemonic"; topic: string; content: { cards?: Card[]; phrase?: string; explanation?: string }; created_at: string };
 
-export default function VaultStudio({ subjects, initialItems, isCoach, founderPreview }: { subjects: Subject[]; initialItems: VaultItem[]; isCoach: boolean; founderPreview: boolean }) {
+export default function VaultStudio({ subjects, initialItems }: { subjects: Subject[]; initialItems: VaultItem[] }) {
   const [topic, setTopic] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [items, setItems] = useState(initialItems);
@@ -46,8 +46,7 @@ export default function VaultStudio({ subjects, initialItems, isCoach, founderPr
         <button type="button" disabled={pending || topic.trim().length < 2} onClick={generate} className="mt-2 w-full rounded-xl bg-sun-400 px-4 py-3 text-sm font-extrabold text-cocoa-900 transition hover:bg-sun-300 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-0 sm:w-auto">{pending ? "Building your set…" : "Create study set"}</button>
       </div>
       {error && <p role="alert" className="mt-3 rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white">{error}</p>}
-      {!isCoach && !founderPreview && <p className="mt-3 text-xs text-white/75">Your first saved set is free. ExamGrind Coach unlocks unlimited Study Vault sets.</p>}
-      {founderPreview && !isCoach && <p className="mt-3 text-xs text-white/75">Founder preview — student accounts receive one free saved set before Coach.</p>}
+      <p className="mt-3 text-xs text-white/75">Free for every ExamGrind student. Create up to 4 new study sets a day; every saved card and mnemonic remains yours to revise.</p>
     </section>
 
     <section className="vault-shelves mt-7 grid gap-5 lg:grid-cols-[1.3fr_.7fr]">

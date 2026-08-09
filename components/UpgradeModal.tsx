@@ -284,6 +284,11 @@ export default function UpgradeModal({
           }
           setSuccess(true);
           setLoading(false);
+          if (product === "coach_yearly") {
+            trackPaidSubscriptionConversion(resp.razorpay_payment_id, 899);
+            trackMetaSubscriptionPurchase(resp.razorpay_payment_id, 899);
+            trackSubscriptionPurchased("annual_899");
+          }
           trackPurchaseCompleted({ product, checkout_type: "one_time" });
           if (product === "score_boost_21d") router.push("/score-boost");
           else router.refresh();
@@ -307,7 +312,7 @@ export default function UpgradeModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md overflow-hidden rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm-lg"
+        className="relative max-h-[92svh] w-full max-w-md overflow-y-auto rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 shadow-warm-lg"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -325,21 +330,30 @@ export default function UpgradeModal({
         {/* Body */}
         <div className="px-6 py-5">
           <div className="space-y-3">
-            <div className="flex items-center gap-3"><span className="h-px flex-1 bg-cocoa-900/[.08]" /><p className="text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">One-time access · no renewal</p><span className="h-px flex-1 bg-cocoa-900/[.08]" /></div>
-            <Offer title="1 AI Deep Analysis" price="₹19" detail="Find weak concepts, score impact and the next action for one completed quiz or mock." fit="Best for one result." onClick={() => handleOneTimePurchase("analysis_credit")} disabled={loading || success} />
-            <Offer title="Personal 21-Day Score Boost" price="₹49" detail="A fixed weak-topic roadmap with daily targets and dated revision checkpoints. No auto-renewal." fit="Best for a focused sprint." onClick={() => handleOneTimePurchase("score_boost_21d")} disabled={loading || success} />
-            <div className="grid grid-cols-3 gap-2">
-              <Offer title="3 quizzes" price="₹49" detail="Use anytime" fit="Try again." onClick={() => handleOneTimePurchase("quiz_pack_3")} disabled={loading || success} compact />
-              <Offer title="10 quizzes" price="₹149" detail="Use anytime" fit="Popular." onClick={() => handleOneTimePurchase("quiz_pack_10")} disabled={loading || success} compact />
-              <Offer title="15 quizzes" price="₹199" detail="Use anytime" fit="Best pack." onClick={() => handleOneTimePurchase("quiz_pack_15")} disabled={loading || success} compact />
+            <div className="rounded-2xl border-2 border-ember-600/35 bg-gradient-to-br from-sun-400/30 via-cream-50 to-ember-500/15 p-4 shadow-warm">
+              <div className="flex items-start justify-between gap-3"><div><p className="inline-flex rounded-full bg-ember-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.14em] text-cream-50">Best value</p><p className="mt-3 text-[10px] font-bold uppercase tracking-[.16em] text-ember-700">One payment · full year</p><h3 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">ExamGrind Annual</h3></div><div className="text-right"><p className="font-serif text-3xl font-bold leading-none text-cocoa-900">₹899</p><p className="mt-1 text-xs font-bold text-ember-700">just ₹75 / month</p></div></div>
+              <p className="mt-3 text-sm leading-6 text-cocoa-700">Everything is open for the next 12 months—so your preparation never pauses at a paywall.</p>
+              <ul className="mt-3 grid gap-1.5 text-xs font-semibold text-cocoa-800 sm:grid-cols-2"><li>✓ Unlimited quizzes & full mocks</li><li>✓ Every AI Deep Analysis</li><li>✓ Coach, missions & revision</li><li>✓ Score Boost + Recovery History</li></ul>
+              <p className="mt-3 text-[11px] font-bold text-ember-700">Save ₹1,489 compared with paying ₹199 for 12 separate months.</p>
+              <button onClick={() => handleOneTimePurchase("coach_yearly")} disabled={loading || success} className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-cocoa-900 px-4 py-3 text-sm font-bold text-cream-50 shadow-warm transition hover:scale-[1.01] hover:bg-cocoa-800 disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Opening checkout…" : "Get a full year for ₹899"}</button>
+              <p className="mt-2 text-center text-[10px] text-cocoa-600">One secure payment through Razorpay · no monthly renewal.</p>
             </div>
-            <div className="rounded-2xl border-2 border-ember-600/25 bg-gradient-to-br from-sun-400/20 to-ember-500/10 p-4">
-              <div className="flex items-baseline justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-ember-700">Monthly membership</p><h3 className="mt-1 font-bold text-cocoa-900">ExamGrind Coach</h3></div><span className="font-serif text-xl font-bold text-cocoa-900">₹199 <span className="font-sans text-xs font-medium">/ month</span></span></div>
-              <ul className="mt-3 grid gap-1.5 text-xs font-medium text-cocoa-800 sm:grid-cols-2"><li>✓ Unlimited quizzes</li><li>✓ Unlimited Deep Analyses</li><li>✓ Full mocks</li><li>✓ Live Coach + revision queue</li></ul>
-              <p className="mt-3 text-[11px] font-bold text-ember-700">Best value if you practice more than 15 quizzes this month.</p>
-              <button onClick={handleUpgrade} disabled={loading || success} className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-4 py-2.5 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Opening checkout…" : "Upgrade to Coach"}</button>
+
+            <div className="rounded-2xl border border-cocoa-900/[.10] bg-cream-100 p-4">
+              <div className="flex items-baseline justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-cocoa-500">Flexible monthly access</p><h3 className="mt-1 font-bold text-cocoa-900">ExamGrind Coach</h3></div><span className="font-serif text-xl font-bold text-cocoa-900">₹199 <span className="font-sans text-xs font-medium">/ month</span></span></div>
+              <p className="mt-2 text-xs leading-5 text-cocoa-700">Need full access for the month ahead? Start here and keep it only while it suits your preparation.</p>
+              <button onClick={handleUpgrade} disabled={loading || success} className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-cocoa-900/[.12] bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-70">{loading ? "Opening checkout…" : "Choose monthly access"}</button>
               <p className="mt-2 text-center text-[10px] text-cocoa-600">Auto-renews monthly through Razorpay. Cancel anytime from Profile.</p>
             </div>
+
+            <details className="group rounded-2xl border border-cocoa-900/[.08] bg-cream-100/70 p-4">
+              <summary className="cursor-pointer list-none text-sm font-bold text-cocoa-900">Need one thing today? <span className="ml-1 text-ember-700 group-open:hidden">See small-access options →</span><span className="ml-1 hidden text-ember-700 group-open:inline">Hide options ↑</span></summary>
+              <div className="mt-4 space-y-3 border-t border-cocoa-900/[.08] pt-4">
+                <Offer title="1 AI Deep Analysis" price="₹19" detail="A complete breakdown for one finished quiz or mock." fit="One result, fully explained." onClick={() => handleOneTimePurchase("analysis_credit")} disabled={loading || success} />
+                <Offer title="Personal 21-Day Score Boost" price="₹49" detail="A fixed roadmap with daily targets and dated revision checkpoints." fit="A focused three-week sprint." onClick={() => handleOneTimePurchase("score_boost_21d")} disabled={loading || success} />
+                <div className="grid grid-cols-3 gap-2"><Offer title="3 quizzes" price="₹49" detail="Use anytime" fit="Try again." onClick={() => handleOneTimePurchase("quiz_pack_3")} disabled={loading || success} compact /><Offer title="10 quizzes" price="₹149" detail="Use anytime" fit="Popular." onClick={() => handleOneTimePurchase("quiz_pack_10")} disabled={loading || success} compact /><Offer title="15 quizzes" price="₹199" detail="Use anytime" fit="Best pack." onClick={() => handleOneTimePurchase("quiz_pack_15")} disabled={loading || success} compact /></div>
+              </div>
+            </details>
           </div>
 
           <button
@@ -363,7 +377,7 @@ export default function UpgradeModal({
               role="status"
               className="mt-3 rounded-xl bg-moss-500/15 px-4 py-2.5 text-center text-xs font-medium text-moss-700"
             >
-              Welcome aboard! Refresh the page to start unlimited practice.
+              Your access is active. Refresh the page to continue.
             </p>
           )}
         </div>

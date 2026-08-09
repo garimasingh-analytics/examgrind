@@ -46,6 +46,27 @@ export async function POST(req: Request) {
   const product: OneTimeProduct = requestedProduct;
   const catalogProduct = ONE_TIME_PRODUCTS[product];
 
+  // Annual access is deliberately a one-time charge rather than a recurring
+  // yearly mandate. Do not let a currently-paid student buy overlapping
+  // access by accident; their existing plan already unlocks everything.
+  if (product === "coach_yearly") {
+    const admin = createAdminSupabase();
+    const { data: profile, error: profileError } = await admin
+      .from("users")
+      .select("subscription_status, paid_until")
+      .eq("id", user.id)
+      .maybeSingle<{ subscription_status: string; paid_until: string | null }>();
+    if (profileError) {
+      console.error("[billing/create-order] annual access check failed", profileError);
+      return NextResponse.json({ error: "Payment is temporarily unavailable. Please try again shortly." }, { status: 503 });
+    }
+    const isAlreadyActive = profile?.subscription_status === "paid" &&
+      Boolean(profile.paid_until && new Date(profile.paid_until).getTime() > Date.now());
+    if (isAlreadyActive) {
+      return NextResponse.json({ error: "Your full ExamGrind access is already active." }, { status: 409 });
+    }
+  }
+
   const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
   if (!keyId || !keySecret) {

@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse, type NextRequest } from "next/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
-import { isAdminEmail } from "@/lib/admin-auth";
+import { consumeVaultGenerationSlot, DAILY_VAULT_GENERATION_LIMIT } from "@/lib/ai-rate-limit";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { createServerSupabase } from "@/lib/supabase/server";
 
@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "Study Vault is temporarily unavailable." }, { status: 503 });
 
   const admin = createAdminSupabase();
-  const { data: profile } = await admin.from("users").select("exam_choice, email, subscription_status, paid_until").eq("id", user.id).maybeSingle<{
-    exam_choice: string | null; email: string | null; subscription_status: "free" | "trial" | "paid"; paid_until: string | null;
+  const { data: profile } = await admin.from("users").select("exam_choice").eq("id", user.id).maybeSingle<{
+    exam_choice: string | null;
   }>();
   const { data: exam } = await admin.from("exams").select("id, name").eq("slug", profile?.exam_choice ?? "cuet").maybeSingle<{ id: string; name: string }>();
   if (!exam) return NextResponse.json({ error: "Choose an exam before creating study material." }, { status: 400 });
@@ -74,30 +74,14 @@ export async function POST(request: NextRequest) {
     }, { status: 503 });
   }
 
-  // A free account gets one durable sample set. Coach membership makes this
-  // a working study tool rather than an unbounded AI-cost loophole. Founder
-  // preview stays open so launch material can be checked without checkout.
-  const paidUntil = profile?.paid_until ? new Date(profile.paid_until).getTime() : 0;
-  const isCoach = profile?.subscription_status === "paid" && paidUntil > Date.now();
-  const isFounder = isAdminEmail(profile?.email);
-  if (!isCoach && !isFounder) {
-    const { count, error: vaultCountError } = await admin
-      .from("study_vault_items")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id);
-    if (vaultCountError) {
-      console.error("[vault/generate] free-limit check failed", {
-        code: vaultCountError.code,
-        message: vaultCountError.message,
-      });
-      return NextResponse.json({
-        error: "Study Vault is temporarily unavailable. Please try again in a moment.",
-      }, { status: 503 });
-    }
-    if ((count ?? 0) >= 2) return NextResponse.json({
-      error: "Your free Study Vault set is saved. Coach unlocks unlimited new sets.",
-      paywall: { reason: "vault-limit" },
-    }, { status: 402 });
+  // Free means free: there is no plan gate. The per-day guard prevents an
+  // automated account from exhausting the shared AI budget, while every
+  // saved flashcard and mnemonic stays available indefinitely.
+  const allowed = await consumeVaultGenerationSlot(supabase, user.id);
+  if (!allowed) {
+    return NextResponse.json({
+      error: `You can create up to ${DAILY_VAULT_GENERATION_LIMIT} study sets per day. Your saved sets are always available to revise.`,
+    }, { status: 429 });
   }
 
   const prompt = `You are an expert ${exam.name} tutor. Create reliable active-recall material for an Indian exam aspirant.\n\nExam: ${exam.name}\nSubject: ${subjectName}\nTopic: ${topic}\n\nReturn ONLY valid JSON, exactly this shape:\n{\n  "mnemonic": { "phrase": "short memorable phrase", "explanation": "what each part maps to and any limitation" },\n  "flashcards": [\n    { "front": "precise recall question", "back": "correct concise answer", "hint": "small retrieval cue" }\n  ]\n}\n\nRequirements:\n- Write exactly 8 flashcards: 3 foundations, 3 application/traps, 2 rapid revision.\n- Do not invent statistics, dates, official rules, or source citations. If the topic has a common exception, say it clearly.\n- Keep every front under 150 characters and every back under 280 characters.\n- Make the mnemonic useful, not decorative. If a mnemonic would be misleading, use a compact memory structure instead.`;

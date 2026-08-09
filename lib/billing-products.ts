@@ -12,6 +12,11 @@ export const ONE_TIME_PRODUCTS = {
   quiz_pack_3: { pricePaise: 4900, label: "3 Quiz Pack", description: "Three quiz starts, valid for one year" },
   quiz_pack_10: { pricePaise: 14900, label: "10 Quiz Pack", description: "Ten quiz starts, valid for one year" },
   quiz_pack_15: { pricePaise: 19900, label: "15 Quiz Pack", description: "Fifteen quiz starts, valid for one year" },
+  coach_yearly: {
+    pricePaise: 89900,
+    label: "ExamGrind Annual",
+    description: "Full ExamGrind access for one year",
+  },
 } as const;
 
 export type OneTimeProduct = keyof typeof ONE_TIME_PRODUCTS;

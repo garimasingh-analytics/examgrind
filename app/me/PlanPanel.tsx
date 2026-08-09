@@ -11,6 +11,7 @@ type Props = {
   analysesTaken: number;
   analysisCredits: number;
   scoreBoostDaysLeft: number;
+  paidPlan: "annual" | "monthly";
 };
 
 const FREE_QUIZ_LIMIT = 3;
@@ -23,6 +24,7 @@ export default function PlanPanel({
   analysesTaken,
   analysisCredits,
   scoreBoostDaysLeft,
+  paidPlan,
 }: Props) {
   const [open, setOpen] = useState(false);
   const isPaid = subscriptionStatus === "paid";
@@ -48,11 +50,11 @@ export default function PlanPanel({
               Plan
             </p>
             <p className="mt-1 font-serif text-2xl font-bold text-cocoa-900">
-              {isPaid ? "ExamGrind Coach 👑" : "Free plan"}
+              {isPaid ? paidPlan === "annual" ? "ExamGrind Annual 👑" : "ExamGrind Coach 👑" : "Free plan"}
             </p>
             <p className="mt-1 text-xs text-cocoa-600">
               {isPaid
-                ? `Coach is active${coachUntil ? ` until ${coachUntil}` : ""}.`
+                ? `${paidPlan === "annual" ? "Full annual access" : "Coach"} is active${coachUntil ? ` until ${coachUntil}` : ""}.`
                 : "Your active purchases are listed below."}
             </p>
           </div>
@@ -97,7 +99,7 @@ export default function PlanPanel({
               icon="🔎"
               title="AI Deep Analysis"
               value={isPaid ? "Unlimited" : analysisCredits > 0 ? `${analysisCredits} ready` : analysisLeft > 0 ? `${analysisLeft} free left` : "None ready"}
-              detail={isPaid ? "Included with Coach." : analysisCredits > 0 ? "Your paid analysis credit is active." : analysisLeft > 0 ? "Use it after any completed quiz or mock." : "Buy one for ₹19 whenever you need it."}
+              detail={isPaid ? "Included with your full access." : analysisCredits > 0 ? "Your paid analysis credit is active." : analysisLeft > 0 ? "Use it after any completed quiz or mock." : "Buy one for ₹19 whenever you need it."}
               active={isPaid || analysisCredits > 0 || analysisLeft > 0}
               href={isPaid || analysisCredits > 0 || analysisLeft > 0 ? "/home" : undefined}
               onClick={isPaid || analysisCredits > 0 || analysisLeft > 0 ? undefined : () => setOpen(true)}
@@ -106,7 +108,7 @@ export default function PlanPanel({
               icon="🗓️"
               title="21-Day Score Boost"
               value={isPaid ? "Included" : scoreBoostDaysLeft > 0 ? `${scoreBoostDaysLeft} days active` : "Not active"}
-              detail={isPaid ? "Your Coach plan includes ongoing planning." : scoreBoostDaysLeft > 0 ? "Your fixed personalised roadmap is ready." : "A fixed personal roadmap for ₹49."}
+              detail={isPaid ? "Included with your full access." : scoreBoostDaysLeft > 0 ? "Your fixed personalised roadmap is ready." : "A fixed personal roadmap for ₹49."}
               active={isPaid || scoreBoostDaysLeft > 0}
               href={scoreBoostDaysLeft > 0 || isPaid ? "/score-boost" : undefined}
               onClick={scoreBoostDaysLeft > 0 || isPaid ? undefined : () => setOpen(true)}
@@ -115,7 +117,7 @@ export default function PlanPanel({
               icon="👑"
               title="ExamGrind Coach"
               value={isPaid ? "Active" : "Not active"}
-              detail={isPaid ? "Unlimited quizzes, mocks and analyses." : "Unlimited practice and continuous AI coaching for ₹199/month."}
+              detail={isPaid ? "Unlimited quizzes, mocks and analyses." : "Full access from ₹75/month when paid yearly."}
               active={isPaid}
               href={isPaid ? "/coach" : undefined}
               onClick={isPaid ? undefined : () => setOpen(true)}

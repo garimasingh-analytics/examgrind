@@ -116,9 +116,9 @@ export const trackDeepAnalysisViewed = (params: { analysis_kind: "regular" | "de
   track(ANALYTICS_EVENTS.DEEP_ANALYSIS_VIEWED, params);
 export const trackSubscriptionCheckoutStarted = (params: { paywall_reason: string }) =>
   track(ANALYTICS_EVENTS.SUBSCRIPTION_CHECKOUT_STARTED, params);
-export const trackSubscriptionPurchased = () =>
-  track(ANALYTICS_EVENTS.SUBSCRIPTION_PURCHASED, { plan: "monthly_199" });
-export type AccessProduct = "analysis_credit" | "score_boost_21d" | "quiz_pack_3" | "quiz_pack_10" | "quiz_pack_15" | "coach_monthly";
+export const trackSubscriptionPurchased = (plan: "monthly_199" | "annual_899" = "monthly_199") =>
+  track(ANALYTICS_EVENTS.SUBSCRIPTION_PURCHASED, { plan });
+export type AccessProduct = "analysis_credit" | "score_boost_21d" | "quiz_pack_3" | "quiz_pack_10" | "quiz_pack_15" | "coach_monthly" | "coach_yearly";
 export const trackPaywallViewed = (params: { paywall_reason: string }) => track(ANALYTICS_EVENTS.PAYWALL_VIEWED, params);
 export const trackAccessOptionSelected = (params: { product: AccessProduct; paywall_reason: string }) => track(ANALYTICS_EVENTS.ACCESS_OPTION_SELECTED, params);
 export const trackCheckoutOpened = (params: { product: AccessProduct; checkout_type: "one_time" | "subscription" }) => track(ANALYTICS_EVENTS.CHECKOUT_OPENED, params);
