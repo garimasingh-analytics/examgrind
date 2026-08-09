@@ -13,6 +13,13 @@ type StartBody = {
   questionCount: number;
   /** Optional concept to drill — narrows the question generator. */
   conceptFocus?: string;
+  /** Present only when a Deep Analysis launches a targeted repair round. */
+  repair?: {
+    sourceQuizId: string;
+    concept: string;
+    evidence: string;
+    severity: "high" | "medium" | "low";
+  };
 };
 
 type GeneratedQuestion = {
@@ -39,7 +46,7 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
   }
-  const { topicId, questionCount, conceptFocus } = body;
+  const { topicId, questionCount, conceptFocus, repair } = body;
   if (!topicId || typeof topicId !== "string") {
     return NextResponse.json({ error: "Missing topicId." }, { status: 400 });
   }
@@ -52,6 +59,27 @@ export async function POST(req: NextRequest) {
       { error: `questionCount must be between ${MIN_Q} and ${MAX_Q}.` },
       { status: 400 }
     );
+  }
+  if (repair) {
+    const validRepair =
+      typeof repair.sourceQuizId === "string" &&
+      typeof repair.concept === "string" &&
+      repair.concept.trim().length > 0 &&
+      repair.concept.length <= 180 &&
+      typeof repair.evidence === "string" &&
+      repair.evidence.length <= 600 &&
+      ["high", "medium", "low"].includes(repair.severity);
+    if (!validRepair) {
+      return NextResponse.json({ error: "Invalid repair context." }, { status: 400 });
+    }
+    const { data: sourceQuiz } = await supabase
+      .from("quizzes")
+      .select("id")
+      .eq("id", repair.sourceQuizId)
+      .maybeSingle();
+    if (!sourceQuiz) {
+      return NextResponse.json({ error: "Original quiz not found." }, { status: 404 });
+    }
   }
 
   // ---- 3. Pull topic context (subject + chapter + topic name) ----
@@ -282,6 +310,22 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
       { error: "Couldn't save questions. Please try again." },
       { status: 500 }
     );
+  }
+
+  if (repair) {
+    const { error: repairError } = await admin.from("repair_cycles").insert({
+      user_id: user.id,
+      source_quiz_id: repair.sourceQuizId,
+      repair_quiz_id: quizRow.id,
+      concept: repair.concept.trim(),
+      evidence: repair.evidence.trim(),
+      severity: repair.severity,
+    });
+    if (repairError) {
+      // Keep the generated quiz usable. This can only fail when the migration
+      // is missing or the database is unavailable; it must never strand a student.
+      console.error("[quiz/start] repair cycle insert failed:", repairError);
+    }
   }
 
   return NextResponse.json({ quizId: quizRow.id });

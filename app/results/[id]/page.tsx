@@ -67,6 +67,22 @@ export default async function ResultsPage({ params }: Params) {
     .eq("quiz_id", id)
     .maybeSingle<{ analysis: AnalysisJson; is_deep_dive: boolean }>();
 
+  const admin = createAdminSupabase();
+  const { data: repairCycle } = await admin
+    .from("repair_cycles")
+    .select("concept, evidence, severity, repair_correct, repair_total, source_quiz_id")
+    .eq("repair_quiz_id", id)
+    .eq("user_id", user.id)
+    .eq("status", "completed")
+    .maybeSingle<{
+      concept: string;
+      evidence: string;
+      severity: "high" | "medium" | "low";
+      repair_correct: number | null;
+      repair_total: number | null;
+      source_quiz_id: string;
+    }>();
+
   const isPaid = profile?.subscription_status === "paid";
   const freeAnalysisUsed = (profile?.analyses_started ?? 0) >= 1;
   const { count: analysisCreditCount } = await createAdminSupabase()
@@ -221,6 +237,22 @@ export default async function ResultsPage({ params }: Params) {
 
         </div>
       </section>
+
+      {repairCycle && repairCycle.repair_correct != null && repairCycle.repair_total != null && (
+        <section className="mx-auto mt-6 max-w-2xl px-4 sm:px-6">
+          <div className="rounded-3xl border border-moss-500/25 bg-moss-500/10 p-5 shadow-warm">
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-moss-700">Recovery proof</p>
+            <h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">{repairCycle.concept} repair round complete.</h2>
+            <p className="mt-2 text-sm leading-6 text-cocoa-700">Your original analysis flagged this concept. This fresh-question result is the evidence from your repair round.</p>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-cream-50 px-4 py-3">
+              <p className="text-sm font-semibold text-cocoa-900">Repair result: {repairCycle.repair_correct} / {repairCycle.repair_total}</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-moss-700">{Math.round((repairCycle.repair_correct / repairCycle.repair_total) * 100)}% on fresh questions</p>
+            </div>
+            <p className="mt-3 text-sm text-cocoa-700">{repairCycle.repair_correct / repairCycle.repair_total >= 0.7 ? "This fresh round is a positive signal. Keep it in your revision queue so it stays reliable." : "The signal is still active. Review the repair steps below, then run one more focused round."}</p>
+            <Link href={`/results/${repairCycle.source_quiz_id}`} className="mt-4 inline-flex text-sm font-bold text-moss-700 underline decoration-moss-500/30 underline-offset-4">Back to the original recovery map →</Link>
+          </div>
+        </section>
+      )}
 
       {/* Deep Analysis — only for non-empty quizzes */}
       {!isEmpty && (

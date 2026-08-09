@@ -231,7 +231,7 @@ export default function DeepAnalysis({
     });
   };
 
-  const drill = (conceptFocus: string, drillSize: number) => {
+  const drill = (weakness: Weakness) => {
     if (!topicId) return;
     setError(null);
     setDrilling(async () => {
@@ -241,8 +241,14 @@ export default function DeepAnalysis({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             topicId,
-            questionCount: Math.max(5, Math.min(25, drillSize)),
-            conceptFocus,
+            questionCount: Math.max(5, Math.min(25, weakness.improve.practice.drill_size)),
+            conceptFocus: weakness.improve.practice.concept_focus,
+            repair: {
+              sourceQuizId: quizId,
+              concept: weakness.concept,
+              evidence: weakness.evidence,
+              severity: weakness.severity,
+            },
           }),
         });
         if (!res.ok) {
@@ -405,7 +411,7 @@ export default function DeepAnalysis({
                 key={i}
                 id={`repair-${i + 1}`}
                 weakness={w}
-                onDrill={() => drill(w.improve.practice.concept_focus, w.improve.practice.drill_size)}
+                onDrill={() => drill(w)}
                 drilling={drilling}
                 topicAvailable={!!topicId}
               />
@@ -578,7 +584,7 @@ function RecoveryMap({
   source: "quiz" | "mock";
   topicAvailable: boolean;
   drilling: boolean;
-  onDrill: (conceptFocus: string, drillSize: number) => void;
+  onDrill: (weakness: Weakness) => void;
   previewRepairHref?: string;
 }) {
   const rank = { high: 0, medium: 1, low: 2 } as const;
@@ -618,7 +624,7 @@ function RecoveryMap({
                         type="button"
                         onClick={() => {
                           trackRecoveryMapActionClicked({ source, priority_position: index + 1 });
-                          onDrill(weakness.improve.practice.concept_focus, weakness.improve.practice.drill_size);
+                          onDrill(weakness);
                         }}
                         disabled={drilling}
                         className="text-xs font-bold text-ember-700 underline decoration-ember-600/30 underline-offset-4 transition hover:text-ember-800 disabled:cursor-wait disabled:opacity-60"

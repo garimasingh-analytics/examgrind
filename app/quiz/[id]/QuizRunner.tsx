@@ -6,6 +6,7 @@ import Chick from "@/components/Chick";
 import {
   trackDailyMissionCompleted,
   trackQuizCompleted,
+  trackRepairRoundCompleted,
   trackQuizStarted,
 } from "@/lib/product-analytics";
 
@@ -183,6 +184,7 @@ export default function QuizRunner({ quizId, topicLabel, questions, previewResul
           alreadyCompleted?: boolean;
           correct?: number;
           total?: number;
+          repairCycle?: { id: string } | null;
         };
         if (!res.ok) {
           throw new Error(body.error ?? `Failed (${res.status})`);
@@ -199,6 +201,12 @@ export default function QuizRunner({ quizId, topicLabel, questions, previewResul
             duration_seconds: Math.max(1, Math.round(Object.values(finalTimes).reduce((sum, seconds) => sum + seconds, 0))),
           });
           trackMissionCompletion(answeredCount, body.correct);
+          if (body.repairCycle) {
+            trackRepairRoundCompleted({
+              correct_count: body.correct,
+              question_count: body.total ?? questions.length,
+            });
+          }
         }
         router.push(`/results/${quizId}`);
       } catch (e: unknown) {

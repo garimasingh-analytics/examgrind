@@ -218,6 +218,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // ---- 6. Complete a linked repair cycle, if this was a targeted drill ----
+  // The user has already been verified as the quiz owner above. Admin access
+  // is used because repair_cycles is intentionally select-only to clients.
+  const admin = createAdminSupabase();
+  const { data: repairCycle, error: repairCycleError } = await admin
+    .from("repair_cycles")
+    .update({
+      status: "completed",
+      repair_correct: correct,
+      repair_total: total,
+      completed_at: new Date().toISOString(),
+    })
+    .eq("repair_quiz_id", quizId)
+    .eq("user_id", user.id)
+    .eq("status", "started")
+    .select("id, concept, severity, source_quiz_id, repair_correct, repair_total")
+    .maybeSingle();
+  if (repairCycleError) {
+    console.error("[quiz/complete] repair cycle update failed:", repairCycleError);
+  }
+
   return NextResponse.json({
     quizId,
     correct,
@@ -230,5 +251,6 @@ export async function POST(req: NextRequest) {
       longest: newLongest,
       changed: streakChanged, // "incremented" | "reset" | "same-day"
     },
+    repairCycle: repairCycle ?? null,
   });
 }
