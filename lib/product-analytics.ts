@@ -36,9 +36,14 @@ export const ANALYTICS_EVENTS = {
   DIAGNOSIS_COMPLETED: "diagnosis_completed",
   DIAGNOSIS_RESULT_VIEWED: "diagnosis_result_viewed",
   DIAGNOSIS_SIGNUP_CLICKED: "diagnosis_signup_clicked",
+  DIAGNOSIS_SIGNUP_COMPLETED: "diagnosis_signup_completed",
+  DIAGNOSIS_HANDOFF_VIEWED: "diagnosis_handoff_viewed",
+  DIAGNOSIS_HANDOFF_ACTION: "diagnosis_handoff_action",
   RECOVERY_MAP_VIEWED: "recovery_map_viewed",
   RECOVERY_MAP_ACTION_CLICKED: "recovery_map_action_clicked",
+  REPAIR_ROUND_STARTED: "repair_round_started",
   REPAIR_ROUND_COMPLETED: "repair_round_completed",
+  REPAIR_PROOF_VIEWED: "repair_proof_viewed",
 } as const;
 
 declare global {
@@ -152,6 +157,16 @@ export const trackDiagnosisSignupClicked = (params: {
   exam: DiagnosisExam;
   next_step: "free_plan";
 }) => track(ANALYTICS_EVENTS.DIAGNOSIS_SIGNUP_CLICKED, params);
+export const trackDiagnosisSignupCompleted = (params: { exam: DiagnosisExam }) =>
+  track(ANALYTICS_EVENTS.DIAGNOSIS_SIGNUP_COMPLETED, params);
+export const trackDiagnosisHandoffViewed = (params: {
+  exam: DiagnosisExam;
+  wrong_count: number;
+}) => track(ANALYTICS_EVENTS.DIAGNOSIS_HANDOFF_VIEWED, params);
+export const trackDiagnosisHandoffAction = (params: {
+  exam: DiagnosisExam;
+  action: "follow_signal" | "choose_subject" | "dismiss";
+}) => track(ANALYTICS_EVENTS.DIAGNOSIS_HANDOFF_ACTION, params);
 export const trackRecoveryMapViewed = (params: {
   source: "quiz" | "mock";
   priority_count: number;
@@ -160,7 +175,11 @@ export const trackRecoveryMapActionClicked = (params: {
   source: "quiz" | "mock";
   priority_position: number;
 }) => track(ANALYTICS_EVENTS.RECOVERY_MAP_ACTION_CLICKED, params);
+export const trackRepairRoundStarted = () =>
+  track(ANALYTICS_EVENTS.REPAIR_ROUND_STARTED, {});
 export const trackRepairRoundCompleted = (params: {
   correct_count: number;
   question_count: number;
 }) => track(ANALYTICS_EVENTS.REPAIR_ROUND_COMPLETED, params);
+export const trackRepairProofViewed = () =>
+  track(ANALYTICS_EVENTS.REPAIR_PROOF_VIEWED, {});

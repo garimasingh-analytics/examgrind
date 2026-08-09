@@ -7,6 +7,7 @@ import {
   trackDailyMissionCompleted,
   trackQuizCompleted,
   trackRepairRoundCompleted,
+  trackRepairRoundStarted,
   trackQuizStarted,
 } from "@/lib/product-analytics";
 
@@ -30,6 +31,8 @@ type Props = {
   questions: ClientQuestion[];
   /** Founder-only visual review route. Never posts answers or consumes quota. */
   previewResultsHref?: string;
+  /** True only for a fresh-question drill created from a recovery-map repair. */
+  isRepairRound?: boolean;
 };
 
 /**
@@ -44,7 +47,7 @@ type Props = {
  *  but that requires sending correct answers to the client, which lets
  *  users cheat by inspecting the DOM.)
  */
-export default function QuizRunner({ quizId, topicLabel, questions, previewResultsHref }: Props) {
+export default function QuizRunner({ quizId, topicLabel, questions, previewResultsHref, isRepairRound = false }: Props) {
   const router = useRouter();
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, Letter | null>>({});
@@ -94,7 +97,8 @@ export default function QuizRunner({ quizId, topicLabel, questions, previewResul
 
   useEffect(() => {
     trackQuizStarted({ quiz_id: quizId, topic: topicLabel, question_count: questions.length });
-  }, [quizId, topicLabel, questions.length]);
+    if (isRepairRound) trackRepairRoundStarted();
+  }, [isRepairRound, quizId, topicLabel, questions.length]);
 
   // Has the user invested anything yet? (At least one selected answer.)
   const hasProgress = useMemo(

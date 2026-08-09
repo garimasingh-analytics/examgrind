@@ -5,6 +5,7 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import Chick from "@/components/Chick";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
+import RepairProofViewed from "@/components/RepairProofViewed";
 import DeepAnalysis, { type AnalysisJson } from "./DeepAnalysis";
 import ShareButton from "./ShareButton";
 
@@ -240,6 +241,7 @@ export default async function ResultsPage({ params }: Params) {
 
       {repairCycle && repairCycle.repair_correct != null && repairCycle.repair_total != null && (
         <section className="mx-auto mt-6 max-w-2xl px-4 sm:px-6">
+          <RepairProofViewed />
           <div className="rounded-3xl border border-moss-500/25 bg-moss-500/10 p-5 shadow-warm">
             <p className="text-xs font-bold uppercase tracking-[.16em] text-moss-700">Recovery proof</p>
             <h2 className="mt-1 font-serif text-2xl font-bold text-cocoa-900">{repairCycle.concept} repair round complete.</h2>

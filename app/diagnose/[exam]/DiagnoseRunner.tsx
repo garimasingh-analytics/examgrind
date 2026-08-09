@@ -299,6 +299,19 @@ function DiagnoseResult({
     }
   };
 
+  const rememberDiagnosisSignupIntent = () => {
+    try {
+      // Survives an OAuth round-trip only long enough to distinguish a
+      // diagnosis-led signup. It never contains answers or identity data.
+      window.sessionStorage.setItem("examgrind:diagnosis-signup-intent", JSON.stringify({
+        exam,
+        createdAt: Date.now(),
+      }));
+    } catch {
+      // Attribution is optional; sign-up must never depend on browser storage.
+    }
+  };
+
   useEffect(() => {
     trackDiagnosisResultViewed({
       exam,
@@ -351,6 +364,7 @@ function DiagnoseResult({
           href={examStartHref}
           onClick={() => {
             carrySignalIntoHome();
+            rememberDiagnosisSignupIntent();
             trackDiagnosisSignupClicked({
               exam,
               next_step: "free_plan",

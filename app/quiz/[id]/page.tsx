@@ -42,6 +42,16 @@ export default async function QuizPage({ params }: Params) {
     );
   }
 
+  // Deep Analysis creates this record server-side for a fresh-question repair
+  // drill. The browser receives only a boolean for anonymous funnel tracking.
+  const { data: repairCycle } = await supabase
+    .from("repair_cycles")
+    .select("id")
+    .eq("repair_quiz_id", id)
+    .eq("user_id", user.id)
+    .eq("status", "started")
+    .maybeSingle();
+
   return (
     <QuizRunner
       quizId={id}
@@ -54,6 +64,7 @@ export default async function QuizPage({ params }: Params) {
         C: q.option_c,
         D: q.option_d,
       }))}
+      isRepairRound={Boolean(repairCycle)}
     />
   );
 }

@@ -1,8 +1,8 @@
 meta:
   product: ExamGrind
-  version: 1.1.0
+  version: 1.2.0
   created: 2026-07-26
-  updated: 2026-07-26
+  updated: 2026-08-09
   implementation: ga4_gtag
   destinations: [ga4, google_ads, meta_pixel]
   pii_policy: none
@@ -77,3 +77,28 @@ events:
     properties:
       - { name: product, type: string, required: true }
       - { name: checkout_type, type: string, required: true, enum: [one_time, subscription] }
+  - name: diagnosis_signup_completed
+    category: conversion
+    description: A visitor who began at the free diagnosis finishes account creation within 30 minutes.
+    properties:
+      - { name: exam, type: string, required: true, enum: [cuet, ssc-cgl, neet-ug] }
+  - name: diagnosis_handoff_viewed
+    category: activation
+    description: A new account reaches Home with a short-lived diagnosis signal.
+    properties:
+      - { name: exam, type: string, required: true, enum: [cuet, ssc-cgl, neet-ug] }
+      - { name: wrong_count, type: integer, required: true }
+  - name: diagnosis_handoff_action
+    category: activation
+    description: Student acts on, bypasses, or dismisses the diagnosis handoff.
+    properties:
+      - { name: exam, type: string, required: true, enum: [cuet, ssc-cgl, neet-ug] }
+      - { name: action, type: string, required: true, enum: [follow_signal, choose_subject, dismiss] }
+  - name: repair_round_started
+    category: core_value
+    description: A student opens a fresh-question targeted repair drill.
+    properties: []
+  - name: repair_proof_viewed
+    category: core_value
+    description: A completed repair's fresh-question result is visible.
+    properties: []

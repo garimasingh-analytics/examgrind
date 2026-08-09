@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Script from "next/script";
 import MetaPixel from "@/components/MetaPixel";
 import { trackSignUpConversion } from "@/lib/google-ads";
-import { trackLogin, trackSignUp } from "@/lib/product-analytics";
+import { trackDiagnosisSignupCompleted, trackLogin, trackSignUp } from "@/lib/product-analytics";
 import { GOOGLE_ADS_ID } from "@/components/GoogleAdsTag";
 
 const CONSENT_KEY = "examgrind-marketing-consent-v1";
@@ -151,6 +151,22 @@ function AuthLifecycleEvent() {
     if (!sent) return;
 
     if (authEvent === "sign_up") {
+      try {
+        const raw = window.sessionStorage.getItem("examgrind:diagnosis-signup-intent");
+        const intent = raw ? JSON.parse(raw) as { exam?: unknown; createdAt?: unknown } : null;
+        const diagnosisExam = intent?.exam;
+        const diagnosisIntentCreatedAt = intent?.createdAt;
+        const isFreshDiagnosisIntent =
+          (diagnosisExam === "cuet" || diagnosisExam === "ssc-cgl" || diagnosisExam === "neet-ug") &&
+          typeof diagnosisIntentCreatedAt === "number" &&
+          Date.now() - diagnosisIntentCreatedAt < 30 * 60_000;
+        if (isFreshDiagnosisIntent) {
+          trackDiagnosisSignupCompleted({ exam: diagnosisExam });
+        }
+        window.sessionStorage.removeItem("examgrind:diagnosis-signup-intent");
+      } catch {
+        window.sessionStorage.removeItem("examgrind:diagnosis-signup-intent");
+      }
       trackSignUpConversion();
     }
 
