@@ -9,6 +9,8 @@ type Props = {
   /** Topic name like "Latent Heat". */
   topic: string;
   accuracy: number;
+  /** A repair share is only offered after a reliable fresh-question round. */
+  mode?: "quiz" | "recovery";
 };
 
 /**
@@ -25,6 +27,7 @@ export default function ShareButton({
   scoreLabel,
   topic,
   accuracy,
+  mode = "quiz",
 }: Props) {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,14 +37,18 @@ export default function ShareButton({
       ? `${window.location.origin}/share/${quizId}`
       : `https://examgrind.in/share/${quizId}`;
 
-  const text =
+  const quizText =
     accuracy >= 90
-      ? `Aced ${topic} on ExamGrind — ${scoreLabel}. The AI broke down exactly which concepts I owned. Try it free 👇`
+      ? `Aced ${topic} on ExamGrind — ${scoreLabel}. Today’s practice gave me a clear next step. Try it free 👇`
       : accuracy >= 70
-      ? `Scored ${scoreLabel} on ${topic}. ExamGrind's AI told me exactly what to drill next. Free to try 👇`
+      ? `Scored ${scoreLabel} on ${topic}. Now I know exactly what to practise next. Try it free 👇`
       : accuracy >= 40
-      ? `Practicing ${topic} on ExamGrind. The AI shows you exactly where you went wrong, question by question. Free 👇`
-      : `Tough quiz on ${topic} — but ExamGrind's AI walked me through every wrong answer. Free to try 👇`;
+      ? `Practising ${topic} on ExamGrind. It shows the patterns behind the mistakes, question by question. Try it free 👇`
+      : `Tough quiz on ${topic}—but I now have a clear repair path for the mistakes. Try ExamGrind 👇`;
+
+  const text = mode === "recovery"
+    ? `I just repaired ${topic}: ${scoreLabel} on a fresh-question round. One weak concept, one focused repair, real proof. Try ExamGrind 👇`
+    : quizText;
 
   const handleShare = async () => {
     setError(null);
@@ -49,7 +56,7 @@ export default function ShareButton({
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: `ExamGrind — ${scoreLabel} on ${topic}`,
+          title: mode === "recovery" ? `ExamGrind — repaired ${topic}` : `ExamGrind — ${scoreLabel} on ${topic}`,
           text,
           url,
         });
@@ -85,7 +92,7 @@ export default function ShareButton({
             strokeLinejoin="round"
           />
         </svg>
-        <span>{copied ? "Link copied!" : "Share my score"}</span>
+        <span>{copied ? "Link copied!" : mode === "recovery" ? "Share this proof" : "Share my score"}</span>
       </button>
       {error && (
         <p className="text-xs text-coral-500" role="alert">

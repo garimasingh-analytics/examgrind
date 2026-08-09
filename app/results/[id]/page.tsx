@@ -251,6 +251,20 @@ export default async function ResultsPage({ params }: Params) {
               <p className="text-xs font-bold uppercase tracking-wide text-moss-700">{Math.round((repairCycle.repair_correct / repairCycle.repair_total) * 100)}% on fresh questions</p>
             </div>
             <p className="mt-3 text-sm text-cocoa-700">{repairCycle.repair_correct / repairCycle.repair_total >= 0.7 ? "This fresh round is a positive signal. Keep it in your revision queue so it stays reliable." : "The signal is still active. Review the repair steps below, then run one more focused round."}</p>
+            {repairCycle.repair_correct / repairCycle.repair_total >= 0.7 && (
+              <div className="mt-4 border-t border-moss-500/20 pt-4">
+                <p className="text-center text-xs font-semibold text-cocoa-600">A real repair result is worth keeping—and sharing with a study partner.</p>
+                <div className="mt-3 flex justify-center">
+                  <ShareButton
+                    quizId={id}
+                    scoreLabel={`${repairCycle.repair_correct}/${repairCycle.repair_total}`}
+                    topic={repairCycle.concept}
+                    accuracy={Math.round((repairCycle.repair_correct / repairCycle.repair_total) * 100)}
+                    mode="recovery"
+                  />
+                </div>
+              </div>
+            )}
             <Link href={`/results/${repairCycle.source_quiz_id}`} className="mt-4 inline-flex text-sm font-bold text-moss-700 underline decoration-moss-500/30 underline-offset-4">Back to the original recovery map →</Link>
           </div>
         </section>
