@@ -102,3 +102,9 @@ events:
     category: core_value
     description: A completed repair's fresh-question result is visible.
     properties: []
+  - name: recovery_history_viewed
+    category: retention
+    description: Student views their active and completed repair history.
+    properties:
+      - { name: active_count, type: integer, required: true }
+      - { name: completed_count, type: integer, required: true }

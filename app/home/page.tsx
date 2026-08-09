@@ -709,9 +709,10 @@ export default async function HomePage({ searchParams }: HomeProps) {
       <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
         <div className="tool-issue">
         <div className="flex items-end justify-between gap-3"><div><p className="eg-kicker text-ember-700">Margin notes</p><h2 className="mt-1 font-serif text-2xl font-semibold tracking-[-.04em] text-cocoa-900">Tools for the moments that matter.</h2></div><p className="hidden max-w-xs text-right text-xs leading-5 text-cocoa-700 sm:block">Use these when you need a different way in—not as another dashboard to maintain.</p></div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
           <CompactTool href="/vault" icon="🗂️" title="Study Vault" detail="Create flashcards and mnemonics." />
           <CompactTool href="/mistakes" icon="📘" title="Mistake Book" detail="Repair incorrect answers." />
+          <CompactTool href="/recovery" icon="↗" title="Recovery History" detail="See your repair proof." />
           <CompactTool href="/revision" icon="🧠" title="Smart Revision" detail={revisionDueTopics.length > 0 ? `${revisionDueTopics.length} due for recall.` : "Recall when it is due."} />
           <CompactTool href="/mock" icon="📝" title="Mock test" detail="Try full exam timing." />
         </div>

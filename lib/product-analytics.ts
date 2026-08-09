@@ -44,6 +44,7 @@ export const ANALYTICS_EVENTS = {
   REPAIR_ROUND_STARTED: "repair_round_started",
   REPAIR_ROUND_COMPLETED: "repair_round_completed",
   REPAIR_PROOF_VIEWED: "repair_proof_viewed",
+  RECOVERY_HISTORY_VIEWED: "recovery_history_viewed",
 } as const;
 
 declare global {
@@ -183,3 +184,7 @@ export const trackRepairRoundCompleted = (params: {
 }) => track(ANALYTICS_EVENTS.REPAIR_ROUND_COMPLETED, params);
 export const trackRepairProofViewed = () =>
   track(ANALYTICS_EVENTS.REPAIR_PROOF_VIEWED, {});
+export const trackRecoveryHistoryViewed = (params: {
+  active_count: number;
+  completed_count: number;
+}) => track(ANALYTICS_EVENTS.RECOVERY_HISTORY_VIEWED, params);
