@@ -14,6 +14,7 @@ import {
 
 type PublicQuestion = {
   id: string;
+  subjectId: string;
   question: string;
   options: { A: string; B: string; C: string; D: string };
 };
@@ -28,6 +29,7 @@ type GradeResult = {
     correct: "A" | "B" | "C" | "D";
     isCorrect: boolean;
     concept: string;
+    subjectId: string;
     drill: string;
     whenWrong: string;
     optionLabels: { A: string; B: string; C: string; D: string };
@@ -281,6 +283,22 @@ function DiagnoseResult({
     .map((row) => row.concept);
   const examStartHref = `/start/${exam === "neet-ug" ? "neet-ug" : exam}`;
 
+  const carrySignalIntoHome = () => {
+    if (!firstPriority) return;
+    try {
+      window.localStorage.setItem("examgrind:public-diagnosis-handoff", JSON.stringify({
+        exam,
+        concept: firstPriority.concept,
+        subjectId: firstPriority.subjectId,
+        wrongCount,
+        createdAt: Date.now(),
+      }));
+    } catch {
+      // Storage is optional. The sign-up journey remains usable in strict
+      // privacy modes; it simply lands on the normal personalised Home.
+    }
+  };
+
   useEffect(() => {
     trackDiagnosisResultViewed({
       exam,
@@ -331,12 +349,13 @@ function DiagnoseResult({
         <p className="mt-2 text-sm text-cream-50/80">Keep your exam choice, start three free chapter quizzes, and get a deeper concept-level analysis after a real attempt.</p>
         <Link
           href={examStartHref}
-          onClick={() =>
+          onClick={() => {
+            carrySignalIntoHome();
             trackDiagnosisSignupClicked({
               exam,
               next_step: "free_plan",
-            })
-          }
+            });
+          }}
           className="mt-4 inline-flex items-center justify-center rounded-2xl bg-cream-50 px-6 py-3 text-base font-bold text-cocoa-900 transition hover:bg-cream-100"
         >
           Create my free study plan →

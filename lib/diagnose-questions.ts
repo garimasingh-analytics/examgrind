@@ -14,6 +14,8 @@ export type DiagnoseExam = "neet-ug" | "cuet" | "ssc-cgl";
 
 export type DiagnoseQuestion = {
   id: string;
+  /** Subject route offered when this public signal is carried into Home. */
+  subjectId: string;
   question: string;
   options: { A: string; B: string; C: string; D: string };
   correct: "A" | "B" | "C" | "D";
@@ -29,6 +31,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
   "neet-ug": [
     {
       id: "neet-q1",
+      subjectId: "neet-biology",
       question: "Which statement about the lac operon is INCORRECT?",
       options: {
         A: "The lac operon has 3 structural genes: lacZ, lacY, lacA",
@@ -44,6 +47,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "neet-q2",
+      subjectId: "neet-biology",
       question:
         "In the Meselson-Stahl experiment, after 3 generations of growth in ¹⁴N medium (starting from fully ¹⁵N-labeled DNA), what fraction of DNA is hybrid (¹⁵N/¹⁴N)?",
       options: { A: "1/2", B: "1/4", C: "1/8", D: "1/16" },
@@ -55,6 +59,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "neet-q3",
+      subjectId: "neet-biology",
       question: "Splitting of water during photosynthesis occurs in:",
       options: { A: "Photosystem I", B: "Photosystem II", C: "Both PS I and PS II", D: "Cytochrome b6f complex" },
       correct: "B",
@@ -65,6 +70,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "neet-q4",
+      subjectId: "neet-biology",
       question: "How many net ATP molecules are produced per glucose in aerobic respiration (per latest NCERT)?",
       options: { A: "36", B: "38", C: "30", D: "32" },
       correct: "D",
@@ -75,6 +81,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "neet-q5",
+      subjectId: "neet-physics",
       question:
         "In Newton's third law: a horse pulls a cart. The horse exerts force on the cart, and the cart exerts an equal opposite force on the horse. Why does the cart move?",
       options: {
@@ -94,6 +101,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
   cuet: [
     {
       id: "cuet-q1",
+      subjectId: "general",
       question:
         "Which Article of the Indian Constitution allows direct approach to the Supreme Court for the enforcement of Fundamental Rights?",
       options: { A: "Article 21", B: "Article 32", C: "Article 226", D: "Article 14" },
@@ -105,6 +113,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "cuet-q2",
+      subjectId: "general",
       question: "The Tropic of Cancer passes through how many Indian states?",
       options: { A: "7", B: "8", C: "9", D: "10" },
       correct: "B",
@@ -115,6 +124,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "cuet-q3",
+      subjectId: "general",
       question: "The Battle of Plassey was fought in:",
       options: { A: "1756", B: "1757", C: "1764", D: "1761" },
       correct: "B",
@@ -125,6 +135,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "cuet-q4",
+      subjectId: "english",
       question: "The word 'ubiquitous' most nearly means:",
       options: { A: "Rare and unique", B: "Present everywhere", C: "Quickly disappearing", D: "Strongly religious" },
       correct: "B",
@@ -135,6 +146,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "cuet-q5",
+      subjectId: "general",
       question: "Find the next number in the series: 2, 6, 12, 20, 30, ?",
       options: { A: "40", B: "42", C: "38", D: "44" },
       correct: "B",
@@ -148,6 +160,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
   "ssc-cgl": [
     {
       id: "ssc-q1",
+      subjectId: "ssc-quant",
       question: "If x + 1/x = 3, find the value of x⁴ + 1/x⁴.",
       options: { A: "27", B: "47", C: "21", D: "81" },
       correct: "B",
@@ -158,6 +171,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "ssc-q2",
+      subjectId: "ssc-quant",
       question:
         "A number is increased by 20%, then the result is decreased by 20%. The net change is:",
       options: { A: "Same as original", B: "4% increase", C: "4% decrease", D: "1% decrease" },
@@ -169,6 +183,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "ssc-q3",
+      subjectId: "ssc-quant",
       question:
         "A shopkeeper marks up by 25% and then offers a 20% discount on the marked price. His profit/loss percent is:",
       options: { A: "5% profit", B: "5% loss", C: "No profit no loss", D: "4% loss" },
@@ -180,6 +195,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "ssc-q4",
+      subjectId: "ssc-quant",
       question: "A can complete a job in 10 days, B in 15 days. Working together, they finish in:",
       options: { A: "12.5 days", B: "6 days", C: "25 days", D: "5 days" },
       correct: "B",
@@ -190,6 +206,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
     },
     {
       id: "ssc-q5",
+      subjectId: "ssc-quant",
       question:
         "If the angles of a triangle are in the ratio 2 : 3 : 4, the largest angle is:",
       options: { A: "60°", B: "80°", C: "90°", D: "100°" },

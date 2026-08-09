@@ -37,6 +37,7 @@ export default async function DiagnoseExamPage({ params }: Params) {
   const questions = DIAGNOSE_QUESTIONS[examKey];
   const publicQuestions = questions.map((q) => ({
     id: q.id,
+    subjectId: q.subjectId,
     question: q.question,
     options: q.options,
   }));

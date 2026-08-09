@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
       correct: q.correct,
       isCorrect,
       concept: q.concept,
+      subjectId: q.subjectId,
       drill: q.drill,
       whenWrong: q.whenWrong,
       optionLabels: q.options,

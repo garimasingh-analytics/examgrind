@@ -6,6 +6,7 @@ import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid"
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
 import DailyMissionCard, { type MissionStep } from "@/components/DailyMissionCard";
+import DiagnosisHandoffCard from "@/components/DiagnosisHandoffCard";
 import AdSlot from "@/components/AdSlot";
 import StudyPlanSetup from "@/components/StudyPlanSetup";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
@@ -652,6 +653,11 @@ export default async function HomePage({ searchParams }: HomeProps) {
           </div>
         </div>
       )}
+
+      {/* Preserve the reason a public-diagnosis visitor created an account.
+          The client card reads a short-lived local signal and gives the
+          student a choice: follow it or browse their own selected subjects. */}
+      <DiagnosisHandoffCard examSlug={examSlug} />
 
       {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} firstName={firstName} examName={examRow?.name ?? "Your selected exam"} daysLeft={hasStudyProfile ? examDaysLeft : null} todayProof={`${todayQuestions.length} questions${todayQuestions.length > 0 ? ` · ${todayAccuracy}% · ${todayMinutes} min` : " · ready when you are"}`} readinessProof={`${readiness}% · ${attemptedTopicCount}/${totalTopics} topics started`} />}
 
