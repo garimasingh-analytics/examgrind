@@ -51,7 +51,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       concept: "DNA replication — semi-conservative mechanism",
       drill: "NCERT Class 12 Bio · Ch 6 · DNA Replication",
       whenWrong:
-        "After 3 generations there are 8 strands total, of which only 2 retain a ¹⁵N strand → 2/8 = 1/4 hybrid. Most students get tripped by the doubling math.",
+        "After 3 generations there are 8 strands total, of which only 2 retain a ¹⁵N strand → 2/8 = 1/4 hybrid. Track the doubling generation by generation rather than estimating.",
     },
     {
       id: "neet-q3",
@@ -71,7 +71,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       concept: "Cellular respiration — ATP yield from oxidative phosphorylation",
       drill: "NCERT Class 11 Bio · Ch 14 Respiration in Plants · Energetics",
       whenWrong:
-        "Latest NCERT says 32 ATP (sometimes 30, depending on shuttle). The old 36/38 figure ignores ATP cost of moving NADH into mitochondria. NEET 2024 specifically accepted 32.",
+        "Latest NCERT gives 32 ATP (sometimes 30, depending on the shuttle). The older 36/38 figure ignores the ATP cost of moving NADH into mitochondria.",
     },
     {
       id: "neet-q5",
@@ -111,7 +111,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       concept: "Indian Geography — latitude lines and state boundaries",
       drill: "NCERT Class 11 Geography · India · Physical Environment · Ch 1 India Location",
       whenWrong:
-        "8 states: Gujarat, Rajasthan, Madhya Pradesh, Chhattisgarh, Jharkhand, West Bengal, Tripura, Mizoram. Most students forget Tripura or Mizoram and pick 7.",
+        "8 states: Gujarat, Rajasthan, Madhya Pradesh, Chhattisgarh, Jharkhand, West Bengal, Tripura, Mizoram.",
     },
     {
       id: "cuet-q3",
@@ -131,7 +131,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       concept: "Vocabulary — root-based meaning derivation",
       drill: "CUET English Language section · Vocabulary builders",
       whenWrong:
-        "Ubiquitous = present everywhere (Latin 'ubique' = everywhere). The trap is 'unique' which sounds similar but means rare — opposite meaning. Root awareness is the single highest-leverage vocab skill for CUET English.",
+        "Ubiquitous = present everywhere (Latin 'ubique' = everywhere). 'Unique' sounds similar but means rare — the opposite meaning.",
     },
     {
       id: "cuet-q5",
@@ -154,7 +154,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       concept: "Algebra — squaring identities (a + 1/a)² and (a² + 1/a²)²",
       drill: "SSC CGL Algebra · R.S. Aggarwal Ch on Square-cube identities",
       whenWrong:
-        "Two squarings needed. (x + 1/x)² = 9 → x² + 1/x² = 7. Then (x² + 1/x²)² = 49 → x⁴ + 1/x⁴ = 47. Most stop after one squaring and pick 27 — that's why this trap appears in 4 SSC papers since 2018.",
+        "Two squarings are needed. (x + 1/x)² = 9 → x² + 1/x² = 7. Then (x² + 1/x²)² = 49 → x⁴ + 1/x⁴ = 47.",
     },
     {
       id: "ssc-q2",
@@ -209,7 +209,7 @@ export const EXAM_LABEL: Record<DiagnoseExam, string> = {
 };
 
 export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
-  "neet-ug": "5 Biology + Physics traps from real NEET papers",
-  cuet: "5 General Test traps from real CUET papers",
-  "ssc-cgl": "5 Quant traps from real SSC CGL Tier 1",
+  "neet-ug": "5 Biology + Physics questions built to NEET patterns",
+  cuet: "5 General Test questions built to CUET patterns",
+  "ssc-cgl": "5 Quant questions built to SSC CGL Tier 1 patterns",
 };
