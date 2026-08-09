@@ -4,13 +4,13 @@ import Chick from "@/components/Chick";
 import { EXAM_LABEL, EXAM_TAGLINE, type DiagnoseExam } from "@/lib/diagnose-questions";
 
 export const metadata: Metadata = {
-  title: "60-sec diagnosis — find your exam weak spot · ExamGrind",
+  title: "90-sec diagnosis — find your exam weak spot · ExamGrind",
   description:
-    "Take 5 real PYQ trap questions. Get an AI weakness report in 60 seconds. No signup. Free.",
+    "Take 5 focused exam-style questions. Find the concepts to revise first in 90 seconds. No signup. Free.",
   openGraph: {
-    title: "60-sec exam weakness diagnosis · ExamGrind",
+    title: "90-sec exam weakness diagnosis · ExamGrind",
     description:
-      "5 PYQ traps. AI tells you exactly where you'd score lower. No signup, no card.",
+      "5 focused questions. See the concepts to revise first. No signup, no card.",
   },
 };
 
@@ -41,21 +41,21 @@ export default function DiagnoseHubPage() {
         <Chick state="idle" size={120} className="mb-6" />
 
         <p className="mb-3 inline-flex items-center rounded-full bg-cocoa-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cream-50">
-          60-second diagnosis · No signup
+          90-second diagnosis · No signup
         </p>
 
         <h1 className="text-balance font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-cocoa-900 sm:text-5xl">
           Find your exam weak spot.
           <br />
-          In 60 seconds.
+          In 90 seconds.
         </h1>
 
         <p className="mx-auto mt-5 max-w-xl text-balance text-base leading-relaxed text-cocoa-700 sm:text-lg">
-          5 real PYQ trap questions. Pick your exam. We tell you exactly where you&apos;d score lower — and what to do about it.
+          5 focused exam-style questions. Pick your exam. See the concepts this sample says you should revise first — and one concrete place to begin.
         </p>
 
         <div className="mt-2 text-sm text-cocoa-500">
-          Free · No card · No signup for the diagnosis · 60 seconds total
+          Free · No card · No signup for the diagnosis · 90 seconds total
         </div>
       </section>
 
@@ -71,7 +71,7 @@ export default function DiagnoseHubPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">{EXAM_EMOJI[exam]}</span>
                   <span className="rounded-full bg-coral-500/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-coral-600">
-                    5 traps · 60s
+                    5 questions · 90s
                   </span>
                 </div>
                 <h3 className="mt-4 font-serif text-2xl font-bold text-cocoa-900">
@@ -94,7 +94,7 @@ export default function DiagnoseHubPage() {
             <li>Your score (X out of 5)</li>
             <li>The exact concept gap each wrong answer reveals</li>
             <li>The NCERT chapter / R.S. Aggarwal section to drill</li>
-            <li>One CTA to the full 30-question diagnostic (free, requires signup)</li>
+            <li>A clear next step: create a free study space and practise the right chapter</li>
           </ul>
         </div>
       </section>

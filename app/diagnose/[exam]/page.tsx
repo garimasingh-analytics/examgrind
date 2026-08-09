@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!(VALID_EXAMS as readonly string[]).includes(exam)) return {};
   const label = EXAM_LABEL[exam as DiagnoseExam];
   return {
-    title: `60-sec ${label} weakness diagnosis · ExamGrind`,
-    description: `5 PYQ trap questions. AI tells you exactly where you'd lose marks. No signup. Free.`,
+    title: `90-sec ${label} weakness diagnosis · ExamGrind`,
+    description: `5 focused exam-style questions. Find the concepts to revise first. No signup. Free.`,
   };
 }
 

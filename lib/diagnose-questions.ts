@@ -1,8 +1,8 @@
 /**
- * 5 PYQ-level trap questions per exam for the public /diagnose page.
+ * 5 focused exam-style diagnostic questions per exam for the public /diagnose page.
  *
  * Each question is hand-picked to be:
- *   1. A real PYQ trap (one option that "looks right" but isn't)
+ *   1. A realistic exam-pattern trap (one option that "looks right" but isn't)
  *   2. Pinpointing ONE specific concept gap (so the weakness report can name a chapter)
  *   3. Mobile-readable in ≤ 80 chars per option
  *
@@ -40,7 +40,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       concept: "Lac operon — inducer molecule",
       drill: "NCERT Class 12 Bio · Ch 6 Molecular Basis of Inheritance · Gene regulation",
       whenWrong:
-        "Allolactose (not lactose itself) is the inducer that binds the repressor. 71% of NEET aspirants miss this. Lactose is the substrate; allolactose — its isomer formed inside the cell — is what actually inactivates the repressor.",
+        "Allolactose (not lactose itself) is the inducer that binds the repressor. Lactose is the substrate; allolactose — its isomer formed inside the cell — is what actually inactivates the repressor.",
     },
     {
       id: "neet-q2",
@@ -87,7 +87,7 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       concept: "Newton's third law — system boundaries and friction",
       drill: "NCERT Class 11 Physics · Ch 5 Laws of Motion · Free body diagrams",
       whenWrong:
-        "The action-reaction pair is equal — but they act on DIFFERENT bodies. The NET force on the cart (horse pull minus friction on cart) > 0 only because friction on horse's hooves > friction on cart. This is a Class 11 NEET trap that catches >60% of aspirants.",
+        "The action-reaction pair is equal — but they act on DIFFERENT bodies. The NET force on the cart (horse pull minus friction on cart) > 0 only because friction on horse's hooves > friction on cart.",
     },
   ],
 

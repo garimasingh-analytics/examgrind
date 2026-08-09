@@ -116,7 +116,7 @@ export default function DiagnoseRunner({ exam, examLabel, tagline, questions }: 
           {tagline}
         </h1>
         <p className="mt-4 max-w-md text-cocoa-700">
-          Real PYQ traps. Pick the best option. The AI will tell you which concept you got wrong and where to drill.
+          Five focused exam-style questions. Pick the best option. ExamGrind will show the concepts this sample says to revise first.
         </p>
         <button
           onClick={() => {
@@ -274,6 +274,11 @@ function DiagnoseResult({
   examLabel: string;
 }) {
   const wrongCount = result.total - result.score;
+  const missed = result.perQuestion.filter((row) => !row.isCorrect);
+  const firstPriority = missed[0] ?? null;
+  const correctConcepts = result.perQuestion
+    .filter((row) => row.isCorrect)
+    .map((row) => row.concept);
   const examStartHref = `/start/${exam === "neet-ug" ? "neet-ug" : exam}`;
 
   useEffect(() => {
@@ -298,7 +303,50 @@ function DiagnoseResult({
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="rounded-3xl border border-coral-500/25 bg-coral-500/[0.07] p-5 shadow-warm">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-coral-700">Your clearest next move</p>
+        {firstPriority ? (
+          <>
+            <h2 className="mt-2 font-serif text-2xl font-bold leading-tight text-cocoa-900">Repair {firstPriority.concept} first.</h2>
+            <p className="mt-2 text-sm leading-6 text-cocoa-700">{firstPriority.whenWrong}</p>
+            <div className="mt-4 rounded-2xl bg-cream-50 px-4 py-3 text-sm text-cocoa-700"><span className="font-bold text-cocoa-900">Start here:</span> {firstPriority.drill}</div>
+          </>
+        ) : (
+          <>
+            <h2 className="mt-2 font-serif text-2xl font-bold leading-tight text-cocoa-900">This sample did not expose a gap.</h2>
+            <p className="mt-2 text-sm leading-6 text-cocoa-700">That is a strong start, not a full assessment. Use chapter practice to find the concepts this five-question sample did not touch.</p>
+          </>
+        )}
+      </div>
+
+      <div className="mt-5 rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-5">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">What this quick signal means</p>
+        <p className="mt-2 text-sm leading-6 text-cocoa-700">It surfaced {wrongCount === 0 ? "no gaps in this small sample" : `${wrongCount} concept gap${wrongCount === 1 ? "" : "s"}`} — useful direction, not a verdict on your full preparation. A real chapter attempt gives ExamGrind enough evidence for a deeper diagnosis.</p>
+        {correctConcepts.length > 0 && <p className="mt-3 text-sm text-cocoa-700"><span className="font-bold text-cocoa-900">Held up here:</span> {correctConcepts.join(" · ")}</p>}
+      </div>
+
+      <div className="mt-5 rounded-3xl border-2 border-cocoa-900 bg-cocoa-900 p-6 text-cream-50 shadow-warm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-cream-50/70">Your next honest step</p>
+        <h2 className="mt-2 font-serif text-2xl font-bold leading-tight">Create your free preparation space.</h2>
+        <p className="mt-2 text-sm text-cream-50/80">Keep your exam choice, start three free chapter quizzes, and get a deeper concept-level analysis after a real attempt.</p>
+        <Link
+          href={examStartHref}
+          onClick={() =>
+            trackDiagnosisSignupClicked({
+              exam,
+              next_step: "free_plan",
+            })
+          }
+          className="mt-4 inline-flex items-center justify-center rounded-2xl bg-cream-50 px-6 py-3 text-base font-bold text-cocoa-900 transition hover:bg-cream-100"
+        >
+          Create my free study plan →
+        </Link>
+        <p className="mt-3 text-xs text-cream-50/60">No card · 3 free chapter quizzes · one free Deep Analysis</p>
+      </div>
+
+      <details className="mt-6 rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-5">
+        <summary className="cursor-pointer text-sm font-bold text-cocoa-900">See the answer-by-answer evidence</summary>
+        <div className="mt-4 space-y-4">
         {result.perQuestion.map((row, i) => (
           <details
             key={row.id}
@@ -348,38 +396,8 @@ function DiagnoseResult({
             </div>
           </details>
         ))}
-      </div>
-
-      <div className="mt-10 rounded-3xl border-2 border-cocoa-900 bg-cocoa-900 p-6 text-cream-50 shadow-warm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-cream-50/70">
-          You just found {wrongCount > 0 ? `${wrongCount} concept gap${wrongCount === 1 ? "" : "s"}` : "no gaps yet"}
-        </p>
-        <h2 className="mt-2 font-serif text-2xl font-bold leading-tight">
-          {wrongCount > 0
-            ? `Run the full 30-question diagnostic. Free.`
-            : `Try a real chapter quiz. Free.`}
-        </h2>
-        <p className="mt-2 text-sm text-cream-50/80">
-          {wrongCount > 0
-            ? `30 questions across the full ${examLabel} syllabus. Concept-level weakness map. Personalized 7-day drill plan. No card.`
-            : `Pick a chapter, take a 10-question quiz. AI catches the traps you'd miss.`}
-        </p>
-        <Link
-          href={examStartHref}
-          onClick={() =>
-            trackDiagnosisSignupClicked({
-              exam,
-              next_step: wrongCount > 0 ? "full_diagnostic" : "chapter_quiz",
-            })
-          }
-          className="mt-4 inline-flex items-center justify-center rounded-2xl bg-cream-50 px-6 py-3 text-base font-bold text-cocoa-900 transition hover:bg-cream-100"
-        >
-          Sign up free →
-        </Link>
-        <p className="mt-3 text-xs text-cream-50/60">
-          3 free quizzes + 1 free mock + 1 free Deep Analysis · ₹199/month after · cancel anytime
-        </p>
-      </div>
+        </div>
+      </details>
 
       <div className="mt-6 text-center text-sm text-cocoa-500">
         Friend grinding for {examLabel}? Send them the link →{" "}

@@ -5,9 +5,9 @@ import Chick from "@/components/Chick";
 export const metadata: Metadata = {
   title: "SSC CGL 2026 practice that finds your weak topics · ExamGrind",
   description:
-    "Take a free 60-second SSC CGL weakness diagnosis, practise Quant, Reasoning, English and GA, and learn exactly what to revise next.",
+    "Take a free 90-second SSC CGL weakness diagnosis, practise Quant, Reasoning, English and GA, and learn exactly what to revise next.",
   openGraph: {
-    title: "Find your weakest SSC CGL topic in 60 seconds",
+    title: "Find your weakest SSC CGL topic in 90 seconds",
     description:
       "Five SSC traps. A clear weakness report. Personalised practice that explains why you got an answer wrong.",
   },
@@ -153,7 +153,7 @@ export default function SscCglCampaignPage() {
             Find one weak topic before you spend anything.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-cream-50/75">
-            The 60-second diagnosis is free and requires no account. If the
+            The 90-second diagnosis is free and requires no account. If the
             result is useful, continue with three free quizzes and one Deep
             Analysis.
           </p>

@@ -150,7 +150,7 @@ export const trackDiagnosisResultViewed = (params: {
 }) => track(ANALYTICS_EVENTS.DIAGNOSIS_RESULT_VIEWED, params);
 export const trackDiagnosisSignupClicked = (params: {
   exam: DiagnosisExam;
-  next_step: "full_diagnostic" | "chapter_quiz";
+  next_step: "free_plan";
 }) => track(ANALYTICS_EVENTS.DIAGNOSIS_SIGNUP_CLICKED, params);
 export const trackRecoveryMapViewed = (params: {
   source: "quiz" | "mock";

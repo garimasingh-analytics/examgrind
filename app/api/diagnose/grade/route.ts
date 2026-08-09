@@ -86,13 +86,13 @@ function pickNarrative(
     .map((r) => r.concept);
 
   if (score === total) {
-    return `Perfect ${total}/${total}. These traps catch 60-78% of ${examLabel} aspirants. You're in the top decile on this 5-Q sample — your gaps are likely in topics we didn't test. Run the full 30-Q diagnostic to find them.`;
+    return `Perfect ${total}/${total} on this five-question signal. That is a strong start, but it is not a full-syllabus assessment — a real chapter attempt will give a more useful picture.`;
   }
   if (score >= total - 1) {
-    return `Strong ${score}/${total}. One gap caught you: ${wrongConcepts[0]}. The full diagnostic surfaces 8-12 more gaps across the syllabus you didn't see here.`;
+    return `Strong ${score}/${total}. This sample surfaced one clear priority: ${wrongConcepts[0]}. Fix that first, then use chapter practice to test more of the syllabus.`;
   }
   if (score >= Math.ceil(total / 2)) {
-    return `Middle band: ${score}/${total}. Real gaps in ${wrongConcepts.slice(0, 2).join(" + ")}. Drill below + run the full 30-Q for the complete picture.`;
+    return `${score}/${total}. This quick signal surfaced gaps in ${wrongConcepts.slice(0, 2).join(" + ")}. Start with the first priority below, then validate it in a real chapter attempt.`;
   }
-  return `${score}/${total} — these traps are real PYQs that you'd see again. Your weakness pattern: ${wrongConcepts.slice(0, 3).join(" / ")}. Don't panic — this is exactly the diagnostic information the app is designed to surface.`;
+  return `${score}/${total}. This quick signal surfaced ${wrongConcepts.slice(0, 3).join(" / ")}. Do not treat five questions as a verdict; use the first repair below, then build evidence through chapter practice.`;
 }
