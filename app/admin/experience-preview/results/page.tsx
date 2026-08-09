@@ -52,7 +52,7 @@ export default async function FounderResultsPreviewPage() {
           <div className="result-next-action mt-6 rounded-2xl border border-ember-600/20 bg-ember-600/10 p-4 text-left sm:flex sm:items-center sm:justify-between sm:gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ember-700">One next action</p><p className="mt-1 font-semibold text-cocoa-900">Repair successive discounts</p><p className="mt-1 text-sm leading-6 text-cocoa-700">One focused retry is the fastest way to turn this into reliable marks.</p></div><Link href="/admin/experience-preview/quiz" className="mt-3 inline-flex shrink-0 justify-center rounded-xl bg-ember-600 px-3 py-2.5 text-sm font-bold text-cream-50 sm:mt-0">Start a repair round →</Link></div>
         </div>
       </section>
-      <section className="mx-auto mt-10 max-w-2xl px-4 sm:px-6"><DeepAnalysis quizId="founder-analysis-preview" topicId={null} initialAnalysis={previewAnalysis} initialIsDeepDive={false} freeAnalysisUsed={false} hasAnalysisCredit={false} isPaid /></section>
+      <section className="mx-auto mt-10 max-w-2xl px-4 sm:px-6"><DeepAnalysis quizId="founder-analysis-preview" topicId={null} initialAnalysis={previewAnalysis} initialIsDeepDive={false} freeAnalysisUsed={false} hasAnalysisCredit={false} isPaid previewRepairHref="/admin/experience-preview/quiz" /></section>
     </main>
   );
 }

@@ -123,6 +123,8 @@ type Props = {
    * prop would churn 4 files for cosmetics).
    */
   analyzeIdField?: "quizId" | "attemptId";
+  /** Founder-only preview can link its synthetic recovery card to its preview quiz. */
+  previewRepairHref?: string;
 };
 
 /* ------------------------------------------------------------------ *
@@ -139,6 +141,7 @@ export default function DeepAnalysis({
   isPaid,
   analyzeEndpoint = "/api/quiz/analyze",
   analyzeIdField = "quizId",
+  previewRepairHref,
 }: Props) {
   const router = useRouter();
   const [analysis, setAnalysis] = useState<AnalysisJson | null>(
@@ -361,6 +364,10 @@ export default function DeepAnalysis({
         <RecoveryMap
           weaknesses={analysis.weaknesses}
           source={analyzeEndpoint.includes("/mock/") ? "mock" : "quiz"}
+          topicAvailable={!!topicId}
+          drilling={drilling}
+          onDrill={drill}
+          previewRepairHref={previewRepairHref}
         />
       )}
 
@@ -562,9 +569,17 @@ export default function DeepAnalysis({
 function RecoveryMap({
   weaknesses,
   source,
+  topicAvailable,
+  drilling,
+  onDrill,
+  previewRepairHref,
 }: {
   weaknesses: Weakness[];
   source: "quiz" | "mock";
+  topicAvailable: boolean;
+  drilling: boolean;
+  onDrill: (conceptFocus: string, drillSize: number) => void;
+  previewRepairHref?: string;
 }) {
   const rank = { high: 0, medium: 1, low: 2 } as const;
   const priorities = weaknesses
@@ -598,13 +613,35 @@ function RecoveryMap({
                   <p className="mt-1 text-xs leading-5 text-cocoa-600">{weakness.evidence}</p>
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                     <span className="text-xs font-semibold text-cocoa-700">{minutes}–{minutes + 10} min repair · {weakness.improve.practice.drill_size} targeted questions</span>
-                    <a
-                      href={`#repair-${originalIndex + 1}`}
-                      onClick={() => trackRecoveryMapActionClicked({ source, priority_position: index + 1 })}
-                      className="text-xs font-bold text-ember-700 underline decoration-ember-600/30 underline-offset-4 transition hover:text-ember-800"
-                    >
-                      Open repair →
-                    </a>
+                    {topicAvailable ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          trackRecoveryMapActionClicked({ source, priority_position: index + 1 });
+                          onDrill(weakness.improve.practice.concept_focus, weakness.improve.practice.drill_size);
+                        }}
+                        disabled={drilling}
+                        className="text-xs font-bold text-ember-700 underline decoration-ember-600/30 underline-offset-4 transition hover:text-ember-800 disabled:cursor-wait disabled:opacity-60"
+                      >
+                        {drilling ? "Building repair…" : "Start repair quiz →"}
+                      </button>
+                    ) : previewRepairHref ? (
+                      <a
+                        href={previewRepairHref}
+                        onClick={() => trackRecoveryMapActionClicked({ source, priority_position: index + 1 })}
+                        className="text-xs font-bold text-ember-700 underline decoration-ember-600/30 underline-offset-4 transition hover:text-ember-800"
+                      >
+                        Start repair round →
+                      </a>
+                    ) : (
+                      <a
+                        href={`#repair-${originalIndex + 1}`}
+                        onClick={() => trackRecoveryMapActionClicked({ source, priority_position: index + 1 })}
+                        className="text-xs font-bold text-ember-700 underline decoration-ember-600/30 underline-offset-4 transition hover:text-ember-800"
+                      >
+                        Open repair steps →
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
