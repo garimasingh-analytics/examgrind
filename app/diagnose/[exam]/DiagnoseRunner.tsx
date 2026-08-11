@@ -11,6 +11,7 @@ import {
   trackDiagnosisSignupClicked,
   trackDiagnosisStarted,
 } from "@/lib/product-analytics";
+import { trackMetaDiagnosisLead } from "@/lib/meta-ads";
 
 type PublicQuestion = {
   id: string;
@@ -96,6 +97,9 @@ export default function DiagnoseRunner({ exam, examLabel, tagline, questions }: 
           ? Math.max(0, Math.round((Date.now() - startedAtRef.current) / 1000))
           : TOTAL_SECONDS - secondsLeft,
       });
+      // This is deliberately after a successful server-side grade: opening
+      // the diagnosis or answering one question is not a conversion.
+      trackMetaDiagnosisLead(exam);
       setResult(data);
       setPhase("result");
     } catch (e) {

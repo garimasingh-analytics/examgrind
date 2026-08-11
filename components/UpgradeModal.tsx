@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
 import { trackPaidSubscriptionConversion } from "@/lib/google-ads";
-import { trackMetaSubscriptionPurchase } from "@/lib/meta-ads";
+import { trackMetaCheckoutStarted, trackMetaSubscriptionPurchase } from "@/lib/meta-ads";
 import { trackAccessOptionSelected, trackCheckoutDismissed, trackCheckoutOpened, trackPaywallViewed, trackPurchaseCompleted, trackSubscriptionCheckoutStarted, trackSubscriptionPurchased } from "@/lib/product-analytics";
 import type { OneTimeProduct } from "@/lib/billing-products";
 
@@ -225,6 +225,7 @@ export default function UpgradeModal({
         },
       });
       trackCheckoutOpened({ product: "coach_monthly", checkout_type: "subscription" });
+      trackMetaCheckoutStarted("coach_monthly");
       rzp.open();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
@@ -296,6 +297,7 @@ export default function UpgradeModal({
         modal: { ondismiss: () => { trackCheckoutDismissed({ product, checkout_type: "one_time" }); setLoading(false); } },
       });
       trackCheckoutOpened({ product, checkout_type: "one_time" });
+      trackMetaCheckoutStarted(product);
       rzp.open();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");

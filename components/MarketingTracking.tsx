@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Script from "next/script";
 import MetaPixel from "@/components/MetaPixel";
 import { trackSignUpConversion } from "@/lib/google-ads";
+import { trackMetaRegistration } from "@/lib/meta-ads";
 import { trackDiagnosisSignupCompleted, trackLogin, trackSignUp } from "@/lib/product-analytics";
 import { GOOGLE_ADS_ID } from "@/components/GoogleAdsTag";
 
@@ -168,6 +169,7 @@ function AuthLifecycleEvent() {
         window.sessionStorage.removeItem("examgrind:diagnosis-signup-intent");
       }
       trackSignUpConversion();
+      trackMetaRegistration();
     }
 
     window.sessionStorage.setItem(eventKey, "1");
