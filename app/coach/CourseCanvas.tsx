@@ -105,7 +105,7 @@ function CanvasScene({ kind, nodes, visualAsset, activeIndex, topic }: { kind: V
 
 function CuratedVisualAsset({ asset, activeIndex, topic }: { asset: VisualAsset; activeIndex: number; topic: string }) {
   return <figure className="course-canvas-curated-asset" aria-label={`${asset.title}: visual explanation for ${topic}`}>
-    <figcaption><span>Licensed visual reference</span><b>{asset.title}</b></figcaption>
+    <figcaption><span>Visual reference</span><b>{asset.title}</b></figcaption>
     <div className="course-canvas-curated-frame">
       <Image src={asset.src} alt={asset.alt} width={1200} height={800} unoptimized={asset.src.startsWith("http")} className={activeIndex > 0 ? "is-revealed" : ""} />
     </div>
