@@ -119,6 +119,7 @@ type TopicRecord = {
   description: string | null;
   chapter: { id: string; name: string; subject: { id: string; name: string; exam: { id: string; slug: string; name: string } | null } | null } | null;
 };
+type ExamRecord = { id: string; slug: string; name: string };
 
 function words(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(/\s+/).filter((word) => word.length > 1);
@@ -186,9 +187,22 @@ export async function POST(request: NextRequest) {
   }
   const topic = rawTopic as TopicRecord | null;
   const subject = topic?.chapter?.subject;
-  const exam = subject?.exam;
-  if (!topic || !subject || !exam || exam.slug !== (profile?.exam_choice ?? "cuet")) {
-    return NextResponse.json({ error: "That topic is not part of your selected exam." }, { status: 400 });
+  const matchedExam = subject?.exam;
+  let exam: ExamRecord | null = matchedExam;
+  if (!exam) {
+    const { data } = await admin
+      .from("exams")
+      .select("id, slug, name")
+      .eq("slug", profile?.exam_choice ?? "cuet")
+      .maybeSingle<ExamRecord>();
+    exam = data;
+  }
+  // Typed Coach lessons are deliberately independent from the syllabus picker.
+  // We use a matched topic only to offer a precise practice link afterwards;
+  // a student can still learn a valid, specific concept that has no standalone
+  // row in the current topic catalogue.
+  if (!exam || exam.slug !== (profile?.exam_choice ?? "cuet") || (topicId && (!topic || !subject || matchedExam?.slug !== exam.slug))) {
+    return NextResponse.json({ error: "Choose a topic from your selected exam." }, { status: 400 });
   }
 
   const { data: preference } = await admin
@@ -197,14 +211,14 @@ export async function POST(request: NextRequest) {
     .eq("user_id", user.id)
     .eq("exam_id", exam.id)
     .maybeSingle<{ selected_subject_ids: string[] }>();
-  if (preference?.selected_subject_ids?.length && !preference.selected_subject_ids.includes(subject.id)) {
+  if (!directTopic && preference?.selected_subject_ids?.length && subject && !preference.selected_subject_ids.includes(subject.id)) {
     return NextResponse.json({ error: "Choose this subject in your study preferences before learning it with Coach." }, { status: 400 });
   }
 
   const scope = directTopic
     ? `The learner asked directly about: ${directTopic}. Teach that exact concept in depth. If it is one element of the matched syllabus topic, do not turn this into an overview of the parent topic.`
     : `The learner selected the full topic. Teach its important sub-ideas separately and in a logical teaching order. Do not compress the whole topic into a revision summary.`;
-  const prompt = `You are ExamGrind Coach, a precise, encouraging teacher for an Indian exam aspirant. Your job is to TEACH, not summarize notes. A first-time learner should understand the idea after this lesson, then be ready for practice.\n\nExam: ${exam.name}\nSubject: ${subject.name}\nChapter: ${topic.chapter?.name}\nMatched syllabus topic: ${topic.name}\nSyllabus note: ${topic.description ?? "No additional note provided."}\nLesson scope: ${scope}\n\nReturn ONLY valid JSON in this exact shape:\n{\n  "opening": "2 concise sentences: what the learner will understand and why it matters",\n  "visual": { "kind": "flow", "caption": "a short statement of the visual idea", "nodes": ["first visual label", "second visual label", "third visual label"] },\n  "steps": [\n    { "title": "the specific sub-idea being taught", "explanation": "real explanation: define it, show how it works or changes, and use a tiny concrete example where useful", "visualLabel": "short label for this visual beat" }\n  ],\n  "commonTrap": "one specific exam-relevant misconception or trap",\n  "memoryAnchor": "a compact, accurate recall hook",\n  "checkpoint": {\n    "question": "one single-best-answer conceptual check question",\n    "options": ["A", "B", "C", "D"],\n    "correctIndex": 0,\n    "explanation": "why the right answer is right and the likely trap"\n  }\n}\n\nRequirements:\n- Choose the number of steps from the actual teaching scope: 3–5 for one narrow concept, 5–8 for a normal topic, and 8–10 only when the selected full topic genuinely contains several independent sub-ideas. Never pad or compress solely to hit a number.\n- Each step must teach a distinct sub-idea, not restate the opening.\n- Use the order a good teacher would use: foundations first, then categories/process/mechanism, then how to distinguish or apply it.\n- Give enough depth to teach, but keep each step readable on a phone. Avoid vague instructions such as “understand the hierarchy” or “remember the concept.” Explain the hierarchy or concept itself.\n- Do not invent official facts, dates, rules, formulas, sources, or exam trends.\n- If the topic needs a formula, use correct notation and define each variable once.\n- Visual nodes must name real entities, examples, transformations, quantities, or relationships—not decorative words.\n- Never mention being AI, this prompt, unavailable visuals, or that this is a summary.\n- The checkpoint must test an idea learned here, not trivial wording recall.`;
+  const prompt = `You are ExamGrind Coach, a precise, encouraging teacher for an Indian exam aspirant. Your job is to TEACH, not summarize notes. A first-time learner should understand the idea after this lesson, then be ready for practice.\n\nExam: ${exam.name}\n${subject ? `Subject: ${subject.name}` : "Subject: infer from the requested concept"}\n${topic?.chapter?.name ? `Chapter: ${topic.chapter.name}` : "Chapter: no parent chapter is required for this direct lesson"}\n${topic?.name ? `Matched syllabus topic: ${topic.name}` : "Matched syllabus topic: none; teach the requested concept directly"}\nSyllabus note: ${topic?.description ?? "No additional note provided."}\nLesson scope: ${scope}\n\nReturn ONLY valid JSON in this exact shape:\n{\n  "opening": "2 concise sentences: what the learner will understand and why it matters",\n  "visual": { "kind": "flow", "caption": "a short statement of the visual idea", "nodes": ["first visual label", "second visual label", "third visual label"] },\n  "steps": [\n    { "title": "the specific sub-idea being taught", "explanation": "real explanation: define it, show how it works or changes, and use a tiny concrete example where useful", "visualLabel": "short label for this visual beat" }\n  ],\n  "commonTrap": "one specific exam-relevant misconception or trap",\n  "memoryAnchor": "a compact, accurate recall hook",\n  "checkpoint": {\n    "question": "one single-best-answer conceptual check question",\n    "options": ["A", "B", "C", "D"],\n    "correctIndex": 0,\n    "explanation": "why the right answer is right and the likely trap"\n  }\n}\n\nRequirements:\n- Choose the number of steps from the actual teaching scope: 3–5 for one narrow concept, 5–8 for a normal topic, and 8–10 only when the selected full topic genuinely contains several independent sub-ideas. Never pad or compress solely to hit a number.\n- Each step must teach a distinct sub-idea, not restate the opening.\n- Use the order a good teacher would use: foundations first, then categories/process/mechanism, then how to distinguish or apply it.\n- Give enough depth to teach, but keep each step readable on a phone. Avoid vague instructions such as “understand the hierarchy” or “remember the concept.” Explain the hierarchy or concept itself.\n- Do not invent official facts, dates, rules, formulas, sources, or exam trends.\n- If the topic needs a formula, use correct notation and define each variable once.\n- Visual nodes must name real entities, examples, transformations, quantities, or relationships—not decorative words.\n- Never mention being AI, this prompt, unavailable visuals, or that this is a summary.\n- The checkpoint must test an idea learned here, not trivial wording recall.`;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   try {
@@ -228,8 +242,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `You can build up to ${DAILY_COACH_LESSON_LIMIT} Coach lessons a day. Your topic quizzes and saved Study Vault material remain available.` }, { status: 429 });
       }
     }
-    const visualAsset = findCoachVisualAsset(directTopic, topic.name, topic.chapter?.name, topic.description);
-    return NextResponse.json({ lesson, topic: { id: topic.id, name: topic.name, chapterName: topic.chapter?.name, subjectName: subject.name }, visualAsset });
+    const lessonTopic = directTopic
+      ? { id: topic?.id ?? "", name: directTopic, chapterName: topic?.chapter?.name ?? "Independent Coach lesson", subjectName: subject?.name ?? exam.name, practiceTopicId: topic?.id }
+      : { id: topic!.id, name: topic!.name, chapterName: topic!.chapter?.name, subjectName: subject!.name, practiceTopicId: topic!.id };
+    const visualAsset = findCoachVisualAsset(directTopic, topic?.name, topic?.chapter?.name, topic?.description);
+    return NextResponse.json({ lesson, topic: lessonTopic, visualAsset });
   } catch (error) {
     console.error("[coach/lesson] lesson generation failed", error);
     return NextResponse.json({ error: "Coach couldn't create that lesson right now. Please try once more." }, { status: 502 });

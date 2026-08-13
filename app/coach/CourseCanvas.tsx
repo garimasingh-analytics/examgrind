@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
-type Topic = { id: string; name: string; chapterName: string; subjectName: string };
+type Topic = { id: string; name: string; chapterName: string; subjectName: string; practiceTopicId?: string };
 type Step = { title: string; explanation: string; visualLabel: string };
 type Visual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
 type VisualAsset = {
@@ -80,7 +80,7 @@ export default function CourseCanvas({ lesson, topic, visualAsset }: { lesson: L
       {answered && <p className={`course-canvas-answer ${correct ? "is-correct" : "is-wrong"}`}><b>{correct ? "That’s it." : "Look at the distinction again."}</b> {lesson.checkpoint.explanation}</p>}
     </section>
 
-    <footer className="course-canvas-footer"><div><p>Next, prove it with questions.</p><span>Coach will connect the result to your revision and repair queue.</span></div><Link href={`/topic/${topic.id}`}>Practise {topic.name} →</Link></footer>
+    <footer className="course-canvas-footer"><div><p>{topic.practiceTopicId ? "Next, prove it with questions." : "Keep this explanation for your next revision."}</p><span>{topic.practiceTopicId ? "Coach matched this concept to a syllabus topic for practice." : "Coach can teach this exact concept without forcing it into a dropdown topic."}</span></div>{topic.practiceTopicId && <Link href={`/topic/${topic.practiceTopicId}`}>Practise {topic.name} →</Link>}</footer>
   </article>;
 }
 
