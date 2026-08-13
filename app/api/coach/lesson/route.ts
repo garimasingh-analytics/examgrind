@@ -20,6 +20,7 @@ type IllustrationKind = "biology-process" | "biology-taxonomy" | "chemistry-bond
 type LessonIllustration = { kind: IllustrationKind; title: string; labels: string[] };
 type CoachLesson = {
   opening: string;
+  lessonCardCount: 4 | 6 | 8 | 10;
   steps: LessonStep[];
   commonTrap: string;
   memoryAnchor: string;
@@ -29,7 +30,9 @@ type CoachLesson = {
 };
 
 function text(value: unknown, max: number) {
-  return typeof value === "string" ? value.trim().slice(0, max) : "";
+  // Coach content is rendered as plain text. Do not let Markdown emphasis leak
+  // into the learning canvas as visible asterisks.
+  return typeof value === "string" ? value.replace(/\*\*/g, "").trim().slice(0, max) : "";
 }
 
 function normalizeCoachLesson(value: unknown): CoachLesson | null {
@@ -52,6 +55,9 @@ function normalizeCoachLesson(value: unknown): CoachLesson | null {
     : Number.parseInt(String(rawCheckpoint?.correctIndex ?? ""), 10);
   const lesson: CoachLesson = {
     opening: text(raw.opening, 700),
+    lessonCardCount: raw.lessonCardCount === 4 || raw.lessonCardCount === 6 || raw.lessonCardCount === 8 || raw.lessonCardCount === 10
+      ? raw.lessonCardCount
+      : 6,
     steps,
     commonTrap: text(raw.commonTrap, 600),
     memoryAnchor: text(raw.memoryAnchor, 400),
@@ -102,7 +108,8 @@ function isCoachLesson(value: unknown): value is CoachLesson {
   const lesson = value as Partial<CoachLesson>;
   return Boolean(
     isShortText(lesson.opening, 700) &&
-    Array.isArray(lesson.steps) && lesson.steps.length >= 3 && lesson.steps.length <= 10 &&
+    (lesson.lessonCardCount === 4 || lesson.lessonCardCount === 6 || lesson.lessonCardCount === 8 || lesson.lessonCardCount === 10) &&
+    Array.isArray(lesson.steps) && lesson.steps.length === lesson.lessonCardCount &&
     lesson.steps.every((step) => step && isShortText(step.title, 110) && isShortText(step.explanation, 900) && isShortText(step.visualLabel, 90)) &&
     isShortText(lesson.commonTrap, 600) &&
     isShortText(lesson.memoryAnchor, 400) &&
@@ -219,6 +226,7 @@ export async function POST(request: NextRequest) {
   const scope = directTopic
     ? `The learner asked directly about: ${directTopic}. Teach that exact concept in depth. If it is one element of the matched syllabus topic, do not turn this into an overview of the parent topic.`
     : `The learner selected the full topic. Teach its important sub-ideas separately and in a logical teaching order. Do not compress the whole topic into a revision summary.`;
+  const lessonCardRule = `Add a numeric "lessonCardCount" field to the JSON. Choose exactly one of 4, 6, 8, or 10 based on real teaching scope: 4 for one narrow mechanism or distinction, 6 for a normal concept, 8 for a broad process or connected topic, and 10 only for a genuinely broad full syllabus topic. Return exactly that many step objects. Five is not an option and must never be a default.`;
   const prompt = `You are ExamGrind Coach, a precise, encouraging teacher for an Indian exam aspirant. Your job is to TEACH, not summarize notes. A first-time learner should understand the idea after this lesson, then be ready for practice.\n\nExam: ${exam.name}\n${subject ? `Subject: ${subject.name}` : "Subject: infer from the requested concept"}\n${topic?.chapter?.name ? `Chapter: ${topic.chapter.name}` : "Chapter: no parent chapter is required for this direct lesson"}\n${topic?.name ? `Matched syllabus topic: ${topic.name}` : "Matched syllabus topic: none; teach the requested concept directly"}\nSyllabus note: ${topic?.description ?? "No additional note provided."}\nLesson scope: ${scope}\n\nReturn ONLY valid JSON in this exact shape:\n{\n  "opening": "2 concise sentences: what the learner will understand and why it matters",\n  "visual": { "kind": "flow", "caption": "a short statement of the visual idea", "nodes": ["first visual label", "second visual label", "third visual label"] },\n  "steps": [\n    { "title": "the specific sub-idea being taught", "explanation": "real explanation: define it, show how it works or changes, and use a tiny concrete example where useful", "visualLabel": "short label for this visual beat" }\n  ],\n  "commonTrap": "one specific exam-relevant misconception or trap",\n  "memoryAnchor": "a compact, accurate recall hook",\n  "checkpoint": {\n    "question": "one single-best-answer conceptual check question",\n    "options": ["A", "B", "C", "D"],\n    "correctIndex": 0,\n    "explanation": "why the right answer is right and the likely trap"\n  }\n}\n\nRequirements:\n- Choose the number of steps from the actual teaching scope: 3–5 for one narrow concept, 5–8 for a normal topic, and 8–10 only when the selected full topic genuinely contains several independent sub-ideas. Never pad or compress solely to hit a number.\n- Each step must teach a distinct sub-idea, not restate the opening.\n- Use the order a good teacher would use: foundations first, then categories/process/mechanism, then how to distinguish or apply it.\n- Give enough depth to teach, but keep each step readable on a phone. Avoid vague instructions such as “understand the hierarchy” or “remember the concept.” Explain the hierarchy or concept itself.\n- Do not invent official facts, dates, rules, formulas, sources, or exam trends.\n- If the topic needs a formula, use correct notation and define each variable once.\n- Visual nodes must name real entities, examples, transformations, quantities, or relationships—not decorative words.\n- Never mention being AI, this prompt, unavailable visuals, or that this is a summary.\n- The checkpoint must test an idea learned here, not trivial wording recall.`;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -229,7 +237,7 @@ export async function POST(request: NextRequest) {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 5200,
         temperature: 0.15,
-        messages: [{ role: "user", content: `${prompt}\n\nThis is structure attempt ${attempt + 1}. Do not add commentary or markdown outside the JSON object.` }],
+        messages: [{ role: "user", content: `${prompt}\n\n${lessonCardRule}\n\nThis is structure attempt ${attempt + 1}. Do not add commentary or markdown outside the JSON object.` }],
       });
       if (!generated.ok) {
         return NextResponse.json({ error: generated.userMessage, kind: generated.kind }, { status: generated.httpStatus });
