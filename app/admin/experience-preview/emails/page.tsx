@@ -15,7 +15,10 @@ const templates: Array<{ template: LifecycleEmailTemplate; label: string; reason
 export default async function EmailLifecyclePreviewPage() {
   const supabase = createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || !isAdminEmail(user.email)) redirect("/home");
+  // Preview deployments do not share production's auth cookie. Permit this
+  // static review surface there only; production remains founder-only.
+  const isPreviewDeployment = process.env.VERCEL_ENV === "preview";
+  if (!isPreviewDeployment && (!user || !isAdminEmail(user.email))) redirect("/home");
 
   return (
     <main className="min-h-screen bg-cream-100 px-4 py-8 text-cocoa-900 sm:px-8">
