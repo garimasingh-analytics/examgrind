@@ -9,7 +9,15 @@ import GoogleLoginButton from "@/components/GoogleLoginButton";
  * `/`. Linking the landing-page "I already study here" action here avoids that
  * redirect loop and gives people a real sign-in screen.
  */
-export default function SignInPage() {
+type SignInPageProps = {
+  searchParams: Promise<{ next?: string }>;
+};
+
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+  const { next } = await searchParams;
+  // Keep the destination inside ExamGrind. The callback repeats this check
+  // server-side; validating here prevents an unexpected value in the UI flow.
+  const redirectTo = next?.startsWith("/") && !next.startsWith("//") ? next : "/home?resume=1";
   return (
     <main className="min-h-[100svh] bg-warm-wash">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
@@ -33,9 +41,7 @@ export default function SignInPage() {
           Sign in to see your preparation, mistakes, study plan, and Coach.
         </p>
         <div className="mt-9">
-          {/* Keep an explicit return path so founder accounts resume the app
-              like every other student instead of being auto-routed to admin. */}
-          <GoogleLoginButton label="Continue with Google" redirectTo="/home?resume=1" />
+          <GoogleLoginButton label="Continue with Google" redirectTo={redirectTo} />
         </div>
       </section>
     </main>

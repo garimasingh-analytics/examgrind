@@ -4,6 +4,7 @@ import Chick from "@/components/Chick";
 import { isAdminEmail } from "@/lib/admin-auth";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
+import CoachLearningStudio from "./CoachLearningStudio";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ type TopicSignal = {
   mastery: string;
   lastQuizzedAt: string | null;
 };
+type LearnTopic = { id: string; name: string; chapterName: string; subjectName: string };
 
 const revisionDays: Record<string, number> = {
   novice: 1,
@@ -72,6 +74,33 @@ export default async function CoachPage() {
     : examSubjects;
   const activeSubjectIds = new Set(subjects.map((subject) => subject.id));
   const subjectName = (id: string) => subjects.find((subject) => subject.id === id)?.name ?? "your subject";
+
+  // Coach only teaches real syllabus topics belonging to the learner's
+  // selected subjects, so every lesson can lead straight into valid practice.
+  const { data: chapterRows } = activeSubjectIds.size
+    ? await supabase
+      .from("chapters")
+      .select("id, name, subject_id")
+      .in("subject_id", Array.from(activeSubjectIds))
+      .order("order_index")
+    : { data: [] };
+  const chapters = (chapterRows ?? []) as Array<{ id: string; name: string; subject_id: string }>;
+  const chapterById = new Map(chapters.map((chapter) => [chapter.id, chapter]));
+  const chapterIds = chapters.map((chapter) => chapter.id);
+  const { data: topicRows } = chapterIds.length
+    ? await supabase
+      .from("topics")
+      .select("id, name, chapter_id")
+      .in("chapter_id", chapterIds)
+      .order("order_index")
+      .limit(900)
+    : { data: [] };
+  const learningTopics: LearnTopic[] = ((topicRows ?? []) as Array<{ id: string; name: string; chapter_id: string }>)
+    .flatMap((topic) => {
+      const chapter = chapterById.get(topic.chapter_id);
+      if (!chapter) return [];
+      return [{ id: topic.id, name: topic.name, chapterName: chapter.name, subjectName: subjectName(chapter.subject_id) }];
+    });
 
   const { data: masteryRows } = await supabase
     .from("user_topic_mastery")
@@ -158,6 +187,7 @@ export default async function CoachPage() {
         </ol>
         {actions.length === 0 && <div className="rounded-3xl border border-cocoa-900/[.07] bg-cream-50 p-6 text-cocoa-700 shadow-warm"><h2 className="font-serif text-2xl font-bold text-cocoa-900">Start with one focused quiz.</h2><p className="mt-2 text-sm">Once you complete it, your Coach will turn that result into a precise repair and revision plan.</p><Link href="/home" className="mt-4 inline-flex font-bold text-ember-700">Choose a subject →</Link></div>}
       </section>
+      <CoachLearningStudio topics={learningTopics} priorityTopicIds={weakSignals.map((signal) => signal.topicId)} />
       <section className="mx-auto mt-6 grid max-w-4xl gap-3 px-5 sm:grid-cols-3">
         <CoachMetric href="/home" label="Topics studied" value={String(signals.length)} detail="Open your syllabus and continue coverage." />
         <CoachMetric href={weakSignals[0] ? `/topic/${weakSignals[0].topicId}` : "/mistakes"} label="Repair queue" value={String(weakSignals.length)} detail={weakSignals.length ? "Open your highest-impact repair." : "Open Mistake Book."} />
