@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createServerSupabase } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/auth-helpers-nextjs";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/admin-auth";
 import { sendWelcomeEmail } from "@/lib/email";
@@ -34,9 +34,36 @@ export async function GET(request: NextRequest) {
   let finalNext = next;
   let authEvent: "sign_up" | "login" | null = null;
 
+  // `exchangeCodeForSession` writes the Supabase session through the client's
+  // cookie adapter. The old callback used the shared server helper and then
+  // created a *different* redirect response, which discarded those writes.
+  // The browser therefore reached /home without a session and was sent back
+  // to the public landing page. Keep cookie writes on this response and copy
+  // them to the eventual redirect below.
+  const cookieResponse = NextResponse.next();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            cookieResponse.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
   if (code) {
-    const supabase = createServerSupabase();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    if (exchangeError) {
+      console.error("[auth/callback] session exchange failed:", exchangeError.message);
+    }
 
     // After session exchange, fetch the authenticated user once and reuse
     // it for (a) the optional exam_choice write, and (b) the admin auto-
@@ -127,5 +154,7 @@ export async function GET(request: NextRequest) {
       ? requestedDestination
       : new URL("/home", origin);
   if (authEvent) destination.searchParams.set("auth_event", authEvent);
-  return NextResponse.redirect(destination);
+  const response = NextResponse.redirect(destination);
+  cookieResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+  return response;
 }
