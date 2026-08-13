@@ -81,7 +81,7 @@ export default async function CoachPage() {
     ? await supabase
       .from("chapters")
       .select("id, name, subject_id")
-      .in("subject_id", [...activeSubjectIds])
+      .in("subject_id", Array.from(activeSubjectIds))
       .order("order_index")
     : { data: [] };
   const chapters = (chapterRows ?? []) as Array<{ id: string; name: string; subject_id: string }>;
