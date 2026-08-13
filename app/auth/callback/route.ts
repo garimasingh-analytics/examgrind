@@ -30,8 +30,21 @@ export async function GET(request: NextRequest) {
   const examChoice =
     examParam && ALLOWED_EXAMS.has(examParam) ? examParam : null;
 
-  // We may swap the default landing destination for admins below.
+  // Supabase may fall back to `/?code=…` and discard the originally
+  // requested redirect URL. The sign-in page preserves that intent in this
+  // short-lived, same-site cookie. Accept only an in-app path.
+  const savedNext = request.cookies.get("eg_auth_next")?.value;
   let finalNext = next;
+  if (savedNext) {
+    try {
+      const decoded = decodeURIComponent(savedNext);
+      if (decoded.startsWith("/") && !decoded.startsWith("//")) {
+        finalNext = decoded;
+      }
+    } catch {
+      // Ignore malformed client cookie and retain the normal destination.
+    }
+  }
   let authEvent: "sign_up" | "login" | null = null;
 
   // `exchangeCodeForSession` writes the Supabase session through the client's
@@ -72,12 +85,9 @@ export async function GET(request: NextRequest) {
       data: { user: signedInUser },
     } = await supabase.auth.getUser();
 
-    // If the signed-in user is on the admin allow-list AND they were
-    // headed to the default /home landing, redirect them straight to
-    // /admin. We preserve an explicit ?next= because the user might be
-    // mid-flow (e.g., resuming a quiz link or returning from /me) and
-    // overriding that would be hostile.
-    if (signedInUser && isAdminEmail(signedInUser.email) && next === "/home") {
+    // Keep the existing direct-admin-login convenience. An explicit return
+    // destination from the sign-in screen must take priority instead.
+    if (signedInUser && isAdminEmail(signedInUser.email) && finalNext === "/home") {
       finalNext = "/admin";
     }
 
@@ -156,5 +166,6 @@ export async function GET(request: NextRequest) {
   if (authEvent) destination.searchParams.set("auth_event", authEvent);
   const response = NextResponse.redirect(destination);
   cookieResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+  response.cookies.set("eg_auth_next", "", { path: "/", maxAge: 0 });
   return response;
 }
