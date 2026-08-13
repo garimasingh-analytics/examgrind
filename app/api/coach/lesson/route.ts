@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
   const topic = rawTopic as TopicRecord | null;
   const subject = topic?.chapter?.subject;
   const matchedExam = subject?.exam;
-  let exam: ExamRecord | null = matchedExam;
+  let exam: ExamRecord | null = matchedExam ?? null;
   if (!exam) {
     const { data } = await admin
       .from("exams")
