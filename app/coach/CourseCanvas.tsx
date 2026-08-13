@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 
 type Topic = { id: string; name: string; chapterName: string; subjectName: string };
 type Step = { title: string; explanation: string; visualLabel: string };
 type Visual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
-type IllustrationKind = "biology-process" | "biology-taxonomy" | "chemistry-bond" | "quant-model" | "physics-vector" | "reasoning-tree" | "generic";
-type Illustration = { kind: IllustrationKind; title: string; labels: string[] };
+type VisualAsset = {
+  id: string;
+  src: string;
+  alt: string;
+  title: string;
+  sourceLabel: string;
+  sourceUrl: string;
+  licenceLabel: string;
+  licenceUrl: string;
+  attribution: string;
+};
 type Lesson = {
   opening: string;
   steps: Step[];
@@ -15,10 +25,9 @@ type Lesson = {
   memoryAnchor: string;
   checkpoint: { question: string; options: string[]; correctIndex: number; explanation: string };
   visual?: Visual;
-  illustration?: Illustration;
 };
 
-export default function CourseCanvas({ lesson, topic }: { lesson: Lesson; topic: Topic }) {
+export default function CourseCanvas({ lesson, topic, visualAsset }: { lesson: Lesson; topic: Topic; visualAsset?: VisualAsset }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answer, setAnswer] = useState<number | null>(null);
   const step = lesson.steps[stepIndex];
@@ -42,7 +51,7 @@ export default function CourseCanvas({ lesson, topic }: { lesson: Lesson; topic:
     <div className="course-canvas-intro"><p>{lesson.opening}</p></div>
 
     <div className="course-canvas-body">
-      <CanvasScene kind={visualKind} nodes={nodes} illustration={lesson.illustration} activeIndex={stepIndex} topic={topic.name} />
+      <CanvasScene kind={visualKind} nodes={nodes} visualAsset={visualAsset} activeIndex={stepIndex} topic={topic.name} />
       <section className="course-canvas-teach" aria-live="polite">
         <p className="course-canvas-step-label">{step.visualLabel}</p>
         <h4>{step.title}</h4>
@@ -75,8 +84,10 @@ export default function CourseCanvas({ lesson, topic }: { lesson: Lesson; topic:
   </article>;
 }
 
-function CanvasScene({ kind, nodes, illustration, activeIndex, topic }: { kind: Visual["kind"]; nodes: string[]; illustration?: Illustration; activeIndex: number; topic: string }) {
-  if (illustration && illustration.kind !== "generic") return <SubjectIllustration illustration={illustration} activeIndex={activeIndex} topic={topic} />;
+function CanvasScene({ kind, nodes, visualAsset, activeIndex, topic }: { kind: Visual["kind"]; nodes: string[]; visualAsset?: VisualAsset; activeIndex: number; topic: string }) {
+  if (visualAsset) return <CuratedVisualAsset asset={visualAsset} activeIndex={activeIndex} topic={topic} />;
+  // This is intentionally a concept map, not a claim that every unmatched topic
+  // already has a bespoke subject illustration.
   const visible = nodes.slice(0, Math.min(nodes.length, activeIndex + 1));
   return <figure className={`course-canvas-scene course-canvas-${kind}`} aria-label={`Animated visual for ${topic}`}>
     <figcaption>{kind === "comparison" ? "See the difference" : kind === "formula" ? "Watch the relationship change" : kind === "cycle" ? "Follow the loop" : "Follow the movement"}</figcaption>
@@ -92,6 +103,19 @@ function CanvasScene({ kind, nodes, illustration, activeIndex, topic }: { kind: 
   </figure>;
 }
 
+function CuratedVisualAsset({ asset, activeIndex, topic }: { asset: VisualAsset; activeIndex: number; topic: string }) {
+  return <figure className="course-canvas-curated-asset" aria-label={`${asset.title}: visual explanation for ${topic}`}>
+    <figcaption><span>Visual reference</span><b>{asset.title}</b></figcaption>
+    <div className="course-canvas-curated-frame">
+      <Image src={asset.src} alt={asset.alt} width={1200} height={800} className={activeIndex > 0 ? "is-revealed" : ""} />
+    </div>
+    <p className="course-canvas-asset-credit">Visual: <a href={asset.sourceUrl} target="_blank" rel="noreferrer">{asset.sourceLabel}</a> · <a href={asset.licenceUrl} target="_blank" rel="noreferrer">{asset.licenceLabel}</a> · {asset.attribution}</p>
+  </figure>;
+}
+
+/* Retired generic subject renderer. Curated assets now take priority; this
+   implementation is intentionally kept out of the bundle while the matching
+   visual library expands.
 function SubjectIllustration({ illustration, activeIndex, topic }: { illustration: Illustration; activeIndex: number; topic: string }) {
   const labels = illustration.labels.slice(0, 4);
   const show = (index: number) => index <= activeIndex;
@@ -107,4 +131,4 @@ function SubjectIllustration({ illustration, activeIndex, topic }: { illustratio
     </div>
     <p>{activeIndex + 1 <= labels.length ? labels[Math.min(activeIndex, labels.length - 1)] : "Move through the idea one piece at a time."}</p>
   </figure>;
-}
+} */

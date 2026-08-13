@@ -6,6 +6,7 @@ import { DAILY_COACH_LESSON_LIMIT, consumeCoachLessonSlot } from "@/lib/ai-rate-
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
+import { findCoachVisualAsset } from "@/lib/coach-visual-assets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,7 +35,7 @@ function normalizeCoachLesson(value: unknown): CoachLesson | null {
   const raw = value && typeof value === "object" ? value as Record<string, unknown> : null;
   if (!raw) return null;
   const rawCheckpoint = raw.checkpoint && typeof raw.checkpoint === "object" ? raw.checkpoint as Record<string, unknown> : null;
-  const steps = Array.isArray(raw.steps) ? raw.steps.slice(0, 6).flatMap((item) => {
+  const steps = Array.isArray(raw.steps) ? raw.steps.slice(0, 10).flatMap((item) => {
     const step = item && typeof item === "object" ? item as Record<string, unknown> : null;
     if (!step) return [];
     const title = text(step.title, 110);
@@ -100,7 +101,7 @@ function isCoachLesson(value: unknown): value is CoachLesson {
   const lesson = value as Partial<CoachLesson>;
   return Boolean(
     isShortText(lesson.opening, 700) &&
-    Array.isArray(lesson.steps) && lesson.steps.length >= 4 && lesson.steps.length <= 6 &&
+    Array.isArray(lesson.steps) && lesson.steps.length >= 3 && lesson.steps.length <= 10 &&
     lesson.steps.every((step) => step && isShortText(step.title, 110) && isShortText(step.explanation, 900) && isShortText(step.visualLabel, 90)) &&
     isShortText(lesson.commonTrap, 600) &&
     isShortText(lesson.memoryAnchor, 400) &&
@@ -129,7 +130,7 @@ function conceptMatchScore(query: string, topic: TopicRecord) {
   if (name === needle) return 1000;
   if (name.includes(needle) || needle.includes(name)) return 700;
   const queryWords = words(query);
-  const topicWords = new Set([...words(topic.name), ...words(topic.description ?? "")]);
+  const topicWords = new Set([...words(topic.name), ...words(topic.description ?? ""), ...words(topic.chapter?.name ?? ""), ...words(topic.chapter?.subject?.name ?? "")]);
   const overlaps = queryWords.filter((word) => topicWords.has(word)).length;
   return overlaps * 100 - Math.abs(queryWords.length - topicWords.size);
 }
@@ -178,7 +179,10 @@ export async function POST(request: NextRequest) {
     // A direct concept must resolve to a genuine syllabus topic before Coach
     // offers practice. This prevents a convincing lesson from linking to an
     // unrelated quiz just because its title was vaguely similar.
-    if (candidates[0]?.score && candidates[0].score >= 100) rawTopic = candidates[0].candidate;
+    // One meaningful shared term is enough for an exact-concept lesson to map to
+    // its parent chapter. This covers concepts such as “sigma bond”, which may
+    // live inside a broader “Chemical bonding” syllabus row.
+    if (candidates[0]?.score && candidates[0].score >= 80) rawTopic = candidates[0].candidate;
   }
   const topic = rawTopic as TopicRecord | null;
   const subject = topic?.chapter?.subject;
@@ -200,7 +204,7 @@ export async function POST(request: NextRequest) {
   const scope = directTopic
     ? `The learner asked directly about: ${directTopic}. Teach that exact concept in depth. If it is one element of the matched syllabus topic, do not turn this into an overview of the parent topic.`
     : `The learner selected the full topic. Teach its important sub-ideas separately and in a logical teaching order. Do not compress the whole topic into a revision summary.`;
-  const prompt = `You are ExamGrind Coach, a precise, encouraging teacher for an Indian exam aspirant. Your job is to TEACH, not summarize notes. A first-time learner should understand the idea after this lesson, then be ready for practice.\n\nExam: ${exam.name}\nSubject: ${subject.name}\nChapter: ${topic.chapter?.name}\nMatched syllabus topic: ${topic.name}\nSyllabus note: ${topic.description ?? "No additional note provided."}\nLesson scope: ${scope}\n\nReturn ONLY valid JSON in this exact shape:\n{\n  "opening": "2 concise sentences: what the learner will understand and why it matters",\n  "illustration": {\n    "kind": "one of biology-process, biology-taxonomy, chemistry-bond, quant-model, physics-vector, reasoning-tree, generic",\n    "title": "what the original illustration is showing",\n    "labels": ["2 to 4 short labels for the actual entities or relationships in the illustration"]\n  },\n  "visual": { "kind": "flow", "caption": "a short statement of the visual idea", "nodes": ["first visual label", "second visual label", "third visual label"] },\n  "steps": [\n    { "title": "the specific sub-idea being taught", "explanation": "real explanation: define it, show how it works or changes, and use a tiny concrete example where useful", "visualLabel": "short label for this visual beat" }\n  ],\n  "commonTrap": "one specific exam-relevant misconception or trap",\n  "memoryAnchor": "a compact, accurate recall hook",\n  "checkpoint": {\n    "question": "one single-best-answer conceptual check question",\n    "options": ["A", "B", "C", "D"],\n    "correctIndex": 0,\n    "explanation": "why the right answer is right and the likely trap"\n  }\n}\n\nIllustration selection:\n- biology-process: biological mechanism, sequence, transport, replication, cycle, or physiological process.\n- biology-taxonomy: hierarchy, classification, groups, or relationships between living organisms.\n- chemistry-bond: chemical bonding, electron sharing/transfer, orbitals, molecular shape, or reaction connection.\n- quant-model: arithmetic, percentage, ratio, algebra, data interpretation, or a formula that benefits from parts and quantities.\n- physics-vector: forces, motion, fields, rays, circuits, or directional relationships.\n- reasoning-tree: a choice rule, classification, syllogism, coding pattern, grammar choice, or logical elimination.\n- generic: only if none of the above genuinely fits.\n\nRequirements:\n- Write 5 or 6 steps for a full selected topic; write 4 or 5 steps for a direct concept. Each step must teach a distinct sub-idea, not restate the opening.\n- Use the order a good teacher would use: foundations first, then categories/process/mechanism, then how to distinguish or apply it.\n- Give enough depth to teach, but keep each step readable on a phone. Avoid vague instructions such as “understand the hierarchy” or “remember the concept.” Explain the hierarchy or concept itself.\n- Do not invent official facts, dates, rules, formulas, sources, or exam trends.\n- If the topic needs a formula, use correct notation and define each variable once.\n- Illustration labels must name real entities, examples, transformations, quantities, or relationships—not decorative words.\n- Never mention being AI, this prompt, unavailable visuals, or that this is a summary.\n- The checkpoint must test an idea learned here, not trivial wording recall.`;
+  const prompt = `You are ExamGrind Coach, a precise, encouraging teacher for an Indian exam aspirant. Your job is to TEACH, not summarize notes. A first-time learner should understand the idea after this lesson, then be ready for practice.\n\nExam: ${exam.name}\nSubject: ${subject.name}\nChapter: ${topic.chapter?.name}\nMatched syllabus topic: ${topic.name}\nSyllabus note: ${topic.description ?? "No additional note provided."}\nLesson scope: ${scope}\n\nReturn ONLY valid JSON in this exact shape:\n{\n  "opening": "2 concise sentences: what the learner will understand and why it matters",\n  "visual": { "kind": "flow", "caption": "a short statement of the visual idea", "nodes": ["first visual label", "second visual label", "third visual label"] },\n  "steps": [\n    { "title": "the specific sub-idea being taught", "explanation": "real explanation: define it, show how it works or changes, and use a tiny concrete example where useful", "visualLabel": "short label for this visual beat" }\n  ],\n  "commonTrap": "one specific exam-relevant misconception or trap",\n  "memoryAnchor": "a compact, accurate recall hook",\n  "checkpoint": {\n    "question": "one single-best-answer conceptual check question",\n    "options": ["A", "B", "C", "D"],\n    "correctIndex": 0,\n    "explanation": "why the right answer is right and the likely trap"\n  }\n}\n\nRequirements:\n- Choose the number of steps from the actual teaching scope: 3–5 for one narrow concept, 5–8 for a normal topic, and 8–10 only when the selected full topic genuinely contains several independent sub-ideas. Never pad or compress solely to hit a number.\n- Each step must teach a distinct sub-idea, not restate the opening.\n- Use the order a good teacher would use: foundations first, then categories/process/mechanism, then how to distinguish or apply it.\n- Give enough depth to teach, but keep each step readable on a phone. Avoid vague instructions such as “understand the hierarchy” or “remember the concept.” Explain the hierarchy or concept itself.\n- Do not invent official facts, dates, rules, formulas, sources, or exam trends.\n- If the topic needs a formula, use correct notation and define each variable once.\n- Visual nodes must name real entities, examples, transformations, quantities, or relationships—not decorative words.\n- Never mention being AI, this prompt, unavailable visuals, or that this is a summary.\n- The checkpoint must test an idea learned here, not trivial wording recall.`;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   try {
@@ -208,7 +212,7 @@ export async function POST(request: NextRequest) {
     for (let attempt = 0; attempt < 3 && !isCoachLesson(lesson); attempt += 1) {
       const generated = await generateWithRetry(anthropic, {
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 4200,
+        max_tokens: 5200,
         temperature: 0.15,
         messages: [{ role: "user", content: `${prompt}\n\nThis is structure attempt ${attempt + 1}. Do not add commentary or markdown outside the JSON object.` }],
       });
@@ -224,7 +228,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `You can build up to ${DAILY_COACH_LESSON_LIMIT} Coach lessons a day. Your topic quizzes and saved Study Vault material remain available.` }, { status: 429 });
       }
     }
-    return NextResponse.json({ lesson, topic: { id: topic.id, name: topic.name, chapterName: topic.chapter?.name, subjectName: subject.name } });
+    const visualAsset = findCoachVisualAsset(directTopic, topic.name, topic.chapter?.name, topic.description);
+    return NextResponse.json({ lesson, topic: { id: topic.id, name: topic.name, chapterName: topic.chapter?.name, subjectName: subject.name }, visualAsset });
   } catch (error) {
     console.error("[coach/lesson] lesson generation failed", error);
     return NextResponse.json({ error: "Coach couldn't create that lesson right now. Please try once more." }, { status: 502 });

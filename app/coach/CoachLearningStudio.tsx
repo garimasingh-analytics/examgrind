@@ -7,6 +7,7 @@ import CourseCanvas from "./CourseCanvas";
 type LearnTopic = { id: string; name: string; chapterName: string; subjectName: string };
 type LessonStep = { title: string; explanation: string; visualLabel: string };
 type LessonVisual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
+type VisualAsset = { id: string; src: string; alt: string; title: string; sourceLabel: string; sourceUrl: string; licenceLabel: string; licenceUrl: string; attribution: string };
 type CoachLesson = {
   opening: string;
   steps: LessonStep[];
@@ -15,7 +16,7 @@ type CoachLesson = {
   checkpoint: { question: string; options: string[]; correctIndex: number; explanation: string };
   visual?: LessonVisual;
 };
-type LessonResponse = { lesson?: CoachLesson; topic?: LearnTopic; error?: string };
+type LessonResponse = { lesson?: CoachLesson; topic?: LearnTopic; visualAsset?: VisualAsset; error?: string };
 
 export default function CoachLearningStudio({ topics, priorityTopicIds }: { topics: LearnTopic[]; priorityTopicIds: string[] }) {
   const suggestedTopics = useMemo(() => topics.filter((topic) => priorityTopicIds.includes(topic.id)).slice(0, 3), [priorityTopicIds, topics]);
@@ -23,6 +24,7 @@ export default function CoachLearningStudio({ topics, priorityTopicIds }: { topi
   const [directTopic, setDirectTopic] = useState("");
   const [lesson, setLesson] = useState<CoachLesson | null>(null);
   const [lessonTopic, setLessonTopic] = useState<LearnTopic | null>(null);
+  const [lessonVisualAsset, setLessonVisualAsset] = useState<VisualAsset | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const selectedTopic = topics.find((topic) => topic.id === selectedTopicId);
@@ -41,6 +43,7 @@ export default function CoachLearningStudio({ topics, priorityTopicIds }: { topi
         if (!response.ok || !payload.lesson || !payload.topic) throw new Error(payload.error ?? "Coach couldn't build that lesson.");
         setLesson(payload.lesson);
         setLessonTopic(payload.topic);
+        setLessonVisualAsset(payload.visualAsset);
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : "Coach couldn't build that lesson.");
       }
@@ -75,6 +78,6 @@ export default function CoachLearningStudio({ topics, priorityTopicIds }: { topi
     </div>
 
     {pending && <div role="status" aria-live="polite" className="mt-4 rounded-3xl border border-violet-700/15 bg-cream-50 p-5 text-center shadow-warm"><div className="mx-auto h-9 w-9 animate-pulse rounded-full bg-gradient-to-br from-sun-300 to-ember-500" /><p className="mt-3 font-serif text-xl font-bold text-cocoa-900">Coach is building your explanation…</p><p className="mt-1 text-sm text-cocoa-600">Coach is mapping the teaching sequence and the right practice.</p></div>}
-    {lesson && lessonTopic && !pending && <CourseCanvas lesson={lesson} topic={lessonTopic} />}
+    {lesson && lessonTopic && !pending && <CourseCanvas lesson={lesson} topic={lessonTopic} visualAsset={lessonVisualAsset} />}
   </section>;
 }
