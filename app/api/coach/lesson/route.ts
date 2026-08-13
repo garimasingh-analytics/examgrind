@@ -121,9 +121,11 @@ export async function POST(request: NextRequest) {
       try { lesson = extractJson(generated.text); } catch { lesson = null; }
     }
     if (!isCoachLesson(lesson)) throw new Error("Invalid Coach lesson structure after retries");
-    const allowed = await consumeCoachLessonSlot(supabase, user.id);
-    if (!allowed) {
-      return NextResponse.json({ error: `You can build up to ${DAILY_COACH_LESSON_LIMIT} Coach lessons a day. Your topic quizzes and saved Study Vault material remain available.` }, { status: 429 });
+    if (!founderPreview) {
+      const allowed = await consumeCoachLessonSlot(supabase, user.id);
+      if (!allowed) {
+        return NextResponse.json({ error: `You can build up to ${DAILY_COACH_LESSON_LIMIT} Coach lessons a day. Your topic quizzes and saved Study Vault material remain available.` }, { status: 429 });
+      }
     }
     return NextResponse.json({ lesson, topic: { id: topic.id, name: topic.name, chapterName: topic.chapter?.name, subjectName: subject.name } });
   } catch (error) {
