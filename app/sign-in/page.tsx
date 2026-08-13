@@ -33,7 +33,9 @@ export default function SignInPage() {
           Sign in to see your preparation, mistakes, study plan, and Coach.
         </p>
         <div className="mt-9">
-          <GoogleLoginButton label="Continue with Google" redirectTo="/home" />
+          {/* Keep an explicit return path so founder accounts resume the app
+              like every other student instead of being auto-routed to admin. */}
+          <GoogleLoginButton label="Continue with Google" redirectTo="/home?resume=1" />
         </div>
       </section>
     </main>
