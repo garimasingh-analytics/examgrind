@@ -5,12 +5,14 @@ import { useMemo, useState, useTransition } from "react";
 
 type LearnTopic = { id: string; name: string; chapterName: string; subjectName: string };
 type LessonStep = { title: string; explanation: string; visualLabel: string };
+type LessonVisual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
 type CoachLesson = {
   opening: string;
   steps: LessonStep[];
   commonTrap: string;
   memoryAnchor: string;
   checkpoint: { question: string; options: string[]; correctIndex: number; explanation: string };
+  visual?: LessonVisual;
 };
 
 export default function CoachLearningStudio({ topics, priorityTopicIds }: { topics: LearnTopic[]; priorityTopicIds: string[] }) {
@@ -73,10 +75,30 @@ function LessonCanvas({ lesson, topic, selectedAnswer, onChooseAnswer }: { lesso
   const correct = selectedAnswer === lesson.checkpoint.correctIndex;
   return <article className="mt-5 overflow-hidden rounded-3xl border border-cocoa-900/[.08] bg-cream-50 shadow-warm-lg">
     <header className="border-b border-cocoa-900/[.08] bg-cream-100 px-5 py-4 sm:px-6"><p className="text-xs font-bold uppercase tracking-[.16em] text-ember-700">{topic.subjectName} · {topic.chapterName}</p><h3 className="mt-1 font-serif text-3xl font-bold text-cocoa-900">{topic.name}</h3><p className="mt-3 max-w-3xl text-sm leading-6 text-cocoa-700">{lesson.opening}</p></header>
-    <div className="p-5 sm:p-6"><p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Follow the idea</p><ol className="mt-4 grid gap-3 md:grid-cols-2">{lesson.steps.map((step, index) => <li key={`${step.title}-${index}`} className="relative overflow-hidden rounded-2xl border border-violet-700/15 bg-violet-700/[.045] p-4"><div className="flex items-center gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-700 text-xs font-bold text-white">{index + 1}</span><p className="text-[11px] font-bold uppercase tracking-[.13em] text-violet-700">{step.visualLabel}</p></div><h4 className="mt-4 font-serif text-xl font-bold text-cocoa-900">{step.title}</h4><p className="mt-2 text-sm leading-6 text-cocoa-700">{step.explanation}</p>{index < lesson.steps.length - 1 && <span aria-hidden className="absolute -bottom-2 right-4 text-2xl text-violet-700/45 md:hidden">↓</span>}</li>)}</ol>
+    <div className="p-5 sm:p-6"><CoachVisualWalkthrough lesson={lesson} topic={topic} /><p className="mt-6 text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">Follow the idea</p><ol className="mt-4 grid gap-3 md:grid-cols-2">{lesson.steps.map((step, index) => <li key={`${step.title}-${index}`} className="relative overflow-hidden rounded-2xl border border-violet-700/15 bg-violet-700/[.045] p-4"><div className="flex items-center gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-700 text-xs font-bold text-white">{index + 1}</span><p className="text-[11px] font-bold uppercase tracking-[.13em] text-violet-700">{step.visualLabel}</p></div><h4 className="mt-4 font-serif text-xl font-bold text-cocoa-900">{step.title}</h4><p className="mt-2 text-sm leading-6 text-cocoa-700">{step.explanation}</p>{index < lesson.steps.length - 1 && <span aria-hidden className="absolute -bottom-2 right-4 text-2xl text-violet-700/45 md:hidden">↓</span>}</li>)}</ol>
       <div className="mt-4 grid gap-3 md:grid-cols-2"><aside className="rounded-2xl border border-coral-500/20 bg-coral-500/[.07] p-4"><p className="text-[11px] font-bold uppercase tracking-[.14em] text-coral-700">Common trap</p><p className="mt-2 text-sm leading-6 text-cocoa-800">{lesson.commonTrap}</p></aside><aside className="rounded-2xl border border-sun-500/30 bg-sun-400/15 p-4"><p className="text-[11px] font-bold uppercase tracking-[.14em] text-amber-800">Memory anchor</p><p className="mt-2 font-serif text-lg font-bold leading-6 text-cocoa-900">{lesson.memoryAnchor}</p></aside></div>
       <section className="mt-5 rounded-2xl border border-cocoa-900/[.08] bg-white p-4 sm:p-5"><p className="text-[11px] font-bold uppercase tracking-[.15em] text-moss-700">Quick check</p><h4 className="mt-2 font-serif text-xl font-bold leading-7 text-cocoa-900">{lesson.checkpoint.question}</h4><div className="mt-4 grid gap-2">{lesson.checkpoint.options.map((option, index) => { const isCorrect = index === lesson.checkpoint.correctIndex; const chosen = index === selectedAnswer; const resultClass = answered ? (isCorrect ? "border-moss-500 bg-moss-500/10 text-cocoa-900" : chosen ? "border-coral-500 bg-coral-500/[.08] text-cocoa-900" : "border-cocoa-900/[.08] text-cocoa-600") : "border-cocoa-900/[.08] text-cocoa-800 hover:border-violet-700/45 hover:bg-violet-700/[.04]"; return <button key={option} type="button" disabled={answered} onClick={() => onChooseAnswer(index)} className={`rounded-xl border px-3 py-3 text-left text-sm font-medium transition disabled:cursor-default ${resultClass}`}><span className="mr-2 font-bold">{String.fromCharCode(65 + index)}.</span>{option}</button>; })}</div>{answered && <div className={`mt-4 rounded-xl p-3 text-sm leading-6 ${correct ? "bg-moss-500/10 text-cocoa-800" : "bg-coral-500/[.08] text-cocoa-800"}`}><p className="font-bold">{correct ? "You have the idea." : "Almost — notice the trap."}</p><p className="mt-1">{lesson.checkpoint.explanation}</p></div>}</section>
       <div className="mt-5 flex flex-col justify-between gap-3 rounded-2xl bg-cocoa-900 p-4 text-cream-50 sm:flex-row sm:items-center"><div><p className="text-[11px] font-bold uppercase tracking-[.14em] text-sun-300">Now make it stick</p><p className="mt-1 text-sm text-cream-100/80">Practice this exact topic with a short, serious round.</p></div><Link href={`/topic/${topic.id}`} className="shrink-0 rounded-xl bg-sun-400 px-4 py-3 text-sm font-extrabold text-cocoa-900 transition hover:bg-sun-300">Start {topic.name} quiz →</Link></div>
     </div>
   </article>;
+}
+
+function CoachVisualWalkthrough({ lesson, topic }: { lesson: CoachLesson; topic: LearnTopic }) {
+  const visual = lesson.visual;
+  const visualNodes = Array.isArray(visual?.nodes) ? visual.nodes.filter((node) => typeof node === "string" && node.trim()).slice(0, 4) : [];
+  const nodes = visualNodes.length >= 2
+    ? visualNodes
+    : lesson.steps.map((step) => step.visualLabel).slice(0, 4);
+  const kind = visual?.kind === "formula" || visual?.kind === "comparison" || visual?.kind === "cycle" ? visual.kind : "flow";
+  const caption = typeof visual?.caption === "string" && visual.caption.trim() ? visual.caption : `See how ${topic.name} connects before you practise it.`;
+
+  return <figure className={`coach-visual coach-visual-${kind}`} aria-label={`Visual walkthrough for ${topic.name}`}>
+    <figcaption><p className="text-[11px] font-bold uppercase tracking-[.16em] text-violet-700">Visual walkthrough</p><p className="mt-1 font-serif text-xl font-bold text-cocoa-900">{caption}</p></figcaption>
+    <div className="coach-visual-stage mt-4" aria-hidden>
+      <span className="coach-visual-spark coach-visual-spark-one">✦</span><span className="coach-visual-spark coach-visual-spark-two">✦</span>
+      <div className="coach-visual-path"><span /></div>
+      <div className="coach-visual-nodes">{nodes.map((node, index) => <div key={`${node}-${index}`} className="coach-visual-node"><span className="coach-visual-number">{index + 1}</span><span>{node}</span></div>)}</div>
+    </div>
+    <p className="mt-3 text-xs leading-5 text-cocoa-600">The sequence is an original study visual for this lesson—not a copied textbook diagram.</p>
+  </figure>;
 }
