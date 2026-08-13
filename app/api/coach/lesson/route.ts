@@ -106,7 +106,6 @@ export async function POST(request: NextRequest) {
   const focusInstruction = focus
     ? `\n\nTeach this narrower learning focus within the selected topic: ${focus}`
     : "";
-  const visualInstruction = `\n\nAlso include an optional visual object in the JSON: { "kind": "flow" | "formula" | "comparison" | "cycle", "caption": "one concise caption", "nodes": ["short visual stage 1", "short visual stage 2", "short visual stage 3"] }. Choose a kind that genuinely fits the topic. Nodes must be 2 to 4 short, accurate labels—not decoration.`;
   try {
     let lesson: unknown = null;
     for (let attempt = 0; attempt < 3 && !isCoachLesson(lesson); attempt += 1) {
@@ -114,7 +113,7 @@ export async function POST(request: NextRequest) {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 2600,
         temperature: 0.15,
-        messages: [{ role: "user", content: `${prompt}${focusInstruction}${visualInstruction}\n\nThis is structure attempt ${attempt + 1}. Do not add commentary or markdown outside the JSON object.` }],
+        messages: [{ role: "user", content: `${prompt}${focusInstruction}\n\nThis is structure attempt ${attempt + 1}. Do not add commentary or markdown outside the JSON object.` }],
       });
       if (!generated.ok) {
         return NextResponse.json({ error: generated.userMessage, kind: generated.kind }, { status: generated.httpStatus });
