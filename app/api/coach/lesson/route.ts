@@ -21,6 +21,43 @@ type CoachLesson = {
   checkpoint: { question: string; options: string[]; correctIndex: number; explanation: string };
 };
 
+function text(value: unknown, max: number) {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
+function normalizeCoachLesson(value: unknown): CoachLesson | null {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : null;
+  if (!raw) return null;
+  const rawCheckpoint = raw.checkpoint && typeof raw.checkpoint === "object" ? raw.checkpoint as Record<string, unknown> : null;
+  const steps = Array.isArray(raw.steps) ? raw.steps.slice(0, 4).flatMap((item) => {
+    const step = item && typeof item === "object" ? item as Record<string, unknown> : null;
+    if (!step) return [];
+    const title = text(step.title, 110);
+    const explanation = text(step.explanation, 900);
+    const visualLabel = text(step.visualLabel, 90);
+    return title && explanation && visualLabel ? [{ title, explanation, visualLabel }] : [];
+  }) : [];
+  const options = Array.isArray(rawCheckpoint?.options)
+    ? rawCheckpoint.options.map((option) => text(option, 220)).filter(Boolean).slice(0, 4)
+    : [];
+  const correctIndex = typeof rawCheckpoint?.correctIndex === "number"
+    ? Math.trunc(rawCheckpoint.correctIndex)
+    : Number.parseInt(String(rawCheckpoint?.correctIndex ?? ""), 10);
+  const lesson: CoachLesson = {
+    opening: text(raw.opening, 700),
+    steps,
+    commonTrap: text(raw.commonTrap, 600),
+    memoryAnchor: text(raw.memoryAnchor, 400),
+    checkpoint: {
+      question: text(rawCheckpoint?.question, 500),
+      options,
+      correctIndex,
+      explanation: text(rawCheckpoint?.explanation, 700),
+    },
+  };
+  return isCoachLesson(lesson) ? lesson : null;
+}
+
 function extractJson(text: string): unknown {
   const clean = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
   const start = clean.indexOf("{");
@@ -36,16 +73,16 @@ function isCoachLesson(value: unknown): value is CoachLesson {
   if (!value || typeof value !== "object") return false;
   const lesson = value as Partial<CoachLesson>;
   return Boolean(
-    isShortText(lesson.opening, 450) &&
+    isShortText(lesson.opening, 700) &&
     Array.isArray(lesson.steps) && lesson.steps.length >= 3 && lesson.steps.length <= 4 &&
-    lesson.steps.every((step) => step && isShortText(step.title, 70) && isShortText(step.explanation, 500) && isShortText(step.visualLabel, 56)) &&
-    isShortText(lesson.commonTrap, 320) &&
-    isShortText(lesson.memoryAnchor, 240) &&
-    lesson.checkpoint && isShortText(lesson.checkpoint.question, 300) &&
+    lesson.steps.every((step) => step && isShortText(step.title, 110) && isShortText(step.explanation, 900) && isShortText(step.visualLabel, 90)) &&
+    isShortText(lesson.commonTrap, 600) &&
+    isShortText(lesson.memoryAnchor, 400) &&
+    lesson.checkpoint && isShortText(lesson.checkpoint.question, 500) &&
     Array.isArray(lesson.checkpoint.options) && lesson.checkpoint.options.length === 4 &&
-    lesson.checkpoint.options.every((option) => isShortText(option, 160)) &&
+    lesson.checkpoint.options.every((option) => isShortText(option, 220)) &&
     Number.isInteger(lesson.checkpoint.correctIndex) && lesson.checkpoint.correctIndex! >= 0 && lesson.checkpoint.correctIndex! <= 3 &&
-    isShortText(lesson.checkpoint.explanation, 400),
+    isShortText(lesson.checkpoint.explanation, 700),
   );
 }
 
@@ -118,7 +155,7 @@ export async function POST(request: NextRequest) {
       if (!generated.ok) {
         return NextResponse.json({ error: generated.userMessage, kind: generated.kind }, { status: generated.httpStatus });
       }
-      try { lesson = extractJson(generated.text); } catch { lesson = null; }
+      try { lesson = normalizeCoachLesson(extractJson(generated.text)); } catch { lesson = null; }
     }
     if (!isCoachLesson(lesson)) throw new Error("Invalid Coach lesson structure after retries");
     if (!founderPreview) {
