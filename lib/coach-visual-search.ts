@@ -87,6 +87,9 @@ export async function findReusableCommonsVisual(concept: string): Promise<CoachV
       licenceLabel: visual.licence,
       licenceUrl: visual.sourceUrl,
       attribution: visual.author,
+      // Runtime search results are not part of the static matching registry;
+      // retain the queried phrase solely to satisfy the shared asset contract.
+      matches: [query],
     };
   } catch {
     // A visual is an enhancement, never a reason to make a lesson fail.
