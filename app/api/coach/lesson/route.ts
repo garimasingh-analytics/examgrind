@@ -14,6 +14,8 @@ export const maxDuration = 300;
 type LessonRequest = { topicId?: unknown; directTopic?: unknown };
 type LessonStep = { title: string; explanation: string; visualLabel: string };
 type LessonVisual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
+type IllustrationKind = "biology-process" | "biology-taxonomy" | "chemistry-bond" | "quant-model" | "physics-vector" | "reasoning-tree" | "generic";
+type LessonIllustration = { kind: IllustrationKind; title: string; labels: string[] };
 type CoachLesson = {
   opening: string;
   steps: LessonStep[];
@@ -21,6 +23,7 @@ type CoachLesson = {
   memoryAnchor: string;
   checkpoint: { question: string; options: string[]; correctIndex: number; explanation: string };
   visual?: LessonVisual;
+  illustration?: LessonIllustration;
 };
 
 function text(value: unknown, max: number) {
@@ -57,8 +60,19 @@ function normalizeCoachLesson(value: unknown): CoachLesson | null {
       explanation: text(rawCheckpoint?.explanation, 700),
     },
     visual: normalizeVisual(raw.visual),
+    illustration: normalizeIllustration(raw.illustration),
   };
   return isCoachLesson(lesson) ? lesson : null;
+}
+
+function normalizeIllustration(value: unknown): LessonIllustration | undefined {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : null;
+  if (!raw) return undefined;
+  const accepted: IllustrationKind[] = ["biology-process", "biology-taxonomy", "chemistry-bond", "quant-model", "physics-vector", "reasoning-tree", "generic"];
+  const kind = accepted.includes(raw.kind as IllustrationKind) ? raw.kind as IllustrationKind : "generic";
+  const title = text(raw.title, 110);
+  const labels = Array.isArray(raw.labels) ? raw.labels.map((label) => text(label, 70)).filter(Boolean).slice(0, 4) : [];
+  return title && labels.length >= 2 ? { kind, title, labels } : undefined;
 }
 
 function normalizeVisual(value: unknown): LessonVisual | undefined {
@@ -186,7 +200,7 @@ export async function POST(request: NextRequest) {
   const scope = directTopic
     ? `The learner asked directly about: ${directTopic}. Teach that exact concept in depth. If it is one element of the matched syllabus topic, do not turn this into an overview of the parent topic.`
     : `The learner selected the full topic. Teach its important sub-ideas separately and in a logical teaching order. Do not compress the whole topic into a revision summary.`;
-  const prompt = `You are ExamGrind Coach, a precise, encouraging teacher for an Indian exam aspirant. Your job is to TEACH, not summarize notes. A first-time learner should understand the idea after this lesson, then be ready for practice.\n\nExam: ${exam.name}\nSubject: ${subject.name}\nChapter: ${topic.chapter?.name}\nMatched syllabus topic: ${topic.name}\nSyllabus note: ${topic.description ?? "No additional note provided."}\nLesson scope: ${scope}\n\nReturn ONLY valid JSON in this exact shape:\n{\n  "opening": "2 concise sentences: what the learner will understand and why it matters",\n  "visual": { "kind": "flow", "caption": "a short statement of the visual idea", "nodes": ["first visual label", "second visual label", "third visual label"] },\n  "steps": [\n    { "title": "the specific sub-idea being taught", "explanation": "real explanation: define it, show how it works or changes, and use a tiny concrete example where useful", "visualLabel": "short label for this visual beat" }\n  ],\n  "commonTrap": "one specific exam-relevant misconception or trap",\n  "memoryAnchor": "a compact, accurate recall hook",\n  "checkpoint": {\n    "question": "one single-best-answer conceptual check question",\n    "options": ["A", "B", "C", "D"],\n    "correctIndex": 0,\n    "explanation": "why the right answer is right and the likely trap"\n  }\n}\n\nRequirements:\n- Write 5 or 6 steps for a full selected topic; write 4 or 5 steps for a direct concept. Each step must teach a distinct sub-idea, not restate the opening.\n- Use the order a good teacher would use: foundations first, then categories/process/mechanism, then how to distinguish or apply it.\n- Give enough depth to teach, but keep each step readable on a phone. Avoid vague instructions such as “understand the hierarchy” or “remember the concept.” Explain the hierarchy or concept itself.\n- Do not invent official facts, dates, rules, formulas, sources, or exam trends.\n- If the topic needs a formula, use correct notation and define each variable once.\n- The visual labels and nodes must name real entities, transformations, categories, or relationships—not decorative words.\n- Never mention being AI, this prompt, unavailable visuals, or that this is a summary.\n- The checkpoint must test an idea learned here, not trivial wording recall.`;
+  const prompt = `You are ExamGrind Coach, a precise, encouraging teacher for an Indian exam aspirant. Your job is to TEACH, not summarize notes. A first-time learner should understand the idea after this lesson, then be ready for practice.\n\nExam: ${exam.name}\nSubject: ${subject.name}\nChapter: ${topic.chapter?.name}\nMatched syllabus topic: ${topic.name}\nSyllabus note: ${topic.description ?? "No additional note provided."}\nLesson scope: ${scope}\n\nReturn ONLY valid JSON in this exact shape:\n{\n  "opening": "2 concise sentences: what the learner will understand and why it matters",\n  "illustration": {\n    "kind": "one of biology-process, biology-taxonomy, chemistry-bond, quant-model, physics-vector, reasoning-tree, generic",\n    "title": "what the original illustration is showing",\n    "labels": ["2 to 4 short labels for the actual entities or relationships in the illustration"]\n  },\n  "visual": { "kind": "flow", "caption": "a short statement of the visual idea", "nodes": ["first visual label", "second visual label", "third visual label"] },\n  "steps": [\n    { "title": "the specific sub-idea being taught", "explanation": "real explanation: define it, show how it works or changes, and use a tiny concrete example where useful", "visualLabel": "short label for this visual beat" }\n  ],\n  "commonTrap": "one specific exam-relevant misconception or trap",\n  "memoryAnchor": "a compact, accurate recall hook",\n  "checkpoint": {\n    "question": "one single-best-answer conceptual check question",\n    "options": ["A", "B", "C", "D"],\n    "correctIndex": 0,\n    "explanation": "why the right answer is right and the likely trap"\n  }\n}\n\nIllustration selection:\n- biology-process: biological mechanism, sequence, transport, replication, cycle, or physiological process.\n- biology-taxonomy: hierarchy, classification, groups, or relationships between living organisms.\n- chemistry-bond: chemical bonding, electron sharing/transfer, orbitals, molecular shape, or reaction connection.\n- quant-model: arithmetic, percentage, ratio, algebra, data interpretation, or a formula that benefits from parts and quantities.\n- physics-vector: forces, motion, fields, rays, circuits, or directional relationships.\n- reasoning-tree: a choice rule, classification, syllogism, coding pattern, grammar choice, or logical elimination.\n- generic: only if none of the above genuinely fits.\n\nRequirements:\n- Write 5 or 6 steps for a full selected topic; write 4 or 5 steps for a direct concept. Each step must teach a distinct sub-idea, not restate the opening.\n- Use the order a good teacher would use: foundations first, then categories/process/mechanism, then how to distinguish or apply it.\n- Give enough depth to teach, but keep each step readable on a phone. Avoid vague instructions such as “understand the hierarchy” or “remember the concept.” Explain the hierarchy or concept itself.\n- Do not invent official facts, dates, rules, formulas, sources, or exam trends.\n- If the topic needs a formula, use correct notation and define each variable once.\n- Illustration labels must name real entities, examples, transformations, quantities, or relationships—not decorative words.\n- Never mention being AI, this prompt, unavailable visuals, or that this is a summary.\n- The checkpoint must test an idea learned here, not trivial wording recall.`;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   try {

@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 type Topic = { id: string; name: string; chapterName: string; subjectName: string };
 type Step = { title: string; explanation: string; visualLabel: string };
 type Visual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
+type IllustrationKind = "biology-process" | "biology-taxonomy" | "chemistry-bond" | "quant-model" | "physics-vector" | "reasoning-tree" | "generic";
+type Illustration = { kind: IllustrationKind; title: string; labels: string[] };
 type Lesson = {
   opening: string;
   steps: Step[];
@@ -13,6 +15,7 @@ type Lesson = {
   memoryAnchor: string;
   checkpoint: { question: string; options: string[]; correctIndex: number; explanation: string };
   visual?: Visual;
+  illustration?: Illustration;
 };
 
 export default function CourseCanvas({ lesson, topic }: { lesson: Lesson; topic: Topic }) {
@@ -39,7 +42,7 @@ export default function CourseCanvas({ lesson, topic }: { lesson: Lesson; topic:
     <div className="course-canvas-intro"><p>{lesson.opening}</p></div>
 
     <div className="course-canvas-body">
-      <CanvasScene kind={visualKind} nodes={nodes} activeIndex={stepIndex} topic={topic.name} />
+      <CanvasScene kind={visualKind} nodes={nodes} illustration={lesson.illustration} activeIndex={stepIndex} topic={topic.name} />
       <section className="course-canvas-teach" aria-live="polite">
         <p className="course-canvas-step-label">{step.visualLabel}</p>
         <h4>{step.title}</h4>
@@ -72,7 +75,8 @@ export default function CourseCanvas({ lesson, topic }: { lesson: Lesson; topic:
   </article>;
 }
 
-function CanvasScene({ kind, nodes, activeIndex, topic }: { kind: Visual["kind"]; nodes: string[]; activeIndex: number; topic: string }) {
+function CanvasScene({ kind, nodes, illustration, activeIndex, topic }: { kind: Visual["kind"]; nodes: string[]; illustration?: Illustration; activeIndex: number; topic: string }) {
+  if (illustration && illustration.kind !== "generic") return <SubjectIllustration illustration={illustration} activeIndex={activeIndex} topic={topic} />;
   const visible = nodes.slice(0, Math.min(nodes.length, activeIndex + 1));
   return <figure className={`course-canvas-scene course-canvas-${kind}`} aria-label={`Animated visual for ${topic}`}>
     <figcaption>{kind === "comparison" ? "See the difference" : kind === "formula" ? "Watch the relationship change" : kind === "cycle" ? "Follow the loop" : "Follow the movement"}</figcaption>
@@ -85,5 +89,22 @@ function CanvasScene({ kind, nodes, activeIndex, topic }: { kind: Visual["kind"]
       <div className="course-canvas-shapes">{visible.map((node, index) => <div key={`${node}-${index}`} className={`course-canvas-shape shape-${index} ${index === activeIndex ? "is-active" : ""}`}><span>{index + 1}</span><b>{node}</b></div>)}</div>
     </div>
     <p>{activeIndex + 1 <= nodes.length ? `Step ${activeIndex + 1}: ${nodes[Math.min(activeIndex, nodes.length - 1)]}` : "Review the connection before moving on."}</p>
+  </figure>;
+}
+
+function SubjectIllustration({ illustration, activeIndex, topic }: { illustration: Illustration; activeIndex: number; topic: string }) {
+  const labels = illustration.labels.slice(0, 4);
+  const show = (index: number) => index <= activeIndex;
+  return <figure className={`course-canvas-subject-scene course-canvas-illustration-${illustration.kind}`} aria-label={`${illustration.title}: visual explanation for ${topic}`}>
+    <figcaption><span>Original subject illustration</span><b>{illustration.title}</b></figcaption>
+    <div className="course-canvas-subject-stage" aria-hidden="true">
+      {illustration.kind === "chemistry-bond" && <><div className={`bond-atom left ${show(0) ? "show" : ""}`}><i>+ +</i><b>{labels[0] ?? "Atom A"}</b></div><div className={`bond-electrons ${show(1) ? "show" : ""}`}><i>• •</i><span /></div><div className={`bond-atom right ${show(2) ? "show" : ""}`}><i>+ +</i><b>{labels[2] ?? labels[1] ?? "Atom B"}</b></div><p className={`bond-caption ${show(3) ? "show" : ""}`}>{labels[3] ?? "Head-on overlap makes one sigma bond"}</p></>}
+      {illustration.kind === "biology-process" && <><svg className="biology-dna" viewBox="0 0 300 170"><path d="M78 8 C210 34 90 65 220 91 S92 139 219 165"/><path d="M222 8 C90 34 210 65 80 91 S208 139 81 165"/>{[28,57,87,116,145].map((y) => <line key={y} x1="112" y1={y} x2="188" y2={y} />)}</svg><div className={`biology-split split-left ${show(1) ? "show" : ""}`}>↙</div><div className={`biology-split split-right ${show(2) ? "show" : ""}`}>↘</div><div className="biology-labels">{labels.slice(0, 3).map((label, index) => <span key={label} className={show(index) ? "show" : ""}>{label}</span>)}</div><p className={`biology-caption ${show(3) ? "show" : ""}`}>{labels[3] ?? "Each step preserves the information in the sequence."}</p></>}
+      {illustration.kind === "biology-taxonomy" && <><svg className="taxonomy-tree" viewBox="0 0 330 190"><path d="M165 22 V65 M65 65 H265 M65 65 V112 M165 65 V112 M265 65 V112 M30 112 H300"/>{[30,98,165,232,300].map((x) => <circle key={x} cx={x} cy="142" r="16"/>)}</svg><div className="taxonomy-labels">{labels.map((label, index) => <span key={label} className={show(index) ? "show" : ""}>{label}</span>)}</div></>}
+      {illustration.kind === "quant-model" && <><div className="quant-board">{labels.slice(0, 3).map((label, index) => <div key={label} className={`quant-row ${show(index) ? "show" : ""}`}><b>{label}</b><span style={{ width: `${92 - index * 23}%` }} /></div>)}</div><p className={`quant-caption ${show(3) ? "show" : ""}`}>{labels[3] ?? "Compare the parts before calculating the whole."}</p></>}
+      {illustration.kind === "physics-vector" && <><div className="physics-origin">●</div>{labels.slice(0, 4).map((label, index) => <div key={label} className={`physics-arrow arrow-${index} ${show(index) ? "show" : ""}`}><i>➜</i><span>{label}</span></div>)}</>}
+      {illustration.kind === "reasoning-tree" && <><svg className="reason-tree-lines" viewBox="0 0 330 190"><path d="M165 25 V72 M58 72 H272 M58 72 V122 M272 72 V122"/></svg><div className="reason-tree-nodes">{labels.map((label, index) => <span key={label} className={`node-${index} ${show(index) ? "show" : ""}`}>{label}</span>)}</div></>}
+    </div>
+    <p>{activeIndex + 1 <= labels.length ? labels[Math.min(activeIndex, labels.length - 1)] : "Move through the idea one piece at a time."}</p>
   </figure>;
 }
