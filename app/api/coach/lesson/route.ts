@@ -22,8 +22,53 @@ type CoachLesson = {
 };
 
 function extractJson(text: string): unknown {
-  return JSON.parse(text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim());
+  const clean = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+  const start = clean.indexOf("{");
+  const end = clean.lastIndexOf("}");
+  return JSON.parse(start >= 0 && end > start ? clean.slice(start, end + 1) : clean);
 }
+
+const COACH_LESSON_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["opening", "steps", "commonTrap", "memoryAnchor", "checkpoint"],
+  properties: {
+    opening: { type: "string", minLength: 1, maxLength: 450 },
+    steps: {
+      type: "array",
+      minItems: 3,
+      maxItems: 4,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["title", "explanation", "visualLabel"],
+        properties: {
+          title: { type: "string", minLength: 1, maxLength: 70 },
+          explanation: { type: "string", minLength: 1, maxLength: 500 },
+          visualLabel: { type: "string", minLength: 1, maxLength: 56 },
+        },
+      },
+    },
+    commonTrap: { type: "string", minLength: 1, maxLength: 320 },
+    memoryAnchor: { type: "string", minLength: 1, maxLength: 240 },
+    checkpoint: {
+      type: "object",
+      additionalProperties: false,
+      required: ["question", "options", "correctIndex", "explanation"],
+      properties: {
+        question: { type: "string", minLength: 1, maxLength: 300 },
+        options: {
+          type: "array",
+          minItems: 4,
+          maxItems: 4,
+          items: { type: "string", minLength: 1, maxLength: 160 },
+        },
+        correctIndex: { type: "integer", minimum: 0, maximum: 3 },
+        explanation: { type: "string", minLength: 1, maxLength: 400 },
+      },
+    },
+  },
+} as const;
 
 function isShortText(value: unknown, max: number) {
   return typeof value === "string" && value.trim().length > 0 && value.length <= max;
@@ -107,6 +152,8 @@ export async function POST(request: NextRequest) {
   const generated = await generateWithRetry(anthropic, {
     model: "claude-haiku-4-5-20251001",
     max_tokens: 2600,
+    temperature: 0.2,
+    output_config: { format: { type: "json_schema", schema: COACH_LESSON_SCHEMA } },
     messages: [{ role: "user", content: prompt }],
   });
   if (!generated.ok) return NextResponse.json({ error: generated.userMessage, kind: generated.kind }, { status: generated.httpStatus });
