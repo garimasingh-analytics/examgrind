@@ -9,6 +9,7 @@ import ChickPicker from "@/components/ChickPicker";
 import PromoCodeRedeemer from "@/components/PromoCodeRedeemer";
 import type { ChickVariant } from "@/lib/chicks";
 import CancelSubButton from "./CancelSubButton";
+import EmailPreferencesCard from "./EmailPreferencesCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
@@ -109,6 +110,12 @@ export default async function ProfilePage() {
     .filter((purchase) => purchase.product === "coach_yearly" && purchase.expires_at)
     .sort((a, b) => new Date(b.expires_at ?? 0).getTime() - new Date(a.expires_at ?? 0).getTime())[0];
   const isAnnualCoach = liveSubscriptionStatus === "paid" && Boolean(annualAccess);
+
+  const { data: emailPreference } = await adminForChicks
+    .from("email_preferences")
+    .select("marketing_email_opt_in")
+    .eq("user_id", authUser.id)
+    .maybeSingle<{ marketing_email_opt_in: boolean }>();
 
   const fullName =
     (authUser.user_metadata?.full_name as string | undefined) ??
@@ -544,6 +551,8 @@ export default async function ProfilePage() {
           </ul>
         )}
       </section>
+
+      <EmailPreferencesCard initialOptIn={emailPreference?.marketing_email_opt_in ?? false} />
 
       {/* Account / sign out */}
       <section className="mx-auto mt-12 max-w-3xl px-4 sm:px-6">

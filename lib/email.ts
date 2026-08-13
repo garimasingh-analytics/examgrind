@@ -522,3 +522,72 @@ export async function sendFeedbackAck(to: string) {
     `),
   });
 }
+
+/** Non-transactional templates. These are only called by the consent-checked
+ * lifecycle queue in lib/email-lifecycle.ts — never directly from sign-in. */
+export type LifecycleEmailTemplate = "first_topic" | "first_repair" | "weekly_direction";
+
+function lifecycleExamLabel(examSlug?: string) {
+  if (examSlug === "ssc-cgl") return "SSC CGL";
+  if (examSlug === "cuet") return "CUET UG";
+  if (examSlug === "neet-ug") return "NEET UG";
+  return "your exam";
+}
+
+export function buildLifecycleEmail(
+  to: string,
+  template: LifecycleEmailTemplate,
+  examSlug?: string,
+): EmailOptions {
+  const exam = lifecycleExamLabel(examSlug);
+  const manage = "https://examgrind.in/me";
+  const footer = `<p style="margin:28px 0 0;font-size:12px;line-height:1.55;color:#7A6A5C;">You are receiving this because you chose study updates in ExamGrind. <a href="${manage}" style="color:#C74A3A;font-weight:700;">Manage or stop updates</a>.</p>`;
+
+  if (template === "first_topic") {
+    return {
+      to,
+      subject: `One exact ${exam} topic. One focused session.`,
+      html: wrap(`
+        <p style="margin-top:0;font-size:18px;font-weight:800;color:#2C1810;">Don’t choose an entire chapter tonight.</p>
+        <p>Choose the one concept that has been slowing you down—then ask Coach to teach it in a focused walkthrough, with a quick check and practice on that exact idea.</p>
+        <div style="margin:22px 0;background:#FFF0D4;border-radius:16px;padding:18px;"><strong>Try this:</strong><br/>“Teach me <em>time and work efficiency</em>.”<br/><span style="color:#7A6A5C;font-size:13px;">Replace that with any topic from ${exam}.</span></div>
+        <p style="text-align:center;margin:28px 0 4px;"><a href="https://examgrind.in/coach" style="display:inline-block;background:#2C1810;color:#FFFCF7;padding:14px 22px;border-radius:14px;text-decoration:none;font-weight:800;">Ask Coach to teach a topic →</a></p>
+        ${footer}
+      `),
+    };
+  }
+
+  if (template === "first_repair") {
+    return {
+      to,
+      subject: "A quiz score is not your next study plan.",
+      html: wrap(`
+        <p style="margin-top:0;font-size:18px;font-weight:800;color:#2C1810;">You already did the hard part: you attempted.</p>
+        <p>Now turn that attempt into direction. Open a completed quiz, run Deep Analysis, and ExamGrind will rank the concepts worth repairing first—not tell you to restart the whole syllabus.</p>
+        <div style="margin:22px 0;background:#F0EDFF;border-radius:16px;padding:18px;"><strong>The loop:</strong><br/>Attempt → understand the mistake → repair one concept → retest.</div>
+        <p style="text-align:center;margin:28px 0 4px;"><a href="https://examgrind.in/home" style="display:inline-block;background:#2C1810;color:#FFFCF7;padding:14px 22px;border-radius:14px;text-decoration:none;font-weight:800;">Find my next repair →</a></p>
+        ${footer}
+      `),
+    };
+  }
+
+  return {
+    to,
+    subject: `Your ${exam} week needs one clear next move.`,
+    html: wrap(`
+      <p style="margin-top:0;font-size:18px;font-weight:800;color:#2C1810;">A useful study plan should survive a real week.</p>
+      <p>Open your home screen, choose one mission, and let the evidence from your attempts decide what comes next. You do not need another impossible timetable.</p>
+      <div style="margin:22px 0;background:#EDF7DE;border-radius:16px;padding:18px;"><strong>This week’s rule:</strong><br/>Learn one thing. Practise it. Repair the mistake. Then move on.</div>
+      <p style="text-align:center;margin:28px 0 4px;"><a href="https://examgrind.in/home" style="display:inline-block;background:#2C1810;color:#FFFCF7;padding:14px 22px;border-radius:14px;text-decoration:none;font-weight:800;">Open my study guide →</a></p>
+      ${footer}
+    `),
+  };
+}
+
+export async function sendLifecycleEmail(
+  to: string,
+  template: LifecycleEmailTemplate,
+  examSlug?: string,
+) {
+  return sendEmail(buildLifecycleEmail(to, template, examSlug));
+}
