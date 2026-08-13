@@ -9,7 +9,22 @@ import { createServerSupabase } from "@/lib/supabase/server";
  * A visitor first needs to understand the promise and choose their exam;
  * the product UI comes after that choice.
  */
-export default async function LandingPage() {
+type LandingPageProps = {
+  searchParams: Promise<{ code?: string; next?: string }>;
+};
+
+export default async function LandingPage({ searchParams }: LandingPageProps) {
+  const { code, next } = await searchParams;
+
+  // Supabase falls back to the configured Site URL when a requested OAuth
+  // callback URL is absent from its redirect allow-list. In production that
+  // fallback is `/?code=…`. Never render the landing page with an unexchanged
+  // code: forward it into our single session-exchange route instead.
+  if (code) {
+    const callback = new URLSearchParams({ code, next: next?.startsWith("/") ? next : "/home" });
+    redirect(`/auth/callback?${callback.toString()}`);
+  }
+
   // The cinematic introduction is for first-time visitors. A returning
   // authenticated student should never need to dismiss marketing to resume
   // their preparation.
