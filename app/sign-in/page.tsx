@@ -17,8 +17,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const { next } = await searchParams;
   // Keep the destination inside ExamGrind. The callback repeats this check
   // server-side; validating here prevents an unexpected value in the UI flow.
-  const redirectTo = next?.startsWith("/") && !next.startsWith("//") ? next : "/home";
-
+  const redirectTo = next?.startsWith("/") && !next.startsWith("//") ? next : "/home?resume=1";
   return (
     <main className="min-h-[100svh] bg-warm-wash">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">

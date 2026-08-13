@@ -31,6 +31,12 @@ export default function GoogleLoginButton({
     setError(null);
     setLoading(true);
     try {
+      // Preserve the requested in-app destination across OAuth. Some Supabase
+      // configurations fall back to the Site URL and drop redirectTo, so the
+      // callback reads this short-lived, same-site cookie as a safe fallback.
+      const secure = window.location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = `eg_auth_next=${encodeURIComponent(redirectTo)}; Path=/; Max-Age=600; SameSite=Lax${secure}`;
+
       const supabase = createClient();
       // The authentication return URL must match the deployment the student
       // is currently using. A build-time NEXT_PUBLIC_SITE_URL is production
