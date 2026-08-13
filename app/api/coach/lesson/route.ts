@@ -7,6 +7,7 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { findCoachVisualAsset } from "@/lib/coach-visual-assets";
+import { findReusableCommonsVisual } from "@/lib/coach-visual-search";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -245,7 +246,12 @@ export async function POST(request: NextRequest) {
     const lessonTopic = directTopic
       ? { id: topic?.id ?? "", name: directTopic, chapterName: topic?.chapter?.name ?? "Independent Coach lesson", subjectName: subject?.name ?? exam.name, practiceTopicId: topic?.id }
       : { id: topic!.id, name: topic!.name, chapterName: topic!.chapter?.name, subjectName: subject!.name, practiceTopicId: topic!.id };
-    const visualAsset = findCoachVisualAsset(directTopic, topic?.name, topic?.chapter?.name, topic?.description);
+    const curatedVisual = findCoachVisualAsset(directTopic, topic?.name, topic?.chapter?.name, topic?.description);
+    // The hand-picked library remains the first choice. For any other exact
+    // concept, look up a separately licensed Commons visual with attribution.
+    // It is intentionally non-blocking: an unavailable/uncertain visual never
+    // breaks the lesson or substitutes an unrelated image.
+    const visualAsset = curatedVisual ?? (directTopic ? await findReusableCommonsVisual(directTopic) : undefined);
     return NextResponse.json({ lesson, topic: lessonTopic, visualAsset });
   } catch (error) {
     console.error("[coach/lesson] lesson generation failed", error);

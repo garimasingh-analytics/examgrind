@@ -1,5 +1,5 @@
 export type CoachVisualAsset = {
-  id: "dna-replication" | "sigma-bond" | "taxonomic-ranks";
+  id: string;
   src: string;
   alt: string;
   title: string;
