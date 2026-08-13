@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
-type LessonRequest = { topicId?: unknown };
+type LessonRequest = { topicId?: unknown; focus?: unknown };
 type LessonStep = { title: string; explanation: string; visualLabel: string };
 type CoachLesson = {
   opening: string;
@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
   let body: LessonRequest;
   try { body = await request.json() as LessonRequest; } catch { return NextResponse.json({ error: "Invalid lesson request." }, { status: 400 }); }
   const topicId = typeof body.topicId === "string" ? body.topicId.trim() : "";
+  const focus = typeof body.focus === "string" ? body.focus.trim().slice(0, 120) : "";
   if (!topicId) return NextResponse.json({ error: "Choose a syllabus topic first." }, { status: 400 });
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "Coach is temporarily unavailable." }, { status: 503 });
 
@@ -102,6 +103,9 @@ export async function POST(request: NextRequest) {
   const prompt = `You are ExamGrind Coach, a precise, encouraging tutor for an Indian exam aspirant. Teach one syllabus topic accurately and accessibly. This is a short interactive lesson, not a generic chatbot response.\n\nExam: ${exam.name}\nSubject: ${subject.name}\nChapter: ${topic.chapter?.name}\nTopic: ${topic.name}\nSyllabus note: ${topic.description ?? "No additional note provided."}\n\nReturn ONLY valid JSON in this exact shape:\n{\n  "opening": "2 concise sentences that say what this topic is and why it matters in this exam",\n  "steps": [\n    { "title": "short step title", "explanation": "clear explanation", "visualLabel": "very short label for a visual sequence" }\n  ],\n  "commonTrap": "one specific exam-relevant misconception or trap",\n  "memoryAnchor": "a compact, accurate recall hook",\n  "checkpoint": {\n    "question": "one single-best-answer check question",\n    "options": ["A", "B", "C", "D"],\n    "correctIndex": 0,\n    "explanation": "why the right answer is right and the likely trap"\n  }\n}\n\nRequirements:\n- Write exactly 3 or 4 steps in the causal or procedural order a student should understand them.\n- Each explanation must be clear enough for first learning, but concise enough to read on a phone.\n- Do not invent official facts, dates, rules, formulas, sources, or exam trends.\n- If the topic needs a formula, use correct notation and define each variable once.\n- The visualLabel must describe the step, not be decorative.\n- Never mention being AI, the prompt, or unavailable visuals.\n- The checkpoint must test understanding of the lesson, not trivial wording recall.`;
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const focusInstruction = focus
+    ? `\n\nTeach this narrower learning focus within the selected topic: ${focus}`
+    : "";
   try {
     let lesson: unknown = null;
     for (let attempt = 0; attempt < 3 && !isCoachLesson(lesson); attempt += 1) {
@@ -109,7 +113,7 @@ export async function POST(request: NextRequest) {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 2600,
         temperature: 0.15,
-        messages: [{ role: "user", content: `${prompt}\n\nThis is structure attempt ${attempt + 1}. Do not add commentary or markdown outside the JSON object.` }],
+        messages: [{ role: "user", content: `${prompt}${focusInstruction}\n\nThis is structure attempt ${attempt + 1}. Do not add commentary or markdown outside the JSON object.` }],
       });
       if (!generated.ok) {
         return NextResponse.json({ error: generated.userMessage, kind: generated.kind }, { status: generated.httpStatus });

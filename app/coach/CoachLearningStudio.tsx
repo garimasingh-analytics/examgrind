@@ -16,6 +16,7 @@ type CoachLesson = {
 export default function CoachLearningStudio({ topics, priorityTopicIds }: { topics: LearnTopic[]; priorityTopicIds: string[] }) {
   const suggestedTopics = useMemo(() => topics.filter((topic) => priorityTopicIds.includes(topic.id)).slice(0, 3), [priorityTopicIds, topics]);
   const [selectedTopicId, setSelectedTopicId] = useState(suggestedTopics[0]?.id ?? topics[0]?.id ?? "");
+  const [lessonFocus, setLessonFocus] = useState("");
   const [lesson, setLesson] = useState<CoachLesson | null>(null);
   const [lessonTopic, setLessonTopic] = useState<LearnTopic | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -32,7 +33,7 @@ export default function CoachLearningStudio({ topics, priorityTopicIds }: { topi
         const response = await fetch("/api/coach/lesson", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topicId }),
+          body: JSON.stringify({ topicId, focus: lessonFocus.trim() || undefined }),
         });
         const payload = await response.json() as { lesson?: CoachLesson; topic?: LearnTopic; error?: string };
         if (!response.ok || !payload.lesson || !payload.topic) throw new Error(payload.error ?? "Coach couldn't build that lesson.");
@@ -44,20 +45,21 @@ export default function CoachLearningStudio({ topics, priorityTopicIds }: { topi
     });
   };
 
-  return <section id="learn-with-coach" className="mx-auto mt-6 max-w-4xl px-5">
+  return <section id="learn-with-coach" className="mx-auto mt-5 max-w-4xl px-5">
     <div className="overflow-hidden rounded-3xl border border-violet-700/15 bg-[radial-gradient(circle_at_90%_10%,rgba(250,196,57,.28),transparent_30%),linear-gradient(135deg,#2d1d4a,#51376f)] p-5 text-cream-50 shadow-warm-lg sm:p-7">
       <p className="text-xs font-bold uppercase tracking-[.18em] text-sun-300">Coach lesson studio</p>
       <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div><h2 className="font-serif text-3xl font-bold leading-tight">Learn it. Check it. Prove it.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-cream-100/85">Choose a real topic from your syllabus. Coach gives you a focused visual walkthrough, checks the idea, then sends you into practice on that exact topic.</p></div>
+        <div><h2 className="font-serif text-3xl font-bold leading-tight">Learn it. Check it. Prove it.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-cream-100/85">Choose a topic from your syllabus. Coach gives you a focused virtual walkthrough, checks the idea, then gets you into practice on that exact topic.</p></div>
         {lessonTopic && <Link href={`/topic/${lessonTopic.id}`} className="shrink-0 rounded-xl bg-sun-400 px-4 py-3 text-sm font-extrabold text-cocoa-900 transition hover:bg-sun-300">Practice {lessonTopic.name} →</Link>}
       </div>
 
       {topics.length === 0 ? <p className="mt-5 rounded-2xl bg-white/10 p-4 text-sm leading-6 text-cream-100">Add subjects to your study preferences first. Coach will then bring in those syllabus topics.</p> : <>
         {suggestedTopics.length > 0 && <div className="mt-6"><p className="text-[11px] font-bold uppercase tracking-[.15em] text-cream-100/65">Start with your evidence</p><div className="mt-2 flex flex-wrap gap-2">{suggestedTopics.map((topic) => <button key={topic.id} type="button" disabled={pending} onClick={() => { setSelectedTopicId(topic.id); buildLesson(topic.id); }} className="rounded-full border border-white/20 bg-white/10 px-3 py-2 text-left text-xs font-bold text-cream-50 transition hover:bg-white/20 disabled:opacity-60">{topic.name} <span className="font-medium text-cream-100/65">· {topic.subjectName}</span></button>)}</div></div>}
         <div className="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]"><label className="sr-only" htmlFor="coach-topic">Topic to learn</label><select id="coach-topic" value={selectedTopicId} disabled={pending} onChange={(event) => setSelectedTopicId(event.target.value)} className="min-w-0 rounded-xl border border-white/20 bg-white px-4 py-3 text-sm font-semibold text-cocoa-900 outline-none focus:ring-2 focus:ring-sun-300"><option value="">Choose a topic to learn</option>{topics.map((topic) => <option key={topic.id} value={topic.id}>{topic.subjectName} · {topic.chapterName} · {topic.name}</option>)}</select><button type="button" onClick={() => buildLesson()} disabled={pending || !selectedTopic} className="rounded-xl bg-sun-400 px-5 py-3 text-sm font-extrabold text-cocoa-900 transition hover:bg-sun-300 disabled:cursor-not-allowed disabled:opacity-60">{pending ? "Coach is teaching…" : "Teach me this"}</button></div>
+        <div className="mt-2"><label htmlFor="coach-focus" className="text-[11px] font-bold uppercase tracking-[.14em] text-cream-100/65">Want a smaller slice?</label><input id="coach-focus" value={lessonFocus} maxLength={120} disabled={pending} onChange={(event) => setLessonFocus(event.target.value)} placeholder="Type the exact subtopic — e.g. successive discounts" className="mt-1 w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-cream-50 placeholder:text-cream-100/55 outline-none focus:border-sun-300 focus:ring-2 focus:ring-sun-300/45 disabled:opacity-60" /><p className="mt-1 text-xs text-cream-100/60">Coach will teach this within the selected syllabus topic, then send you to the relevant practice.</p></div>
       </>}
       {error && <p role="alert" className="mt-3 rounded-xl bg-coral-500/20 px-3 py-2 text-sm font-semibold text-cream-50">{error}</p>}
-      <p className="mt-3 text-xs text-cream-100/65">A short interactive lesson, then a real topic quiz. No generic timetable and no filler.</p>
+      <p className="mt-3 text-xs text-cream-100/65">A short interactive lesson, then a focused topic quiz. No generic timetable and no filler.</p>
     </div>
 
     {pending && <div role="status" aria-live="polite" className="mt-4 rounded-3xl border border-violet-700/15 bg-cream-50 p-5 text-center shadow-warm"><div className="mx-auto h-9 w-9 animate-pulse rounded-full bg-gradient-to-br from-sun-300 to-ember-500" /><p className="mt-3 font-serif text-xl font-bold text-cocoa-900">Coach is building your explanation…</p><p className="mt-1 text-sm text-cocoa-600">It will stay tied to your selected syllabus topic.</p></div>}

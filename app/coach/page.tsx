@@ -174,8 +174,9 @@ export default async function CoachPage() {
         <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900">ExamGrind</Link>
         <Link href="/home" className="text-sm font-bold text-ember-700">Home →</Link>
       </header>
+      {founderPreview && !isCoach && <p className="mx-auto mb-3 max-w-4xl rounded-xl bg-sun-400/20 px-3 py-2 text-center text-xs font-bold text-cocoa-900">Founder preview — students need an active Coach plan to use this live briefing.</p>}
+      <CoachLearningStudio topics={learningTopics} priorityTopicIds={weakSignals.map((signal) => signal.topicId)} />
       <section className="mx-auto max-w-4xl px-5 pt-4">
-        {founderPreview && !isCoach && <p className="mb-3 rounded-xl bg-sun-400/20 px-3 py-2 text-center text-xs font-bold text-cocoa-900">Founder preview — students need an active Coach plan to use this live briefing.</p>}
         <div className="coach-cover rounded-3xl bg-gradient-to-br from-cocoa-900 via-cocoa-900 to-ember-900 p-6 text-cream-50 shadow-warm-lg sm:p-8">
           <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-sun-300">ExamGrind Coach · live briefing</p><h1 className="mt-2 font-serif text-3xl font-bold sm:text-4xl">Here&apos;s exactly what to do next.</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-cream-100/80">{today} · Based on your completed {exam?.name ?? "exam"} practice. This briefing changes after each finished quiz or mock.</p></div><Chick state="excited" size={76} /></div>
         </div>
@@ -187,7 +188,6 @@ export default async function CoachPage() {
         </ol>
         {actions.length === 0 && <div className="rounded-3xl border border-cocoa-900/[.07] bg-cream-50 p-6 text-cocoa-700 shadow-warm"><h2 className="font-serif text-2xl font-bold text-cocoa-900">Start with one focused quiz.</h2><p className="mt-2 text-sm">Once you complete it, your Coach will turn that result into a precise repair and revision plan.</p><Link href="/home" className="mt-4 inline-flex font-bold text-ember-700">Choose a subject →</Link></div>}
       </section>
-      <CoachLearningStudio topics={learningTopics} priorityTopicIds={weakSignals.map((signal) => signal.topicId)} />
       <section className="mx-auto mt-6 grid max-w-4xl gap-3 px-5 sm:grid-cols-3">
         <CoachMetric href="/home" label="Topics studied" value={String(signals.length)} detail="Open your syllabus and continue coverage." />
         <CoachMetric href={weakSignals[0] ? `/topic/${weakSignals[0].topicId}` : "/mistakes"} label="Repair queue" value={String(weakSignals.length)} detail={weakSignals.length ? "Open your highest-impact repair." : "Open Mistake Book."} />
