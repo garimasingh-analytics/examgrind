@@ -18,13 +18,9 @@ export default function CinematicLanding() {
   return <main className="editorial-gallery">
     <header className="egallery-nav">
       <Link href="/" className="egallery-logo"><i />EXAMGRIND</Link>
-      <button
-        type="button"
-        className="egallery-resume"
-        onClick={() => window.location.assign("/home")}
-      >
+      <Link href="/sign-in" className="egallery-resume">
         I already study here
-      </button>
+      </Link>
     </header>
 
     <section className="egallery-hero" aria-labelledby="egallery-title">
