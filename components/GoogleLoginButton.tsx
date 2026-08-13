@@ -32,8 +32,12 @@ export default function GoogleLoginButton({
     setLoading(true);
     try {
       const supabase = createClient();
-      const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+      // The authentication return URL must match the deployment the student
+      // is currently using. A build-time NEXT_PUBLIC_SITE_URL is production
+      // on every Vercel preview too, which sent preview reviewers back to the
+      // old live app after Google sign-in. The browser origin keeps production,
+      // preview, and local review flows on their own deployment.
+      const siteUrl = window.location.origin;
 
       // Pipe the exam slug through the OAuth round trip via the callback URL.
       // Supabase preserves our `redirectTo` query string verbatim, so by the
