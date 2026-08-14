@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { examGuideMeta, getStudyGuide, studyGuides } from "@/lib/study-guides";
+import { StudyGuideViewed } from "@/components/StudyHubTracking";
 
 type GuideProps = { params: { slug: string } };
 
@@ -22,6 +23,7 @@ export default function GuidePage({ params }: GuideProps) {
 
   return (
     <main className="min-h-[100svh] bg-cream-50 text-cocoa-900">
+      <StudyGuideViewed exam={guide.examSlug} guideSlug={guide.slug} />
       <header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-6 sm:px-8">
         <Link href={`/guides?exam=${guide.examSlug}`} className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">← {exam.label} guides</Link>
         <Link href="/" className="font-serif text-xl font-bold">ExamGrind</Link>

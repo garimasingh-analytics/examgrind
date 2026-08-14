@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { examGuideMeta, studyGuides } from "@/lib/study-guides";
+import { StudyHubViewed } from "@/components/StudyHubTracking";
 
 export const metadata: Metadata = {
   title: "Free study guides for SSC CGL, CUET & NEET · ExamGrind",
@@ -27,6 +28,7 @@ export default async function GuidesPage({ searchParams }: GuideHubProps) {
 
   return (
     <main className="min-h-[100svh] bg-warm-wash text-cocoa-900">
+      <StudyHubViewed surface="guides" examScope={selectedExam ?? "all"} />
       <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6 sm:px-8">
         <Link href="/" className="font-serif text-xl font-bold">ExamGrind</Link>
         <Link href={selectedExam ? examGuideMeta[selectedExam].diagnosisHref : "/"} className="rounded-full bg-cocoa-900 px-4 py-2 text-sm font-bold text-cream-50">{selectedExam ? `Try ${examGuideMeta[selectedExam].label} diagnosis →` : "Start a diagnosis →"}</Link>

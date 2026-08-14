@@ -45,6 +45,8 @@ export const ANALYTICS_EVENTS = {
   REPAIR_ROUND_COMPLETED: "repair_round_completed",
   REPAIR_PROOF_VIEWED: "repair_proof_viewed",
   RECOVERY_HISTORY_VIEWED: "recovery_history_viewed",
+  STUDY_HUB_VIEWED: "study_hub_viewed",
+  STUDY_GUIDE_VIEWED: "study_guide_viewed",
 } as const;
 
 declare global {
@@ -166,7 +168,7 @@ export const trackDiagnosisHandoffViewed = (params: {
 }) => track(ANALYTICS_EVENTS.DIAGNOSIS_HANDOFF_VIEWED, params);
 export const trackDiagnosisHandoffAction = (params: {
   exam: DiagnosisExam;
-  action: "follow_signal" | "choose_subject" | "dismiss";
+  action: "follow_signal" | "choose_subject" | "read_guide" | "dismiss";
 }) => track(ANALYTICS_EVENTS.DIAGNOSIS_HANDOFF_ACTION, params);
 export const trackRecoveryMapViewed = (params: {
   source: "quiz" | "mock";
@@ -188,3 +190,11 @@ export const trackRecoveryHistoryViewed = (params: {
   active_count: number;
   completed_count: number;
 }) => track(ANALYTICS_EVENTS.RECOVERY_HISTORY_VIEWED, params);
+export const trackStudyHubViewed = (params: {
+  surface: "guides" | "updates";
+  exam_scope: DiagnosisExam | "all";
+}) => track(ANALYTICS_EVENTS.STUDY_HUB_VIEWED, params);
+export const trackStudyGuideViewed = (params: {
+  exam: DiagnosisExam;
+  guide_slug: string;
+}) => track(ANALYTICS_EVENTS.STUDY_GUIDE_VIEWED, params);

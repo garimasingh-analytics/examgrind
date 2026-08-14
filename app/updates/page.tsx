@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { StudyHubViewed } from "@/components/StudyHubTracking";
 
 export const metadata: Metadata = {
   title: "Official exam updates desk · ExamGrind",
@@ -30,6 +31,7 @@ const officialDesks = [
 export default function UpdatesDeskPage() {
   return (
     <main className="min-h-[100svh] bg-warm-wash text-cocoa-900">
+      <StudyHubViewed surface="updates" examScope="all" />
       <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-6 sm:px-8">
         <Link href="/guides" className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">← Study Hub</Link>
         <Link href="/" className="font-serif text-xl font-bold">ExamGrind</Link>
