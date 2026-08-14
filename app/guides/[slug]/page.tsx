@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getStudyGuide, studyGuides } from "@/lib/study-guides";
+import { examGuideMeta, getStudyGuide, studyGuides } from "@/lib/study-guides";
 
 type GuideProps = { params: { slug: string } };
 
@@ -18,11 +18,12 @@ export function generateMetadata({ params }: GuideProps): Metadata {
 export default function GuidePage({ params }: GuideProps) {
   const guide = getStudyGuide(params.slug);
   if (!guide) notFound();
+  const exam = examGuideMeta[guide.examSlug];
 
   return (
     <main className="min-h-[100svh] bg-cream-50 text-cocoa-900">
       <header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-6 sm:px-8">
-        <Link href="/guides" className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">← Study guides</Link>
+        <Link href={`/guides?exam=${guide.examSlug}`} className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">← {exam.label} guides</Link>
         <Link href="/" className="font-serif text-xl font-bold">ExamGrind</Link>
       </header>
       <article className="mx-auto max-w-3xl px-5 pb-20 pt-8 sm:px-8 sm:pb-28 sm:pt-14">
@@ -44,8 +45,8 @@ export default function GuidePage({ params }: GuideProps) {
         <section className="mt-14 rounded-[2rem] bg-cocoa-900 p-7 text-cream-50 shadow-warm sm:p-9">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-sun-300">Keep this</p>
           <p className="mt-3 font-serif text-2xl leading-snug sm:text-3xl">{guide.takeaway}</p>
-          <p className="mt-5 text-sm leading-6 text-cream-50/75">When you are ready, use a focused SSC CGL diagnosis to turn your own attempts into the next specific repair.</p>
-          <Link href="/diagnose/ssc-cgl" className="mt-6 inline-flex rounded-full bg-sun-400 px-5 py-3 text-sm font-bold text-cocoa-900">Find my weak SSC topic →</Link>
+          <p className="mt-5 text-sm leading-6 text-cream-50/75">When you are ready, use a focused {exam.label} diagnosis to turn your own attempts into the next specific repair.</p>
+          <Link href={exam.diagnosisHref} className="mt-6 inline-flex rounded-full bg-sun-400 px-5 py-3 text-sm font-bold text-cocoa-900">Find my weak {exam.label} topic →</Link>
         </section>
       </article>
     </main>

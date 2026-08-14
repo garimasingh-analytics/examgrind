@@ -552,6 +552,9 @@ export default async function HomePage({ searchParams }: HomeProps) {
           <Link href="/coach" className="inline-flex items-center gap-1 rounded-full border border-cocoa-900/[.1] bg-cream-50 px-2.5 py-1.5 text-xs font-bold text-cocoa-900 shadow-warm transition hover:-translate-y-0.5" title="Open ExamGrind Coach">
             <span aria-hidden>🧠</span><span className="hidden sm:inline">Coach</span>
           </Link>
+          <Link href={`/guides?exam=${examSlug}`} className="inline-flex items-center gap-1 rounded-full border border-cocoa-900/[.1] bg-cream-50 px-2.5 py-1.5 text-xs font-bold text-cocoa-900 shadow-warm transition hover:-translate-y-0.5" title="Open your Study Hub">
+            <span aria-hidden>📚</span><span className="hidden sm:inline">Study Hub</span>
+          </Link>
         <Link href="/me" className="flex items-center gap-2 transition hover:opacity-90" title="View your profile">
           {/* Premium badge — paid users only. Free users see nothing here */}
           {/* (the Upgrade button lives elsewhere). Lives next to streak so   */}
@@ -709,6 +712,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
           <CompactTool href="/recovery" icon="↗" title="Recovery History" detail="See your repair proof." />
           <CompactTool href="/revision" icon="🧠" title="Smart Revision" detail={revisionDueTopics.length > 0 ? `${revisionDueTopics.length} due for recall.` : "Recall when it is due."} />
           <CompactTool href="/mock" icon="📝" title="Mock test" detail="Try full exam timing." />
+          <CompactTool href={`/guides?exam=${examSlug}`} icon="📚" title="Study Hub" detail="Guides and official updates." />
         </div>
         </div>
       </section>

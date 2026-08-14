@@ -76,6 +76,7 @@ export default function DiagnosisHandoffCard({ examSlug }: { examSlug: string })
             <div className="mt-4 flex flex-wrap gap-3">
               <Link href={`/subject/${handoff.subjectId}`} onClick={() => trackDiagnosisHandoffAction({ exam: handoff.exam as "cuet" | "ssc-cgl" | "neet-ug", action: "follow_signal" })} className="eg-press inline-flex rounded-2xl bg-cocoa-900 px-4 py-2.5 text-sm font-bold text-cream-50 shadow-warm hover:bg-cocoa-700">Follow this signal →</Link>
               <Link href="#subjects" onClick={() => dismiss("choose_subject")} className="inline-flex rounded-2xl border border-cocoa-900/15 bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 hover:bg-cream-100">I&apos;ll choose my subject</Link>
+              <Link href={`/guides?exam=${handoff.exam}`} onClick={() => dismiss()} className="inline-flex rounded-2xl border border-cocoa-900/15 bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 hover:bg-cream-100">Read my study guide</Link>
             </div>
           </div>
         </div>

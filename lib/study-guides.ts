@@ -1,5 +1,6 @@
 export type StudyGuide = {
   slug: string;
+  examSlug: "ssc-cgl" | "cuet" | "neet-ug";
   title: string;
   description: string;
   eyebrow: string;
@@ -12,6 +13,7 @@ export type StudyGuide = {
 export const studyGuides: StudyGuide[] = [
   {
     slug: "ssc-cgl-mock-test-analysis",
+    examSlug: "ssc-cgl",
     title: "How to analyse an SSC CGL mock test without wasting the next day",
     description: "A practical SSC CGL mock-analysis method: sort errors, choose one repair, and measure whether it worked.",
     eyebrow: "SSC CGL study guide",
@@ -53,6 +55,7 @@ export const studyGuides: StudyGuide[] = [
   },
   {
     slug: "four-kinds-of-wrong-answers-ssc-cgl",
+    examSlug: "ssc-cgl",
     title: "The 4 kinds of wrong answers in SSC CGL—and what to do about each",
     description: "Not every wrong answer needs more study. Learn the four SSC CGL error types and the correct repair for each.",
     eyebrow: "SSC CGL study guide",
@@ -92,6 +95,7 @@ export const studyGuides: StudyGuide[] = [
   },
   {
     slug: "ssc-cgl-revision-system",
+    examSlug: "ssc-cgl",
     title: "A simple SSC CGL revision system for people who forget what they studied",
     description: "Build a realistic SSC CGL revision loop that protects old topics while you continue learning new ones.",
     eyebrow: "SSC CGL study guide",
@@ -129,6 +133,7 @@ export const studyGuides: StudyGuide[] = [
   },
   {
     slug: "how-to-improve-ssc-cgl-maths-score",
+    examSlug: "ssc-cgl",
     title: "How to improve your SSC CGL Maths score without restarting the syllabus",
     description: "Find the question types that cost marks, choose a focused repair, and build speed without redoing everything.",
     eyebrow: "SSC CGL study guide",
@@ -166,6 +171,7 @@ export const studyGuides: StudyGuide[] = [
   },
   {
     slug: "ssc-cgl-attempt-strategy",
+    examSlug: "ssc-cgl",
     title: "SSC CGL attempt strategy: how to decide what to solve first",
     description: "A simple three-pass attempt method for protecting accuracy and avoiding time sinks in SSC CGL mocks.",
     eyebrow: "SSC CGL study guide",
@@ -199,6 +205,7 @@ export const studyGuides: StudyGuide[] = [
   },
   {
     slug: "ssc-cgl-accuracy-improvement",
+    examSlug: "ssc-cgl",
     title: "How to improve SSC CGL accuracy when you know the syllabus",
     description: "Find out why accuracy drops in mocks and build a process that turns familiar concepts into correct answers.",
     eyebrow: "SSC CGL study guide",
@@ -229,6 +236,7 @@ export const studyGuides: StudyGuide[] = [
   },
   {
     slug: "ssc-cgl-error-log-template",
+    examSlug: "ssc-cgl",
     title: "The SSC CGL error log that is actually worth maintaining",
     description: "A minimal error-log format that helps you repair recurring mistakes instead of collecting solutions you never revisit.",
     eyebrow: "SSC CGL study guide",
@@ -263,6 +271,7 @@ export const studyGuides: StudyGuide[] = [
   },
   {
     slug: "ssc-cgl-study-plan-that-you-can-follow",
+    examSlug: "ssc-cgl",
     title: "How to make an SSC CGL study plan you can follow for more than two days",
     description: "Build a realistic SSC CGL daily structure around learning, practice, mock analysis and revision.",
     eyebrow: "SSC CGL study guide",
@@ -292,8 +301,167 @@ export const studyGuides: StudyGuide[] = [
     ],
     takeaway: "A plan that is smaller but repeatable will beat a beautiful timetable you cannot return to.",
   },
+  {
+    slug: "cuet-ug-preparation-plan",
+    examSlug: "cuet",
+    title: "How to prepare for CUET UG without treating every subject the same",
+    description: "A practical way to balance domain subjects, language, and the General Test around your own CUET combination.",
+    eyebrow: "CUET UG study guide",
+    readTime: "6 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "Your CUET plan begins with your actual subject combination",
+        paragraphs: [
+          "CUET preparation becomes overwhelming when you follow a plan built for someone taking different subjects. List the papers you will actually sit, then give each one a role: a high-confidence paper to protect, a paper that needs coverage, and a paper that needs regular practice.",
+          "Do not split every day equally across every subject. Give more time to the paper where your accuracy is unstable, while keeping a short recall block for the papers you already know well.",
+        ],
+      },
+      {
+        heading: "Use NCERT as the base, then test retrieval",
+        paragraphs: [
+          "For domain subjects, reading a chapter is only the first step. Close the book and retrieve headings, definitions, diagrams, formulas, and exceptions. Then answer fresh questions to see whether the information is available under exam conditions.",
+          "When a question goes wrong, label the gap precisely: line missed, concept confused, application error, or rushed reading. That is more useful than reopening the entire chapter.",
+        ],
+      },
+      {
+        heading: "Make a weekly paper-level check",
+        paragraphs: [
+          "Once a week, do a short timed set for every active paper and compare accuracy with time taken. This stops one favourite subject from quietly consuming the week while another paper receives no evidence-based attention.",
+        ],
+      },
+    ],
+    takeaway: "A good CUET plan is built around your paper combination and your evidence—not a generic timetable for every aspirant.",
+  },
+  {
+    slug: "cuet-ug-mock-analysis",
+    examSlug: "cuet",
+    title: "How to analyse a CUET UG test and choose what to revise next",
+    description: "Turn a CUET practice attempt into a clear subject-wise repair plan instead of another long revision list.",
+    eyebrow: "CUET UG study guide",
+    readTime: "5 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "Separate the paper score from the reason behind it",
+        paragraphs: [
+          "A low score may come from an unfamiliar NCERT detail, a careless reading error, slow recall, or a weak question-selection decision. Those need different repairs. Start by marking the reason beside each incorrect or skipped question.",
+        ],
+      },
+      {
+        heading: "Choose one repair per paper",
+        paragraphs: [
+          "For each active CUET paper, select the one repeated weakness most likely to improve your next attempt. For example, revise one Biology NCERT table, practise two vocabulary patterns, or work through a General Test calculation method. A small repair is easier to retest than a chapter-wide promise.",
+        ],
+      },
+      {
+        heading: "Retest while the signal is still useful",
+        paragraphs: [
+          "Use five to ten unseen questions on the same subtopic within three days. If the weakness remains, return to the explanation. If it improves, schedule it for revision rather than continuing to drill it endlessly.",
+        ],
+      },
+    ],
+    takeaway: "A CUET test becomes useful when it tells you what to revise in each paper before the next one.",
+  },
+  {
+    slug: "neet-ug-ncert-study-system",
+    examSlug: "neet-ug",
+    title: "A NEET UG NCERT study system that goes beyond highlighting",
+    description: "Use active recall, question evidence, and small revision loops to turn NCERT reading into reliable NEET answers.",
+    eyebrow: "NEET UG study guide",
+    readTime: "7 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "Read for retrieval, not for a completed page count",
+        paragraphs: [
+          "NEET questions often depend on wording, relationships, diagrams, and exceptions. Reading an NCERT page until it feels familiar can create false confidence. Instead, pause after a small section and recall the key statement, process, or diagram without looking.",
+          "If recall is incomplete, reopen only the missing part. Then use a few questions to check whether you can recognise the idea in a new form.",
+        ],
+      },
+      {
+        heading: "Keep theory, questions, and revision connected",
+        paragraphs: [
+          "For a single topic, learn the core lines and relationships, solve a focused question set, log the exact misconception, and set a short revisit. That is much stronger than reading three chapters before you ever test yourself.",
+        ],
+      },
+      {
+        heading: "Use weak questions to decide the next NCERT revisit",
+        paragraphs: [
+          "When an answer goes wrong, name the smallest source to revisit: a definition, a labelled diagram, an exception, a formula condition, or a multi-step application. Do not restart the whole unit unless the evidence says the foundations are missing.",
+        ],
+      },
+    ],
+    takeaway: "NCERT becomes high-yield when each read is followed by retrieval, questions, and a planned revisit.",
+  },
+  {
+    slug: "neet-ug-mock-analysis",
+    examSlug: "neet-ug",
+    title: "How to analyse a NEET UG mock without drowning in solutions",
+    description: "A subject-wise method for separating concept gaps, recall gaps, time issues, and avoidable errors after a NEET mock.",
+    eyebrow: "NEET UG study guide",
+    readTime: "6 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "Start with patterns, not every explanation",
+        paragraphs: [
+          "Reading every solution straight after a mock takes hours and often changes nothing. First sort wrong and skipped questions by subject and reason: concept missing, NCERT line/detail missed, formula/application error, time pressure, or misread question.",
+        ],
+      },
+      {
+        heading: "Repair the recurring leak first",
+        paragraphs: [
+          "A repeated Biology detail gap may deserve an NCERT revisit. Repeated Physics errors may reveal one formula condition or representation problem. Repeated Chemistry misses may point to an exception or reaction family. Pick one repeated leak and create a small repair that can be tested this week.",
+        ],
+      },
+      {
+        heading: "Track time without making it the villain",
+        paragraphs: [
+          "A slow question is not always a weak concept. Ask whether the route was unknown, calculation was inefficient, or the question should have been left for a later pass. Better selection and better methods are different repairs.",
+        ],
+      },
+    ],
+    takeaway: "A NEET mock should leave you with a ranked repair list, not an intimidating pile of explanations.",
+  },
+  {
+    slug: "ssc-cgl-current-affairs-revision-system",
+    examSlug: "ssc-cgl",
+    title: "How to handle SSC CGL current affairs without letting it consume your day",
+    description: "A bounded current-affairs routine that protects Quant, Reasoning and English while keeping recall alive.",
+    eyebrow: "SSC CGL study guide",
+    readTime: "5 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "Current affairs needs a boundary",
+        paragraphs: [
+          "The problem is rarely that students do too little current affairs. It is that an open-ended news feed takes the time meant for practice and revision. Set a fixed source, a fixed window, and a fixed recall method before you begin.",
+        ],
+      },
+      {
+        heading: "Capture only what you can retrieve",
+        paragraphs: [
+          "Turn useful facts into small prompts: event → month, organisation → role, scheme → ministry, award → recipient. Review them in short spaced batches. A huge list read once does not become exam recall.",
+        ],
+      },
+      {
+        heading: "Keep checking official notices separately",
+        paragraphs: [
+          "Current affairs preparation and an exam notice are different jobs. Use the official SSC notice board for dates and documents; do not rely on a social post or an old coaching update for a deadline.",
+        ],
+      },
+    ],
+    takeaway: "Give current affairs a fixed, recall-based system so it supports your preparation instead of swallowing it.",
+  },
 ];
 
 export function getStudyGuide(slug: string) {
   return studyGuides.find((guide) => guide.slug === slug);
 }
+
+export const examGuideMeta = {
+  "ssc-cgl": { label: "SSC CGL", diagnosisHref: "/diagnose/ssc-cgl" },
+  cuet: { label: "CUET UG", diagnosisHref: "/diagnose/cuet" },
+  "neet-ug": { label: "NEET UG", diagnosisHref: "/diagnose/neet-ug" },
+} as const;
