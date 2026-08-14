@@ -164,6 +164,134 @@ export const studyGuides: StudyGuide[] = [
     ],
     takeaway: "Your next Maths gain is usually hidden in a repeated question type, not in an entire chapter you need to begin again.",
   },
+  {
+    slug: "ssc-cgl-attempt-strategy",
+    title: "SSC CGL attempt strategy: how to decide what to solve first",
+    description: "A simple three-pass attempt method for protecting accuracy and avoiding time sinks in SSC CGL mocks.",
+    eyebrow: "SSC CGL study guide",
+    readTime: "5 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "Your first pass is for certainty, not bravery",
+        paragraphs: [
+          "A common mock-test mistake is treating the paper as a queue: question one, then two, then three. That gives hard early questions too much power over the rest of your attempt. Instead, use the first pass to collect questions where the route is visible within a few seconds.",
+          "If you do not know how to start, mark it and move. If you know the method but calculation is long, mark it and move. A first pass should build score and calm before it asks for difficult decisions.",
+        ],
+      },
+      {
+        heading: "Use three clear passes",
+        paragraphs: ["A useful attempt strategy has room for both strong questions and recovery questions."],
+        bullets: [
+          "Pass one: direct, familiar questions. Protect accuracy and collect quick marks.",
+          "Pass two: questions with a known route but longer work. Set a time cap before you begin.",
+          "Pass three: marked questions only. Choose based on time left and the chance of a clean answer, not ego.",
+        ],
+      },
+      {
+        heading: "Review the questions you abandoned",
+        paragraphs: [
+          "An abandoned question is useful data. Did you leave it because the concept was missing, the question was wordy, or the method was slow? Review those labels after the mock. Over time, you will know whether your attempt strategy needs better selection or your preparation needs a concept repair.",
+        ],
+      },
+    ],
+    takeaway: "Attempt order is a score-management skill. Do the questions that are ready to become marks before wrestling with the rest.",
+  },
+  {
+    slug: "ssc-cgl-accuracy-improvement",
+    title: "How to improve SSC CGL accuracy when you know the syllabus",
+    description: "Find out why accuracy drops in mocks and build a process that turns familiar concepts into correct answers.",
+    eyebrow: "SSC CGL study guide",
+    readTime: "6 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "Knowing a chapter is not the same as answering its questions accurately",
+        paragraphs: [
+          "Accuracy usually falls at one of three points: interpreting the question, choosing the method, or checking the final answer. If you call every miss a careless mistake, you lose the information needed to improve.",
+          "For one week, write a six-word reason beside every incorrect answer. Examples: ‘missed the word except’, ‘percentage applied to wrong base’, or ‘rushed final subtraction’. Patterns become visible surprisingly fast.",
+        ],
+      },
+      {
+        heading: "Create a short checking routine",
+        paragraphs: [
+          "A checking routine must be small enough to use under pressure. For Quant, check the sign, unit, and approximate range. For English, return to the exact phrase that supports the option. For Reasoning, verify every condition before selecting the conclusion. For GA, do not turn a guess into a confident answer just because an option feels familiar.",
+        ],
+      },
+      {
+        heading: "Make accuracy practice different from speed practice",
+        paragraphs: [
+          "Once a week, solve a short set slowly and aim to explain every choice. On another day, run a timed set using the same concepts. Combining both goals in every session makes it hard to know whether the problem is understanding or pace.",
+        ],
+      },
+    ],
+    takeaway: "Accuracy improves when you identify the step that breaks—not when you simply promise yourself to be more careful.",
+  },
+  {
+    slug: "ssc-cgl-error-log-template",
+    title: "The SSC CGL error log that is actually worth maintaining",
+    description: "A minimal error-log format that helps you repair recurring mistakes instead of collecting solutions you never revisit.",
+    eyebrow: "SSC CGL study guide",
+    readTime: "5 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "An error log should help you decide tomorrow’s work",
+        paragraphs: [
+          "A giant notebook of copied questions looks productive but is difficult to use. Your log only needs enough detail to make the next repair obvious. If an entry does not lead to a follow-up question, revision, or retest, it can be removed.",
+        ],
+      },
+      {
+        heading: "Use five fields for every recurring error",
+        paragraphs: ["Keep each entry to one or two lines. The point is a usable record, not a second textbook."],
+        bullets: [
+          "Question type: for example, successive percentage change or syllogism conclusion.",
+          "Error type: concept, application, time, or reading/click mistake.",
+          "Exact trigger: the step at which your approach broke.",
+          "Repair: the smallest action that fixes that trigger.",
+          "Retest date: when you will meet fresh questions on the same type.",
+        ],
+      },
+      {
+        heading: "Review the log once a week, not all day",
+        paragraphs: [
+          "At the end of the week, circle errors that happened more than once. Those are your priority repairs. One-off odd questions can stay in the log without hijacking your plan. The score gain comes from removing recurring leaks.",
+        ],
+      },
+    ],
+    takeaway: "A good error log is short, specific, and always points toward a retest.",
+  },
+  {
+    slug: "ssc-cgl-study-plan-that-you-can-follow",
+    title: "How to make an SSC CGL study plan you can follow for more than two days",
+    description: "Build a realistic SSC CGL daily structure around learning, practice, mock analysis and revision.",
+    eyebrow: "SSC CGL study guide",
+    readTime: "6 min read",
+    publishedAt: "14 August 2026",
+    sections: [
+      {
+        heading: "A study plan is useful only when it survives an ordinary day",
+        paragraphs: [
+          "The perfect twelve-hour timetable usually fails because it assumes every day has perfect energy, no interruptions, and no difficult topic. A plan should instead protect the few actions that keep your preparation moving even on a messy day.",
+          "Start with your honest available time. Then give each block one job. Do not schedule ‘Quant’ for three hours; schedule a concept, a question set, or a repair.",
+        ],
+      },
+      {
+        heading: "Use the learn–practise–analyse–revise loop",
+        paragraphs: [
+          "Learning introduces a new idea. Practice checks whether you can use it. Analysis identifies what failed. Revision keeps old wins available. A balanced day touches at least two of these jobs; a balanced week touches all four.",
+          "For a three-hour day, one workable pattern is 75 minutes of new learning, 45 minutes of focused practice, 30 minutes of analysis, and 30 minutes of revision. Adjust the minutes, but keep the loop intact.",
+        ],
+      },
+      {
+        heading: "Keep one small fallback plan",
+        paragraphs: [
+          "On low-energy days, do a twenty-minute revision block or a five-question repair instead of abandoning the day. Consistency does not mean every day is equal. It means you have a smaller version of the plan that still protects momentum.",
+        ],
+      },
+    ],
+    takeaway: "A plan that is smaller but repeatable will beat a beautiful timetable you cannot return to.",
+  },
 ];
 
 export function getStudyGuide(slug: string) {
