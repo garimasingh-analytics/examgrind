@@ -26,6 +26,7 @@ export default function Footer() {
           <Link href="/privacy" className="hover:text-cocoa-900">Privacy</Link>
           <Link href="/refund" className="hover:text-cocoa-900">Refund</Link>
           <Link href="/contact" className="hover:text-cocoa-900">Contact</Link>
+          <Link href="/guides" className="hover:text-cocoa-900">Study Guides</Link>
           <CookieSettingsButton />
         </nav>
       </div>
