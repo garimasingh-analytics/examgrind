@@ -2,8 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { scopeQuizzesToActiveExam } from "@/lib/active-exam";
-import { ensureSubscriptionFreshness } from "@/lib/subscription";
-import AdSlot from "@/components/AdSlot";
 import MistakeBook, { type Mistake } from "./MistakeBook";
 
 export const dynamic = "force-dynamic";
@@ -32,13 +30,6 @@ export default async function MistakesPage() {
   const supabase = createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
-  const { data: profile } = await supabase
-    .from("users")
-    .select("subscription_status, paid_until")
-    .eq("id", user.id)
-    .maybeSingle<{ subscription_status: "free" | "trial" | "paid"; paid_until: string | null }>();
-  const liveStatus = await ensureSubscriptionFreshness(user.id, profile?.subscription_status ?? "free", profile?.paid_until ?? null);
-
   const { data: quizzesRaw } = await supabase
     .from("quizzes")
     .select("id, subject, subtopic, topic_id")
@@ -104,7 +95,6 @@ export default async function MistakesPage() {
       <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
         <MistakeBook mistakes={mistakes} />
       </section>
-      {liveStatus !== "paid" && <AdSlot />}
     </main>
   );
 }

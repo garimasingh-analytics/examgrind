@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { ensureSubscriptionFreshness } from "@/lib/subscription";
-import AdSlot from "@/components/AdSlot";
 
 export const dynamic = "force-dynamic";
 
@@ -49,10 +47,9 @@ export default async function RevisionPage() {
 
   const { data: profile } = await supabase
     .from("users")
-    .select("exam_choice, subscription_status, paid_until")
+    .select("exam_choice")
     .eq("id", user.id)
-    .maybeSingle<{ exam_choice: string | null; subscription_status: "free" | "trial" | "paid"; paid_until: string | null }>();
-  const liveStatus = await ensureSubscriptionFreshness(user.id, profile?.subscription_status ?? "free", profile?.paid_until ?? null);
+    .maybeSingle<{ exam_choice: string | null }>();
   const { data: exam } = await supabase
     .from("exams")
     .select("id, name")
@@ -147,7 +144,6 @@ export default async function RevisionPage() {
           </div>
         )}
       </section>
-      {liveStatus !== "paid" && <AdSlot />}
     </main>
   );
 }

@@ -2,8 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { scopeQuizzesToActiveExam } from "@/lib/active-exam";
-import { ensureSubscriptionFreshness } from "@/lib/subscription";
-import AdSlot from "@/components/AdSlot";
 import RecoveryHistoryViewed from "@/components/RecoveryHistoryViewed";
 
 export const dynamic = "force-dynamic";
@@ -54,21 +52,13 @@ export default async function RecoveryPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  const [{ data: profile }, { data: cyclesRaw }] = await Promise.all([
-    supabase
-      .from("users")
-      .select("exam_choice, subscription_status, paid_until")
-      .eq("id", user.id)
-      .maybeSingle<{ exam_choice: string | null; subscription_status: "free" | "trial" | "paid"; paid_until: string | null }>(),
-    supabase
-      .from("repair_cycles")
-      .select("id, source_quiz_id, repair_quiz_id, concept, severity, status, repair_correct, repair_total, completed_at, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(100),
-  ]);
+  const { data: cyclesRaw } = await supabase
+    .from("repair_cycles")
+    .select("id, source_quiz_id, repair_quiz_id, concept, severity, status, repair_correct, repair_total, completed_at, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(100);
 
-  const liveStatus = await ensureSubscriptionFreshness(user.id, profile?.subscription_status ?? "free", profile?.paid_until ?? null);
   const allCycles = (cyclesRaw ?? []) as RepairCycle[];
   const sourceQuizIds = Array.from(new Set(allCycles.map((cycle) => cycle.source_quiz_id)));
   const { data: sourceQuizzesRaw } = sourceQuizIds.length > 0
@@ -207,7 +197,6 @@ export default async function RecoveryPage() {
         </section>
       )}
 
-      {liveStatus !== "paid" && <AdSlot />}
     </main>
   );
 }

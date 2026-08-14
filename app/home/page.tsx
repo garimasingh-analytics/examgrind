@@ -7,7 +7,6 @@ import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
 import DailyMissionCard, { type MissionStep } from "@/components/DailyMissionCard";
 import DiagnosisHandoffCard from "@/components/DiagnosisHandoffCard";
-import AdSlot from "@/components/AdSlot";
 import StudyPlanSetup from "@/components/StudyPlanSetup";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { isAdminEmail } from "@/lib/admin-auth";
@@ -660,11 +659,6 @@ export default async function HomePage({ searchParams }: HomeProps) {
       <DiagnosisHandoffCard examSlug={examSlug} />
 
       {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} firstName={firstName} examName={examRow?.name ?? "Your selected exam"} daysLeft={hasStudyProfile ? examDaysLeft : null} todayProof={`${todayQuestions.length} questions${todayQuestions.length > 0 ? ` · ${todayAccuracy}% · ${todayMinutes} min` : " · ready when you are"}`} readinessProof={`${readiness}% · ${attemptedTopicCount}/${totalTopics} topics started`} />}
-
-      {/* Premium is a genuinely focused, ad-free study experience. The
-          AdSense tag lives inside AdSlot, so omitting this component also
-          prevents an Offerwall from being eligible on a paid user's Home. */}
-      {!isPaid && <AdSlot />}
 
       {/* The syllabus is the next page of the student's daily issue. */}
       <section id="subjects" className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
