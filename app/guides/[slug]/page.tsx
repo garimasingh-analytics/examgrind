@@ -44,6 +44,22 @@ export default function GuidePage({ params }: GuideProps) {
             </section>
           ))}
         </div>
+        {guide.sourceLinks && guide.sourceLinks.length > 0 && (
+          <section className="mt-12 rounded-[2rem] border border-cocoa-900/[0.08] bg-warm-wash p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-700">Official source desk</p>
+            <h2 className="mt-3 font-serif text-3xl font-semibold leading-tight">Check the source before you plan around it.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-cocoa-700">ExamGrind turns official information into a practical plan, but the issuing body remains the source of truth for current rules, dates, eligibility and subject requirements.</p>
+            <ul className="mt-5 space-y-3">
+              {guide.sourceLinks.map((source) => (
+                <li key={source.href}>
+                  <a href={source.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-bold text-ember-700 underline decoration-ember-500/40 underline-offset-4 transition hover:text-cocoa-900">
+                    {source.label} <span aria-hidden>↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <section className="mt-14 rounded-[2rem] bg-cocoa-900 p-7 text-cream-50 shadow-warm sm:p-9">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-sun-300">Keep this</p>
           <p className="mt-3 font-serif text-2xl leading-snug sm:text-3xl">{guide.takeaway}</p>

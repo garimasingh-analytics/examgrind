@@ -8,6 +8,7 @@ export type StudyGuide = {
   publishedAt: string;
   sections: Array<{ heading: string; paragraphs: string[]; bullets?: string[] }>;
   takeaway: string;
+  sourceLinks?: Array<{ label: string; href: string }>;
 };
 
 export const studyGuides: StudyGuide[] = [
@@ -453,6 +454,160 @@ export const studyGuides: StudyGuide[] = [
       },
     ],
     takeaway: "Give current affairs a fixed, recall-based system so it supports your preparation instead of swallowing it.",
+  },
+  {
+    slug: "ssc-cgl-syllabus-exam-pattern-and-common-mistakes",
+    examSlug: "ssc-cgl",
+    title: "SSC CGL syllabus, Tier-I pattern and the mistakes that cost marks",
+    description: "A clear, official-source starting point for SSC CGL Tier-I: what the paper tests, how to use the syllabus, and the avoidable preparation errors to fix early.",
+    eyebrow: "SSC CGL study guide",
+    readTime: "8 min read",
+    publishedAt: "17 August 2026",
+    sections: [
+      {
+        heading: "Start with the paper you are actually going to sit",
+        paragraphs: [
+          "For the current SSC CGL notice, Tier-I is a computer-based, objective multiple-choice paper with four equal parts: General Intelligence and Reasoning, General Awareness, Quantitative Aptitude, and English Comprehension. Each part has 25 questions for 50 marks; the standard duration is one hour with a 15-minute sectional timer for each subject.",
+          "That structure changes the way you prepare. You are not building one giant ‘SSC CGL’ subject. You are building four separate score systems, each with its own accuracy, timing and revision needs.",
+        ],
+        bullets: [
+          "100 questions · 200 marks in Tier-I.",
+          "25 questions · 50 marks in each of the four subjects.",
+          "0.50 marks are deducted for each wrong Tier-I answer.",
+          "Questions are bilingual except English Comprehension. Always check the newest official notice before your own attempt.",
+        ],
+      },
+      {
+        heading: "Use the official syllabus as a coverage map, not a daily checklist",
+        paragraphs: [
+          "The official Tier-I syllabus names a broad range of Reasoning areas such as analogies, classifications, series, coding-decoding, syllogisms, space visualisation and decision-making. General Awareness covers current events and everyday scientific and social awareness. Quant and English need the same treatment: break the official headings into small, testable question types instead of writing ‘finish Maths’ in a timetable.",
+          "A usable unit is ‘successive percentage change: 10 fresh questions’ or ‘syllogism conclusions: 15 minutes + 5 questions.’ Small units make it possible to tell whether you learned, practised and retained something.",
+        ],
+      },
+      {
+        heading: "The four preparation mistakes worth catching early",
+        paragraphs: [
+          "These are preparation mistakes, not official SSC rules. They are the failure patterns that make a full syllabus feel complete while mock scores stay flat.",
+        ],
+        bullets: [
+          "Treating all four subjects equally even when one repeatedly loses accuracy or time.",
+          "Doing full mocks without classifying errors as concept, application, time, or reading/click errors.",
+          "Ignoring the sectional timer until the final month.",
+          "Continuing to guess under negative marking instead of using a first-pass / return-pass attempt rule.",
+        ],
+      },
+      {
+        heading: "A better first week",
+        paragraphs: [
+          "Take one short baseline attempt in each active subject. Do not use the score to label yourself weak or strong. Use it to find one priority: the subject where either accuracy is unstable or the timer creates the most damage. Learn one small concept, practise it, log the exact error, and retest it within three days.",
+          "That loop is more valuable than copying a twelve-hour timetable because it gives every study session a reason to exist.",
+        ],
+      },
+    ],
+    takeaway: "The official syllabus tells you what can appear. Your attempts tell you what deserves today’s study time.",
+    sourceLinks: [
+      { label: "SSC CGL notice: scheme of Tier-I and indicative syllabus", href: "https://ssc.gov.in/api/attachment/uploads/masterData/NoticeBoards/Notice_of_adv_cgl_2025.pdf?mode=light" },
+      { label: "SSC official candidate resources", href: "https://ssc.gov.in/for-candidates" },
+    ],
+  },
+  {
+    slug: "cuet-ug-syllabus-exam-pattern-and-common-mistakes",
+    examSlug: "cuet",
+    title: "CUET UG syllabus, subject choices and the preparation mistakes to avoid",
+    description: "Build your CUET plan around your university course requirements, official subject choices and the few mistakes that make preparation unnecessarily broad.",
+    eyebrow: "CUET UG study guide",
+    readTime: "7 min read",
+    publishedAt: "17 August 2026",
+    sections: [
+      {
+        heading: "CUET is not one fixed paper for every student",
+        paragraphs: [
+          "The 2026 CUET UG framework offered 37 choices: 13 languages, 23 domain subjects and one General Aptitude Test. Candidates could choose up to five subjects, but the correct combination depends on the eligibility requirements of the universities and programmes they want—not on a generic online timetable.",
+          "Before you make a plan, write down your target courses and universities. Then confirm exactly which language, domain subjects and General Aptitude Test they require or accept. That one step protects you from preparing a paper you do not need while missing one you do.",
+        ],
+        bullets: [
+          "Up to five subject choices in the 2026 framework.",
+          "13 language options, 23 domain subjects and one General Aptitude Test in 2026.",
+          "CUET is computer-based; the official bulletin and university programme page are the source of truth for your combination and current rules.",
+        ],
+      },
+      {
+        heading: "Turn the official subject specification into a realistic plan",
+        paragraphs: [
+          "Open the current official syllabus for each chosen paper and divide it into units. For domain subjects, use your board/NCERT foundations where the official specification points there, then test recall with questions. For language and General Aptitude Test, separate skills: vocabulary or comprehension, numerical reasoning, logical reasoning and current/general awareness.",
+          "Do not give every paper identical time. Protect your reliable paper with short recall; give the unstable paper the longer learning and practice block.",
+        ],
+      },
+      {
+        heading: "Common CUET planning mistakes",
+        paragraphs: ["These are practical preparation warnings, not official NTA findings."],
+        bullets: [
+          "Choosing papers from a social-media list before checking course eligibility on the university website.",
+          "Preparing every domain paper at the same depth rather than following the subject combination you will actually sit.",
+          "Reading NCERT or notes passively without using short recall checks and fresh questions.",
+          "Treating the General Aptitude Test as an optional last-week add-on when it is required for a target course.",
+        ],
+      },
+      {
+        heading: "Your next useful action",
+        paragraphs: [
+          "Choose your actual papers first. Then take a small subject-wise diagnostic and give each paper one clear next action: one concept to learn, one question set to practise, or one weak idea to revisit. A CUET plan should feel like a route for your combination, not a giant checklist for every aspirant.",
+        ],
+      },
+    ],
+    takeaway: "The right CUET plan begins with your course requirements—not with somebody else’s subject combination.",
+    sourceLinks: [
+      { label: "CUET UG 2026 information bulletin", href: "https://cuet.nta.nic.in/information-bulletin/" },
+      { label: "CUET UG 2026 official syllabus", href: "https://cuet.nta.nic.in/cuetug-2026-syllabus/" },
+      { label: "CUET participating universities", href: "https://cuet.nta.nic.in/participating-universities/" },
+    ],
+  },
+  {
+    slug: "neet-ug-syllabus-exam-pattern-and-common-mistakes",
+    examSlug: "neet-ug",
+    title: "NEET UG syllabus, paper format and the preparation mistakes to stop repeating",
+    description: "Use the official NEET 2026 syllabus and bulletin as your base, then build a learn–recall–practice–retest system that actually exposes weak areas.",
+    eyebrow: "NEET UG study guide",
+    readTime: "8 min read",
+    publishedAt: "17 August 2026",
+    sections: [
+      {
+        heading: "Build from the official syllabus, not a random chapter list",
+        paragraphs: [
+          "NTA publishes the current NEET UG syllabus officially. The 2026 syllabus begins Physics with units such as Physics and Measurement, Kinematics and Laws of Motion, and continues through the full prescribed Physics, Chemistry and Biology scope. Use that official document to check coverage; do not assume an older PDF or a coaching checklist is current.",
+          "For the 2026 exam, NTA announced an offline pen-and-paper examination from 2:00 PM to 5:00 PM IST. Exact current-year scheme, instructions and eligibility should always be checked in the official information bulletin before an exam-day decision.",
+        ],
+      },
+      {
+        heading: "Learn each topic in a full cycle",
+        paragraphs: [
+          "Reading a chapter until it feels familiar is not proof that you can answer a NEET question. Use a four-part cycle: learn the idea, recall it without looking, solve a small focused set, then return after a gap with unseen questions. Your next study action should come from the error you actually made—not from panic about the whole chapter.",
+          "For Biology, make diagrams, relationships and exceptions retrievable. For Physics, name the condition under which each formula works. For Chemistry, separate definitions, mechanisms, reactions and exceptions so an error points to a small repair.",
+        ],
+      },
+      {
+        heading: "Common preparation mistakes",
+        paragraphs: ["These are learning-process mistakes, not official NTA findings."],
+        bullets: [
+          "Finishing chapters by page count without testing recall or application.",
+          "Calling every incorrect answer a careless mistake instead of identifying the missed line, formula condition, representation or exception.",
+          "Using a full mock as the only form of practice and never retesting one weak subtopic.",
+          "Treating diagrams and labelled relationships as decoration rather than exam-ready recall material.",
+        ],
+      },
+      {
+        heading: "Use your next mock as a map",
+        paragraphs: [
+          "After a test, mark whether each loss came from a concept gap, recall gap, application error, time decision or reading error. Pick one repeated leak, study the smallest source that fixes it, then use fresh questions to prove improvement. This turns a score into a study plan rather than an emotional verdict.",
+        ],
+      },
+    ],
+    takeaway: "NEET preparation becomes manageable when each chapter ends in recall, questions and a planned retest—not just completed notes.",
+    sourceLinks: [
+      { label: "NEET UG 2026 information bulletin", href: "https://neet.nta.nic.in/admission-bulletin/" },
+      { label: "Official NEET UG 2026 syllabus", href: "https://nta.ac.in/Download/Notice/Notice_20260108180635.pdf" },
+      { label: "NEET official notices and documents", href: "https://neet.nta.nic.in/documents/" },
+    ],
   },
 ];
 
