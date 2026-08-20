@@ -5,7 +5,7 @@ import { useMemo, useState, useTransition } from "react";
 import CourseCanvas from "./CourseCanvas";
 
 type LearnTopic = { id: string; name: string; chapterName: string; subjectName: string; practiceTopicId?: string };
-type LessonStep = { title: string; explanation: string; visualLabel: string };
+type LessonStep = { title: string; explanation: string; example: string; visualLabel: string };
 type LessonVisual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
 type VisualAsset = { id: string; src: string; alt: string; title: string; sourceLabel: string; sourceUrl: string; licenceLabel: string; licenceUrl: string; attribution: string };
 type CoachLesson = {
