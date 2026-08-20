@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import CourseCanvas from "./CourseCanvas";
 
-type LearnTopic = { id: string; name: string; chapterName: string; subjectName: string; practiceTopicId?: string };
+type LearnTopic = { id: string; name: string; chapterName: string; subjectName: string; practiceTopicId?: string; practiceFocus?: string };
 type LessonStep = { title: string; explanation: string; example: string; visualLabel: string };
 type LessonVisual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
 type VisualAsset = { id: string; src: string; alt: string; title: string; sourceLabel: string; sourceUrl: string; licenceLabel: string; licenceUrl: string; attribution: string };
@@ -55,7 +55,7 @@ export default function CoachLearningStudio({ topics, priorityTopicIds }: { topi
       <p className="text-xs font-bold uppercase tracking-[.18em] text-sun-300">Coach lesson studio</p>
       <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div><h2 className="font-serif text-3xl font-bold leading-tight">Learn it. Check it. Prove it.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-cream-100/85">Learn a full syllabus topic like a proper lesson—or ask Coach about one exact concept. Both end in practice that fits what you just learned.</p></div>
-        {lessonTopic?.practiceTopicId && <Link href={`/topic/${lessonTopic.practiceTopicId}`} className="shrink-0 rounded-xl bg-sun-400 px-4 py-3 text-sm font-extrabold text-cocoa-900 transition hover:bg-sun-300">Practice {lessonTopic.name} →</Link>}
+        {lessonTopic?.practiceTopicId && <Link href={`/topic/${lessonTopic.practiceTopicId}${lessonTopic.practiceFocus ? `?focus=${encodeURIComponent(lessonTopic.practiceFocus)}` : ""}`} className="shrink-0 rounded-xl bg-sun-400 px-4 py-3 text-sm font-extrabold text-cocoa-900 transition hover:bg-sun-300">Practice {lessonTopic.name} →</Link>}
       </div>
 
       <div className="mt-6 rounded-2xl border border-sun-300/35 bg-sun-400/[.09] p-4">

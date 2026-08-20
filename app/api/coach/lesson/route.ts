@@ -254,7 +254,7 @@ export async function POST(request: NextRequest) {
       }
     }
     const lessonTopic = directTopic
-      ? { id: topic?.id ?? "", name: directTopic, chapterName: topic?.chapter?.name ?? "Independent Coach lesson", subjectName: subject?.name ?? exam.name, practiceTopicId: topic?.id }
+      ? { id: topic?.id ?? "", name: directTopic, chapterName: topic?.chapter?.name ?? "Independent Coach lesson", subjectName: subject?.name ?? exam.name, practiceTopicId: topic?.id, practiceFocus: topic?.id ? directTopic : undefined }
       : { id: topic!.id, name: topic!.name, chapterName: topic!.chapter?.name, subjectName: subject!.name, practiceTopicId: topic!.id };
     const curatedVisual = findCoachVisualAsset(directTopic, topic?.name, topic?.chapter?.name, topic?.description);
     // The hand-picked library remains the first choice. For any other exact

@@ -8,10 +8,12 @@ import type { Topic, Chapter, Subject, UserTopicMastery } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-type Params = { params: Promise<{ id: string }> };
+type Params = { params: Promise<{ id: string }>; searchParams: Promise<{ focus?: string | string[] }> };
 
-export default async function TopicLauncherPage({ params }: Params) {
+export default async function TopicLauncherPage({ params, searchParams }: Params) {
   const { id } = await params;
+  const query = await searchParams;
+  const requestedFocus = typeof query.focus === "string" ? query.focus.trim().slice(0, 120) : "";
   const supabase = createServerSupabase();
 
   const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -106,6 +108,7 @@ export default async function TopicLauncherPage({ params }: Params) {
             topicId={topic.id}
             freeQuizzesLeft={freeQuizzesLeft}
             isPaid={isPaid}
+            conceptFocus={requestedFocus || undefined}
           />
         </div>
       </section>

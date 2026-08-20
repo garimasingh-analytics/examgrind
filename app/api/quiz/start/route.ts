@@ -60,6 +60,9 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+  if (conceptFocus !== undefined && (typeof conceptFocus !== "string" || conceptFocus.trim().length === 0 || conceptFocus.length > 120)) {
+    return NextResponse.json({ error: "Invalid concept focus." }, { status: 400 });
+  }
   if (repair) {
     const validRepair =
       typeof repair.sourceQuizId === "string" &&
@@ -161,8 +164,9 @@ export async function POST(req: NextRequest) {
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const focusLine = conceptFocus
-    ? `\n\nDRILL FOCUS — every question must test this specific concept: "${conceptFocus}". Bias toward medium-hard difficulty so the student has to actually work through it.`
+  const normalizedFocus = conceptFocus?.trim();
+  const focusLine = normalizedFocus
+    ? `\n\nDRILL FOCUS — every question must test this specific concept: "${normalizedFocus}". Bias toward medium-hard difficulty so the student has to actually work through it.`
     : "";
 
   // Exam-specific framing. Each block tells Claude (a) who the aspirant is,

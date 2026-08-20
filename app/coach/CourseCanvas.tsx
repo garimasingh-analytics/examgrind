@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { HEART_VISUAL_ASSET } from "@/lib/coach-visual-assets";
 
-type Topic = { id: string; name: string; chapterName: string; subjectName: string; practiceTopicId?: string };
+type Topic = { id: string; name: string; chapterName: string; subjectName: string; practiceTopicId?: string; practiceFocus?: string };
 type Step = { title: string; explanation: string; example: string; visualLabel: string };
 type Visual = { kind: "flow" | "formula" | "comparison" | "cycle"; caption: string; nodes: string[] };
 type VisualAsset = {
@@ -87,7 +87,7 @@ function StandardCourseCanvas({ lesson, topic, visualAsset }: { lesson: Lesson; 
       {answered && <p className={`course-canvas-answer ${correct ? "is-correct" : "is-wrong"}`}><b>{correct ? "That’s it." : "Look at the distinction again."}</b> {lesson.checkpoint.explanation}</p>}
     </section>
 
-    <footer className="course-canvas-footer"><div><p>{topic.practiceTopicId ? "Next, prove it with questions." : "Keep this explanation for your next revision."}</p><span>{topic.practiceTopicId ? "Coach matched this concept to a syllabus topic for practice." : "Coach can teach this exact concept without forcing it into a dropdown topic."}</span></div>{topic.practiceTopicId && <Link href={`/topic/${topic.practiceTopicId}`}>Practise {topic.name} →</Link>}</footer>
+    <footer className="course-canvas-footer"><div><p>{topic.practiceTopicId ? "Next, prove it with questions." : "Keep this explanation for your next revision."}</p><span>{topic.practiceTopicId ? topic.practiceFocus ? "These questions stay on the exact concept you asked Coach to teach." : "Coach matched this topic to its syllabus practice route." : "Coach can teach this exact concept without forcing it into a dropdown topic."}</span></div>{topic.practiceTopicId && <Link href={`/topic/${topic.practiceTopicId}${topic.practiceFocus ? `?focus=${encodeURIComponent(topic.practiceFocus)}` : ""}`}>Practise {topic.name} →</Link>}</footer>
   </article>;
 }
 
@@ -106,7 +106,7 @@ function HeartLessonPilot({ lesson, topic, visualAsset }: { lesson: Lesson; topi
   const [focus, setFocus] = useState(0);
   const [recallAnswer, setRecallAnswer] = useState<number | null>(null);
   const recallCorrect = recallAnswer === 1;
-  const practiceHref = topic.practiceTopicId ? `/topic/${topic.practiceTopicId}` : "/mock";
+  const practiceHref = topic.practiceTopicId ? `/topic/${topic.practiceTopicId}${topic.practiceFocus ? `?focus=${encodeURIComponent(topic.practiceFocus)}` : ""}` : "/mock";
 
   return <article className="heart-lesson eg-page-enter mt-5 overflow-hidden rounded-[2rem] border border-cocoa-900/[.12] bg-[#fffaf0] shadow-warm-lg">
     <header className="bg-cocoa-900 px-5 py-6 text-cream-50 sm:px-8">

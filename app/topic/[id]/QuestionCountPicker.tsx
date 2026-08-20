@@ -11,6 +11,8 @@ type Props = {
   freeQuizzesLeft: number;
   /** Whether the user is on a paid plan (skips all gating). */
   isPaid: boolean;
+  /** A Coach lesson can narrow a parent-topic quiz to one exact concept. */
+  conceptFocus?: string;
 };
 
 const MIN = 5;
@@ -30,6 +32,7 @@ export default function QuestionCountPicker({
   topicId,
   freeQuizzesLeft,
   isPaid,
+  conceptFocus,
 }: Props) {
   const [count, setCount] = useState(DEFAULT);
   const [pending, startTransition] = useTransition();
@@ -70,7 +73,7 @@ export default function QuestionCountPicker({
         const res = await fetch("/api/quiz/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topicId, questionCount: count }),
+          body: JSON.stringify({ topicId, questionCount: count, conceptFocus }),
         });
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
@@ -142,9 +145,9 @@ export default function QuestionCountPicker({
 
     <div className="quiz-builder">
       <p className="quiz-builder-kicker eg-kicker text-ember-700">
-        Your practice round
+        {conceptFocus ? "Focused Coach practice" : "Your practice round"}
       </p>
-      <p className="quiz-builder-intro">Short enough to begin now. Long enough to show you a real pattern.</p>
+      <p className="quiz-builder-intro">{conceptFocus ? <>Every question will stay on <strong>{conceptFocus}</strong>—the exact idea you just learned.</> : "Short enough to begin now. Long enough to show you a real pattern."}</p>
 
       <div className="quiz-builder-counter mt-5 flex items-center justify-center gap-4">
         <button
