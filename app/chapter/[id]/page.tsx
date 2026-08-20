@@ -126,7 +126,7 @@ export default async function ChapterPage({ params }: Params) {
           <div className="chapter-atlas-head"><p className="eg-kicker">Your route</p><p>One open page at a time</p></div>
           <ol className="topic-atlas relative">
             {enriched.map((t, i) => (
-              <PathNode key={t.id} topic={t} index={i} total={enriched.length} />
+              <PathNode key={t.id} topic={t} index={i} />
             ))}
           </ol>
         </section>
@@ -145,145 +145,37 @@ export default async function ChapterPage({ params }: Params) {
 }
 
 /**
- * One node on the Duolingo-style winding path.
- * Alternates left/right so it reads as a meandering trail.
- *
- * Mastery rendering:
- *   - the main circle's color graduates from sun (apprentice) →
- *     ember (adept) → gold (master) so the path itself shows progress
- *   - stars below the topic name give a 4-step mastery progress bar
- *   - master tier adds a subtle pulsing golden glow ring + ✨
+ * A sequential chapter list. The earlier winding trail let decorative lines
+ * collide with the lock marker on smaller screens, so this prioritises a
+ * legible action, status, and topic name over ornamental navigation.
  */
 function PathNode({
   topic,
   index,
-  total,
 }: {
   topic: TopicWithMastery;
   index: number;
-  total: number;
 }) {
-  const isLast = index === total - 1;
-
-  // Map cumulative mastery → completed-circle styling.
-  const masteredStyle =
-    topic.mastery_level === "master"
-      ? "bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 ring-sun-400/60"
-    : topic.mastery_level === "adept"
-      ? "bg-ember-500 ring-ember-400/40"
-    : "bg-sun-500 ring-sun-400/40"; // apprentice / novice with completed status
-
-  const circleClass =
-    topic.status === "completed"
-      ? masteredStyle
+  const state = topic.status === "completed" ? "Completed" : topic.status === "available" ? "Ready now" : "Unlock next";
+  const markerClass = topic.status === "completed"
+    ? "bg-moss-500 text-cream-50"
     : topic.status === "available"
-      ? "bg-ember-600 ring-ember-500/30 hover:scale-105"
-    : "bg-cream-200 ring-cream-300/50";
+      ? "bg-ember-500 text-cream-50"
+      : "bg-cream-200 text-cocoa-500";
+  const cardClass = topic.status === "completed"
+    ? "border-moss-500/25 bg-moss-500/[.08]"
+    : topic.status === "available"
+      ? "border-ember-500/30 bg-cream-50 shadow-warm transition hover:-translate-y-0.5 hover:shadow-warm-lg"
+      : "border-cocoa-900/[.09] bg-cream-100/60 opacity-75";
+  const card = <div className={`flex min-h-24 items-center gap-3 rounded-2xl border p-3.5 sm:p-4 ${cardClass}`}>
+    <span className={`grid size-11 shrink-0 place-items-center rounded-xl font-mono text-xs font-black shadow-sm ${markerClass}`}>
+      {topic.status === "completed" ? "✓" : topic.status === "available" ? String(index + 1).padStart(2, "0") : <svg viewBox="0 0 24 24" className="size-5" fill="none" aria-label="Locked"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" strokeWidth="2" /></svg>}
+    </span>
+    <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="font-mono text-[10px] font-extrabold uppercase tracking-[.12em] text-cocoa-500">Topic {index + 1} · {state}</p>{topic.mastery_level === "master" && <span className="text-xs" aria-label="Mastered">✦</span>}</div><h2 className={`mt-1 font-serif text-xl font-bold leading-tight ${topic.status === "locked" ? "text-cocoa-600" : "text-cocoa-900"}`}>{topic.name}</h2>{topic.questions_attempted > 0 ? <div className="mt-2 flex items-center gap-2"><MasteryStars level={topic.mastery_level} /><span className="text-xs font-semibold text-cocoa-600">Best {Math.round(topic.accuracy * 100)}%</span></div> : <p className="mt-1 text-xs text-cocoa-600">{topic.status === "available" ? "Open this topic to build your first signal." : "Complete the topic above to continue."}</p>}</div>
+    {topic.status !== "locked" && <span className="text-xl font-black text-ember-600" aria-hidden="true">→</span>}
+  </div>;
 
-  const Inner = (
-    <div className="flex flex-col items-center gap-2">
-      <div
-        className={[
-          "relative flex size-20 items-center justify-center rounded-full shadow-warm-lg ring-4 transition",
-          circleClass,
-        ].join(" ")}
-      >
-        {topic.status === "completed" ? (
-          topic.mastery_level === "master" ? (
-            // Crown for master tier
-            <svg viewBox="0 0 24 24" className="size-10" fill="none">
-              <path
-                d="M3 8l4 4 5-8 5 8 4-4-2 11H5L3 8z"
-                fill="#FFFDF6"
-                stroke="#1F1A14"
-                strokeWidth="1.5"
-                strokeLinejoin="round"
-              />
-              <circle cx="12" cy="15" r="1.5" fill="#1F1A14" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" className="size-9" fill="none">
-              <path
-                d="M5 13l4 4L19 7"
-                stroke="#1F1A14"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          )
-        ) : topic.status === "available" ? (
-          <span className="font-serif text-2xl font-bold text-cream-50">
-            {index + 1}
-          </span>
-        ) : (
-          <svg viewBox="0 0 24 24" className="size-7 text-cocoa-500" fill="none">
-            <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="2" />
-            <path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" strokeWidth="2" />
-          </svg>
-        )}
-
-        {/* Pulsing rings */}
-        {topic.status === "available" && (
-          <span className="absolute -inset-1 -z-10 animate-ping rounded-full bg-ember-500 opacity-25" />
-        )}
-        {topic.mastery_level === "master" && (
-          <span className="absolute -inset-2 -z-10 animate-ping rounded-full bg-sun-500 opacity-40" />
-        )}
-      </div>
-
-      <p
-        className={[
-          "flex max-w-[200px] items-center justify-center gap-1 text-center text-sm font-semibold leading-tight",
-          topic.status === "locked" ? "text-cocoa-500" : "text-cocoa-900",
-        ].join(" ")}
-      >
-        {topic.name}
-        {topic.mastery_level === "master" && <span aria-hidden="true">✨</span>}
-      </p>
-
-      {/* Mastery stars — only show once the user has attempted */}
-      {topic.questions_attempted > 0 && (
-        <MasteryStars level={topic.mastery_level} />
-      )}
-
-      {topic.questions_attempted > 0 && (
-        <p className="text-xs text-cocoa-500">
-          Best: {Math.round(topic.accuracy * 100)}%
-        </p>
-      )}
-    </div>
-  );
-
-  return (
-    <li
-      className={[
-        "topic-node relative flex justify-center pb-14 last:pb-0",
-        `topic-node-${topic.status}`,
-      ].join(" ")}
-    >
-      {/* Curved connector to the next node (skip if last) */}
-      {!isLast && (
-        <span
-          aria-hidden="true"
-          className={[
-            "topic-connector absolute left-1/2 top-24 z-0 h-16 border-l-2 border-dashed",
-          ].join(" ")}
-        />
-      )}
-
-      {topic.status === "locked" ? (
-        <div className="topic-node-inner z-10 cursor-not-allowed">{Inner}</div>
-      ) : (
-        <Link
-          href={`/topic/${topic.id}`}
-          className="topic-node-inner z-10 transition hover:-translate-y-0.5"
-        >
-          {Inner}
-        </Link>
-      )}
-    </li>
-  );
+  return <li className="pb-3 last:pb-0">{topic.status === "locked" ? <div aria-disabled="true">{card}</div> : <Link href={`/topic/${topic.id}`} className="block">{card}</Link>}</li>;
 }
 
 /**
