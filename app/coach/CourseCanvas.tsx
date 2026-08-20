@@ -123,6 +123,7 @@ function HeartLessonPilot({ lesson, topic, visualAsset }: { lesson: Lesson; topi
       </figure>
       <aside className="flex flex-col bg-[#fffdf8] p-5 sm:p-7">
         <p className="font-mono text-[10px] font-extrabold uppercase tracking-[.16em] text-ember-700">Trace the route</p>
+        <HeartFlowMap activeIndex={focus} />
         <div className="mt-4 grid gap-2" aria-label="Choose a point in the circulation route">{HEART_FLOW.map((item, index) => <button key={item.title} type="button" aria-pressed={focus === index} onClick={() => setFocus(index)} className={`rounded-xl border px-4 py-3 text-left transition ${focus === index ? "border-cocoa-900 bg-sun-200 text-cocoa-900 shadow-[3px_4px_0_rgba(29,24,21,.13)]" : "border-cocoa-900/10 bg-white text-cocoa-700 hover:border-violet-700/45"}`}><span className="block text-sm font-extrabold">{item.title}</span><span className="mt-1 block text-xs leading-5 opacity-80">{item.cue}</span></button>)}</div>
         <div className="mt-5 rounded-2xl border border-violet-700/15 bg-violet-50 p-4"><p className="font-mono text-[10px] font-extrabold uppercase tracking-[.12em] text-violet-700">What this means</p><p className="mt-2 text-sm leading-6 text-cocoa-800">{HEART_FLOW[focus].detail}</p></div>
       </aside>
@@ -143,6 +144,22 @@ function HeartLessonPilot({ lesson, topic, visualAsset }: { lesson: Lesson; topi
 
     <footer className="flex flex-col items-start justify-between gap-4 bg-cocoa-900 px-5 py-6 text-cream-50 sm:flex-row sm:items-center sm:px-8"><div><p className="font-fraunces text-2xl font-bold tracking-[-.045em]">Now use it, don’t just recognise it.</p><span className="mt-1 block text-sm text-cream-100/70">Practice questions on the exact concept are the next proof point.</span></div><Link className="rounded-full bg-sun-300 px-5 py-3 text-sm font-extrabold text-cocoa-900 transition hover:-translate-y-0.5 hover:bg-sun-200" href={practiceHref}>{topic.practiceTopicId ? `Practice ${topic.name} →` : "Open practice →"}</Link></footer>
   </article>;
+}
+
+function HeartFlowMap({ activeIndex }: { activeIndex: number }) {
+  const stages = [
+    { label: "Body", detail: "oxygen-poor", tone: "border-[#527ea8] bg-[#eaf3fb] text-[#234d72]" },
+    { label: "Right heart", detail: "to lungs", tone: "border-[#527ea8] bg-[#eaf3fb] text-[#234d72]" },
+    { label: "Lungs", detail: "picks up O₂", tone: "border-[#5e9b88] bg-[#e8f6ef] text-[#2d6d5b]" },
+    { label: "Left heart", detail: "to body", tone: "border-[#ba6254] bg-[#fff0ed] text-[#9c4437]" },
+    { label: "Body", detail: "oxygen-rich", tone: "border-[#ba6254] bg-[#fff0ed] text-[#9c4437]" },
+  ];
+  const visibleThrough = [1, 2, 3, 4][activeIndex];
+  return <figure className="mt-4 overflow-hidden rounded-2xl border border-cocoa-900/10 bg-[#fbfaf7] p-3" aria-label="Blood flow through the heart">
+    <figcaption className="mb-3 font-mono text-[9px] font-extrabold uppercase tracking-[.13em] text-cocoa-600">Blood-flow map</figcaption>
+    <div className="flex items-center justify-between gap-1">{stages.map((stage, index) => <div key={`${stage.label}-${index}`} className="contents"><div className={`min-w-0 flex-1 rounded-xl border px-1.5 py-2 text-center transition-all duration-300 ${index <= visibleThrough ? `${stage.tone} shadow-[2px_3px_0_rgba(29,24,21,.08)]` : "border-cocoa-900/10 bg-white text-cocoa-400 opacity-45"}`}><b className="block text-[10px] leading-3">{stage.label}</b><span className="mt-1 block text-[8px] font-semibold leading-3">{stage.detail}</span></div>{index < stages.length - 1 && <span aria-hidden="true" className={`shrink-0 text-base font-black transition-colors duration-300 ${index < visibleThrough ? "text-ember-600" : "text-cocoa-300"}`}>→</span>}</div>)}</div>
+    <p className="mt-3 text-[11px] font-semibold leading-4 text-cocoa-700"><span className="text-[#234d72]">Blue: low oxygen.</span> <span className="ml-1 text-[#9c4437]">Red: oxygen-rich.</span> The heart sends blood to lungs first, then out to the body.</p>
+  </figure>;
 }
 
 function CanvasScene({ kind, nodes, visualAsset, activeIndex, topic }: { kind: Visual["kind"]; nodes: string[]; visualAsset?: VisualAsset; activeIndex: number; topic: string }) {
