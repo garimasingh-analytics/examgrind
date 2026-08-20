@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { HEART_VISUAL_ASSET } from "@/lib/coach-visual-assets";
 
 type Topic = { id: string; name: string; chapterName: string; subjectName: string; practiceTopicId?: string };
 type Step = { title: string; explanation: string; example: string; visualLabel: string };
@@ -28,6 +29,11 @@ type Lesson = {
 };
 
 export default function CourseCanvas({ lesson, topic, visualAsset }: { lesson: Lesson; topic: Topic; visualAsset?: VisualAsset }) {
+  if (isHeartLesson(topic)) return <HeartLessonPilot lesson={lesson} topic={topic} visualAsset={visualAsset ?? HEART_VISUAL_ASSET} />;
+  return <StandardCourseCanvas lesson={lesson} topic={topic} visualAsset={visualAsset} />;
+}
+
+function StandardCourseCanvas({ lesson, topic, visualAsset }: { lesson: Lesson; topic: Topic; visualAsset?: VisualAsset }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answer, setAnswer] = useState<number | null>(null);
   const step = lesson.steps[stepIndex];
@@ -82,6 +88,60 @@ export default function CourseCanvas({ lesson, topic, visualAsset }: { lesson: L
     </section>
 
     <footer className="course-canvas-footer"><div><p>{topic.practiceTopicId ? "Next, prove it with questions." : "Keep this explanation for your next revision."}</p><span>{topic.practiceTopicId ? "Coach matched this concept to a syllabus topic for practice." : "Coach can teach this exact concept without forcing it into a dropdown topic."}</span></div>{topic.practiceTopicId && <Link href={`/topic/${topic.practiceTopicId}`}>Practise {topic.name} →</Link>}</footer>
+  </article>;
+}
+
+function isHeartLesson(topic: Topic) {
+  return /(?:anatomy\s+of\s+(?:the\s+)?heart|heart\s+anatomy|human\s+heart|heart\s+chambers|blood\s+circulation)/i.test(`${topic.name} ${topic.chapterName}`);
+}
+
+const HEART_FLOW = [
+  { title: "1 · Return from the body", cue: "Follow the large blue veins into the right atrium.", detail: "Blood returning from the body is low in oxygen. It enters the right atrium through the venae cavae." },
+  { title: "2 · Send it to the lungs", cue: "Move down to the right ventricle, then out through the pulmonary artery.", detail: "The right ventricle pumps that blood to the lungs, where carbon dioxide is exchanged for oxygen." },
+  { title: "3 · Receive oxygen-rich blood", cue: "Find the pulmonary veins entering the left atrium.", detail: "After the lungs, oxygen-rich blood returns to the left atrium through pulmonary veins." },
+  { title: "4 · Deliver it to the body", cue: "Trace the left ventricle to the aorta.", detail: "The left ventricle has the strongest wall because it pumps blood through the aorta to the entire body." },
+];
+
+function HeartLessonPilot({ lesson, topic, visualAsset }: { lesson: Lesson; topic: Topic; visualAsset: VisualAsset }) {
+  const [focus, setFocus] = useState(0);
+  const [recallAnswer, setRecallAnswer] = useState<number | null>(null);
+  const recallCorrect = recallAnswer === 1;
+  const practiceHref = topic.practiceTopicId ? `/topic/${topic.practiceTopicId}` : "/mock";
+
+  return <article className="heart-lesson eg-page-enter mt-5 overflow-hidden rounded-[2rem] border border-cocoa-900/[.12] bg-[#fffaf0] shadow-warm-lg">
+    <header className="bg-cocoa-900 px-5 py-6 text-cream-50 sm:px-8">
+      <p className="font-mono text-[10px] font-extrabold uppercase tracking-[.18em] text-sun-300">Coach learning route · {topic.subjectName}</p>
+      <h3 className="mt-3 max-w-3xl font-fraunces text-4xl font-bold leading-[.9] tracking-[-.06em] sm:text-6xl">{topic.name}</h3>
+      <p className="mt-4 max-w-2xl text-sm font-medium leading-6 text-cream-100/80">One visual route: read the figure, trace the circulation, clear the common confusions, then prove it in practice.</p>
+    </header>
+
+    <section className="grid border-b border-cocoa-900/10 lg:grid-cols-[minmax(0,1.08fr)_minmax(19rem,.92fr)]">
+      <figure className="bg-[#f2efff] p-5 sm:p-7">
+        <figcaption className="mb-4"><p className="font-mono text-[10px] font-extrabold uppercase tracking-[.16em] text-violet-700">Read the actual figure</p><h4 className="mt-2 font-fraunces text-3xl font-bold tracking-[-.055em] text-cocoa-900">The heart is two pumps in one circuit.</h4></figcaption>
+        <div className="overflow-hidden rounded-[1.35rem] border border-cocoa-900/10 bg-[#fffdf8] p-3 shadow-[inset_0_0_0_7px_rgba(255,249,238,.7)]"><Image src={visualAsset.src} alt={visualAsset.alt} width={1200} height={800} unoptimized={visualAsset.src.startsWith("http")} className="h-auto w-full max-h-[31rem] object-contain" /></div>
+        <p className="mt-3 text-xs font-semibold leading-5 text-cocoa-700">Figure: <a className="text-violet-700 underline underline-offset-2" href={visualAsset.sourceUrl} target="_blank" rel="noreferrer">{visualAsset.sourceLabel}</a> · <a className="text-violet-700 underline underline-offset-2" href={visualAsset.licenceUrl} target="_blank" rel="noreferrer">{visualAsset.licenceLabel}</a> · {visualAsset.attribution}</p>
+      </figure>
+      <aside className="flex flex-col bg-[#fffdf8] p-5 sm:p-7">
+        <p className="font-mono text-[10px] font-extrabold uppercase tracking-[.16em] text-ember-700">Trace the route</p>
+        <div className="mt-4 grid gap-2" aria-label="Choose a point in the circulation route">{HEART_FLOW.map((item, index) => <button key={item.title} type="button" aria-pressed={focus === index} onClick={() => setFocus(index)} className={`rounded-xl border px-4 py-3 text-left transition ${focus === index ? "border-cocoa-900 bg-sun-200 text-cocoa-900 shadow-[3px_4px_0_rgba(29,24,21,.13)]" : "border-cocoa-900/10 bg-white text-cocoa-700 hover:border-violet-700/45"}`}><span className="block text-sm font-extrabold">{item.title}</span><span className="mt-1 block text-xs leading-5 opacity-80">{item.cue}</span></button>)}</div>
+        <div className="mt-5 rounded-2xl border border-violet-700/15 bg-violet-50 p-4"><p className="font-mono text-[10px] font-extrabold uppercase tracking-[.12em] text-violet-700">What this means</p><p className="mt-2 text-sm leading-6 text-cocoa-800">{HEART_FLOW[focus].detail}</p></div>
+      </aside>
+    </section>
+
+    <section className="px-5 py-8 sm:px-8 sm:py-10">
+      <p className="font-mono text-[10px] font-extrabold uppercase tracking-[.16em] text-ember-700">Build the idea properly</p>
+      <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-cocoa-800">{lesson.opening}</p>
+      <div className="mt-7 grid gap-4">{lesson.steps.map((step, index) => <section key={`${step.title}-${index}`} className="grid gap-4 rounded-[1.35rem] border border-cocoa-900/10 bg-white p-5 sm:grid-cols-[3.25rem_minmax(0,1fr)] sm:p-6"><span className="grid h-10 w-10 place-items-center rounded-full bg-cocoa-900 font-mono text-xs font-extrabold text-sun-300">{String(index + 1).padStart(2, "0")}</span><div><p className="font-mono text-[10px] font-extrabold uppercase tracking-[.14em] text-violet-700">{step.visualLabel}</p><h4 className="mt-2 font-fraunces text-3xl font-bold leading-none tracking-[-.055em] text-cocoa-900">{step.title}</h4><p className="mt-4 max-w-3xl text-sm leading-7 text-cocoa-800">{step.explanation}</p><aside className="mt-4 max-w-3xl rounded-xl bg-[#fff0ed] px-4 py-3 text-sm leading-6 text-cocoa-800"><b className="font-mono text-[10px] uppercase tracking-[.12em] text-ember-700">In an exam question</b><span className="mt-1 block">{step.example}</span></aside></div></section>)}</div>
+    </section>
+
+    <section className="grid border-y border-cocoa-900/10 sm:grid-cols-2">
+      <aside className="bg-[#fff0ed] p-5 sm:p-7"><p className="font-mono text-[10px] font-extrabold uppercase tracking-[.15em] text-ember-700">Do not confuse</p><h4 className="mt-3 font-fraunces text-3xl font-bold leading-none tracking-[-.055em] text-cocoa-900">Artery and vein are named by direction.</h4><p className="mt-4 text-sm leading-7 text-cocoa-800">An artery carries blood away from the heart; a vein carries blood back to it. That is why the pulmonary artery carries oxygen-poor blood, while pulmonary veins carry oxygen-rich blood.</p></aside>
+      <aside className="bg-[#fff7d7] p-5 sm:p-7"><p className="font-mono text-[10px] font-extrabold uppercase tracking-[.15em] text-[#8a6300]">Keep this</p><h4 className="mt-3 font-fraunces text-3xl font-bold leading-none tracking-[-.055em] text-cocoa-900">Right → lungs. Left → body.</h4><p className="mt-4 text-sm leading-7 text-cocoa-800">Say the route aloud once: body → right side → lungs → left side → body. Then use the figure to check every jump.</p></aside>
+    </section>
+
+    <section className="bg-[#f8f6ff] px-5 py-8 sm:px-8"><p className="font-mono text-[10px] font-extrabold uppercase tracking-[.16em] text-violet-700">Quick recall</p><h4 className="mt-3 max-w-2xl font-fraunces text-3xl font-bold leading-none tracking-[-.055em] text-cocoa-900">Which route correctly follows oxygen-poor blood?</h4><div className="mt-5 grid gap-2">{["Left atrium → left ventricle → aorta", "Vena cava → right atrium → right ventricle → pulmonary artery", "Pulmonary vein → left atrium → pulmonary artery"].map((option, index) => { const selected = recallAnswer === index; const status = recallAnswer === null ? "" : index === 1 ? "border-moss-600 bg-moss-50" : selected ? "border-ember-600 bg-[#fff0ed]" : "opacity-55"; return <button key={option} type="button" disabled={recallAnswer !== null} onClick={() => setRecallAnswer(index)} className={`rounded-xl border border-cocoa-900/12 bg-white px-4 py-3 text-left text-sm font-bold text-cocoa-800 transition hover:border-violet-700/45 disabled:cursor-default ${status}`}>{String.fromCharCode(65 + index)}. {option}</button>; })}</div>{recallAnswer !== null && <p className={`mt-4 rounded-xl px-4 py-3 text-sm leading-6 ${recallCorrect ? "bg-moss-50 text-moss-800" : "bg-[#fff0ed] text-cocoa-800"}`}><b>{recallCorrect ? "Correct." : "Almost—retrace the figure."}</b> Oxygen-poor blood returns via the vena cava, passes through the right atrium and ventricle, then travels to the lungs through the pulmonary artery.</p>}</section>
+
+    <footer className="flex flex-col items-start justify-between gap-4 bg-cocoa-900 px-5 py-6 text-cream-50 sm:flex-row sm:items-center sm:px-8"><div><p className="font-fraunces text-2xl font-bold tracking-[-.045em]">Now use it, don’t just recognise it.</p><span className="mt-1 block text-sm text-cream-100/70">Practice questions on the exact concept are the next proof point.</span></div><Link className="rounded-full bg-sun-300 px-5 py-3 text-sm font-extrabold text-cocoa-900 transition hover:-translate-y-0.5 hover:bg-sun-200" href={practiceHref}>{topic.practiceTopicId ? `Practice ${topic.name} →` : "Open practice →"}</Link></footer>
   </article>;
 }
 

@@ -13,8 +13,7 @@ export type CoachVisualAsset = {
 
 // Only assets whose original source and reuse conditions have been checked belong
 // here. Never infer that an image can be reused because it appeared in a search.
-export const COACH_VISUAL_ASSETS: CoachVisualAsset[] = [
-  {
+export const HEART_VISUAL_ASSET: CoachVisualAsset = {
     id: "human-heart-anatomy",
     src: "https://commons.wikimedia.org/wiki/Special:FilePath/Heart_diagram-en.svg?width=1200",
     alt: "A labelled anatomical diagram of the human heart, including its chambers, major blood vessels, and valves.",
@@ -25,7 +24,10 @@ export const COACH_VISUAL_ASSETS: CoachVisualAsset[] = [
     licenceUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
     attribution: "ZooFari · CC BY-SA 3.0",
     matches: ["anatomy of heart", "anatomy of the heart", "human heart", "heart anatomy", "heart chambers", "blood circulation"],
-  },
+  };
+
+export const COACH_VISUAL_ASSETS: CoachVisualAsset[] = [
+  HEART_VISUAL_ASSET,
   {
     id: "dna-replication",
     src: "/coach-assets/dna-replication.svg",
