@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Chick from "@/components/Chick";
-import { trackLandingCtaClicked, trackLandingExamSelected } from "@/lib/product-analytics";
+import { trackLandingBookOpened, trackLandingCtaClicked, trackLandingExamSelected } from "@/lib/product-analytics";
 
 const exams = [
   { slug: "cuet", label: "CUET UG", detail: "12 subjects · NCERT-aligned", colour: "amber" },
@@ -14,6 +14,10 @@ const exams = [
 export default function CinematicLanding() {
   const [exam, setExam] = useState<(typeof exams)[number]["slug"]>("ssc-cgl");
   const choice = exams.find((item) => item.slug === exam) ?? exams[1];
+
+  useEffect(() => {
+    trackLandingBookOpened();
+  }, []);
 
   return <main className="editorial-gallery">
     <header className="egallery-nav">
