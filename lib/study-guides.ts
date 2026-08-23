@@ -467,7 +467,7 @@ export const studyGuides: StudyGuide[] = [
       {
         heading: "Start with the paper you are actually going to sit",
         paragraphs: [
-          "For the current SSC CGL notice, Tier-I is a computer-based, objective multiple-choice paper with four equal parts: General Intelligence and Reasoning, General Awareness, Quantitative Aptitude, and English Comprehension. Each part has 25 questions for 50 marks; the standard duration is one hour with a 15-minute sectional timer for each subject.",
+          "For the current SSC CGL notice, Tier-I is a computer-based, objective multiple-choice paper with four equal parts: General Intelligence and Reasoning, General Awareness, Quantitative Aptitude, and English Comprehension. Each part has 25 questions for 50 marks. Check the newest official notice for the exact duration and any current timing instructions before you plan your attempt.",
           "That structure changes the way you prepare. You are not building one giant ‘SSC CGL’ subject. You are building four separate score systems, each with its own accuracy, timing and revision needs.",
         ],
         bullets: [
@@ -492,7 +492,7 @@ export const studyGuides: StudyGuide[] = [
         bullets: [
           "Treating all four subjects equally even when one repeatedly loses accuracy or time.",
           "Doing full mocks without classifying errors as concept, application, time, or reading/click errors.",
-          "Ignoring the sectional timer until the final month.",
+          "Ignoring the official timing instructions until the final month.",
           "Continuing to guess under negative marking instead of using a first-pass / return-pass attempt rule.",
         ],
       },
