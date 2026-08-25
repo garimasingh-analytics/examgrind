@@ -52,6 +52,8 @@ const EXAM_FRAMING: Record<string, (q: number) => string> = {
     `Generate ${q} SSC CGL Tier-1 style multiple-choice questions for an Indian graduate aspirant preparing for central-government posts. Match the SSC question style: numeric, time-bound, no fluff. Use Indian context (rupees, Indian names, Indian geography).`,
   "neet-ug": (q) =>
     `Generate ${q} NEET UG style multiple-choice questions for an Indian medical aspirant. Source material strictly NCERT Class 11–12. Match NTA NEET difficulty — concept-heavy, single-correct, plausible distractors drawn from sibling concepts. Use SI units. Biology should reflect NCERT line-by-line phrasing where possible.`,
+  "delhi-police-constable": (q) =>
+    `Generate ${q} original Delhi Police Constable objective-practice questions for an Indian aspirant. Keep the question style direct, short and accessible. Match the supplied section exactly; use Indian context for General Knowledge and Current Affairs, avoid unverified current-affairs claims, and never imply a fixed official paper pattern or marks split.`,
 };
 
 function buildPrompt(

@@ -10,7 +10,7 @@
  * usable by cold visitors with zero auth, zero rate-limit concerns.
  */
 
-export type DiagnoseExam = "neet-ug" | "cuet" | "ssc-cgl";
+export type DiagnoseExam = "neet-ug" | "cuet" | "ssc-cgl" | "delhi-police-constable";
 
 export type DiagnoseQuestion = {
   id: string;
@@ -217,16 +217,75 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
         "Sum = 180°. Parts = 2+3+4 = 9. Each part = 20°. Largest = 4 × 20° = 80°. The trap is 90° — many think 'largest angle in a triangle = right angle' by reflex. Always check by computing.",
     },
   ],
+
+  "delhi-police-constable": [
+    {
+      id: "dp-q1",
+      subjectId: "dp-gk",
+      question: "Which Article lists the Fundamental Duties of Indian citizens?",
+      options: { A: "Article 32", B: "Article 51A", C: "Article 356", D: "Article 370" },
+      correct: "B",
+      concept: "Indian Polity — Fundamental Rights and Duties",
+      drill: "Delhi Police Constable · General Knowledge & Current Affairs · Indian Polity",
+      whenWrong: "Fundamental Duties are in Article 51A. Article 32 concerns constitutional remedies, while Articles 356 and 370 concern separate constitutional provisions. Build a one-page Article map instead of memorising isolated numbers.",
+    },
+    {
+      id: "dp-q2",
+      subjectId: "dp-reasoning",
+      question: "In a code, each letter of DELHI is replaced by the next letter. How is POLICE written?",
+      options: { A: "QPMJDF", B: "QOLHBD", C: "QPMKDF", D: "QPNJDF" },
+      correct: "A",
+      concept: "Coding-Decoding — letter-to-symbol mapping",
+      drill: "Delhi Police Constable · Reasoning · Series & Coding-Decoding",
+      whenWrong: "The code shifts every letter forward by one: P→Q, O→P, L→M, I→J, C→D, E→F. Check each position before choosing an option; one unchanged letter is enough to reject a distractor.",
+    },
+    {
+      id: "dp-q3",
+      subjectId: "dp-quant",
+      question: "A number is increased by 25% and then decreased by 20%. The final value is:",
+      options: { A: "4% more", B: "4% less", C: "Unchanged", D: "5% more" },
+      correct: "C",
+      concept: "Percentages — successive change factors",
+      drill: "Delhi Police Constable · Numerical Ability · Percentages, Ratio & Average",
+      whenWrong: "Use factors, not subtraction: 1.25 × 0.80 = 1.00. A 25% rise and a 20% fall exactly cancel here because the percentage bases differ. This is the opposite of the common 20% up, 20% down trap.",
+    },
+    {
+      id: "dp-q4",
+      subjectId: "dp-computer",
+      question: "Which memory loses its contents when power is switched off?",
+      options: { A: "ROM", B: "Hard disk", C: "RAM", D: "DVD" },
+      correct: "C",
+      concept: "Computer Awareness — volatile primary memory",
+      drill: "Delhi Police Constable · Computer Awareness · Hardware, Memory & Storage",
+      whenWrong: "RAM is volatile: it needs power to retain data. ROM, disks and DVDs are non-volatile storage. Keep one contrast table—volatile/non-volatile, primary/secondary—to prevent category mix-ups.",
+    },
+    {
+      id: "dp-q5",
+      subjectId: "dp-reasoning",
+      question: "P is north of Q. R is east of Q. In which direction is R from P?",
+      options: { A: "North-east", B: "South-east", C: "North-west", D: "South-west" },
+      correct: "B",
+      concept: "Direction Sense — coordinate mapping",
+      drill: "Delhi Police Constable · Reasoning · Directions, Relations & Ranking",
+      whenWrong: "Put Q at the centre. P is one step up and R one step right. From P to R you move down and right: south-east. Draw a two-second compass map; do not rotate the question mentally.",
+    },
+  ],
 };
 
 export const EXAM_LABEL: Record<DiagnoseExam, string> = {
   "neet-ug": "NEET UG",
   cuet: "CUET UG",
   "ssc-cgl": "SSC CGL",
+  "delhi-police-constable": "Delhi Police Constable",
 };
 
 export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
   "neet-ug": "5 Biology + Physics questions built to NEET patterns",
   cuet: "5 General Test questions built to CUET patterns",
   "ssc-cgl": "5 Quant questions built to SSC CGL Tier 1 patterns",
+  "delhi-police-constable": "5 focused objective questions across Delhi Police Constable preparation areas",
 };
+
+export function isDiagnoseExam(value: string): value is DiagnoseExam {
+  return value in DIAGNOSE_QUESTIONS;
+}

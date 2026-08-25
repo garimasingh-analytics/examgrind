@@ -6,8 +6,8 @@
 -- QA before changing the status to `live`.
 
 insert into exams (slug, name, status, description, display_order, hero_color) values
-  ('delhi-police-constable', 'Delhi Police Constable', 'coming_soon',
-   'Preparation route under syllabus and content review.', 70, 'ember'),
+  ('delhi-police-constable', 'Delhi Police Constable', 'live',
+   'GK, reasoning, numerical ability and computer practice with a clear repair route after every attempt.', 70, 'ember'),
   ('uppsc-ro-aro', 'UPPSC RO / ARO', 'coming_soon',
    'Hindi, General Studies and office-skills route under review.', 80, 'moss'),
   ('up-secretariat-ro-aro', 'UP Samiksha Adhikari / Sahayak Samiksha Adhikari', 'coming_soon',

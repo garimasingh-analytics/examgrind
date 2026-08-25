@@ -14,12 +14,13 @@ export const metadata: Metadata = {
   },
 };
 
-const EXAMS: DiagnoseExam[] = ["neet-ug", "cuet", "ssc-cgl"];
+const EXAMS: DiagnoseExam[] = ["neet-ug", "cuet", "ssc-cgl", "delhi-police-constable"];
 
 const EXAM_EMOJI: Record<DiagnoseExam, string> = {
   "neet-ug": "🩺",
   cuet: "🎓",
   "ssc-cgl": "📊",
+  "delhi-police-constable": "🚓",
 };
 
 export default function DiagnoseHubPage() {
@@ -93,7 +94,7 @@ export default function DiagnoseHubPage() {
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>Your score (X out of 5)</li>
             <li>The exact concept gap each wrong answer reveals</li>
-            <li>The NCERT chapter / R.S. Aggarwal section to drill</li>
+            <li>A specific topic path to drill next</li>
             <li>A clear next step: create a free study space and practise the right chapter</li>
           </ul>
         </div>

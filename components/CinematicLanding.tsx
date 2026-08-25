@@ -9,6 +9,7 @@ const exams = [
   { slug: "cuet", label: "CUET UG", detail: "12 subjects · NCERT-aligned", colour: "amber" },
   { slug: "ssc-cgl", label: "SSC CGL", detail: "Quant · Reasoning · English · GA", colour: "violet" },
   { slug: "neet-ug", label: "NEET UG", detail: "Physics · Chemistry · Biology", colour: "coral" },
+  { slug: "delhi-police-constable", label: "Delhi Police", detail: "GK · Reasoning · Numerical Ability · Computer", colour: "amber" },
 ] as const;
 
 export default function CinematicLanding() {

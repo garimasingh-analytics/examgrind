@@ -29,8 +29,8 @@ export const EXAM_CATALOG = [
   {
     slug: "delhi-police-constable",
     name: "Delhi Police Constable",
-    status: "coming_soon",
-    tagline: "A quality-checked preparation route is being built from the official scheme and syllabus.",
+    status: "live",
+    tagline: "GK, reasoning, numerical ability and computer practice with a clear repair route after every attempt.",
   },
   {
     slug: "uppsc-ro-aro",
