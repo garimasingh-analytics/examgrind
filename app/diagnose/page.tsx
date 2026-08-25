@@ -14,9 +14,10 @@ export const metadata: Metadata = {
   },
 };
 
-const EXAMS: DiagnoseExam[] = ["neet-ug", "cuet", "ssc-cgl", "delhi-police-constable"];
+const EXAMS = ["neet-ug", "cuet", "ssc-cgl", "delhi-police-constable"] as const satisfies readonly DiagnoseExam[];
+type LiveDiagnosisExam = (typeof EXAMS)[number];
 
-const EXAM_EMOJI: Record<DiagnoseExam, string> = {
+const EXAM_EMOJI: Record<LiveDiagnosisExam, string> = {
   "neet-ug": "🩺",
   cuet: "🎓",
   "ssc-cgl": "📊",

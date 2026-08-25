@@ -10,7 +10,14 @@ declare global {
  * signal, not merely clicked an ad or viewed a page. Keep the payload generic
  * and never send answers, scores, or subject-level performance to ad platforms.
  */
-export function trackMetaDiagnosisLead(exam: "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable") {
+export function trackMetaDiagnosisLead(
+  exam:
+    | "cuet"
+    | "ssc-cgl"
+    | "neet-ug"
+    | "delhi-police-constable"
+    | "uppsc-ro-aro",
+) {
   if (typeof window === "undefined" || !window.fbq) return;
 
   window.fbq("track", "Lead", {

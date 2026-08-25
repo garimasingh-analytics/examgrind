@@ -10,7 +10,7 @@
  * usable by cold visitors with zero auth, zero rate-limit concerns.
  */
 
-export type DiagnoseExam = "neet-ug" | "cuet" | "ssc-cgl" | "delhi-police-constable";
+export type DiagnoseExam = "neet-ug" | "cuet" | "ssc-cgl" | "delhi-police-constable" | "uppsc-ro-aro";
 
 export type DiagnoseQuestion = {
   id: string;
@@ -270,6 +270,59 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       whenWrong: "Put Q at the centre. P is one step up and R one step right. From P to R you move down and right: south-east. Draw a two-second compass map; do not rotate the question mentally.",
     },
   ],
+
+  "uppsc-ro-aro": [
+    {
+      id: "uppsc-ro-q1",
+      subjectId: "uppsc-ro-hindi",
+      question: "‘राजपुत्र’ शब्द में कौन-सा समास है?",
+      options: { A: "द्वंद्व", B: "बहुव्रीहि", C: "तत्पुरुष", D: "अव्ययीभाव" },
+      correct: "C",
+      concept: "हिंदी व्याकरण — समास की पहचान",
+      drill: "UPPSC RO/ARO · General Hindi & Drafting · संधि और समास",
+      whenWrong: "राजपुत्र का विग्रह ‘राजा का पुत्र’ है, इसलिए यह षष्ठी तत्पुरुष समास है. पहले विग्रह लिखिए; नाम याद करने से पहले संबंध पहचानिए.",
+    },
+    {
+      id: "uppsc-ro-q2",
+      subjectId: "uppsc-ro-gs",
+      question: "भारतीय संविधान में मौलिक कर्तव्य किस अनुच्छेद में हैं?",
+      options: { A: "अनुच्छेद 14", B: "अनुच्छेद 32", C: "अनुच्छेद 51A", D: "अनुच्छेद 356" },
+      correct: "C",
+      concept: "भारतीय राजव्यवस्था — मौलिक अधिकार और कर्तव्य",
+      drill: "UPPSC RO/ARO · General Studies · Constitutional Framework",
+      whenWrong: "मौलिक कर्तव्य अनुच्छेद 51A में हैं. अनुच्छेद 32 संवैधानिक उपचार से जुड़ा है. एक छोटे Article-map से ऐसे विकल्प अलग करना आसान होता है.",
+    },
+    {
+      id: "uppsc-ro-q3",
+      subjectId: "uppsc-ro-computer",
+      question: "कौन-सी मेमोरी बिजली बंद होते ही अपना डेटा खो देती है?",
+      options: { A: "ROM", B: "RAM", C: "Hard disk", D: "DVD" },
+      correct: "B",
+      concept: "कंप्यूटर — volatile और non-volatile memory",
+      drill: "UPPSC RO/ARO · Computer & Office Skills · Memory and Storage",
+      whenWrong: "RAM volatile memory है: power हटते ही उसका data चला जाता है. ROM, hard disk और DVD non-volatile storage हैं. इन्हें contrast card में साथ लिखिए.",
+    },
+    {
+      id: "uppsc-ro-q4",
+      subjectId: "uppsc-ro-reasoning",
+      question: "P, Q के उत्तर में है. R, Q के पूर्व में है. R, P के किस दिशा में है?",
+      options: { A: "उत्तर-पश्चिम", B: "उत्तर-पूर्व", C: "दक्षिण-पश्चिम", D: "दक्षिण-पूर्व" },
+      correct: "C",
+      concept: "तार्किक क्षमता — दिशा-बोध का न्यूनतम मानचित्र",
+      drill: "UPPSC RO/ARO · Reasoning & Aptitude · Directions, Relations & Order",
+      whenWrong: "Q को बीच में रखें: P उसके ऊपर, R उसके बाएँ. इसलिए R, P के दक्षिण-पश्चिम में है. कथन को विकल्पों में बदलने से पहले छोटा map बनाइए.",
+    },
+    {
+      id: "uppsc-ro-q5",
+      subjectId: "uppsc-ro-hindi",
+      question: "किस वाक्य में वर्तनी शुद्ध है?",
+      options: { A: "आर्शीवाद", B: "आशीर्वाद", C: "आशिर्वाद", D: "आर्शिवाद" },
+      correct: "B",
+      concept: "हिंदी लेखन — वर्तनी और शुद्ध प्रयोग",
+      drill: "UPPSC RO/ARO · General Hindi & Drafting · वर्तनी और विराम-चिह्न",
+      whenWrong: "मानक रूप ‘आशीर्वाद’ है. ऐसी त्रुटियाँ केवल पढ़ने से नहीं जातीं: अपनी भ्रमित शब्द-सूची बनाकर spaced revision कीजिए.",
+    },
+  ],
 };
 
 export const EXAM_LABEL: Record<DiagnoseExam, string> = {
@@ -277,6 +330,7 @@ export const EXAM_LABEL: Record<DiagnoseExam, string> = {
   cuet: "CUET UG",
   "ssc-cgl": "SSC CGL",
   "delhi-police-constable": "Delhi Police Constable",
+  "uppsc-ro-aro": "UPPSC RO / ARO",
 };
 
 export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
@@ -284,6 +338,7 @@ export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
   cuet: "5 General Test questions built to CUET patterns",
   "ssc-cgl": "5 Quant questions built to SSC CGL Tier 1 patterns",
   "delhi-police-constable": "5 focused objective questions across Delhi Police Constable preparation areas",
+  "uppsc-ro-aro": "5 foundation questions across Hindi, General Studies, computer and reasoning",
 };
 
 export function isDiagnoseExam(value: string): value is DiagnoseExam {
