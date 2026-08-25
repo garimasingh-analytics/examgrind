@@ -67,6 +67,10 @@ export const LIVE_EXAM_SLUGS = EXAM_CATALOG.filter(
   (exam) => exam.status === "live"
 ).map((exam) => exam.slug) as ExamSlug[];
 
+export const LIVE_EXAMS = EXAM_CATALOG.filter(
+  (exam) => exam.status === "live"
+);
+
 export function isLiveExamSlug(slug: string): slug is ExamSlug {
   return getExamBySlug(slug)?.status === "live";
 }
