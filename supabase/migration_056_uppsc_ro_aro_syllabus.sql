@@ -139,7 +139,7 @@ with raw(subject_key, chapter_slug, name, slug, ord) as (values
   ('reasoning', 'condition-first-problem-solving', 'Draw a Minimal Map', 'minimal-map', 2),
   ('reasoning', 'condition-first-problem-solving', 'Eliminate Contradictions', 'eliminate-contradictions', 3),
   ('reasoning', 'condition-first-problem-solving', 'Final Option Check', 'final-option-check', 4)
-), targets as (
+), topic_targets as (
   select 'uppsc-ro-' || subject_key as subject_id, chapter_slug, name, slug, ord from raw
   union all
   select 'up-secretariat-' || subject_key as subject_id, chapter_slug, name, slug, ord from raw
@@ -147,7 +147,7 @@ with raw(subject_key, chapter_slug, name, slug, ord) as (values
 insert into public.topics (chapter_id, name, slug, description, order_index)
 select c.id, t.name, t.slug,
        format('Build %s with short practice and a clear revision note.', t.name), t.ord
-from targets t
+from topic_targets t
 join public.chapters c on c.subject_id = t.subject_id and c.slug = t.chapter_slug
 on conflict (chapter_id, slug) do update set
   name = excluded.name,
