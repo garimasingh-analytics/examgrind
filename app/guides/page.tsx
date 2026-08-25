@@ -4,12 +4,12 @@ import { examGuideMeta, studyGuides } from "@/lib/study-guides";
 import { StudyHubViewed } from "@/components/StudyHubTracking";
 
 export const metadata: Metadata = {
-  title: "Free study guides for SSC CGL, CUET & NEET · ExamGrind",
-  description: "Practical, original study guides for SSC CGL, CUET UG and NEET UG: preparation, mock analysis, revision and focused improvement.",
+  title: "Free study guides for SSC CGL, Delhi Police, CUET & NEET · ExamGrind",
+  description: "Practical, original study guides for SSC CGL, Delhi Police Constable, CUET UG and NEET UG: preparation, mock analysis, revision and focused improvement.",
 };
 
 type GuideHubProps = { searchParams: Promise<{ exam?: string }> };
-const examSlugs = ["ssc-cgl", "cuet", "neet-ug"] as const;
+const examSlugs = ["ssc-cgl", "delhi-police-constable", "cuet", "neet-ug"] as const;
 
 export default async function GuidesPage({ searchParams }: GuideHubProps) {
   const { exam } = await searchParams;

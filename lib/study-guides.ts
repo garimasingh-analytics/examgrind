@@ -1,6 +1,6 @@
 export type StudyGuide = {
   slug: string;
-  examSlug: "ssc-cgl" | "cuet" | "neet-ug";
+  examSlug: "ssc-cgl" | "cuet" | "neet-ug" | "delhi-police-constable";
   title: string;
   description: string;
   eyebrow: string;
@@ -609,6 +609,55 @@ export const studyGuides: StudyGuide[] = [
       { label: "NEET official notices and documents", href: "https://neet.nta.nic.in/documents/" },
     ],
   },
+  {
+    slug: "delhi-police-constable-preparation-guide",
+    examSlug: "delhi-police-constable",
+    title: "Delhi Police Constable preparation: build marks across all four sections",
+    description: "A practical, official-source-first preparation guide for Delhi Police Constable: General Knowledge, Reasoning, Numerical Ability and Computer Fundamentals.",
+    eyebrow: "Delhi Police Constable study guide",
+    readTime: "7 min read",
+    publishedAt: "25 August 2026",
+    sections: [
+      {
+        heading: "Begin with the current notice, then make four small score plans",
+        paragraphs: [
+          "Delhi Police recruitment details can change between cycles: vacancies, eligibility, physical stages, dates and instructions must come from the Staff Selection Commission and Delhi Police recruitment portals. Check those sources before relying on a coaching post or a forwarded message.",
+          "For written preparation, do not treat the exam as one large subject. Build a separate working plan for General Knowledge, Reasoning, Numerical Ability and Computer Fundamentals. A score leak in one section should lead to a small repair in that section, not a random restart of the full syllabus.",
+        ],
+      },
+      {
+        heading: "Use a simple daily cycle: learn, practise, check, return",
+        paragraphs: [
+          "Start with one focused concept block: for example, coding-decoding, percentage change, Indian polity fundamentals or computer memory. Then solve a short fresh set on exactly that idea. Do not call a topic finished because a video or a page of notes feels familiar; make it earn that label through questions.",
+          "End the session by naming the reason behind each miss: concept not known, method applied incorrectly, time decision, or reading/click error. That note decides tomorrow's repair. Without it, practice turns into repeated guessing.",
+        ],
+      },
+      {
+        heading: "What each section needs from you",
+        paragraphs: [
+          "General Knowledge needs small, repeated retrieval instead of one endless current-affairs feed. Reasoning improves when you name the pattern before checking an option. Numerical Ability needs a reliable setup before a timer. Computer Fundamentals needs short recall prompts for terms, functions and distinctions—not only recognition when an option appears.",
+        ],
+        bullets: [
+          "GK: keep a bounded source and turn facts into short recall prompts.",
+          "Reasoning: draw or label the condition before jumping to an option.",
+          "Numerical Ability: learn the route, then practise a short timed set.",
+          "Computer: make contrast cards such as RAM vs ROM, input vs output, and hardware vs software.",
+        ],
+      },
+      {
+        heading: "Three mistakes that waste a Delhi Police aspirant's time",
+        paragraphs: [
+          "These are learning-process mistakes, not official SSC findings. First, giving all four sections the same time even when one is repeatedly losing accuracy. Second, treating every incorrect answer as a careless mistake instead of identifying the exact broken step. Third, waiting for a full mock to find a weakness when a ten-question focused check can reveal it sooner.",
+          "A better move is to take a short subject baseline, choose one repeated weakness, repair it, and retest it with unseen questions within three days. That gives every hour a purpose and makes improvement visible.",
+        ],
+      },
+    ],
+    takeaway: "A good Delhi Police plan is not more material. It is four small score systems, each with a clear next repair.",
+    sourceLinks: [
+      { label: "SSC official notice board", href: "https://ssc.gov.in/for-candidates" },
+      { label: "Delhi Police recruitment portal", href: "https://delhipolice.gov.in/recruitments" },
+    ],
+  },
 ];
 
 export function getStudyGuide(slug: string) {
@@ -619,4 +668,5 @@ export const examGuideMeta = {
   "ssc-cgl": { label: "SSC CGL", diagnosisHref: "/diagnose/ssc-cgl" },
   cuet: { label: "CUET UG", diagnosisHref: "/diagnose/cuet" },
   "neet-ug": { label: "NEET UG", diagnosisHref: "/diagnose/neet-ug" },
+  "delhi-police-constable": { label: "Delhi Police Constable", diagnosisHref: "/diagnose/delhi-police-constable" },
 } as const;

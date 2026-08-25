@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { trackStudyGuideViewed, trackStudyHubViewed } from "@/lib/product-analytics";
 
-type Exam = "ssc-cgl" | "cuet" | "neet-ug";
+type Exam = "ssc-cgl" | "cuet" | "neet-ug" | "delhi-police-constable";
 
 /** Small, consent-gated tracking boundary for the public Study Hub.
  * It measures whether useful content leads students back into the core
