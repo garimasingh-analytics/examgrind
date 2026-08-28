@@ -16,7 +16,8 @@ export type DiagnoseExam =
   | "ssc-cgl"
   | "delhi-police-constable"
   | "uppsc-ro-aro"
-  | "up-secretariat-ro-aro";
+  | "up-secretariat-ro-aro"
+  | "uppsc-pcs";
 
 export type DiagnoseQuestion = {
   id: string;
@@ -382,6 +383,58 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       whenWrong: "मानक रूप ‘दृष्टिकोण’ है. ऐसे शब्दों में केवल answer देखना काफी नहीं: अपनी confused-word list बनाकर अगली revision में बिना विकल्प के लिखकर जाँचिए.",
     },
   ],
+  "uppsc-pcs": [
+    {
+      id: "uppsc-pcs-q1",
+      subjectId: "uppsc-pcs-gs",
+      question: "Which part of the Indian Constitution contains the Directive Principles of State Policy?",
+      options: { A: "Part III", B: "Part IV", C: "Part IVA", D: "Part V" },
+      correct: "B",
+      concept: "Indian Polity — Directive Principles and constitutional parts",
+      drill: "UPPSC PCS foundation · General Studies · Constitutional framework",
+      whenWrong: "Directive Principles are in Part IV. Part III contains Fundamental Rights and Part IVA contains Fundamental Duties. Build a compact Constitution map instead of memorising articles in isolation.",
+    },
+    {
+      id: "uppsc-pcs-q2",
+      subjectId: "uppsc-pcs-up-context",
+      question: "Which river is a major tributary of the Ganga that flows through Uttar Pradesh?",
+      options: { A: "Narmada", B: "Godavari", C: "Yamuna", D: "Kaveri" },
+      correct: "C",
+      concept: "Uttar Pradesh geography — river systems",
+      drill: "UPPSC PCS foundation · Uttar Pradesh context · Rivers and geography",
+      whenWrong: "The Yamuna is a major Ganga tributary and meets it at Prayagraj. Tie river facts to a simple map; location links make recall more reliable than a disconnected list.",
+    },
+    {
+      id: "uppsc-pcs-q3",
+      subjectId: "uppsc-pcs-csat",
+      question: "A value rises from 240 to 300. What is the percentage increase?",
+      options: { A: "20%", B: "25%", C: "30%", D: "60%" },
+      correct: "B",
+      concept: "CSAT numeracy — percentage change from the original value",
+      drill: "UPPSC PCS foundation · General Studies II / CSAT · Percentage change",
+      whenWrong: "Increase = 300 − 240 = 60. Divide by the original 240: 60/240 = 25%. The denominator is the starting value, not the final value.",
+    },
+    {
+      id: "uppsc-pcs-q4",
+      subjectId: "uppsc-pcs-csat",
+      question: "All mentors are readers. Some readers are writers. Which conclusion must follow?",
+      options: { A: "All writers are mentors", B: "Some mentors are writers", C: "No mentor is a writer", D: "No definite relation between mentors and writers" },
+      correct: "D",
+      concept: "CSAT reasoning — syllogism scope",
+      drill: "UPPSC PCS foundation · General Studies II / CSAT · Statements and conclusions",
+      whenWrong: "The statement only says mentors sit inside the larger reader group and some readers are writers. Those two subsets may or may not overlap. Draw the smallest possible Venn diagram before choosing.",
+    },
+    {
+      id: "uppsc-pcs-q5",
+      subjectId: "uppsc-pcs-gs",
+      question: "Which body is primarily responsible for conducting elections to Parliament and State Legislatures in India?",
+      options: { A: "NITI Aayog", B: "Election Commission of India", C: "Union Public Service Commission", D: "Finance Commission" },
+      correct: "B",
+      concept: "Indian Polity — constitutional bodies and their roles",
+      drill: "UPPSC PCS foundation · General Studies · Constitutional bodies",
+      whenWrong: "The Election Commission conducts and supervises these elections. Learn bodies by function—elections, recruitment, finance, planning—so close options stop feeling interchangeable.",
+    },
+  ],
 };
 
 export const EXAM_LABEL: Record<DiagnoseExam, string> = {
@@ -391,6 +444,7 @@ export const EXAM_LABEL: Record<DiagnoseExam, string> = {
   "delhi-police-constable": "Delhi Police Constable",
   "uppsc-ro-aro": "UPPSC RO / ARO",
   "up-secretariat-ro-aro": "UP Secretariat RO / ARO",
+  "uppsc-pcs": "UPPSC PCS",
 };
 
 export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
@@ -400,6 +454,7 @@ export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
   "delhi-police-constable": "5 focused objective questions across Delhi Police Constable preparation areas",
   "uppsc-ro-aro": "5 foundation questions across Hindi, General Studies, computer and reasoning",
   "up-secretariat-ro-aro": "5 foundation questions across Hindi, General Studies, computer and reasoning",
+  "uppsc-pcs": "5 foundation questions across General Studies, Uttar Pradesh context and CSAT skills",
 };
 
 export function isDiagnoseExam(value: string): value is DiagnoseExam {

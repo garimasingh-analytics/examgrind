@@ -45,6 +45,12 @@ export const EXAM_CATALOG = [
     tagline: "Hindi, General Studies, computer skills and reasoning — a focused diagnosis and foundation-practice route for UP Secretariat RO / ARO preparation.",
   },
   {
+    slug: "uppsc-pcs",
+    name: "UPPSC PCS",
+    status: "coming_soon",
+    tagline: "An official-source-first PCS foundation route for General Studies, CSAT skills and Uttar Pradesh context is under founder review.",
+  },
+  {
     slug: "allahabad-high-court-ro-aro",
     name: "Allahabad High Court RO / ARO",
     status: "coming_soon",

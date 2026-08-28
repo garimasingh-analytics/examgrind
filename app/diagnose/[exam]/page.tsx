@@ -19,6 +19,7 @@ const VALID_EXAMS: DiagnoseExam[] = [
   "delhi-police-constable",
   "uppsc-ro-aro",
   "up-secretariat-ro-aro",
+  "uppsc-pcs",
 ];
 
 type Params = { params: Promise<{ exam: string }> };

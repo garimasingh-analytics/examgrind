@@ -135,13 +135,14 @@ export const trackLandingCtaClicked = (params: { placement: "hero" | "closing" }
 export const trackLandingExamSelected = (params: { exam: "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable" }) =>
   track(ANALYTICS_EVENTS.LANDING_EXAM_SELECTED, params);
 
-type DiagnosisExam =
+export type DiagnosisExam =
   | "cuet"
   | "ssc-cgl"
   | "neet-ug"
   | "delhi-police-constable"
   | "uppsc-ro-aro"
-  | "up-secretariat-ro-aro";
+  | "up-secretariat-ro-aro"
+  | "uppsc-pcs";
 
 export const trackDiagnosisStarted = (params: {
   exam: DiagnosisExam;

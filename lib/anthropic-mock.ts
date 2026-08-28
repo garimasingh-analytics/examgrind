@@ -58,6 +58,8 @@ const EXAM_FRAMING: Record<string, (q: number) => string> = {
     `Generate ${q} original UPPSC RO/ARO foundation-practice questions for an Indian aspirant. Match the supplied section exactly: General Hindi and drafting foundations, UP-aware General Studies, computer and office skills, or reasoning. Use Hindi where the section calls for it. Avoid unverified current-affairs claims and never imply a fixed notification-specific paper pattern, post eligibility or typing requirement.`,
   "up-secretariat-ro-aro": (q) =>
     `Generate ${q} original UP Secretariat RO/ARO foundation-practice questions for an Indian aspirant. Match the supplied section exactly: General Hindi and drafting foundations, UP-aware General Studies, computer and office skills, or reasoning. Use Hindi where the section calls for it. Avoid unverified current-affairs claims and never imply a fixed notification-specific paper pattern, post eligibility, skill test, or typing requirement.`,
+  "uppsc-pcs": (q) =>
+    `Generate ${q} original UPPSC PCS foundation-practice questions for an Indian aspirant. Match the supplied section exactly: General Studies, Uttar Pradesh context, or General Studies II / CSAT skills. Use Indian and Uttar Pradesh context where relevant. Avoid unverified current-affairs claims and never imply a fixed notification-specific paper scheme, marks split, eligibility condition, date, or service allocation.`,
 };
 
 function buildPrompt(

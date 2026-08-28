@@ -17,7 +17,8 @@ export function trackMetaDiagnosisLead(
     | "neet-ug"
     | "delhi-police-constable"
     | "uppsc-ro-aro"
-    | "up-secretariat-ro-aro",
+    | "up-secretariat-ro-aro"
+    | "uppsc-pcs",
 ) {
   if (typeof window === "undefined" || !window.fbq) return;
 
