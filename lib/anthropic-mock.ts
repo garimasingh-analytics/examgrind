@@ -56,6 +56,8 @@ const EXAM_FRAMING: Record<string, (q: number) => string> = {
     `Generate ${q} original Delhi Police Constable objective-practice questions for an Indian aspirant. Keep the question style direct, short and accessible. Match the supplied section exactly; use Indian context for General Knowledge and Current Affairs, avoid unverified current-affairs claims, and never imply a fixed official paper pattern or marks split.`,
   "uppsc-ro-aro": (q) =>
     `Generate ${q} original UPPSC RO/ARO foundation-practice questions for an Indian aspirant. Match the supplied section exactly: General Hindi and drafting foundations, UP-aware General Studies, computer and office skills, or reasoning. Use Hindi where the section calls for it. Avoid unverified current-affairs claims and never imply a fixed notification-specific paper pattern, post eligibility or typing requirement.`,
+  "up-secretariat-ro-aro": (q) =>
+    `Generate ${q} original UP Secretariat RO/ARO foundation-practice questions for an Indian aspirant. Match the supplied section exactly: General Hindi and drafting foundations, UP-aware General Studies, computer and office skills, or reasoning. Use Hindi where the section calls for it. Avoid unverified current-affairs claims and never imply a fixed notification-specific paper pattern, post eligibility, skill test, or typing requirement.`,
 };
 
 function buildPrompt(

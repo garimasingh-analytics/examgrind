@@ -140,7 +140,8 @@ type DiagnosisExam =
   | "ssc-cgl"
   | "neet-ug"
   | "delhi-police-constable"
-  | "uppsc-ro-aro";
+  | "uppsc-ro-aro"
+  | "up-secretariat-ro-aro";
 
 export const trackDiagnosisStarted = (params: {
   exam: DiagnosisExam;

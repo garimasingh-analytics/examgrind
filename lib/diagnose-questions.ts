@@ -10,7 +10,13 @@
  * usable by cold visitors with zero auth, zero rate-limit concerns.
  */
 
-export type DiagnoseExam = "neet-ug" | "cuet" | "ssc-cgl" | "delhi-police-constable" | "uppsc-ro-aro";
+export type DiagnoseExam =
+  | "neet-ug"
+  | "cuet"
+  | "ssc-cgl"
+  | "delhi-police-constable"
+  | "uppsc-ro-aro"
+  | "up-secretariat-ro-aro";
 
 export type DiagnoseQuestion = {
   id: string;
@@ -323,6 +329,59 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       whenWrong: "मानक रूप ‘आशीर्वाद’ है. ऐसी त्रुटियाँ केवल पढ़ने से नहीं जातीं: अपनी भ्रमित शब्द-सूची बनाकर spaced revision कीजिए.",
     },
   ],
+
+  "up-secretariat-ro-aro": [
+    {
+      id: "up-secretariat-ro-q1",
+      subjectId: "up-secretariat-hindi",
+      question: "‘देवालय’ शब्द में कौन-सा समास है?",
+      options: { A: "द्वंद्व", B: "तत्पुरुष", C: "बहुव्रीहि", D: "अव्ययीभाव" },
+      correct: "B",
+      concept: "हिंदी व्याकरण — समास का विग्रह",
+      drill: "UP Secretariat RO/ARO · General Hindi & Drafting · संधि और समास",
+      whenWrong: "देवालय का विग्रह ‘देव का आलय’ है, इसलिए यह षष्ठी तत्पुरुष समास है. विकल्प देखने से पहले शब्द का विग्रह लिखिए; संबंध साफ होते ही समास का प्रकार भी साफ हो जाता है.",
+    },
+    {
+      id: "up-secretariat-ro-q2",
+      subjectId: "up-secretariat-gs",
+      question: "भारतीय संविधान में राज्य के नीति-निदेशक तत्व किस भाग में हैं?",
+      options: { A: "भाग III", B: "भाग IV", C: "भाग IVA", D: "भाग V" },
+      correct: "B",
+      concept: "भारतीय राजव्यवस्था — संविधान के भाग और नीति-निदेशक तत्व",
+      drill: "UP Secretariat RO/ARO · General Studies · Indian Constitution",
+      whenWrong: "राज्य के नीति-निदेशक तत्व भाग IV में हैं. भाग III मौलिक अधिकार और भाग IVA मौलिक कर्तव्य हैं. Articles को अकेले याद करने के बजाय संविधान के भागों का छोटा map बनाइए.",
+    },
+    {
+      id: "up-secretariat-ro-q3",
+      subjectId: "up-secretariat-computer",
+      question: "MS Word में Ctrl + S का सामान्य उपयोग क्या है?",
+      options: { A: "Document save करना", B: "Text select करना", C: "Document print करना", D: "New file खोलना" },
+      correct: "A",
+      concept: "कंप्यूटर एवं कार्यालय कौशल — सामान्य shortcut keys",
+      drill: "UP Secretariat RO/ARO · Computer & Office Skills · Word processing basics",
+      whenWrong: "Ctrl + S save करता है. Select all के लिए Ctrl + A, print के लिए Ctrl + P और new document के लिए Ctrl + N होता है. Shortcut keys को काम के आधार पर group करके revise कीजिए.",
+    },
+    {
+      id: "up-secretariat-ro-q4",
+      subjectId: "up-secretariat-reasoning",
+      question: "A, B के पूर्व में है। C, B के दक्षिण में है। C, A के किस दिशा में है?",
+      options: { A: "उत्तर-पूर्व", B: "दक्षिण-पूर्व", C: "उत्तर-पश्चिम", D: "दक्षिण-पश्चिम" },
+      correct: "B",
+      concept: "तार्किक क्षमता — दिशा-बोध का coordinate method",
+      drill: "UP Secretariat RO/ARO · Reasoning & Aptitude · Direction sense",
+      whenWrong: "B को बीच में रखें: A बाएँ और C नीचे. A से C तक दाएँ और नीचे जाना है, इसलिए दिशा दक्षिण-पूर्व है. हर direction question में पहले 3-dot map बनाइए.",
+    },
+    {
+      id: "up-secretariat-ro-q5",
+      subjectId: "up-secretariat-hindi",
+      question: "निम्न में से कौन-सा शब्द शुद्ध है?",
+      options: { A: "दृष्टीकोण", B: "दृष्टिकोण", C: "द्रष्टिकोण", D: "दृष्टिकोन" },
+      correct: "B",
+      concept: "हिंदी लेखन — मानक वर्तनी",
+      drill: "UP Secretariat RO/ARO · General Hindi & Drafting · शुद्ध वर्तनी",
+      whenWrong: "मानक रूप ‘दृष्टिकोण’ है. ऐसे शब्दों में केवल answer देखना काफी नहीं: अपनी confused-word list बनाकर अगली revision में बिना विकल्प के लिखकर जाँचिए.",
+    },
+  ],
 };
 
 export const EXAM_LABEL: Record<DiagnoseExam, string> = {
@@ -331,6 +390,7 @@ export const EXAM_LABEL: Record<DiagnoseExam, string> = {
   "ssc-cgl": "SSC CGL",
   "delhi-police-constable": "Delhi Police Constable",
   "uppsc-ro-aro": "UPPSC RO / ARO",
+  "up-secretariat-ro-aro": "UP Secretariat RO / ARO",
 };
 
 export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
@@ -339,6 +399,7 @@ export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
   "ssc-cgl": "5 Quant questions built to SSC CGL Tier 1 patterns",
   "delhi-police-constable": "5 focused objective questions across Delhi Police Constable preparation areas",
   "uppsc-ro-aro": "5 foundation questions across Hindi, General Studies, computer and reasoning",
+  "up-secretariat-ro-aro": "5 foundation questions across Hindi, General Studies, computer and reasoning",
 };
 
 export function isDiagnoseExam(value: string): value is DiagnoseExam {
