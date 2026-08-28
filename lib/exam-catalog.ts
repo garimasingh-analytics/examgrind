@@ -47,8 +47,8 @@ export const EXAM_CATALOG = [
   {
     slug: "uppsc-pcs",
     name: "UPPSC PCS",
-    status: "coming_soon",
-    tagline: "An official-source-first PCS foundation route for General Studies, CSAT skills and Uttar Pradesh context is under founder review.",
+    status: "live",
+    tagline: "General Studies, CSAT skills and Uttar Pradesh context — a focused diagnosis and original foundation-practice route for UPPSC PCS preparation.",
   },
   {
     slug: "allahabad-high-court-ro-aro",

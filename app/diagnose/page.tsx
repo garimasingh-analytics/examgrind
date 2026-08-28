@@ -21,6 +21,7 @@ const EXAMS = [
   "delhi-police-constable",
   "uppsc-ro-aro",
   "up-secretariat-ro-aro",
+  "uppsc-pcs",
 ] as const satisfies readonly DiagnoseExam[];
 type LiveDiagnosisExam = (typeof EXAMS)[number];
 
@@ -31,6 +32,7 @@ const EXAM_EMOJI: Record<LiveDiagnosisExam, string> = {
   "delhi-police-constable": "🚓",
   "uppsc-ro-aro": "🗂️",
   "up-secretariat-ro-aro": "🏛️",
+  "uppsc-pcs": "🧭",
 };
 
 export default function DiagnoseHubPage() {

@@ -1,6 +1,6 @@
 export type StudyGuide = {
   slug: string;
-  examSlug: "ssc-cgl" | "cuet" | "neet-ug" | "delhi-police-constable" | "uppsc-ro-aro" | "up-secretariat-ro-aro";
+  examSlug: "ssc-cgl" | "cuet" | "neet-ug" | "delhi-police-constable" | "uppsc-ro-aro" | "up-secretariat-ro-aro" | "uppsc-pcs";
   title: string;
   description: string;
   eyebrow: string;
@@ -752,6 +752,54 @@ export const studyGuides: StudyGuide[] = [
       { label: "UPPSC official candidate records", href: "https://uppsc.up.nic.in/Default.aspx" },
     ],
   },
+  {
+    slug: "uppsc-pcs-preparation-foundation",
+    examSlug: "uppsc-pcs",
+    title: "UPPSC PCS preparation: build a strong foundation without guessing the next notice",
+    description: "Use General Studies, CSAT and Uttar Pradesh context to build a practical PCS routine—then verify dates, eligibility and the exact scheme from UPPSC before acting on them.",
+    eyebrow: "UPPSC PCS study guide",
+    readTime: "7 min read",
+    publishedAt: "28 August 2026",
+    sections: [
+      {
+        heading: "Start with the official source. Build your preparation around skills that travel.",
+        paragraphs: [
+          "UPPSC is the source of truth for a current PCS notification, eligibility, dates, papers and instructions. A previous paper is useful evidence for practice, but it is not a promise that a later cycle will be identical.",
+          "That does not mean you must wait to begin. General Studies recall, reading comprehension, clear reasoning and Uttar Pradesh context are durable preparation habits. Build them now; when the official notice is available, map its exact scheme onto work you have already done.",
+        ],
+      },
+      {
+        heading: "Use three lanes instead of a long, fragile timetable",
+        paragraphs: [
+          "Keep each study session simple: one General Studies idea, one CSAT skill and one short Uttar Pradesh-context review. This lets you make progress across the route without treating every subject as an all-day task.",
+        ],
+        bullets: [
+          "General Studies: learn one narrow idea, then recall it from a blank page before checking notes.",
+          "CSAT skills: write the first condition or calculation step before looking at options; this reveals whether the error is method, reading or time.",
+          "Uttar Pradesh context: connect a fact to a place, river, institution, historical event or current issue, then revisit it with a short prompt later.",
+        ],
+      },
+      {
+        heading: "After every practice set, label the reason—not just the score",
+        paragraphs: [
+          "A wrong answer can mean four different things: the idea was unfamiliar, the method was applied incorrectly, the route was too slow, or the question was read carelessly. Give each type a different repair. Relearning a missing idea is not the same job as practising a faster method.",
+          "At the end of a set, choose one repair small enough to complete today. For example: revise Directive Principles for fifteen minutes, solve five fresh questions, and retest tomorrow. That is much more useful than writing ‘revise polity’ in a planner.",
+        ],
+      },
+      {
+        heading: "Retest before moving on",
+        paragraphs: [
+          "A concept is not repaired because you recognised its solution. Use fresh questions after a short gap. If the same error returns, find the exact decision point that is still failing; if it improves, move the topic into revision rather than restarting the whole chapter.",
+          "This is the loop that keeps preparation honest: learn, practise, diagnose, repair and retest. It gives a study plan evidence instead of optimism.",
+        ],
+      },
+    ],
+    takeaway: "Build portable foundations now. Let the official UPPSC notice decide the final scheme—not rumours, old screenshots or generic timetables.",
+    sourceLinks: [
+      { label: "UPPSC official notification board", href: "https://uppsc.up.nic.in/Default.aspx/CandidatePages/Notifications.aspx" },
+      { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" },
+    ],
+  },
 ];
 
 export function getStudyGuide(slug: string) {
@@ -765,4 +813,5 @@ export const examGuideMeta = {
   "delhi-police-constable": { label: "Delhi Police Constable", diagnosisHref: "/diagnose/delhi-police-constable" },
   "uppsc-ro-aro": { label: "UPPSC RO / ARO", diagnosisHref: "/diagnose/uppsc-ro-aro" },
   "up-secretariat-ro-aro": { label: "UP Secretariat RO / ARO", diagnosisHref: "/diagnose/up-secretariat-ro-aro" },
+  "uppsc-pcs": { label: "UPPSC PCS", diagnosisHref: "/diagnose/uppsc-pcs" },
 } as const;

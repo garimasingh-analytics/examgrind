@@ -5,11 +5,11 @@ import { StudyHubViewed } from "@/components/StudyHubTracking";
 
 export const metadata: Metadata = {
   title: "Free study guides for competitive exams · ExamGrind",
-  description: "Practical, original study guides for SSC CGL, Delhi Police, CUET, NEET, UPPSC RO/ARO and UP Secretariat RO/ARO: preparation, revision and focused improvement.",
+  description: "Practical, original study guides for SSC CGL, Delhi Police, CUET, NEET, UPPSC RO/ARO, UP Secretariat RO/ARO and UPPSC PCS: preparation, revision and focused improvement.",
 };
 
 type GuideHubProps = { searchParams: Promise<{ exam?: string }> };
-const examSlugs = ["ssc-cgl", "delhi-police-constable", "cuet", "neet-ug", "uppsc-ro-aro", "up-secretariat-ro-aro"] as const;
+const examSlugs = ["ssc-cgl", "delhi-police-constable", "cuet", "neet-ug", "uppsc-ro-aro", "up-secretariat-ro-aro", "uppsc-pcs"] as const;
 
 export default async function GuidesPage({ searchParams }: GuideHubProps) {
   const { exam } = await searchParams;
