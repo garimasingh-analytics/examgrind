@@ -35,14 +35,14 @@ export const EXAM_CATALOG = [
   {
     slug: "uppsc-ro-aro",
     name: "UPPSC RO / ARO",
-    status: "coming_soon",
-    tagline: "Hindi, General Studies and office-skills preparation, built only after syllabus review.",
+    status: "live",
+    tagline: "Hindi, General Studies, computer skills and reasoning — a clear diagnosis and foundation-practice route for UPPSC RO / ARO preparation.",
   },
   {
     slug: "up-secretariat-ro-aro",
     name: "UP Samiksha Adhikari / Sahayak Samiksha Adhikari",
-    status: "coming_soon",
-    tagline: "A dedicated UP government-exam route is being prepared with verified scope.",
+    status: "live",
+    tagline: "Hindi, General Studies, computer skills and reasoning — a focused diagnosis and foundation-practice route for UP Secretariat RO / ARO preparation.",
   },
   {
     slug: "allahabad-high-court-ro-aro",

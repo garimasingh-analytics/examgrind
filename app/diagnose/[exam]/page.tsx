@@ -12,7 +12,14 @@ import {
 
 export const dynamic = "force-static";
 
-const VALID_EXAMS: DiagnoseExam[] = ["neet-ug", "cuet", "ssc-cgl", "delhi-police-constable"];
+const VALID_EXAMS: DiagnoseExam[] = [
+  "neet-ug",
+  "cuet",
+  "ssc-cgl",
+  "delhi-police-constable",
+  "uppsc-ro-aro",
+  "up-secretariat-ro-aro",
+];
 
 type Params = { params: Promise<{ exam: string }> };
 

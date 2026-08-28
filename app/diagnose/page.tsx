@@ -14,7 +14,14 @@ export const metadata: Metadata = {
   },
 };
 
-const EXAMS = ["neet-ug", "cuet", "ssc-cgl", "delhi-police-constable"] as const satisfies readonly DiagnoseExam[];
+const EXAMS = [
+  "neet-ug",
+  "cuet",
+  "ssc-cgl",
+  "delhi-police-constable",
+  "uppsc-ro-aro",
+  "up-secretariat-ro-aro",
+] as const satisfies readonly DiagnoseExam[];
 type LiveDiagnosisExam = (typeof EXAMS)[number];
 
 const EXAM_EMOJI: Record<LiveDiagnosisExam, string> = {
@@ -22,6 +29,8 @@ const EXAM_EMOJI: Record<LiveDiagnosisExam, string> = {
   cuet: "🎓",
   "ssc-cgl": "📊",
   "delhi-police-constable": "🚓",
+  "uppsc-ro-aro": "🗂️",
+  "up-secretariat-ro-aro": "🏛️",
 };
 
 export default function DiagnoseHubPage() {
