@@ -4,7 +4,7 @@ import { StudyHubViewed } from "@/components/StudyHubTracking";
 
 export const metadata: Metadata = {
   title: "Official exam updates desk · ExamGrind",
-  description: "Find the official sources for SSC CGL, CUET UG and NEET UG exam notices, dates and bulletins.",
+  description: "Find official sources for ExamGrind's live exam routes: SSC CGL, Delhi Police, CUET UG, NEET UG, UPPSC RO/ARO and UP Secretariat RO/ARO.",
 };
 
 const officialDesks = [
@@ -25,6 +25,24 @@ const officialDesks = [
     detail: "Official NEET notices, information bulletins and National Testing Agency updates.",
     href: "https://neet.nta.nic.in/",
     label: "Open NEET official portal",
+  },
+  {
+    exam: "Delhi Police Constable",
+    detail: "Recruitment notices and candidate documents should be verified on the SSC and Delhi Police official portals.",
+    href: "https://ssc.gov.in/",
+    label: "Open SSC official portal",
+  },
+  {
+    exam: "UPPSC RO / ARO",
+    detail: "UPPSC notices, calendars and previous-question-paper records. Verify the applicable notification before acting on a pattern or date.",
+    href: "https://uppsc.up.nic.in/",
+    label: "Open UPPSC official portal",
+  },
+  {
+    exam: "UP Secretariat RO / ARO",
+    detail: "Use the official UPPSC portal to confirm the applicable recruitment notice, conditions and examination scheme.",
+    href: "https://uppsc.up.nic.in/",
+    label: "Open UPPSC official portal",
   },
 ];
 

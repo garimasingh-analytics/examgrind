@@ -43,7 +43,7 @@ export default function DiagnosisHandoffCard({ examSlug }: { examSlug: string })
       if (!hasTrackedView.current) {
         hasTrackedView.current = true;
         trackDiagnosisHandoffViewed({
-          exam: parsed.exam as "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable",
+          exam: parsed.exam as "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable" | "uppsc-ro-aro" | "up-secretariat-ro-aro",
           wrong_count: parsed.wrongCount,
         });
       }
@@ -56,7 +56,7 @@ export default function DiagnosisHandoffCard({ examSlug }: { examSlug: string })
 
   const dismiss = (action: "choose_subject" | "dismiss" = "dismiss") => {
     trackDiagnosisHandoffAction({
-      exam: handoff.exam as "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable",
+      exam: handoff.exam as "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable" | "uppsc-ro-aro" | "up-secretariat-ro-aro",
       action,
     });
     window.localStorage.removeItem(HANDOFF_KEY);
@@ -74,9 +74,9 @@ export default function DiagnosisHandoffCard({ examSlug }: { examSlug: string })
             <h2 className="mt-1 font-serif text-2xl font-semibold leading-tight tracking-[-.04em] text-cocoa-900 sm:text-3xl">Start with {handoff.concept}—or choose your own route.</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-cocoa-700">The five-question sample surfaced {handoff.wrongCount === 1 ? "one concept gap" : `${handoff.wrongCount} concept gaps`}. It is a useful first signal, not a decision made for you.</p>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Link href={`/subject/${handoff.subjectId}`} onClick={() => trackDiagnosisHandoffAction({ exam: handoff.exam as "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable", action: "follow_signal" })} className="eg-press inline-flex rounded-2xl bg-cocoa-900 px-4 py-2.5 text-sm font-bold text-cream-50 shadow-warm hover:bg-cocoa-700">Follow this signal →</Link>
+              <Link href={`/subject/${handoff.subjectId}`} onClick={() => trackDiagnosisHandoffAction({ exam: handoff.exam as "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable" | "uppsc-ro-aro" | "up-secretariat-ro-aro", action: "follow_signal" })} className="eg-press inline-flex rounded-2xl bg-cocoa-900 px-4 py-2.5 text-sm font-bold text-cream-50 shadow-warm hover:bg-cocoa-700">Follow this signal →</Link>
               <Link href="#subjects" onClick={() => dismiss("choose_subject")} className="inline-flex rounded-2xl border border-cocoa-900/15 bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 hover:bg-cream-100">I&apos;ll choose my subject</Link>
-              <Link href={`/guides?exam=${handoff.exam}`} onClick={() => { trackDiagnosisHandoffAction({ exam: handoff.exam as "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable", action: "read_guide" }); window.localStorage.removeItem(HANDOFF_KEY); }} className="inline-flex rounded-2xl border border-cocoa-900/15 bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 hover:bg-cream-100">Read my study guide</Link>
+              <Link href={`/guides?exam=${handoff.exam}`} onClick={() => { trackDiagnosisHandoffAction({ exam: handoff.exam as "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable" | "uppsc-ro-aro" | "up-secretariat-ro-aro", action: "read_guide" }); window.localStorage.removeItem(HANDOFF_KEY); }} className="inline-flex rounded-2xl border border-cocoa-900/15 bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 hover:bg-cream-100">Read my study guide</Link>
             </div>
           </div>
         </div>
