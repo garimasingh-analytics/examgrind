@@ -5,6 +5,7 @@ import { createAdminSupabase } from "@/lib/supabase/admin";
 import Link from "next/link";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
 import Chick from "@/components/Chick";
+import { getExamBySlug } from "@/lib/exam-catalog";
 
 /**
  * Entry point for an exam pick from the landing page.
@@ -20,30 +21,6 @@ import Chick from "@/components/Chick";
  *     headline; the OAuth round-trip writes exam_choice on first arrival.
  */
 
-const EXAM_META: Record<
-  string,
-  { slug: string; name: string; tagline: string }
-> = {
-  cuet: {
-    slug: "cuet",
-    name: "CUET UG",
-    tagline:
-      "12 subjects · Full NTA syllabus · AI-graded practice that tells you exactly what to study next.",
-  },
-  "ssc-cgl": {
-    slug: "ssc-cgl",
-    name: "SSC CGL",
-    tagline:
-      "Quant · Reasoning · English · GA — Tier 1 + Tier 2 patterns with concept-level feedback on every wrong answer.",
-  },
-  "neet-ug": {
-    slug: "neet-ug",
-    name: "NEET UG",
-    tagline:
-      "NCERT-aligned Physics, Chemistry, Biology. Diagnostic practice that shows the exact concept you're weak on.",
-  },
-};
-
 export const dynamic = "force-dynamic";
 
 // Match the codebase convention used by /subject/[id], /chapter/[id], etc.
@@ -53,8 +30,8 @@ type Params = { params: Promise<{ slug: string }> };
 
 export default async function StartExamPage({ params }: Params) {
   const { slug } = await params;
-  const meta = EXAM_META[slug];
-  if (!meta) redirect("/");
+  const meta = getExamBySlug(slug);
+  if (!meta || meta.status !== "live") redirect("/");
 
   const supabase = createServerSupabase();
   const {

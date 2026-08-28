@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { DIAGNOSE_QUESTIONS, EXAM_LABEL, type DiagnoseExam } from "@/lib/diagnose-questions";
+import { DIAGNOSE_QUESTIONS, EXAM_LABEL, isDiagnoseExam, type DiagnoseExam } from "@/lib/diagnose-questions";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,8 +8,6 @@ type GradeBody = {
   exam: DiagnoseExam;
   answers: Array<{ id: string; picked: "A" | "B" | "C" | "D" | null }>;
 };
-
-const VALID_EXAMS = ["neet-ug", "cuet", "ssc-cgl"];
 
 /**
  * Public grading endpoint for /diagnose.
@@ -28,7 +26,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  if (!VALID_EXAMS.includes(body.exam)) {
+  if (!isDiagnoseExam(body.exam)) {
     return NextResponse.json({ error: "Invalid exam" }, { status: 400 });
   }
 

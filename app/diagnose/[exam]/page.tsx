@@ -6,18 +6,26 @@ import {
   DIAGNOSE_QUESTIONS,
   EXAM_LABEL,
   EXAM_TAGLINE,
+  isDiagnoseExam,
   type DiagnoseExam,
 } from "@/lib/diagnose-questions";
 
 export const dynamic = "force-static";
 
-const VALID_EXAMS = ["neet-ug", "cuet", "ssc-cgl"] as const;
+const VALID_EXAMS: DiagnoseExam[] = [
+  "neet-ug",
+  "cuet",
+  "ssc-cgl",
+  "delhi-police-constable",
+  "uppsc-ro-aro",
+  "up-secretariat-ro-aro",
+];
 
 type Params = { params: Promise<{ exam: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { exam } = await params;
-  if (!(VALID_EXAMS as readonly string[]).includes(exam)) return {};
+  if (!isDiagnoseExam(exam)) return {};
   const label = EXAM_LABEL[exam as DiagnoseExam];
   return {
     title: `90-sec ${label} weakness diagnosis · ExamGrind`,
@@ -31,7 +39,7 @@ export async function generateStaticParams() {
 
 export default async function DiagnoseExamPage({ params }: Params) {
   const { exam } = await params;
-  if (!(VALID_EXAMS as readonly string[]).includes(exam)) notFound();
+  if (!isDiagnoseExam(exam)) notFound();
 
   const examKey = exam as DiagnoseExam;
   const questions = DIAGNOSE_QUESTIONS[examKey];

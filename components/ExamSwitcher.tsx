@@ -2,14 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { LIVE_EXAMS } from "@/lib/exam-catalog";
 
-type ExamOption = { slug: string; name: string };
-
-const EXAMS: ExamOption[] = [
-  { slug: "cuet", name: "CUET UG" },
-  { slug: "ssc-cgl", name: "SSC CGL" },
-  { slug: "neet-ug", name: "NEET UG" },
-];
+const EXAMS = LIVE_EXAMS;
 
 const NAMES: Record<string, string> = Object.fromEntries(
   EXAMS.map((e) => [e.slug, e.name])
@@ -19,7 +14,7 @@ const NAMES: Record<string, string> = Object.fromEntries(
  * Compact header pill that doubles as a one-click exam switcher.
  *
  * - Closed state: small pill showing the current exam name + a small ▾.
- * - Open state: popover listing all 3 exams. Clicking one navigates to
+ * - Open state: popover listing every released exam. Clicking one navigates to
  *   /start/<slug>, which server-side updates users.exam_choice and
  *   redirects to /home. XP and streak are preserved.
  *

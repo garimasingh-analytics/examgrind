@@ -9,6 +9,7 @@ const exams = [
   { slug: "cuet", label: "CUET UG", detail: "12 subjects · NCERT-aligned", colour: "amber" },
   { slug: "ssc-cgl", label: "SSC CGL", detail: "Quant · Reasoning · English · GA", colour: "violet" },
   { slug: "neet-ug", label: "NEET UG", detail: "Physics · Chemistry · Biology", colour: "coral" },
+  { slug: "delhi-police-constable", label: "Delhi Police", detail: "GK · Reasoning · Numerical Ability · Computer", colour: "amber" },
 ] as const;
 
 export default function CinematicLanding() {
@@ -59,6 +60,6 @@ export default function CinematicLanding() {
     </section>
 
     <section className="egallery-close" aria-labelledby="close-title"><div><p className="egallery-eyebrow">THE FIRST MOVE IS FREE</p><h2 id="close-title">Stop guessing what<br />to study <em>next.</em></h2><p>Start with one diagnosis. See the concepts behind your score before you create an account or pay for anything.</p><Link href={`/diagnose/${choice.slug}`} onClick={() => trackLandingExamSelected({ exam: choice.slug })} className="egallery-primary">Take my free diagnosis</Link></div><Chick state="excited" size={154} /></section>
-    <footer className="egallery-footer"><span>© {new Date().getFullYear()} ExamGrind</span><nav><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link><Link href="/contact">Contact</Link></nav></footer>
+    <footer className="egallery-footer"><span>© {new Date().getFullYear()} ExamGrind</span><nav><Link href="/guides">Study guides</Link><Link href="/about">About</Link><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link><Link href="/contact">Contact</Link></nav></footer>
   </main>;
 }

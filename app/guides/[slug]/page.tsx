@@ -13,16 +13,39 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: GuideProps): Metadata {
   const guide = getStudyGuide(params.slug);
   if (!guide) return {};
-  return { title: `${guide.title} · ExamGrind`, description: guide.description };
+  return {
+    title: `${guide.title} · ExamGrind`,
+    description: guide.description,
+    alternates: { canonical: `/guides/${guide.slug}` },
+    openGraph: {
+      type: "article",
+      title: guide.title,
+      description: guide.description,
+      url: `/guides/${guide.slug}`,
+    },
+  };
 }
 
 export default function GuidePage({ params }: GuideProps) {
   const guide = getStudyGuide(params.slug);
   if (!guide) notFound();
   const exam = examGuideMeta[guide.examSlug];
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://examgrind.in";
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: guide.title,
+    description: guide.description,
+    datePublished: guide.publishedAt,
+    dateModified: guide.publishedAt,
+    mainEntityOfPage: `${baseUrl}/guides/${guide.slug}`,
+    author: { "@type": "Organization", name: "ExamGrind" },
+    publisher: { "@type": "Organization", name: "ExamGrind" },
+  };
 
   return (
     <main className="min-h-[100svh] bg-cream-50 text-cocoa-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <StudyGuideViewed exam={guide.examSlug} guideSlug={guide.slug} />
       <header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-6 sm:px-8">
         <Link href={`/guides?exam=${guide.examSlug}`} className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">← {exam.label} guides</Link>

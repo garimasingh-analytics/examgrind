@@ -11,6 +11,7 @@ import type { ChickVariant } from "@/lib/chicks";
 import CancelSubButton from "./CancelSubButton";
 import EmailPreferencesCard from "./EmailPreferencesCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
+import { LIVE_EXAMS } from "@/lib/exam-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -362,11 +363,7 @@ export default async function ProfilePage() {
             </p>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            {[
-              { slug: "cuet", name: "CUET UG" },
-              { slug: "ssc-cgl", name: "SSC CGL" },
-              { slug: "neet-ug", name: "NEET UG" },
-            ].map((e) => {
+            {LIVE_EXAMS.map((e) => {
               const active = (profile?.exam_choice ?? "cuet") === e.slug;
               return (
                 <Link

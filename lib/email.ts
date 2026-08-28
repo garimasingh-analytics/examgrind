@@ -78,7 +78,7 @@ function stripHtml(html: string): string {
 const BRAND_HEADER = `
   <div style="background:linear-gradient(135deg,#FF6B6B,#FFB84D);padding:24px;text-align:center;border-radius:8px 8px 0 0;">
     <div style="font-size:28px;font-weight:800;color:white;letter-spacing:-0.5px;">ExamGrind 🐥</div>
-    <div style="color:rgba(255,255,255,0.92);font-size:13px;margin-top:4px;">AI-graded practice for CUET · NEET UG · SSC CGL</div>
+    <div style="color:rgba(255,255,255,0.92);font-size:13px;margin-top:4px;">Focused practice, teaching and repair for competitive exams</div>
   </div>`;
 
 const BRAND_FOOTER = `
@@ -97,12 +97,13 @@ function wrap(bodyHtml: string): string {
   </div>`;
 }
 
-type ExamSlug = "cuet" | "ssc-cgl" | "neet-ug";
+type ExamSlug = "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable";
 
 const EXAM_LABEL_MAP: Record<ExamSlug, string> = {
   cuet: "CUET UG",
   "ssc-cgl": "SSC CGL",
   "neet-ug": "NEET UG",
+  "delhi-police-constable": "Delhi Police Constable",
 };
 
 type ProofTrap = {
@@ -142,6 +143,15 @@ const PROOF_TRAP: Record<ExamSlug, ProofTrap> = {
       "<strong>Two squarings needed.</strong> (x + 1/x)² = 9 → x² + 1/x² = 7. Then square again: 49 → x⁴ + 1/x⁴ = 47. Most students stop after one squaring and pick 27.",
     drill: "SSC CGL Algebra · Square-cube identities",
   },
+  "delhi-police-constable": {
+    question: "Q: Which memory loses its contents when power is switched off?",
+    wrongPick: "a",
+    rightPick: "c",
+    headline: "This is a category check, not a memory test.",
+    explanation:
+      "<strong>RAM is volatile memory.</strong> It needs power to retain data. ROM, disks and DVDs are non-volatile. A small comparison table prevents this family of computer-awareness errors.",
+    drill: "Delhi Police Constable · Computer Awareness · Hardware, Memory & Storage",
+  },
 };
 
 function proofBlockHtml(slug: ExamSlug): string {
@@ -165,7 +175,7 @@ function proofBlockHtml(slug: ExamSlug): string {
 /** Welcome email after first signup — bespoke marketing-grade HTML. */
 export async function sendWelcomeEmail(to: string, examSlug?: string) {
   const slug: ExamSlug =
-    examSlug === "cuet" || examSlug === "ssc-cgl" || examSlug === "neet-ug"
+    examSlug === "cuet" || examSlug === "ssc-cgl" || examSlug === "neet-ug" || examSlug === "delhi-police-constable"
       ? examSlug
       : "neet-ug";
   const exam = EXAM_LABEL_MAP[slug];

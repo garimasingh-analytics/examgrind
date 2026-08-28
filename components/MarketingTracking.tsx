@@ -158,7 +158,7 @@ function AuthLifecycleEvent() {
         const diagnosisExam = intent?.exam;
         const diagnosisIntentCreatedAt = intent?.createdAt;
         const isFreshDiagnosisIntent =
-          (diagnosisExam === "cuet" || diagnosisExam === "ssc-cgl" || diagnosisExam === "neet-ug") &&
+          (diagnosisExam === "cuet" || diagnosisExam === "ssc-cgl" || diagnosisExam === "neet-ug" || diagnosisExam === "delhi-police-constable") &&
           typeof diagnosisIntentCreatedAt === "number" &&
           Date.now() - diagnosisIntentCreatedAt < 30 * 60_000;
         if (isFreshDiagnosisIntent) {

@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/auth-helpers-nextjs";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/admin-auth";
 import { sendWelcomeEmail } from "@/lib/email";
+import { isLiveExamSlug } from "@/lib/exam-catalog";
 
 /**
  * OAuth callback handler.
@@ -20,15 +21,12 @@ import { sendWelcomeEmail } from "@/lib/email";
  * The exam slug is whitelisted server-side so a malicious referrer can't
  * write garbage to users.exam_choice via the OAuth round trip.
  */
-const ALLOWED_EXAMS = new Set(["cuet", "ssc-cgl", "neet-ug"]);
-
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/home";
   const examParam = searchParams.get("exam");
-  const examChoice =
-    examParam && ALLOWED_EXAMS.has(examParam) ? examParam : null;
+  const examChoice = examParam && isLiveExamSlug(examParam) ? examParam : null;
 
   // Supabase may fall back to `/?code=…` and discard the originally
   // requested redirect URL. The sign-in page preserves that intent in this
