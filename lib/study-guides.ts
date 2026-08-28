@@ -1,6 +1,6 @@
 export type StudyGuide = {
   slug: string;
-  examSlug: "ssc-cgl" | "cuet" | "neet-ug" | "delhi-police-constable";
+  examSlug: "ssc-cgl" | "cuet" | "neet-ug" | "delhi-police-constable" | "uppsc-ro-aro" | "up-secretariat-ro-aro";
   title: string;
   description: string;
   eyebrow: string;
@@ -658,6 +658,100 @@ export const studyGuides: StudyGuide[] = [
       { label: "Delhi Police recruitment portal", href: "https://delhipolice.gov.in/recruitments" },
     ],
   },
+  {
+    slug: "uppsc-ro-aro-preparation-foundation",
+    examSlug: "uppsc-ro-aro",
+    title: "UPPSC RO / ARO preparation: build a foundation before the next notice",
+    description: "A grounded starting route for UPPSC RO / ARO aspirants: how to use official documents, build Hindi and General Studies depth, and practise with evidence instead of a generic timetable.",
+    eyebrow: "UPPSC RO / ARO study guide",
+    readTime: "7 min read",
+    publishedAt: "28 August 2026",
+    sections: [
+      {
+        heading: "Start with official documents, not a forwarded syllabus image",
+        paragraphs: [
+          "UPPSC publishes notices, calendars and previous-question-paper records on its own portal. Recruitment dates, eligibility, stages and the exact scheme can change between cycles, so treat an official notice as the source of truth before making an exam-day or application decision.",
+          "The older UPPSC RO/ARO records are still useful as preparation evidence. They show why Hindi, General Studies, drafting or writing-related work and careful language practice deserve deliberate attention. They do not give anyone permission to assume that a future notification will be identical.",
+        ],
+      },
+      {
+        heading: "Build four working buckets instead of one giant plan",
+        paragraphs: [
+          "For the ExamGrind foundation route, work in four small buckets: Hindi and language precision, General Studies recall, computer or office skills, and reasoning. The route is a practical study framework, not a claim about the next official examination pattern.",
+          "Give each block a clear job. A Hindi session might be one grammar distinction plus ten fresh examples. A General Studies session might be one topic map followed by recall prompts. Computer work should contrast terms and actions. Reasoning should make you write the condition before choosing an option.",
+        ],
+        bullets: [
+          "Hindi: practise the exact rule, then write or choose fresh examples.",
+          "General Studies: turn facts into small recall prompts and revisit them.",
+          "Computer and office skills: learn useful contrasts, workflows and vocabulary—not just recognition.",
+          "Reasoning: draw, label or sequence the condition before you look for an answer.",
+        ],
+      },
+      {
+        heading: "Use a short baseline before choosing what to study most",
+        paragraphs: [
+          "Do not decide you are weak at an entire subject because one session felt difficult. Take a short baseline in each active bucket. Mark each miss as one of four reasons: the idea was unknown, the method was applied incorrectly, time ran out, or the question was read carelessly.",
+          "Choose the repeated reason that costs the most accuracy, repair the smallest idea behind it, then retest with unseen questions within three days. That is how a study plan begins to respond to you instead of becoming another list you cannot finish.",
+        ],
+      },
+      {
+        heading: "What to do while you wait for a notification",
+        paragraphs: [
+          "Keep your preparation portable. Maintain a small Hindi error notebook, a recall-based General Studies review habit, and a weekly timed check. When the next official notice arrives, map its published scheme onto this foundation rather than restarting from zero.",
+        ],
+      },
+    ],
+    takeaway: "Use the official notice to verify the exam. Use short attempts to decide what deserves today’s study time.",
+    sourceLinks: [
+      { label: "UPPSC official portal and notice board", href: "https://uppsc.up.nic.in/" },
+      { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" },
+      { label: "UPPSC official sample papers and records", href: "https://uppsc.up.nic.in/SampleCopy/Complete_Sample_Copy3.pdf" },
+    ],
+  },
+  {
+    slug: "up-secretariat-ro-aro-preparation-foundation",
+    examSlug: "up-secretariat-ro-aro",
+    title: "UP Secretariat RO / ARO preparation: a practical foundation that survives changing notices",
+    description: "Build useful Hindi, General Studies, computer and reasoning habits now—then verify the exact scheme against the next official UPPSC notice before acting on it.",
+    eyebrow: "UP Secretariat RO / ARO study guide",
+    readTime: "7 min read",
+    publishedAt: "28 August 2026",
+    sections: [
+      {
+        heading: "Keep preparation separate from notification claims",
+        paragraphs: [
+          "UP Secretariat Review Officer / Assistant Review Officer preparation is often discussed under the Samiksha Adhikari / Sahayak Samiksha Adhikari route. Official UPPSC pages are where you should verify the recruitment title, eligibility, dates and scheme for the cycle you intend to take.",
+          "That verification habit matters. A previous-cycle paper can help you understand the kind of discipline the role rewards, but it cannot safely be presented as a promise of what a future recruitment will ask.",
+        ],
+      },
+      {
+        heading: "Prepare for useful office and language work, one skill at a time",
+        paragraphs: [
+          "The strongest foundation is not a long list of videos. It is a sequence of small, testable skills: precise Hindi usage, active General Studies recall, familiar computer and office concepts, and structured reasoning. Learn one, practise it in fresh questions, note the failure type, and return after a short gap.",
+          "For language work, keep an error log with the rule and one correct example. For General Studies, use short prompts rather than rereading a large notebook. For computer or office skills, compare close terms and name what each tool or action is for. For reasoning, make your working visible before committing to an option.",
+        ],
+      },
+      {
+        heading: "Make your first week measurable",
+        paragraphs: [
+          "Choose one focused check in each foundation bucket. After every set, record whether the missed question was a knowledge gap, an application error, a time problem or a reading error. The label matters because the repair should be different: relearn a missing idea, write a method step, practise a faster route or slow down the reading routine.",
+          "By the end of the week, you should have one priority to repair and one strength to maintain—not a vague decision to ‘study more’. Retest the repair with new questions while the lesson is still fresh enough to learn from.",
+        ],
+      },
+      {
+        heading: "When the official notice arrives",
+        paragraphs: [
+          "Read the official document before changing your timetable. Confirm the applicable posts, conditions, papers, timings and instructions, then use your existing foundation to set the order of practice. A calm, evidence-based reset is faster than reacting to a rumour or rebuilding from scratch.",
+        ],
+      },
+    ],
+    takeaway: "The best early preparation is portable: clear language habits, active recall, visible methods and a record of what actually needs repair.",
+    sourceLinks: [
+      { label: "UPPSC official portal and notice board", href: "https://uppsc.up.nic.in/" },
+      { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" },
+      { label: "UPPSC official candidate records", href: "https://uppsc.up.nic.in/Default.aspx" },
+    ],
+  },
 ];
 
 export function getStudyGuide(slug: string) {
@@ -669,4 +763,6 @@ export const examGuideMeta = {
   cuet: { label: "CUET UG", diagnosisHref: "/diagnose/cuet" },
   "neet-ug": { label: "NEET UG", diagnosisHref: "/diagnose/neet-ug" },
   "delhi-police-constable": { label: "Delhi Police Constable", diagnosisHref: "/diagnose/delhi-police-constable" },
+  "uppsc-ro-aro": { label: "UPPSC RO / ARO", diagnosisHref: "/diagnose/uppsc-ro-aro" },
+  "up-secretariat-ro-aro": { label: "UP Secretariat RO / ARO", diagnosisHref: "/diagnose/up-secretariat-ro-aro" },
 } as const;
