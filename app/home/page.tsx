@@ -28,6 +28,7 @@ type TodayQuestion = {
   user_answer: string | null;
   time_taken: number | null;
 };
+type CurrentAffairsBrief = { title: string; summary: string; published_on: string };
 type UserRow = {
   xp: number;
   level: number;
@@ -89,7 +90,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
     return `${part("year")}-${part("month").padStart(2, "0")}-${part("day").padStart(2, "0")}`;
   };
 
-  const [profileRes, countsRes, masteryRes, todayQuizzesRes] = await Promise.all([
+  const [profileRes, countsRes, masteryRes, todayQuizzesRes, currentAffairsRes] = await Promise.all([
     supabase
       .from("users")
       .select(
@@ -111,12 +112,21 @@ export default async function HomePage({ searchParams }: HomeProps) {
       .not("score", "is", null)
       .gte("created_at", todayIndiaStart)
       .limit(100),
+    supabase
+      .from("current_affairs_briefs")
+      .select("title, summary, published_on")
+      .eq("status", "published")
+      .eq("published_on", indiaDateKey(new Date()))
+      .order("created_at")
+      .limit(1)
+      .maybeSingle<CurrentAffairsBrief>(),
   ]);
 
   let profile = profileRes.data;
   const countsData = countsRes.data;
   const masteryRaw = masteryRes.data;
   const todayQuizzes = (todayQuizzesRes.data ?? []) as TodayQuiz[];
+  const todayCurrentAffairs = currentAffairsRes.data;
 
   if (!profile) {
     // Defensive insert on first visit. New rows get exam_choice='cuet'
@@ -175,6 +185,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
   let subjectsQuery = supabase
     .from("subjects")
     .select("id, name, cuet_code, icon, order_index")
+    .eq("is_active", true)
     .order("order_index", { ascending: true });
   if (examRow?.id) {
     subjectsQuery = subjectsQuery.eq("exam_id", examRow.id);
@@ -704,6 +715,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
       </section>
 
       <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
+        <Link href="/current-affairs" className="mb-4 block overflow-hidden rounded-[1.6rem] border border-cocoa-900/[.08] bg-sun-300/20 p-5 shadow-warm transition hover:-translate-y-0.5 hover:shadow-warm-lg sm:flex sm:items-center sm:justify-between sm:gap-6"><div><p className="eg-kicker text-ember-700">Daily current affairs · always free</p><h2 className="mt-1 font-serif text-2xl font-semibold tracking-[-.04em] text-cocoa-900">{todayCurrentAffairs ? todayCurrentAffairs.title : "Today’s source-backed current-affairs desk."}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-cocoa-700">{todayCurrentAffairs ? todayCurrentAffairs.summary : "Read what matters, see its syllabus connection, then return to your preparation with a clearer next step."}</p></div><span className="mt-4 inline-flex shrink-0 items-center font-bold text-ember-700 sm:mt-0">Open today’s brief →</span></Link>
         <div className="tool-issue">
         <div className="flex items-end justify-between gap-3"><div><p className="eg-kicker text-ember-700">Margin notes</p><h2 className="mt-1 font-serif text-2xl font-semibold tracking-[-.04em] text-cocoa-900">Tools for the moments that matter.</h2></div><p className="hidden max-w-xs text-right text-xs leading-5 text-cocoa-700 sm:block">Use these when you need a different way in—not as another dashboard to maintain.</p></div>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
@@ -713,6 +725,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
           <CompactTool href="/revision" icon="🧠" title="Smart Revision" detail={revisionDueTopics.length > 0 ? `${revisionDueTopics.length} due for recall.` : "Recall when it is due."} />
           <CompactTool href="/mock" icon="📝" title="Mock test" detail="Try full exam timing." />
           <CompactTool href={`/guides?exam=${examSlug}`} icon="📚" title="Study Hub" detail="Guides and official updates." />
+          <CompactTool href="/current-affairs" icon="🗓️" title="Current Affairs" detail="Daily briefs and calendar archive." />
         </div>
         </div>
       </section>

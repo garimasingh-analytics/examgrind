@@ -61,7 +61,8 @@ export default async function RevisionPage() {
     supabase
       .from("subjects")
       .select("id, name")
-      .eq("exam_id", exam.id),
+      .eq("exam_id", exam.id)
+      .eq("is_active", true),
     supabase
       .from("user_topic_mastery")
       .select("topic_id, mastery_level, questions_attempted, questions_correct, last_quizzed_at, topics!inner(name, chapters!inner(subject_id))")

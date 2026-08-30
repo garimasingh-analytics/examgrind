@@ -61,7 +61,7 @@ export default async function CoachPage() {
     .maybeSingle<{ id: string; name: string }>();
   const [{ data: subjectRows }, { data: preferenceRaw }] = exam?.id
     ? await Promise.all([
-        supabase.from("subjects").select("id, name").eq("exam_id", exam.id).order("order_index"),
+        supabase.from("subjects").select("id, name").eq("exam_id", exam.id).eq("is_active", true).order("order_index"),
         supabase.from("user_exam_preferences").select("selected_subject_ids").eq("user_id", user.id).eq("exam_id", exam.id).maybeSingle<StudyPreference>(),
       ])
     : [{ data: [] }, { data: null }];

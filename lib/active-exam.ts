@@ -42,7 +42,8 @@ export async function scopeQuizzesToActiveExam<T extends { topic_id: string | nu
   const { data: subjectsRaw } = await supabase
     .from("subjects")
     .select("id")
-    .eq("exam_id", exam.id);
+    .eq("exam_id", exam.id)
+    .eq("is_active", true);
   const allExamSubjectIds = new Set(
     ((subjectsRaw ?? []) as SubjectRow[]).map((subject) => subject.id),
   );
