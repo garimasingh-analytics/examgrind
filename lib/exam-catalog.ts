@@ -47,7 +47,7 @@ export const EXAM_CATALOG = [
   {
     slug: "uppsc-pcs",
     name: "UPPSC PCS",
-    status: "live",
+    status: "coming_soon",
     tagline: "General Studies, CSAT skills and Uttar Pradesh context — a focused diagnosis and original foundation-practice route for UPPSC PCS preparation.",
   },
   {
