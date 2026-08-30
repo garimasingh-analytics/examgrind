@@ -135,7 +135,7 @@ export const trackLandingBookOpened = () =>
   track(ANALYTICS_EVENTS.LANDING_BOOK_OPENED, {});
 export const trackLandingCtaClicked = (params: { placement: "hero" | "closing" }) =>
   track(ANALYTICS_EVENTS.LANDING_CTA_CLICKED, params);
-export const trackLandingExamSelected = (params: { exam: "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable" }) =>
+export const trackLandingExamSelected = (params: { exam: string }) =>
   track(ANALYTICS_EVENTS.LANDING_EXAM_SELECTED, params);
 
 export type DiagnosisExam =

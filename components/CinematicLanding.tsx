@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Chick from "@/components/Chick";
+import { LIVE_EXAMS } from "@/lib/exam-catalog";
 import { trackLandingBookOpened, trackLandingCtaClicked, trackLandingExamSelected } from "@/lib/product-analytics";
 
-const exams = [
-  { slug: "cuet", label: "CUET UG", detail: "12 subjects · NCERT-aligned", colour: "amber" },
-  { slug: "ssc-cgl", label: "SSC CGL", detail: "Quant · Reasoning · English · GA", colour: "violet" },
-  { slug: "neet-ug", label: "NEET UG", detail: "Physics · Chemistry · Biology", colour: "coral" },
-  { slug: "delhi-police-constable", label: "Delhi Police", detail: "GK · Reasoning · Numerical Ability · Computer", colour: "amber" },
-] as const;
+const colours = ["amber", "violet", "coral"] as const;
+const exams = LIVE_EXAMS.map((exam, index) => ({
+  slug: exam.slug,
+  label: exam.name,
+  detail: exam.tagline,
+  colour: colours[index % colours.length],
+}));
 
 export default function CinematicLanding() {
-  const [exam, setExam] = useState<(typeof exams)[number]["slug"]>("ssc-cgl");
+  const [exam, setExam] = useState<string>("ssc-cgl");
   const choice = exams.find((item) => item.slug === exam) ?? exams[1];
 
   useEffect(() => {
