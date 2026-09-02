@@ -5,6 +5,7 @@ import QuestionCountPicker from "./QuestionCountPicker";
 import Chick from "@/components/Chick";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import type { Topic, Chapter, Subject, UserTopicMastery } from "@/lib/types";
+import { isLiveExamSlug } from "@/lib/exam-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function TopicLauncherPage({ params, searchParams }: Params
   // combined the previously-separate gateProfile + examProfile queries into
   // one users-table fetch (was doing the same select twice).
   type Joined = Topic & {
-    chapter: Chapter & { subject: Subject };
+    chapter: Chapter & { subject: Subject & { exam: { slug: string } | null } };
   };
   type UserProfile = {
     subscription_status: "free" | "trial" | "paid";
@@ -33,7 +34,10 @@ export default async function TopicLauncherPage({ params, searchParams }: Params
   const [topicRes, masteryRes, profileRes] = await Promise.all([
     supabase
       .from("topics")
-      .select("*, chapter:chapters(*, subject:subjects(*))")
+      // The live-exam gate below needs the owning exam. Omitting this nested
+      // relation made otherwise-valid Delhi Police topics look unavailable
+      // and sent students to the not-found screen after they chose a page.
+      .select("*, chapter:chapters(*, subject:subjects(*, exam:exams(slug)))")
       .eq("id", id)
       .maybeSingle(),
     supabase
@@ -51,6 +55,7 @@ export default async function TopicLauncherPage({ params, searchParams }: Params
 
   if (!topicRes.data) notFound();
   const topic = topicRes.data as Joined;
+  if (!isLiveExamSlug(topic.chapter.subject.exam?.slug ?? "")) notFound();
   const mastery = masteryRes.data as UserTopicMastery | null;
   const profile = profileRes.data;
 
