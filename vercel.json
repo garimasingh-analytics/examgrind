@@ -3,6 +3,10 @@
   "regions": ["bom1"],
   "crons": [
     {
+      "path": "/api/cron/current-affairs",
+      "schedule": "30 23 * * *"
+    },
+    {
       "path": "/api/cron/lifecycle-emails",
       "schedule": "30 4 * * *"
     }
