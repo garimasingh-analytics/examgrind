@@ -81,7 +81,13 @@ export default async function CurrentAffairsPage({ searchParams }: PageProps) {
   return (
     <main className="min-h-[100svh] bg-warm-wash pb-16 text-cocoa-900">
       <CurrentAffairsTracking date={selectedDate} briefCount={briefs.length} />
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-6 sm:px-8"><Link href="/" className="font-serif text-xl font-bold">ExamGrind</Link><div className="flex items-center gap-3"><Link href="/government-schemes" className="hidden text-sm font-bold text-cocoa-600 hover:text-cocoa-900 sm:inline">Government Schemes</Link><Link href="/guides" className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">Study Guides</Link><Link href="/diagnose" className="rounded-full bg-cocoa-900 px-4 py-2 text-sm font-bold text-cream-50">Find my weak topics →</Link></div></header>
+      <header className="mx-auto max-w-6xl px-5 py-6 sm:px-8">
+        <div className="flex items-center justify-between gap-3"><Link href="/" className="font-serif text-xl font-bold">ExamGrind</Link><div className="flex items-center gap-3"><Link href="/guides" className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">Study Guides</Link><Link href="/diagnose" className="rounded-full bg-cocoa-900 px-4 py-2 text-sm font-bold text-cream-50">Find my weak topics →</Link></div></div>
+        <nav aria-label="Current affairs resources" className="mt-5 grid grid-cols-2 gap-3 sm:flex sm:items-center">
+          <Link href="/current-affairs" className="rounded-full bg-cocoa-900 px-4 py-3 text-center text-sm font-bold text-cream-50">Daily Current Affairs</Link>
+          <Link href="/government-schemes" className="rounded-full border border-ember-700/20 bg-sun-300/25 px-4 py-3 text-center text-sm font-bold text-cocoa-900 transition hover:-translate-y-0.5">Government Schemes →</Link>
+        </nav>
+      </header>
       <section className="mx-auto grid max-w-6xl gap-8 px-5 pt-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div>
           <p className="text-xs font-bold uppercase tracking-[.2em] text-ember-700">The daily current-affairs desk</p>
