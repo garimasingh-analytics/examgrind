@@ -1,0 +1,103 @@
+-- First editorial backfill batch: 2 September 2026.
+-- Every item is a paraphrased teaching brief linked to its primary PIB source.
+
+insert into public.current_affairs_briefs (
+  slug, published_on, title, summary, why_it_matters, background,
+  source_title, source_url, source_publisher, source_published_on,
+  prelims_takeaways, quick_check, visual_data, status, reviewed_at
+) values
+(
+  '2026-09-02-updated-gdp-series-and-double-deflation',
+  '2026-09-02',
+  'GDP estimates: why a new base year and “double deflation” matter',
+  'PIB explained the updated national-accounts series released with 2022-23 as its base year. The update uses revised price indices and administrative data; manufacturing estimates also use double deflation.',
+  'Economy questions often test the difference between nominal and real values, a base-year revision, CPI/WPI and the GDP deflator. The key is not to treat revised series numbers as directly comparable with an older base-year series.',
+  'A base year supplies the reference prices used to calculate real growth. Deflation removes price changes from a current-price value. Double deflation estimates real value added by deflating output and intermediate inputs separately, rather than using one price adjustment for the whole activity.',
+  'PIB FAQ: Understanding Q1 2026-27 GDP Estimates',
+  'https://www.pib.gov.in/FaqDetails.aspx?ModuleId=4&NoteId=159824&id=159824&lang=2&reg=48',
+  'Press Information Bureau',
+  '2026-09-02',
+  '["Base-year revision improves how representative prices and weights are in national accounts.", "Nominal GDP is at current prices; real GDP removes price effects.", "The GDP deflator, CPI and WPI cover different baskets and purposes.", "Do not compare growth figures across superseded and current base-year series without care."]'::jsonb,
+  '[{"question":"What is the basic purpose of deflation in national-income accounting?","answer":"To remove the effect of price changes and estimate a value at constant prices."},{"question":"Why can the GDP deflator differ from CPI or WPI?","answer":"They measure different price concepts, use different coverage and weights, and serve different purposes."}]'::jsonb,
+  '{"title":"From current prices to real growth","steps":["Current-price value includes both quantity and price change.","Deflation removes the price effect using an appropriate price index.","Constant-price estimates allow real-growth comparison.","Base-year revisions update the reference structure used for the series."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-09-02-gift-ifsc-and-cross-border-finance',
+  '2026-09-02',
+  'GIFT-IFSC: India’s international financial-services hub',
+  'IFSCA highlighted growing activity by International Banking Units at GIFT-IFSC, including foreign-currency mobilisation, external commercial borrowings and bond listings on IFSC exchanges.',
+  'For prelims, connect GIFT City with IFSC, IFSCA, International Banking Units, FCNR(B) deposits and external commercial borrowings. For the economy syllabus, it is an example of creating a regulated channel that links domestic financing needs with global capital.',
+  'An International Financial Services Centre serves cross-border financial transactions. IFSCA is the unified regulator established under the IFSCA Act, 2019. International Banking Units operate from the IFSC and can support international banking and capital-market activity within the applicable regulatory framework.',
+  'PIB: GIFT IFSC emerges as a strong and vibrant international banking hub',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2306144&lang=1&reg=3',
+  'Press Information Bureau',
+  '2026-09-02',
+  '["GIFT City is India’s IFSC at Gandhinagar, Gujarat.", "IFSCA is the unified regulator for financial products, services and institutions in IFSCs.", "IBU means International Banking Unit.", "ECB means External Commercial Borrowing."]'::jsonb,
+  '[{"question":"Which authority regulates financial products, services and institutions in India’s IFSC?","answer":"The International Financial Services Centres Authority (IFSCA)."},{"question":"What does ECB stand for?","answer":"External Commercial Borrowing."}]'::jsonb,
+  '{"title":"How an IFSC connects capital","steps":["Global investors and institutions access an IFSC framework.","IBUs and market institutions operate within that framework.","Cross-border borrowing, banking and listings can be facilitated.","The wider aim is to connect India with international financial markets."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-09-02-india-germany-energy-and-carbon-cooperation',
+  '2026-09-02',
+  'India–Germany talks: energy security, low-carbon growth and carbon markets',
+  'India and Germany reviewed cooperation on energy security, electrification, low-carbon development, carbon markets and supply-chain diversification during a bilateral meeting in New Delhi.',
+  'This is useful for environment, international relations and economy: energy transition is not only about emissions; it also involves affordability, security of supply, technology and resilient supply chains.',
+  'Energy security means dependable access to energy at acceptable cost. Low-carbon development seeks economic growth with lower greenhouse-gas emissions. Carbon markets use tradable units or credits within a policy framework to support emissions-management goals.',
+  'PIB: India and Germany Strengthen Cooperation for Sustainable Development',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2306135&lang=2&reg=48',
+  'Press Information Bureau',
+  '2026-09-02',
+  '["Energy security and climate action can be examined together, not as separate silos.", "Carbon markets are a policy instrument, not a substitute for all climate action.", "Supply-chain diversification is an economic as well as strategic concern.", "Bilateral cooperation can include technology, policy dialogue and capacity building."]'::jsonb,
+  '[{"question":"What is the central idea of energy security?","answer":"Reliable access to energy at an acceptable cost, with resilience against disruptions."},{"question":"Name two policy areas discussed in the India–Germany meeting.","answer":"Any two: energy security, electrification, low-carbon development, carbon markets or supply-chain diversification."}]'::jsonb,
+  '{"title":"A joined-up climate-and-development lens","steps":["Secure energy supply supports households and industry.","Electrification can reduce dependence on more polluting end uses when power is cleaner.","Carbon-market design can support emissions-management objectives.","International cooperation can support technology and resilient supply chains."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-09-02-national-departmental-summit-on-water',
+  '2026-09-02',
+  'National Departmental Summit on Water: governance beyond one ministry',
+  'The Prime Minister’s valedictory address at the National Departmental Summit on Water emphasised review and follow-up, public participation, water-saving technologies, water-data governance and cooperation between the Centre and States.',
+  'Water is a recurring geography, environment and governance theme. The exam angle is to connect conservation with federalism, local participation, technology, data and agricultural or urban demand management—not to memorise a speech as a list.',
+  'Water governance covers how institutions make rules, collect and use data, allocate resources and coordinate users. Cooperative federalism describes Centre–State cooperation on shared priorities. Jan Bhagidari means public participation in public programmes.',
+  'PIB: PM chairs valedictory session of National Departmental Summit on Water',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2306122&lang=1&reg=48',
+  'Press Information Bureau',
+  '2026-09-02',
+  '["Water governance includes institutions, data, participation and implementation follow-up.", "Cooperative federalism matters where Centre and States must coordinate.", "Demand-side conservation can include water-saving technologies and behavioural change.", "Jan Bhagidari refers to public participation."]'::jsonb,
+  '[{"question":"Why is water often treated as a governance issue, not only an environmental issue?","answer":"Because allocation, data, institutions, public participation and Centre–State coordination affect how water is managed."},{"question":"What does Jan Bhagidari mean in public programmes?","answer":"Public participation."}]'::jsonb,
+  '{"title":"A water-governance chain","steps":["Measure and share reliable water data.","Coordinate institutions across levels of government.","Use conservation technologies and local practices.","Involve communities and review implementation outcomes."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-09-02-legal-metrology-indian-standard-time-rules',
+  '2026-09-02',
+  'Legal Metrology (Indian Standard Time) Rules, 2026: the framework behind IST',
+  'The Government notified rules to establish Indian Standard Time as a common, legally recognised and traceable time reference. The Legal Metrology Department is the regulatory and enforcement authority, while CSIR-NPL provides the scientific traceability foundation.',
+  'This is a strong science-and-technology plus governance brief. It links the idea of a national standard to metrology, legal recognition, measurement traceability and the role of a national laboratory.',
+  'Metrology is the science of measurement. Traceability means that a measurement can be related to stated references through a documented chain of calibrations, each contributing to the result’s confidence. IST is India’s standard time reference.',
+  'PIB: Legal Metrology (Indian Standard Time) Rules, 2026',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2306171&lang=1&reg=48',
+  'Press Information Bureau',
+  '2026-09-02',
+  '["Metrology is the science of measurement.", "IST is India’s standard time reference.", "Legal Metrology Department: regulatory and enforcement role under this framework.", "CSIR-NPL: scientific foundation and traceability for IST."]'::jsonb,
+  '[{"question":"What does measurement traceability mean?","answer":"A measurement can be linked to stated reference standards through a documented calibration chain."},{"question":"Which institution provides the scientific traceability foundation for IST under the PIB brief?","answer":"CSIR–National Physical Laboratory (CSIR-NPL)."}]'::jsonb,
+  '{"title":"From scientific standard to nationwide reference","steps":["A national laboratory maintains scientific traceability.","A legal framework specifies recognised use and responsibilities.","Regulatory authorities enforce the applicable framework.","A common reference supports consistent timekeeping across systems."]}'::jsonb,
+  'published', now()
+)
+on conflict (slug) do update set
+  title = excluded.title,
+  summary = excluded.summary,
+  why_it_matters = excluded.why_it_matters,
+  background = excluded.background,
+  source_title = excluded.source_title,
+  source_url = excluded.source_url,
+  source_publisher = excluded.source_publisher,
+  source_published_on = excluded.source_published_on,
+  prelims_takeaways = excluded.prelims_takeaways,
+  quick_check = excluded.quick_check,
+  visual_data = excluded.visual_data,
+  status = excluded.status,
+  reviewed_at = excluded.reviewed_at,
+  updated_at = now();
