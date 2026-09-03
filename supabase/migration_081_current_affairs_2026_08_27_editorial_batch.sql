@@ -1,0 +1,110 @@
+-- Source-backed current-affairs backfill: 27 August 2026.
+-- Selection is editorial, not quota-driven: each brief is tied to a distinct official release.
+
+insert into public.current_affairs_briefs (
+  slug, published_on, title, summary, why_it_matters, background,
+  source_title, source_url, source_publisher, source_published_on,
+  prelims_takeaways, quick_check, visual_data, status, reviewed_at
+) values
+(
+  '2026-08-27-kisan-credit-card-saturation-drive',
+  '2026-08-27',
+  'Kisan Credit Card saturation drive: widening access to institutional credit',
+  'The Ministry of Finance announced a Kisan Credit Card saturation drive in West Bengal from 1 September 2026 to 31 January 2027. Around 6,000 rural and semi-urban bank branches are to identify eligible farmers without a KCC and facilitate new, renewed or enhanced limits.',
+  'For agriculture and economy questions, distinguish a credit-access intervention from a direct income transfer. The story illustrates how “saturation” is used in public policy: identify every eligible person, reduce last-mile gaps and make an existing scheme or service reach them.',
+  'The Kisan Credit Card scheme provides timely institutional credit to eligible farmers for agricultural and allied needs. The eligible groups highlighted in the release include small and marginal farmers, tenant farmers, sharecroppers, and persons engaged in dairy, fisheries and animal husbandry.',
+  'PIB: Kisan Credit Card Saturation Drive to Cover Around 6,000 Bank Branches in West Bengal',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2303716&lang=2&reg=48',
+  'Press Information Bureau',
+  '2026-08-27',
+  '["KCC is an institutional agricultural-credit mechanism, not a direct cash-transfer scheme.", "The announced West Bengal drive runs from 1 September 2026 to 31 January 2027.", "The release mentions small and marginal farmers, tenant farmers and sharecroppers among the focus groups.", "Dairy, fisheries and animal husbandry are allied agricultural activities highlighted in the drive."]'::jsonb,
+  '[{"question":"What does a saturation drive seek to do in public-service delivery?","answer":"Identify and cover all eligible beneficiaries, reducing last-mile exclusion."},{"question":"Is the Kisan Credit Card scheme primarily a credit-access or direct-income-transfer intervention?","answer":"A credit-access intervention."}]'::jsonb,
+  '{"title":"How a credit-saturation drive works","steps":["Map eligible but uncovered beneficiaries.","Use local bank branches to support applications and renewals.","Extend or update credit limits where appropriate.","Track coverage to reduce exclusion from formal credit."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-08-27-samarthak-indigenous-multipurpose-vessel',
+  '2026-08-27',
+  'INS Samarthak: India receives its first indigenous multi-purpose vessel',
+  'Samarthak, the Indian Navy’s first Multi-Purpose Vessel, was delivered by Larsen & Toubro’s Kattupalli shipyard. PIB describes it as having more than 75% indigenous content and as a platform for trials and evaluation, surveillance and reconnaissance, offshore patrol and humanitarian-assistance and disaster-relief support.',
+  'This connects defence modernisation with domestic manufacturing. For prelims, do not reduce a naval vessel to one role: a multi-purpose vessel can support several operational and non-combat tasks, including trials, surveillance and HADR.',
+  'A Multi-Purpose Vessel is designed for more than one mission. HADR stands for Humanitarian Assistance and Disaster Relief. “Indigenous content” refers to the domestic share of components, systems, design or production embodied in a platform; it is a different idea from merely operating the platform in India.',
+  'PIB: Delivery of Samarthak – the First Indigenous Multi-Purpose Vessel of Indian Navy',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2303919&lang=1&reg=48',
+  'Press Information Bureau',
+  '2026-08-27',
+  '["Samarthak is the Indian Navy’s first Multi-Purpose Vessel according to the PIB release.", "It was built by Larsen & Toubro at Kattupalli.", "The release reports more than 75% indigenous content.", "HADR means Humanitarian Assistance and Disaster Relief."]'::jsonb,
+  '[{"question":"What does HADR stand for?","answer":"Humanitarian Assistance and Disaster Relief."},{"question":"Why is Samarthak called a multi-purpose vessel?","answer":"It is designed to support several roles, including trials, surveillance, patrol and HADR support."}]'::jsonb,
+  '{"title":"A multi-role naval platform","steps":["A domestic shipyard builds a naval platform.","The vessel supports trials and evaluation of systems.","It can also aid surveillance and offshore patrol.","Its versatility extends to humanitarian and disaster-relief missions."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-08-27-snow-leopard-conservation-science',
+  '2026-08-27',
+  'Snow leopard conservation: India highlights population science and international cooperation',
+  'At a Russian-Indian roundtable in Moscow, India highlighted work on snow leopard conservation including population estimation, radio telemetry and genetic analysis. The meeting was held within a partnership between the Interregional Association “Irbis” and the International Big Cat Alliance.',
+  'This is useful for environment preparation because it turns a species headline into methods: population estimation asks how many animals are present; radio telemetry tracks movement; genetic analysis can help understand populations and diversity. Conservation is evidence-based, not only protection on paper.',
+  'Snow leopards occupy high-altitude mountain ecosystems across Central and South Asia. Radio telemetry involves fitting or tracking tagged animals with radio or satellite signals. Genetic analysis uses biological material to study identity, relatedness, diversity or population structure.',
+  'PIB: India highlights science-based advances in snow leopard conservation at Moscow roundtable',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2303641&lang=1&reg=48',
+  'Press Information Bureau',
+  '2026-08-27',
+  '["Radio telemetry is used to track animal movement using transmitted signals.", "Genetic analysis can inform conservation by studying population identity and diversity.", "Snow leopards are associated with high-altitude mountain ecosystems.", "The meeting involved the International Big Cat Alliance and a Russian conservation partner."]'::jsonb,
+  '[{"question":"Which technique is most directly used to follow an animal’s movement over time: radio telemetry or genetic analysis?","answer":"Radio telemetry."},{"question":"Why is genetic analysis useful in wildlife conservation?","answer":"It can help study population identity, relatedness and genetic diversity."}]'::jsonb,
+  '{"title":"Science-led wildlife conservation","steps":["Estimate the population rather than relying on guesswork.","Track movement and habitat use through telemetry.","Use genetic evidence to understand population health.","Share methods and findings through cross-border scientific cooperation."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-08-27-health-budget-emergency-trauma-care',
+  '2026-08-27',
+  'Health Budget 2026–27: phased strengthening of district emergency and trauma care',
+  'The Union Health Minister reviewed the implementation work behind Budget 2026–27 health-sector announcements. PIB reported that 613 district hospitals were categorised for phased action, with 160 identified for the first phase of emergency and trauma-care strengthening by March 2027.',
+  'For governance questions, a Budget announcement is not the same thing as completed delivery. This release lets students trace the implementation chain: planning, gap analysis, hospital categorisation, phased rollout, monitoring and measurable timelines.',
+  'District hospitals provide secondary-level care and sit between primary-level facilities and specialised tertiary hospitals. Indian Public Health Standards (IPHS) are norms used to guide public-health facility standards. A phased rollout breaks a large programme into sequenced stages based on readiness and capacity.',
+  'PIB: Union Health Minister Reviews Progress of Key Health Sector Projects Announced in Union Budget 2026–27',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2303957&lang=1&reg=3',
+  'Press Information Bureau',
+  '2026-08-27',
+  '["613 district hospitals were categorised for phased implementation in the cited review.", "160 district hospitals were identified for Phase I by March 2027.", "IPHS refers to Indian Public Health Standards.", "District hospitals generally provide secondary-level care."]'::jsonb,
+  '[{"question":"What does a phased rollout allow a large public programme to do?","answer":"Sequence implementation according to readiness, capacity and priorities."},{"question":"What does IPHS stand for?","answer":"Indian Public Health Standards."}]'::jsonb,
+  '{"title":"From Budget provision to public-health delivery","steps":["Announce a policy priority and funding direction.","Assess existing facilities against standards and gaps.","Classify sites for phased implementation.","Monitor milestones so planned capacity becomes operational care."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-08-27-renewable-energy-summit-pm-surya-ghar',
+  '2026-08-27',
+  'Renewable-energy roadshow: linking rooftop solar, farm pumps and clean-energy investment',
+  'At the Mumbai roadshow for the Bharat Renewable Energy Summit & Expo 2026, the Ministry of New and Renewable Energy highlighted the scale of PM Surya Ghar: Muft Bijli Yojana and PM-KUSUM. The release connected household rooftop solar, solar-powered agricultural pumps and wider investment in the clean-energy ecosystem.',
+  'This is a strong way to organise environment and economy revision: different renewable-energy programmes may target households, farmers or industry, but all connect to energy transition, distributed generation, lower fossil-fuel dependence and implementation finance.',
+  'PM Surya Ghar: Muft Bijli Yojana supports household rooftop solar. PM-KUSUM promotes decentralised solar applications in agriculture, including solar pumps. Distributed generation means electricity is produced closer to where it is used instead of only through large central generating stations.',
+  'PIB: Bharat Renewable Energy Summit 2026 roadshow in Mumbai',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2303836&lang=2&reg=48',
+  'Press Information Bureau',
+  '2026-08-27',
+  '["PM Surya Ghar: Muft Bijli Yojana is associated with household rooftop solar.", "PM-KUSUM supports decentralised solar applications in agriculture, including solar pumps.", "Distributed generation produces electricity nearer to consumers.", "The Bharat Renewable Energy Summit & Expo 2026 was scheduled at Bharat Mandapam, New Delhi, from 2 to 5 November 2026."]'::jsonb,
+  '[{"question":"Which programme is associated with household rooftop solar: PM Surya Ghar or PM-KUSUM?","answer":"PM Surya Ghar: Muft Bijli Yojana."},{"question":"What is one agricultural application promoted under PM-KUSUM?","answer":"Solar-powered pumps."}]'::jsonb,
+  '{"title":"Three pathways in the energy transition","steps":["Homes can generate rooftop solar power.","Farmers can use solar-powered applications such as pumps.","Investment supports larger clean-energy infrastructure and supply chains.","Together, distributed and larger systems reduce dependence on conventional energy sources."]}'::jsonb,
+  'published', now()
+),
+(
+  '2026-08-27-lakhpati-didi-day-nrlm',
+  '2026-08-27',
+  'Lakhpati Didis and DAY-NRLM: self-help groups as a rural-livelihoods platform',
+  'A Ministry of Rural Development programme with self-help group members and Lakhpati Didis reiterated support for skills, affordable credit, digital empowerment, enterprise promotion and market linkages through the Deendayal Antyodaya Yojana–National Rural Livelihoods Mission.',
+  'For social-sector preparation, this is not merely a ceremonial item. It shows the policy logic of self-help-group based livelihoods: organise women, improve capabilities and credit access, support enterprises and connect them to markets. The “Lakhpati Didi” goal is linked to sustained household income, not a one-time prize.',
+  'DAY-NRLM is the rural-livelihoods mission under the Ministry of Rural Development. A self-help group is typically a small, voluntary collective that can pool savings, improve credit access and support livelihoods. Market linkages help producer groups sell goods or services to buyers.',
+  'PIB: Raksha Bandhan Celebrated with Lakhpati Didis Across the Country',
+  'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2303896&lang=1&reg=6',
+  'Press Information Bureau',
+  '2026-08-27',
+  '["DAY-NRLM stands for Deendayal Antyodaya Yojana–National Rural Livelihoods Mission.", "It is under the Ministry of Rural Development.", "Self-help groups can support savings, credit access and livelihoods.", "Market linkages connect producer groups or enterprises with buyers."]'::jsonb,
+  '[{"question":"Which ministry administers DAY-NRLM?","answer":"The Ministry of Rural Development."},{"question":"Why are market linkages important for a livelihood programme?","answer":"They help producers and small enterprises reach buyers and earn sustained income."}]'::jsonb,
+  '{"title":"A self-help-group livelihoods pathway","steps":["Women join and strengthen local self-help groups.","Groups build savings, skills and access to affordable credit.","Members develop or expand enterprises.","Market and digital links help turn activity into sustained income."]}'::jsonb,
+  'published', now()
+)
+on conflict (slug) do update set
+  title = excluded.title, summary = excluded.summary, why_it_matters = excluded.why_it_matters,
+  background = excluded.background, source_title = excluded.source_title, source_url = excluded.source_url,
+  source_publisher = excluded.source_publisher, source_published_on = excluded.source_published_on,
+  prelims_takeaways = excluded.prelims_takeaways, quick_check = excluded.quick_check,
+  visual_data = excluded.visual_data, status = excluded.status, reviewed_at = excluded.reviewed_at, updated_at = now();
