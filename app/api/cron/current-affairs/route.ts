@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
-import { currentAffairsRunAudit, loadReviewedCurrentAffairs } from "@/lib/current-affairs-migration-publisher";
+import { currentAffairsRunAudit, currentAffairsSourceRegistryExpansion, loadReviewedCurrentAffairs } from "@/lib/current-affairs-migration-publisher";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,6 +39,8 @@ export async function GET(request: NextRequest) {
     await admin.from("current_affairs_daily_runs").upsert({ run_date: runDate, status: "failed", sources_checked: 0, candidate_count: 0, published_count: 0, notes: "Reviewed editorial briefs could not be published." }, { onConflict: "run_date" });
     return NextResponse.json({ error: "Reviewed current-affairs briefs could not be published." }, { status: 500 });
   }
+  const { error: sourceSeedError } = await admin.from("current_affairs_sources").upsert(currentAffairsSourceRegistryExpansion(), { onConflict: "slug" });
+  if (sourceSeedError) return NextResponse.json({ error: "Could not update the source registry." }, { status: 500 });
   const { data: sources, error: sourcesError } = await admin.from("current_affairs_sources").select("name, source_url, cadence").eq("is_active", true);
   if (sourcesError) return NextResponse.json({ error: "Could not load the source registry." }, { status: 500 });
 
