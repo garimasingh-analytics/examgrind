@@ -59,6 +59,7 @@ const editorialMigrationFiles = [
   "migration_093_current_affairs_2026_09_08_daily_desk.sql",
   "migration_098_current_affairs_2026_09_09_daily_desk.sql",
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
+  "migration_100_current_affairs_2026_09_11_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -99,6 +100,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 22,
       publishedCount: 5,
       notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and the monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through trustworthy current-affairs materials and verified each published development against its original official release. Published the CCEA's two distinct railway multi-tracking approval packages, India's 6G Leadership and Security Call to Action endorsement, UIDAI's Aadhaar Face Authentication SDK and Sandbox, and the launch of ORV Sagar Manthan under the Deep Ocean Mission. Excluded ceremonial visits and speeches, routine meetings, workshops, awards, enforcement and seizure notices, duplicate or already-covered releases, and prospective announcements such as DILRMP 3.0 guidelines that were scheduled after this desk's verification window.",
+    };
+  }
+
+  if (runDate === "2026-09-11") {
+    return {
+      candidateCount: 21,
+      publishedCount: 4,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through trustworthy current-affairs materials and verified every published item against its original primary official release. Published the Consumer Protection (E-Commerce) (Amendment) Rules, 2026; DILRMP 3.0 operational guidelines; NSO's first district-level ASUSE estimates; and SEBI-RBI's Demat 2.0 tokenised corporate-bond pilot. Excluded ceremonial visits and speeches, workshops and training events, routine recruitment, individual enforcement and recovery notices, port calls, stale material, duplicate coverage, and releases without a durable policy, institutional, regulatory, statistical or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context; neither was used as a daily news feed.",
     };
   }
 
