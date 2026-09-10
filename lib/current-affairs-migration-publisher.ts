@@ -19,6 +19,37 @@ type CurrentAffairsBrief = {
   reviewed_at: string;
 };
 
+type CurrentAffairsSourceSeed = {
+  slug: string;
+  name: string;
+  publisher: string;
+  source_url: string;
+  source_type: "portal" | "magazine";
+  cadence: "monthly" | "as_published";
+  editorial_focus: string;
+  is_active: true;
+};
+
+const sourceRegistryExpansion: CurrentAffairsSourceSeed[] = [
+  { slug: "yojana", name: "Yojana", publisher: "Publications Division, Ministry of Information and Broadcasting", source_url: "https://www.publicationsdivision.nic.in/journals/index.php?route=page%2Fyojana", source_type: "magazine", cadence: "monthly", editorial_focus: "Monthly policy and development context. Use a newly available issue as reference material; do not present it as a daily news feed.", is_active: true },
+  { slug: "kurukshetra", name: "Kurukshetra", publisher: "Publications Division, Ministry of Information and Broadcasting", source_url: "https://www.publicationsdivision.nic.in/journals/index.php?cid=4&lang=English&route=page%2Fajkalarchives&year=2023", source_type: "magazine", cadence: "monthly", editorial_focus: "Monthly rural-development and agriculture context. Use a newly available issue as reference material; do not present it as a daily news feed.", is_active: true },
+  { slug: "supreme-court-updates", name: "All updates and press releases", publisher: "Supreme Court of India", source_url: "https://www.sci.gov.in/all-updates/", source_type: "portal", cadence: "as_published", editorial_focus: "Constitutional law, judicial administration, legal aid, e-Courts and major institutional developments. Exclude routine listing notices.", is_active: true },
+  { slug: "lok-sabha-digital-sansad", name: "Lok Sabha updates", publisher: "Parliament of India", source_url: "https://sansad.in/ls", source_type: "portal", cadence: "as_published", editorial_focus: "Legislation, parliamentary procedure, committees, questions and institutional updates. Verify enactments against the authoritative bill or gazette record.", is_active: true },
+  { slug: "rajya-sabha-digital-sansad", name: "Rajya Sabha updates", publisher: "Parliament of India", source_url: "https://sansad.in/rs", source_type: "portal", cadence: "as_published", editorial_focus: "Legislation, parliamentary procedure, committees, questions and institutional updates. Verify enactments against the authoritative bill or gazette record.", is_active: true },
+  { slug: "eci", name: "Election Commission updates", publisher: "Election Commission of India", source_url: "https://www.eci.gov.in/", source_type: "portal", cadence: "as_published", editorial_focus: "Election law, voter services, electoral technology and official directions. Exclude routine election-event notices unless they establish a wider exam-relevant development.", is_active: true },
+  { slug: "sebi-press-releases", name: "Press releases", publisher: "Securities and Exchange Board of India", source_url: "https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=6&ssid=23", source_type: "portal", cadence: "as_published", editorial_focus: "Capital markets, investor protection, market infrastructure and securities regulation.", is_active: true },
+  { slug: "cci-press-releases", name: "Antitrust press releases", publisher: "Competition Commission of India", source_url: "https://www.cci.gov.in/antitrust/press-release", source_type: "portal", cadence: "as_published", editorial_focus: "Competition law, combinations, market conduct and institutional enforcement. Link the published decision when an order is central to the brief.", is_active: true },
+  { slug: "ifsca-news", name: "News and updates", publisher: "International Financial Services Centres Authority", source_url: "https://ifsca.gov.in/Home/NewSection", source_type: "portal", cadence: "as_published", editorial_focus: "International Financial Services Centre regulation, financial-market development and related innovation.", is_active: true },
+  { slug: "niti-aayog", name: "News and publications", publisher: "NITI Aayog", source_url: "https://www.niti.gov.in/", source_type: "portal", cadence: "as_published", editorial_focus: "Policy reports, cooperative federalism, SDGs, innovation and evaluation. Prefer the underlying report or release over a headline.", is_active: true },
+  { slug: "ndma", name: "National Disaster Management Authority updates", publisher: "National Disaster Management Authority", source_url: "https://ndma.gov.in/", source_type: "portal", cadence: "as_published", editorial_focus: "Disaster-risk reduction, preparedness, early warning, guidelines and response institutions.", is_active: true },
+  { slug: "mospi", name: "Ministry updates and statistical releases", publisher: "Ministry of Statistics and Programme Implementation", source_url: "https://www.mospi.gov.in/", source_type: "portal", cadence: "as_published", editorial_focus: "Official statistics, surveys, indices, programme implementation and data-methodology changes.", is_active: true },
+  { slug: "state-government-portals", name: "States and Union Territories directory", publisher: "National Portal of India", source_url: "https://www.india.gov.in/my-government/states-uts", source_type: "portal", cadence: "as_published", editorial_focus: "Route to relevant State and Union Territory authorities. Publish only where the original state government release or order is accessible and has national or syllabus value.", is_active: true },
+];
+
+export function currentAffairsSourceRegistryExpansion() {
+  return sourceRegistryExpansion;
+}
+
 const editorialMigrationFiles = [
   "migration_082_current_affairs_2026_09_04_non_pib_briefs.sql",
   "migration_083_current_affairs_2026_09_04_breadth_desk.sql",
