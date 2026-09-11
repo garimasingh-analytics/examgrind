@@ -60,6 +60,7 @@ const editorialMigrationFiles = [
   "migration_098_current_affairs_2026_09_09_daily_desk.sql",
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_100_current_affairs_2026_09_11_daily_desk.sql",
+  "migration_101_current_affairs_2026_09_12_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -108,6 +109,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 21,
       publishedCount: 4,
       notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through trustworthy current-affairs materials and verified every published item against its original primary official release. Published the Consumer Protection (E-Commerce) (Amendment) Rules, 2026; DILRMP 3.0 operational guidelines; NSO's first district-level ASUSE estimates; and SEBI-RBI's Demat 2.0 tokenised corporate-bond pilot. Excluded ceremonial visits and speeches, workshops and training events, routine recruitment, individual enforcement and recovery notices, port calls, stale material, duplicate coverage, and releases without a durable policy, institutional, regulatory, statistical or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context; neither was used as a daily news feed.",
+    };
+  }
+
+  if (runDate === "2026-09-12") {
+    return {
+      candidateCount: 11,
+      publishedCount: 2,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through current-affairs materials, then verified every published item against the original official release or regulator record. Published TRAI's repeal of its television-advertisement-duration QoS Regulations after the underlying Cable Television Networks Rules cap was omitted, and the Agriculture Ministry's nationwide consultation on a proposed stronger Seed Act. Excluded a SEBI consultation paper because it is not a final regulatory action; proposed meetings, speeches, workshops, training and ceremonial material; routine recruitment and enforcement notices; individual court and election-event items without a durable institutional development; unverified State-policy claims without an accessible original State release; stale or duplicate material; and releases without a durable policy, regulatory or exam-relevant development. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
     };
   }
 
