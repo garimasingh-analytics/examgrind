@@ -145,6 +145,7 @@ export type DiagnosisExam =
   | "delhi-police-constable"
   | "uppsc-ro-aro"
   | "up-secretariat-ro-aro"
+  | "uiic-ao"
   | "uppsc-pcs";
 
 export const trackDiagnosisStarted = (params: {

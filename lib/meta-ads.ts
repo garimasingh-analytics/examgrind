@@ -18,6 +18,7 @@ export function trackMetaDiagnosisLead(
     | "delhi-police-constable"
     | "uppsc-ro-aro"
     | "up-secretariat-ro-aro"
+    | "uiic-ao"
     | "uppsc-pcs",
 ) {
   if (typeof window === "undefined" || !window.fbq) return;

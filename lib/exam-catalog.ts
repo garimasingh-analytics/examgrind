@@ -45,6 +45,12 @@ export const EXAM_CATALOG = [
     tagline: "Hindi, General Studies, computer skills and reasoning — a focused diagnosis and foundation-practice route for UP Secretariat RO / ARO preparation.",
   },
   {
+    slug: "uiic-ao",
+    name: "UIIC AO",
+    status: "live",
+    tagline: "2026 UIIC AO sprint: common Tier I diagnosis, then a clear Generalist or Hindi Officer mains route.",
+  },
+  {
     slug: "uppsc-pcs",
     name: "UPPSC PCS",
     status: "coming_soon",
