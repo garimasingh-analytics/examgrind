@@ -45,6 +45,12 @@ export const EXAM_CATALOG = [
     tagline: "Build Hindi, UP-focused General Studies, computer skills and reasoning now; verify the next official notice for post-specific requirements.",
   },
   {
+    slug: "uiic-ao",
+    name: "UIIC AO",
+    status: "live",
+    tagline: "2026 UIIC AO sprint: common Tier I diagnosis, then a clear Generalist or Hindi Officer mains route.",
+  },
+  {
     slug: "uppsc-pcs",
     name: "UPPSC PCS",
     status: "coming_soon",

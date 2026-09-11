@@ -17,6 +17,7 @@ export type DiagnoseExam =
   | "delhi-police-constable"
   | "uppsc-ro-aro"
   | "up-secretariat-ro-aro"
+  | "uiic-ao"
   | "uppsc-pcs";
 
 export type DiagnoseQuestion = {
@@ -383,6 +384,58 @@ export const DIAGNOSE_QUESTIONS: Record<DiagnoseExam, DiagnoseQuestion[]> = {
       whenWrong: "मानक रूप ‘दृष्टिकोण’ है. ऐसे शब्दों में केवल answer देखना काफी नहीं: अपनी confused-word list बनाकर अगली revision में बिना विकल्प के लिखकर जाँचिए.",
     },
   ],
+  "uiic-ao": [
+    {
+      id: "uiic-ao-q1",
+      subjectId: "uiic-ao-english",
+      question: "Choose the word closest in meaning to 'prudent'.",
+      options: { A: "Careless", B: "Wise", C: "Noisy", D: "Immediate" },
+      correct: "B",
+      concept: "English Language - contextual vocabulary",
+      drill: "UIIC AO Tier I - English Language - vocabulary in context",
+      whenWrong: "Prudent means careful and wise in practical decisions. In insurance and finance passages, use the sentence's tone and surrounding words before picking a familiar-looking option.",
+    },
+    {
+      id: "uiic-ao-q2",
+      subjectId: "uiic-ao-reasoning",
+      question: "All policies are contracts. Some contracts are renewable. Which conclusion must follow?",
+      options: { A: "All renewable things are policies", B: "Some policies are renewable", C: "No policy is renewable", D: "No definite relation between policies and renewable contracts" },
+      correct: "D",
+      concept: "Reasoning Ability - syllogism scope",
+      drill: "UIIC AO Tier I - Reasoning Ability - syllogism and conclusions",
+      whenWrong: "Policies are inside the contract group, while only some contracts are renewable. The renewable part may sit outside policies. Draw the smallest Venn diagram instead of assuming overlap.",
+    },
+    {
+      id: "uiic-ao-q3",
+      subjectId: "uiic-ao-quant",
+      question: "A premium rises from ₹800 to ₹920. What is the percentage increase?",
+      options: { A: "12%", B: "15%", C: "18%", D: "20%" },
+      correct: "B",
+      concept: "Quantitative Aptitude - percentage change",
+      drill: "UIIC AO Tier I - Quantitative Aptitude - percentage applications",
+      whenWrong: "Increase = 120. Divide by the original 800: 120/800 = 15%. Percentage change always uses the starting value as the base.",
+    },
+    {
+      id: "uiic-ao-q4",
+      subjectId: "uiic-ao-reasoning",
+      question: "P is north of Q. R is east of Q. In which direction is R from P?",
+      options: { A: "North-east", B: "South-east", C: "North-west", D: "South-west" },
+      correct: "B",
+      concept: "Reasoning Ability - direction sense",
+      drill: "UIIC AO Tier I - Reasoning Ability - direction and distance",
+      whenWrong: "Place Q in the centre, P above it and R to the right. From P to R, move down and right: south-east. A tiny coordinate sketch prevents mental rotation errors.",
+    },
+    {
+      id: "uiic-ao-q5",
+      subjectId: "uiic-ao-quant",
+      question: "If 5 workers complete a task in 12 days, how many days will 10 workers take at the same rate?",
+      options: { A: "4", B: "5", C: "6", D: "24" },
+      correct: "C",
+      concept: "Quantitative Aptitude - inverse proportion",
+      drill: "UIIC AO Tier I - Quantitative Aptitude - time and work",
+      whenWrong: "Total work = 5 × 12 = 60 worker-days. With 10 workers, time = 60/10 = 6 days. More workers means fewer days, so this is inverse proportion.",
+    },
+  ],
   "uppsc-pcs": [
     {
       id: "uppsc-pcs-q1",
@@ -444,6 +497,7 @@ export const EXAM_LABEL: Record<DiagnoseExam, string> = {
   "delhi-police-constable": "Delhi Police Constable",
   "uppsc-ro-aro": "UPPSC RO / ARO",
   "up-secretariat-ro-aro": "UP Secretariat RO / ARO",
+  "uiic-ao": "UIIC AO",
   "uppsc-pcs": "UPPSC PCS",
 };
 
@@ -454,6 +508,7 @@ export const EXAM_TAGLINE: Record<DiagnoseExam, string> = {
   "delhi-police-constable": "5 focused objective questions across Delhi Police Constable preparation areas",
   "uppsc-ro-aro": "5 foundation questions across Hindi, General Studies, computer and reasoning",
   "up-secretariat-ro-aro": "5 foundation questions across Hindi, General Studies, computer and reasoning",
+  "uiic-ao": "5 Tier I questions across English, reasoning and quantitative aptitude",
   "uppsc-pcs": "5 foundation questions across General Studies, Uttar Pradesh context and CSAT skills",
 };
 
