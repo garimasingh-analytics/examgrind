@@ -52,7 +52,7 @@ export default function CoachLearningStudio({ topics, priorityTopicIds, recentLe
   };
 
   return <section id="learn-with-coach" className="mx-auto mt-5 max-w-4xl px-5">
-    <div className="overflow-hidden rounded-3xl border border-ember-700/20 bg-[linear-gradient(135deg,#fffdf8_0%,#fff6dc_58%,#ffe9df_100%)] p-5 text-cocoa-900 shadow-warm-lg sm:p-7">
+    <div className="overflow-hidden rounded-3xl border border-ember-700/20 bg-cream-50 p-5 text-cocoa-900 shadow-warm-lg sm:p-7">
       <p className="text-xs font-bold uppercase tracking-[.18em] text-ember-700">Coach lesson studio</p>
       <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div><h2 className="font-serif text-3xl font-bold leading-tight text-cocoa-900">Learn a topic. Then practise it.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-cocoa-700">Choose a syllabus topic for a full lesson, or ask Coach about one specific concept. Each lesson ends with practice on what you just learned.</p></div>
