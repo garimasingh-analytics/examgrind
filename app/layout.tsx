@@ -167,7 +167,7 @@ export default async function RootLayout({
         />
         <NavigationFeedback />
         <ChickVariantProvider initialVariant={initialVariant}>
-          <div className="flex min-h-[100svh] flex-col pb-20 md:pb-0">
+          <div className="flex min-h-[100svh] flex-col pb-24 md:pb-28">
             <div className="flex-1">{children}</div>
             <Footer />
           </div>

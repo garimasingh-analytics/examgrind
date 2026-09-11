@@ -24,7 +24,7 @@ export default function StudyDock({ signedIn }: { signedIn: boolean }) {
   if (!signedIn || !isDockPage(pathname)) return null;
 
   return (
-    <nav aria-label="Study navigation" className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-md md:hidden">
+    <nav aria-label="Study navigation" className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-md md:bottom-5 md:max-w-xl">
       <div className="grid grid-cols-5 rounded-2xl border border-cocoa-900/[0.10] bg-cream-50/95 p-1.5 shadow-warm-lg backdrop-blur-xl">
         {items.map((item) => {
           const active = item.href === "/home"
