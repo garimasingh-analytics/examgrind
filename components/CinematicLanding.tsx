@@ -56,7 +56,21 @@ export default function CinematicLanding() {
     <section id="your-exam" className="egallery-exam" aria-labelledby="exam-title">
       <div><p className="egallery-eyebrow">YOUR STARTING LINE</p><h2 id="exam-title">Choose your<br /><em>exam.</em></h2><p className="egallery-intro">Start with five exam-level questions. We will show the concepts to revisit before your next attempt.</p></div>
       <div className="egallery-picker">
-        <div className="egallery-tabs" role="tablist" aria-label="Choose your exam">{exams.map((item) => <button type="button" role="tab" aria-selected={item.slug === exam} key={item.slug} onClick={() => setExam(item.slug)} className={item.slug === exam ? "active" : ""}>{item.label}</button>)}</div>
+        <div className="egallery-tabs" role="tablist" aria-label="Choose your exam">
+          {exams.map((item) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={item.slug === exam}
+              key={item.slug}
+              onClick={() => setExam(item.slug)}
+              className={item.slug === exam ? "active" : ""}
+            >
+              <span>{item.label}</span>
+              <small>{item.slug === exam ? "Selected" : "Choose"}</small>
+            </button>
+          ))}
+        </div>
         <div className={`egallery-choice ${choice.colour}`}><p>YOUR {choice.label} DIAGNOSIS</p><h3>Find the topics<br />costing you marks.</h3><span>{choice.detail}</span><Link href={`/diagnose/${choice.slug}`} onClick={() => trackLandingExamSelected({ exam: choice.slug })}>Start my diagnosis</Link></div>
       </div>
     </section>
