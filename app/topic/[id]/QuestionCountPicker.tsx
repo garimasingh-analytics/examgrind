@@ -138,7 +138,7 @@ export default function QuestionCountPicker({
           </div>
           {/* Indeterminate sliding bar */}
           <div className="mt-2 h-1.5 w-72 overflow-hidden rounded-full bg-cream-200">
-            <div className="h-full w-1/3 animate-quiz-loader rounded-full bg-gradient-to-r from-sun-500 to-ember-600" />
+            <div className="h-full w-1/3 animate-quiz-loader rounded-full bg-ember-600" />
           </div>
         </div>
       )}
@@ -147,7 +147,7 @@ export default function QuestionCountPicker({
       <p className="quiz-builder-kicker eg-kicker text-ember-700">
         {conceptFocus ? "Focused Coach practice" : "Your practice round"}
       </p>
-      <p className="quiz-builder-intro">{conceptFocus ? <>Every question will stay on <strong>{conceptFocus}</strong>—the exact idea you just learned.</> : "Short enough to begin now. Long enough to show you a real pattern."}</p>
+      <p className="quiz-builder-intro">{conceptFocus ? <>Every question will focus on <strong>{conceptFocus}</strong>, the idea you just learned.</> : "Choose a short set to begin now or a longer set for more practice."}</p>
 
       <div className="quiz-builder-counter mt-5 flex items-center justify-center gap-4">
         <button

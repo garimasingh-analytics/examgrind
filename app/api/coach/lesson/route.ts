@@ -263,6 +263,15 @@ export async function POST(request: NextRequest) {
     // breaks the lesson or substitutes an unrelated image.
     const visualQuery = directTopic || topic?.name || topic?.chapter?.name;
     const visualAsset = curatedVisual ?? (visualQuery ? await findReusableCommonsVisual(visualQuery) : undefined);
+    // Keep only a compact, private topic history. The lesson itself is
+    // regenerated when reopened, so history benefits from teaching upgrades.
+    // A history-write problem must never prevent the actual lesson response.
+    await supabase.from("coach_lesson_history").insert({
+      user_id: user.id,
+      exam_slug: exam.slug,
+      requested_topic: lessonTopic.name,
+      topic_id: topic?.id ?? null,
+    });
     return NextResponse.json({ lesson, topic: lessonTopic, visualAsset });
   } catch (error) {
     console.error("[coach/lesson] lesson generation failed", error);

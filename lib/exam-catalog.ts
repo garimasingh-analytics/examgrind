@@ -18,7 +18,7 @@ export const EXAM_CATALOG = [
     slug: "ssc-cgl",
     name: "SSC CGL",
     status: "live",
-    tagline: "Quant · Reasoning · English · GA — concept-level feedback on every wrong answer.",
+    tagline: "Quant, Reasoning, English and GA with topic-wise feedback after every quiz.",
   },
   {
     slug: "neet-ug",
@@ -30,31 +30,31 @@ export const EXAM_CATALOG = [
     slug: "delhi-police-constable",
     name: "Delhi Police Constable",
     status: "live",
-    tagline: "GK, reasoning, numerical ability and computer practice with a clear repair route after every attempt.",
+    tagline: "2025-pattern practice: 50 GK/CA, 25 Reasoning, 15 Numerical and 10 Computer questions. Review the section where you made the most errors.",
   },
   {
     slug: "uppsc-ro-aro",
     name: "UPPSC RO / ARO",
     status: "live",
-    tagline: "Hindi, General Studies, computer skills and reasoning — a clear diagnosis and foundation-practice route for UPPSC RO / ARO preparation.",
+    tagline: "Build Hindi, General Studies, computer skills and reasoning now; verify the next UPPSC notice for its final paper scheme.",
   },
   {
     slug: "up-secretariat-ro-aro",
     name: "UP Samiksha Adhikari / Sahayak Samiksha Adhikari",
     status: "live",
-    tagline: "Hindi, General Studies, computer skills and reasoning — a focused diagnosis and foundation-practice route for UP Secretariat RO / ARO preparation.",
+    tagline: "Build Hindi, UP-focused General Studies, computer skills and reasoning now; verify the next official notice for post-specific requirements.",
   },
   {
     slug: "uppsc-pcs",
     name: "UPPSC PCS",
     status: "coming_soon",
-    tagline: "General Studies, CSAT skills and Uttar Pradesh context — a focused diagnosis and original foundation-practice route for UPPSC PCS preparation.",
+    tagline: "General Studies, CSAT skills and Uttar Pradesh context. A focused starting route for UPPSC PCS preparation.",
   },
   {
     slug: "allahabad-high-court-ro-aro",
     name: "Allahabad High Court RO / ARO",
     status: "coming_soon",
-    tagline: "A separate court-recruitment route is being prepared; it will not be treated as a generic RO/ARO exam.",
+    tagline: "A separate preparation route for court recruitment is being prepared.",
   },
 ] as const;
 

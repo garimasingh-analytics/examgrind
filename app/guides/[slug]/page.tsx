@@ -3,16 +3,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { examGuideMeta, getStudyGuide, studyGuides } from "@/lib/study-guides";
 import { StudyGuideViewed } from "@/components/StudyHubTracking";
+import { isLiveExamSlug } from "@/lib/exam-catalog";
 
 type GuideProps = { params: { slug: string } };
 
 export function generateStaticParams() {
-  return studyGuides.map((guide) => ({ slug: guide.slug }));
+  return studyGuides
+    .filter((guide) => isLiveExamSlug(guide.examSlug))
+    .map((guide) => ({ slug: guide.slug }));
 }
 
 export function generateMetadata({ params }: GuideProps): Metadata {
   const guide = getStudyGuide(params.slug);
-  if (!guide) return {};
+  if (!guide || !isLiveExamSlug(guide.examSlug)) return {};
   return {
     title: `${guide.title} · ExamGrind`,
     description: guide.description,
@@ -28,8 +31,9 @@ export function generateMetadata({ params }: GuideProps): Metadata {
 
 export default function GuidePage({ params }: GuideProps) {
   const guide = getStudyGuide(params.slug);
-  if (!guide) notFound();
+  if (!guide || !isLiveExamSlug(guide.examSlug)) notFound();
   const exam = examGuideMeta[guide.examSlug];
+  const relatedGuides = studyGuides.filter((candidate) => candidate.examSlug === guide.examSlug && candidate.slug !== guide.slug);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://examgrind.in";
   const articleSchema = {
     "@context": "https://schema.org",
@@ -39,7 +43,7 @@ export default function GuidePage({ params }: GuideProps) {
     datePublished: guide.publishedAt,
     dateModified: guide.publishedAt,
     mainEntityOfPage: `${baseUrl}/guides/${guide.slug}`,
-    author: { "@type": "Organization", name: "ExamGrind" },
+    author: { "@type": "Organization", name: "ExamGrind Editorial Desk" },
     publisher: { "@type": "Organization", name: "ExamGrind" },
   };
 
@@ -55,7 +59,16 @@ export default function GuidePage({ params }: GuideProps) {
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-coral-700">{guide.eyebrow}</p>
         <h1 className="mt-4 font-serif text-4xl font-semibold leading-[1.03] tracking-tight sm:text-6xl">{guide.title}</h1>
         <p className="mt-6 text-lg leading-8 text-cocoa-700">{guide.description}</p>
-        <p className="mt-5 text-sm font-medium text-cocoa-500">{guide.readTime} · Updated {guide.publishedAt}</p>
+        <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-cocoa-500">
+          <span className="font-semibold text-cocoa-700">By ExamGrind Editorial Desk</span>
+          <span aria-hidden>·</span>
+          <span>{guide.readTime}</span>
+          <span aria-hidden>·</span>
+          <span>Updated {guide.publishedAt}</span>
+        </div>
+        <p className="mt-2 max-w-2xl text-xs leading-5 text-cocoa-500">
+          This preparation guide is written by ExamGrind&apos;s editorial desk. Official notices and source records are linked below whenever an exam rule, date or requirement needs verification.
+        </p>
         <div className="mt-12 space-y-10">
           {guide.sections.map((section) => (
             <section key={section.heading}>
@@ -71,7 +84,7 @@ export default function GuidePage({ params }: GuideProps) {
           <section className="mt-12 rounded-[2rem] border border-cocoa-900/[0.08] bg-warm-wash p-6 sm:p-8">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-700">Official source desk</p>
             <h2 className="mt-3 font-serif text-3xl font-semibold leading-tight">Check the source before you plan around it.</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-cocoa-700">ExamGrind turns official information into a practical plan, but the issuing body remains the source of truth for current rules, dates, eligibility and subject requirements.</p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-cocoa-700">ExamGrind turns official information into a practical plan, but the issuing body remains the source of truth for current rules, dates, eligibility and subject requirements. Check the linked record before acting on a notification or application decision.</p>
             <ul className="mt-5 space-y-3">
               {guide.sourceLinks.map((source) => (
                 <li key={source.href}>
@@ -81,6 +94,21 @@ export default function GuidePage({ params }: GuideProps) {
                 </li>
               ))}
             </ul>
+          </section>
+        )}
+        {relatedGuides.length > 0 && (
+          <section className="mt-12">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-700">Keep learning</p>
+            <h2 className="mt-3 font-serif text-3xl font-semibold leading-tight">More useful {exam.label} guides</h2>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {relatedGuides.map((related) => (
+                <Link key={related.slug} href={`/guides/${related.slug}`} className="rounded-2xl border border-cocoa-900/[0.08] bg-cream-50 p-5 transition hover:-translate-y-0.5 hover:border-coral-500/35 hover:shadow-warm">
+                  <p className="text-xs font-bold uppercase tracking-[.14em] text-cocoa-500">{related.readTime}</p>
+                  <p className="mt-2 font-serif text-xl font-semibold leading-snug">{related.title}</p>
+                  <p className="mt-3 text-sm font-bold text-ember-700">Read guide →</p>
+                </Link>
+              ))}
+            </div>
           </section>
         )}
         <section className="mt-14 rounded-[2rem] bg-cocoa-900 p-7 text-cream-50 shadow-warm sm:p-9">

@@ -10,6 +10,14 @@ import { GOOGLE_ADS_ID } from "@/components/GoogleAdsTag";
 
 const CONSENT_KEY = "examgrind-marketing-consent-v1";
 type Consent = "granted" | "denied" | null;
+const DIAGNOSIS_SIGNUP_EXAMS = new Set([
+  "cuet",
+  "ssc-cgl",
+  "neet-ug",
+  "delhi-police-constable",
+  "uppsc-ro-aro",
+  "up-secretariat-ro-aro",
+]);
 
 declare global {
   interface Window {
@@ -158,11 +166,12 @@ function AuthLifecycleEvent() {
         const diagnosisExam = intent?.exam;
         const diagnosisIntentCreatedAt = intent?.createdAt;
         const isFreshDiagnosisIntent =
-          (diagnosisExam === "cuet" || diagnosisExam === "ssc-cgl" || diagnosisExam === "neet-ug" || diagnosisExam === "delhi-police-constable") &&
+          typeof diagnosisExam === "string" &&
+          DIAGNOSIS_SIGNUP_EXAMS.has(diagnosisExam) &&
           typeof diagnosisIntentCreatedAt === "number" &&
           Date.now() - diagnosisIntentCreatedAt < 30 * 60_000;
         if (isFreshDiagnosisIntent) {
-          trackDiagnosisSignupCompleted({ exam: diagnosisExam });
+          trackDiagnosisSignupCompleted({ exam: diagnosisExam as Parameters<typeof trackDiagnosisSignupCompleted>[0]["exam"] });
         }
         window.sessionStorage.removeItem("examgrind:diagnosis-signup-intent");
       } catch {

@@ -45,11 +45,11 @@ export default function CinematicLanding() {
 
     <section className="egallery-signal" aria-labelledby="signal-title">
       <p className="egallery-eyebrow">WHAT YOU GET AFTER A TEST</p>
-      <h2 id="signal-title">A mock test should<br />not end with a <em>score.</em></h2>
+      <h2 id="signal-title">After a mock,<br />know what to <em>study.</em></h2>
       <div className="egallery-signal-grid">
-        <article><b>01 · SCORE LEAKS</b><h3>What went wrong?</h3><p>See the exact concept behind every lost mark—not just the answer you missed.</p></article>
-        <article><b>02 · YOUR NEXT MOVE</b><h3>What should I study?</h3><p>Start with the weakness that deserves your next study session, not a random playlist.</p></article>
-        <article><b>03 · PROOF</b><h3>Did I improve?</h3><p>Targeted practice and a retest make progress visible instead of leaving you guessing.</p></article>
+        <article><b>01 · REVIEW</b><h3>What went wrong?</h3><p>See the topic behind each wrong answer and understand what you missed.</p></article>
+        <article><b>02 · STUDY</b><h3>What should I study?</h3><p>Choose one weak topic for your next study session.</p></article>
+        <article><b>03 · RETEST</b><h3>Did I improve?</h3><p>Practise the topic again with new questions and check your progress.</p></article>
       </div>
     </section>
 

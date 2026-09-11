@@ -101,7 +101,7 @@ export default function ChickPicker({ userXp, isPremium, grantedChicks = [] }: P
                   <span className="text-amber-600">Premium 👑</span>
                 )}
                 {def.unlockXp === -2 && (
-                  <span className="text-purple-600">Code-only 🌟</span>
+                  <span className="text-ember-700">Code-only 🌟</span>
                 )}
                 {def.unlockXp > 0 && (
                   <span className={unlocked ? "text-green-600" : "text-cocoa-400"}>

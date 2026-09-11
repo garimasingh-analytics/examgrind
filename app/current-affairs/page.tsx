@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import CurrentAffairsCalendar from "@/components/CurrentAffairsCalendar";
 import CurrentAffairsTracking from "@/components/CurrentAffairsTracking";
+import StudentPageHeader from "@/components/StudentPageHeader";
 import { createServerSupabase } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -58,14 +59,30 @@ function formatDate(date: string) {
 
 export default async function CurrentAffairsPage({ searchParams }: PageProps) {
   const { date } = await searchParams;
-  const selectedDate = safeDate(date);
+  const requestedDate = date ? safeDate(date) : null;
   const supabase = createServerSupabase();
-  const [{ data: briefsRaw }, { data: datesRaw }] = await Promise.all([
-    supabase.from("current_affairs_briefs").select("id, slug, published_on, title, summary, why_it_matters, background, source_title, source_url, source_publisher, source_published_on, prelims_takeaways, quick_check, visual_data").eq("status", "published").eq("published_on", selectedDate).order("created_at"),
-    supabase.from("current_affairs_briefs").select("published_on").eq("status", "published").order("published_on", { ascending: false }).limit(366),
-  ]);
-  const briefs = (briefsRaw ?? []) as Brief[];
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("users").select("exam_choice").eq("id", user.id).maybeSingle<{ exam_choice: string | null }>()
+    : { data: null };
+  const examSlug = profile?.exam_choice ?? "cuet";
+  const { data: datesRaw } = await supabase
+    .from("current_affairs_briefs")
+    .select("published_on")
+    .eq("status", "published")
+    .order("published_on", { ascending: false })
+    .limit(366);
   const publishedDates = Array.from(new Set((datesRaw ?? []).map((item) => item.published_on)));
+  // The public page should never pretend a blank day is a daily desk. When
+  // there is no requested date, open the most recently verified desk instead.
+  const selectedDate = requestedDate ?? publishedDates[0] ?? indiaToday();
+  const { data: briefsRaw } = await supabase
+    .from("current_affairs_briefs")
+    .select("id, slug, published_on, title, summary, why_it_matters, background, source_title, source_url, source_publisher, source_published_on, prelims_takeaways, quick_check, visual_data")
+    .eq("status", "published")
+    .eq("published_on", selectedDate)
+    .order("created_at");
+  const briefs = (briefsRaw ?? []) as Brief[];
   const briefIds = briefs.map((brief) => brief.id);
   const [{ data: examTagsRaw }, { data: subjectTagsRaw }] = briefIds.length ? await Promise.all([
     supabase.from("current_affairs_exam_tags").select("brief_id, exams(name)").in("brief_id", briefIds),
@@ -81,20 +98,18 @@ export default async function CurrentAffairsPage({ searchParams }: PageProps) {
   return (
     <main className="min-h-[100svh] bg-warm-wash pb-16 text-cocoa-900">
       <CurrentAffairsTracking date={selectedDate} briefCount={briefs.length} />
-      <header className="mx-auto max-w-6xl px-5 py-6 sm:px-8">
-        <div className="flex items-center justify-between gap-3"><Link href="/" className="font-serif text-xl font-bold">ExamGrind</Link><div className="flex items-center gap-3"><Link href="/guides" className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">Study Guides</Link><Link href="/diagnose" className="rounded-full bg-cocoa-900 px-4 py-2 text-sm font-bold text-cream-50">Find my weak topics →</Link></div></div>
-        <nav aria-label="Current affairs resources" className="mt-5 grid grid-cols-2 gap-3 sm:flex sm:items-center">
-          <Link href="/current-affairs" className="rounded-full bg-cocoa-900 px-4 py-3 text-center text-sm font-bold text-cream-50">Daily Current Affairs</Link>
-          <Link href="/government-schemes" className="rounded-full border border-ember-700/20 bg-sun-300/25 px-4 py-3 text-center text-sm font-bold text-cocoa-900 transition hover:-translate-y-0.5">Government Schemes →</Link>
-        </nav>
-      </header>
+      {user ? <StudentPageHeader examSlug={examSlug} section="Stay current" /> : <header className="mx-auto max-w-6xl px-5 py-6 sm:px-8"><div className="flex items-center justify-between gap-3"><Link href="/" className="font-serif text-xl font-bold">ExamGrind</Link><div className="flex items-center gap-3"><Link href="/guides" className="text-sm font-bold text-cocoa-600 hover:text-cocoa-900">Study Guides</Link><Link href="/diagnose" className="rounded-full bg-cocoa-900 px-4 py-2 text-sm font-bold text-cream-50">Find my weak topics →</Link></div></div></header>}
+      <nav aria-label="Current affairs resources" className="mx-auto grid max-w-6xl grid-cols-2 gap-3 px-5 sm:flex sm:items-center sm:px-8">
+        <Link href="/current-affairs" className="rounded-full bg-cocoa-900 px-4 py-3 text-center text-sm font-bold text-cream-50">Daily Current Affairs</Link>
+        <Link href="/government-schemes" className="rounded-full border border-ember-700/20 bg-sun-300/25 px-4 py-3 text-center text-sm font-bold text-cocoa-900 transition hover:-translate-y-0.5">Government Schemes →</Link>
+      </nav>
       <section className="mx-auto grid max-w-6xl gap-8 px-5 pt-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div>
           <p className="text-xs font-bold uppercase tracking-[.2em] text-ember-700">The daily current-affairs desk</p>
           <h1 className="mt-4 max-w-3xl font-serif text-5xl font-semibold leading-[.96] tracking-tight sm:text-6xl">News is only useful when you know where it fits.</h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-cocoa-700">Free, source-backed briefs that connect a current event to the subject, background concept and recall you need for an exam.</p>
           <p className="mt-7 text-sm font-bold text-cocoa-700">{formatDate(selectedDate)}</p>
-          {taggedBriefs.length === 0 ? <EmptyDay date={selectedDate} /> : <div className="mt-5 grid gap-5">{taggedBriefs.map((brief) => <BriefCard key={brief.id} brief={brief} />)}</div>}
+          {taggedBriefs.length === 0 ? <EmptyDay date={selectedDate} latestDate={publishedDates[0] ?? null} /> : <div className="mt-5 grid gap-5">{taggedBriefs.map((brief) => <BriefCard key={brief.id} brief={brief} />)}</div>}
         </div>
         <aside className="lg:sticky lg:top-6"><CurrentAffairsCalendar selectedDate={selectedDate} publishedDates={publishedDates} /><Link href="/government-schemes" className="mt-4 block rounded-[1.8rem] border border-ember-700/15 bg-sun-300/25 p-6 shadow-warm transition hover:-translate-y-0.5"><p className="text-xs font-bold uppercase tracking-[.16em] text-ember-700">Static revision library</p><h2 className="mt-2 font-serif text-2xl font-semibold">Government Schemes →</h2><p className="mt-3 text-sm leading-6 text-cocoa-700">Keep the current update here. Learn the scheme behind it in one clean, source-linked card.</p></Link><section className="mt-4 rounded-[1.8rem] bg-cocoa-900 p-6 text-cream-50"><p className="text-xs font-bold uppercase tracking-[.16em] text-sun-300">Always free</p><h2 className="mt-2 font-serif text-2xl font-semibold">Read the brief. Then make it stick.</h2><p className="mt-3 text-sm leading-6 text-cream-100/75">ExamGrind keeps public current affairs free. Your paid learning route is the personalised practice, repair and revision that follows.</p></section></aside>
       </section>
@@ -102,8 +117,8 @@ export default async function CurrentAffairsPage({ searchParams }: PageProps) {
   );
 }
 
-function EmptyDay({ date }: { date: string }) {
-  return <section className="mt-5 rounded-[2rem] border border-dashed border-cocoa-900/20 bg-cream-50 p-7 shadow-warm"><p className="text-xs font-bold uppercase tracking-[.16em] text-ember-700">No brief yet</p><h2 className="mt-3 font-serif text-3xl font-semibold">Nothing has been published for {formatDate(date)}.</h2><p className="mt-3 max-w-xl leading-7 text-cocoa-700">We publish only when a brief has an original explanation, clear exam relevance and a checkable source—not simply because a news cycle is moving.</p><Link href="/guides" className="mt-5 inline-flex font-bold text-ember-700 underline decoration-ember-500/40 underline-offset-4">Use a study guide while you wait →</Link></section>;
+function EmptyDay({ date, latestDate }: { date: string; latestDate: string | null }) {
+  return <section className="mt-5 border-l-2 border-ember-600 bg-cream-50 p-7 shadow-warm"><p className="eg-kicker text-ember-700">Desk still being verified</p><h2 className="mt-3 font-serif text-3xl font-semibold">There isn&apos;t a verified brief for {formatDate(date)} yet.</h2><p className="mt-3 max-w-xl leading-7 text-cocoa-700">ExamGrind only publishes a brief once it has a source, exam context and an original explanation. We do not fill the desk with generic headlines.</p><div className="mt-5 flex flex-wrap gap-4">{latestDate && latestDate !== date ? <Link href={`/current-affairs?date=${latestDate}`} className="font-bold text-ember-700 underline decoration-ember-500/40 underline-offset-4">Read the latest verified desk →</Link> : null}<Link href="/guides" className="font-bold text-ember-700 underline decoration-ember-500/40 underline-offset-4">Use a study guide →</Link></div></section>;
 }
 
 function BriefCard({ brief }: { brief: BriefWithTags }) {

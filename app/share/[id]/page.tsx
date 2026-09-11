@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       : `😅 ${quiz.subtopic ?? quiz.subject} destroyed me. Bet you can't even match this.`;
 
   const title = `${dare} · ExamGrind`;
-  const description = `${quiz.score}/${quiz.total} correct. Free, AI-graded practice for CUET, SSC CGL & NEET UG — every wrong answer comes with a concept-level diagnosis.`;
+  const description = `${quiz.score}/${quiz.total} correct. Free practice for CUET, SSC CGL and NEET UG with topic-wise feedback after each quiz.`;
 
   return {
     title,
@@ -151,13 +151,13 @@ export default async function SharePage({ params }: Params) {
           Practice the way it should be.
         </h2>
         <p className="mt-3 text-sm text-cocoa-700 sm:text-base">
-          Every wrong answer comes with an AI diagnosis — not just a score. Find the concept you actually need to study.
+          Review your wrong answers, find the topic to revise and choose your next practice set.
         </p>
         <Link
           href="/"
           className="mt-6 inline-flex items-center justify-center rounded-2xl bg-ember-600 px-7 py-3.5 text-sm font-bold text-cream-50 shadow-warm-lg transition hover:bg-ember-700 sm:text-base"
         >
-          Try ExamGrind — free
+          Try ExamGrind for free
         </Link>
         <p className="mt-2 text-xs text-cocoa-500">
           3 quizzes + 1 deep analysis on the house. No card needed.

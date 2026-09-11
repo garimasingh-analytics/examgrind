@@ -4,6 +4,8 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import Chick from "@/components/Chick";
 import type { Subject, Chapter } from "@/lib/types";
+import { isLiveExamSlug } from "@/lib/exam-catalog";
+import { SUBJECT_SCOPE_NOTES } from "@/lib/exam-blueprints";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +26,7 @@ export default async function SubjectPage({ params }: Params) {
       .select("exam_choice")
       .eq("id", authUser.id)
       .maybeSingle<{ exam_choice: string | null }>(),
-    supabase.from("subjects").select("*").eq("id", id).maybeSingle(),
+    supabase.from("subjects").select("*, exam:exams(slug)").eq("id", id).maybeSingle(),
     supabase
       .from("chapters")
       .select("*")
@@ -34,8 +36,13 @@ export default async function SubjectPage({ params }: Params) {
 
   const examSlug = profileRes.data?.exam_choice ?? "cuet";
   if (!subjectRes.data) notFound();
-  const subject = subjectRes.data as Subject;
+  const subject = subjectRes.data as Subject & { exam: { slug: string } | null };
+  if (!isLiveExamSlug(subject.exam?.slug ?? "")) notFound();
   const chapters = (chaptersRes.data ?? []) as Chapter[];
+  const scopeNote = SUBJECT_SCOPE_NOTES[`${subject.exam?.slug ?? ""}:${subject.id}`];
+  const supplementaryChapterSlugs = new Set(scopeNote?.supplementaryChapterSlugs ?? []);
+  const coreChapters = chapters.filter((chapter) => !supplementaryChapterSlugs.has(chapter.slug));
+  const supplementaryChapters = chapters.filter((chapter) => supplementaryChapterSlugs.has(chapter.slug));
 
   // Group chapters by NCERT class for cleaner browsing.
   const class11 = chapters.filter((c) => c.ncert_class === 11);
@@ -76,6 +83,15 @@ export default async function SubjectPage({ params }: Params) {
         <p className="mt-4 max-w-md text-base leading-6 text-cream-200">
           Your field guide has {chapters.length} chapter{chapters.length === 1 ? "" : "s"}. Pick a page, find the concept, and make your next mark count.
         </p>
+        {scopeNote && (
+          <div className="mt-5 max-w-xl rounded-2xl border border-cream-50/15 bg-cocoa-900/20 px-4 py-3 text-sm leading-6 text-cream-100">
+            <p className="text-[10px] font-bold uppercase tracking-[.16em] text-sun-300">{scopeNote.eyebrow}</p>
+            <p className="mt-1">{scopeNote.summary}</p>
+            <a href={scopeNote.sourceHref} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-bold text-sun-300 underline underline-offset-4">
+              {scopeNote.sourceLabel} ↗
+            </a>
+          </div>
+        )}
         <div className="mt-7 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-[.13em] text-cream-50"><span className="rounded-full border border-cream-50/20 bg-cream-50/10 px-3 py-2">{chapters.length} chapters</span><span className="rounded-full border border-cream-50/20 bg-cream-50/10 px-3 py-2">Choose a chapter ↓</span></div>
         </div>
         <div className="subject-cover-guide"><span className="subject-cover-orbit" aria-hidden /><span className="subject-cover-orbit-star" aria-hidden>✦</span><Chick state="idle" size={98} /></div><span className="subject-cover-squiggle" aria-hidden>⌁</span>
@@ -86,14 +102,23 @@ export default async function SubjectPage({ params }: Params) {
         {/* NCERT-tagged exams (CUET, NEET UG) get class-grouped chapters;  */}
         {/* exams without NCERT tagging (SSC CGL) just show a flat list — */}
         {/* a single 'Sections' header would feel redundant.                  */}
-        {class11.length > 0 && <ChapterGroup label="Class 11" chapters={class11} />}
-        {class12.length > 0 && <ChapterGroup label="Class 12" chapters={class12} />}
-        {other.length > 0 && (
-          class11.length + class12.length > 0 ? (
-            <ChapterGroup label="Sections" chapters={other} />
-          ) : (
-            <ChapterGroup label={null} chapters={other} />
-          )
+        {scopeNote ? (
+          <>
+            {coreChapters.length > 0 && <ChapterGroup label={scopeNote.eyebrow} chapters={coreChapters} />}
+            {supplementaryChapters.length > 0 && <ChapterGroup label="Supplementary foundations · optional" chapters={supplementaryChapters} />}
+          </>
+        ) : (
+          <>
+            {class11.length > 0 && <ChapterGroup label="Class 11" chapters={class11} />}
+            {class12.length > 0 && <ChapterGroup label="Class 12" chapters={class12} />}
+            {other.length > 0 && (
+              class11.length + class12.length > 0 ? (
+                <ChapterGroup label="Sections" chapters={other} />
+              ) : (
+                <ChapterGroup label={null} chapters={other} />
+              )
+            )}
+          </>
         )}
 
         {chapters.length === 0 && (

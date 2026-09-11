@@ -1,44 +1,45 @@
 # Current State: reverse-engineered from codebase
-# Scanned: 2026-08-20
-# SDK: GA4 gtag.js, Google Ads gtag conversion, Meta Pixel
+# Scanned: 2026-09-06
+# SDK: Google tag (GA4 gtag.js) plus direct Google Ads conversion events
 
 events:
-  - { name: sign_up, status: LIVE, locations: [{ file: components/MarketingTracking.tsx, line: 151 }], properties: [method], source: frontend }
-  - { name: login, status: LIVE, locations: [{ file: components/MarketingTracking.tsx, line: 151 }], properties: [method], source: frontend }
+  - { name: sign_up, status: LIVE, locations: [{ file: components/MarketingTracking.tsx, line: 159 }], properties: [method], source: frontend }
+  - { name: login, status: LIVE, locations: [{ file: components/MarketingTracking.tsx, line: 159 }], properties: [method], source: frontend }
   - { name: daily_mission_started, status: LIVE, locations: [{ file: components/DailyMissionCard.tsx, line: 44 }], properties: [mission_type], source: frontend }
-  - { name: daily_mission_completed, status: LIVE, locations: [{ file: "app/quiz/[id]/QuizRunner.tsx", line: 86 }], properties: [mission_type, question_count, correct_count], source: frontend }
+  - { name: daily_mission_completed, status: LIVE, locations: [{ file: app/quiz/[id]/QuizRunner.tsx, line: 86 }], properties: [mission_type, question_count, correct_count], source: frontend }
   - { name: mistake_book_viewed, status: LIVE, locations: [{ file: app/mistakes/MistakeBook.tsx, line: 31 }], properties: [mistake_count], source: frontend }
   - { name: mistake_topic_retry_started, status: LIVE, locations: [{ file: app/mistakes/MistakeBook.tsx, line: 145 }], properties: [], source: frontend }
-  - { name: quiz_started, status: LIVE, locations: [{ file: "app/quiz/[id]/QuizRunner.tsx", line: 99 }], properties: [quiz_id, topic, question_count], source: frontend }
-  - { name: quiz_completed, status: LIVE, locations: [{ file: "app/quiz/[id]/QuizRunner.tsx", line: 198 }], properties: [quiz_id, question_count, answered_count, correct_count, wrong_count, skipped_count, duration_seconds], source: frontend }
-  - { name: mock_started, status: LIVE, locations: [{ file: "app/mock/start/[mockTestId]/StartMockButton.tsx", line: 57 }], properties: [mock_test_id], source: frontend }
-  - { name: mock_completed, status: LIVE, locations: [{ file: "app/mock/take/[attemptId]/MockTakeClient.tsx", line: 195 }], properties: [correct_count, wrong_count, unattempted_count, duration_seconds], source: frontend }
-  - { name: deep_analysis_requested, status: LIVE, locations: [{ file: "app/results/[id]/DeepAnalysis.tsx", line: 188 }], properties: [analysis_kind, source], source: frontend }
-  - { name: deep_analysis_completed, status: LIVE, locations: [{ file: "app/results/[id]/DeepAnalysis.tsx", line: 220 }], properties: [analysis_kind, source], source: frontend }
-  - { name: deep_analysis_viewed, status: LIVE, locations: [{ file: "app/results/[id]/DeepAnalysis.tsx", line: 168 }], properties: [analysis_kind, source], source: frontend }
+  - { name: quiz_started, status: LIVE, locations: [{ file: app/quiz/[id]/QuizRunner.tsx, line: 99 }], properties: [quiz_id, topic, question_count], source: frontend }
+  - { name: quiz_completed, status: LIVE, locations: [{ file: app/quiz/[id]/QuizRunner.tsx, line: 198 }], properties: [quiz_id, question_count, answered_count, correct_count, wrong_count, skipped_count, duration_seconds], source: frontend }
+  - { name: mock_started, status: LIVE, locations: [{ file: app/mock/start/[mockTestId]/StartMockButton.tsx, line: 57 }], properties: [mock_test_id], source: frontend }
+  - { name: mock_completed, status: LIVE, locations: [{ file: app/mock/take/[attemptId]/MockTakeClient.tsx, line: 195 }], properties: [correct_count, wrong_count, unattempted_count, duration_seconds], source: frontend }
+  - { name: deep_analysis_requested, status: LIVE, locations: [{ file: app/results/[id]/DeepAnalysis.tsx, line: 188 }], properties: [analysis_kind, source], source: frontend }
+  - { name: deep_analysis_completed, status: LIVE, locations: [{ file: app/results/[id]/DeepAnalysis.tsx, line: 220 }], properties: [analysis_kind, source], source: frontend }
+  - { name: deep_analysis_viewed, status: LIVE, locations: [{ file: app/results/[id]/DeepAnalysis.tsx, line: 168 }], properties: [analysis_kind, source], source: frontend }
   - { name: subscription_checkout_started, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 156 }], properties: [paywall_reason], source: frontend }
-  - { name: subscription_purchased, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 216 }], properties: [plan], source: frontend }
+  - { name: subscription_purchased, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 216 }, { file: components/UpgradeModal.tsx, line: 291 }], properties: [plan], source: frontend }
   - { name: paywall_viewed, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 125 }], properties: [paywall_reason], source: frontend }
-  - { name: access_option_selected, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 155 }], properties: [product, paywall_reason], source: frontend }
-  - { name: checkout_opened, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 227 }], properties: [product, checkout_type], source: frontend }
-  - { name: checkout_dismissed, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 224 }], properties: [product, checkout_type], source: frontend }
-  - { name: purchase_completed, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 217 }], properties: [product, checkout_type], source: frontend }
+  - { name: access_option_selected, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 155 }, { file: components/UpgradeModal.tsx, line: 239 }], properties: [product, paywall_reason], source: frontend }
+  - { name: checkout_opened, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 227 }, { file: components/UpgradeModal.tsx, line: 299 }], properties: [product, checkout_type], source: frontend }
+  - { name: checkout_dismissed, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 224 }, { file: components/UpgradeModal.tsx, line: 297 }], properties: [product, checkout_type], source: frontend }
+  - { name: purchase_completed, status: LIVE, locations: [{ file: components/UpgradeModal.tsx, line: 217 }, { file: components/UpgradeModal.tsx, line: 293 }], properties: [product, checkout_type], source: frontend }
   - { name: study_plan_saved, status: LIVE, locations: [{ file: components/StudyPlanSetup.tsx, line: 79 }], properties: [exam, subject_count, daily_minutes], source: frontend }
-  - { name: landing_book_opened, status: LIVE, locations: [{ file: components/CinematicLanding.tsx, line: 19 }], properties: [], source: frontend }
-  - { name: landing_cta_clicked, status: LIVE, locations: [{ file: components/CinematicLanding.tsx, line: 35 }], properties: [placement], source: frontend }
-  - { name: landing_exam_selected, status: LIVE, locations: [{ file: components/CinematicLanding.tsx, line: 57 }], properties: [exam], source: frontend }
-  - { name: diagnosis_started, status: LIVE, locations: [{ file: "app/diagnose/[exam]/DiagnoseRunner.tsx", line: 130 }], properties: [exam, question_count], source: frontend }
-  - { name: diagnosis_question_answered, status: LIVE, locations: [{ file: "app/diagnose/[exam]/DiagnoseRunner.tsx", line: 207 }], properties: [exam, question_number], source: frontend }
-  - { name: diagnosis_completed, status: LIVE, locations: [{ file: "app/diagnose/[exam]/DiagnoseRunner.tsx", line: 91 }], properties: [exam, question_count, answered_count, correct_count, duration_seconds], source: frontend }
-  - { name: diagnosis_result_viewed, status: LIVE, locations: [{ file: "app/diagnose/[exam]/DiagnoseRunner.tsx", line: 320 }], properties: [exam, score_band], source: frontend }
-  - { name: diagnosis_signup_clicked, status: LIVE, locations: [{ file: "app/diagnose/[exam]/DiagnoseRunner.tsx", line: 372 }], properties: [exam, next_step], source: frontend }
-  - { name: diagnosis_signup_completed, status: LIVE, locations: [{ file: components/MarketingTracking.tsx, line: 165 }], properties: [exam], source: frontend }
+  - { name: current_affairs_viewed, status: LIVE, locations: [{ file: components/CurrentAffairsTracking.tsx, line: 11 }], properties: [date, brief_count], source: frontend }
+  - { name: landing_book_opened, status: LIVE, locations: [{ file: components/CinematicLanding.tsx, line: 22 }], properties: [], source: frontend }
+  - { name: landing_cta_clicked, status: LIVE, locations: [{ file: components/CinematicLanding.tsx, line: 38 }, { file: components/CinematicLanding.tsx, line: 64 }], properties: [placement], source: frontend }
+  - { name: landing_exam_selected, status: LIVE, locations: [{ file: components/CinematicLanding.tsx, line: 60 }, { file: components/CinematicLanding.tsx, line: 64 }], properties: [exam], source: frontend }
+  - { name: diagnosis_started, status: LIVE, locations: [{ file: app/diagnose/[exam]/DiagnoseRunner.tsx, line: 130 }], properties: [exam, question_count], source: frontend }
+  - { name: diagnosis_question_answered, status: LIVE, locations: [{ file: app/diagnose/[exam]/DiagnoseRunner.tsx, line: 207 }], properties: [exam, question_number], source: frontend }
+  - { name: diagnosis_completed, status: LIVE, locations: [{ file: app/diagnose/[exam]/DiagnoseRunner.tsx, line: 91 }], properties: [exam, question_count, answered_count, correct_count, duration_seconds], source: frontend }
+  - { name: diagnosis_result_viewed, status: LIVE, locations: [{ file: app/diagnose/[exam]/DiagnoseRunner.tsx, line: 320 }], properties: [exam, score_band], source: frontend }
+  - { name: diagnosis_signup_clicked, status: LIVE, locations: [{ file: app/diagnose/[exam]/DiagnoseRunner.tsx, line: 372 }], properties: [exam, next_step], source: frontend }
+  - { name: diagnosis_signup_completed, status: LIVE, locations: [{ file: components/MarketingTracking.tsx, line: 174 }], properties: [exam], source: frontend }
   - { name: diagnosis_handoff_viewed, status: LIVE, locations: [{ file: components/DiagnosisHandoffCard.tsx, line: 45 }], properties: [exam, wrong_count], source: frontend }
-  - { name: diagnosis_handoff_action, status: LIVE, locations: [{ file: components/DiagnosisHandoffCard.tsx, line: 58 }], properties: [exam, action], source: frontend }
-  - { name: recovery_map_viewed, status: LIVE, locations: [{ file: "app/results/[id]/DeepAnalysis.tsx", line: 177 }], properties: [source, priority_count], source: frontend }
-  - { name: recovery_map_action_clicked, status: LIVE, locations: [{ file: "app/results/[id]/DeepAnalysis.tsx", line: 626 }], properties: [source, priority_position], source: frontend }
-  - { name: repair_round_started, status: LIVE, locations: [{ file: "app/quiz/[id]/QuizRunner.tsx", line: 100 }], properties: [], source: frontend }
-  - { name: repair_round_completed, status: LIVE, locations: [{ file: "app/quiz/[id]/QuizRunner.tsx", line: 209 }], properties: [correct_count, question_count], source: frontend }
+  - { name: diagnosis_handoff_action, status: LIVE, locations: [{ file: components/DiagnosisHandoffCard.tsx, line: 58 }, { file: components/DiagnosisHandoffCard.tsx, line: 77 }], properties: [exam, action], source: frontend }
+  - { name: recovery_map_viewed, status: LIVE, locations: [{ file: app/results/[id]/DeepAnalysis.tsx, line: 177 }], properties: [source, priority_count], source: frontend }
+  - { name: recovery_map_action_clicked, status: LIVE, locations: [{ file: app/results/[id]/DeepAnalysis.tsx, line: 626 }], properties: [source, priority_position], source: frontend }
+  - { name: repair_round_started, status: LIVE, locations: [{ file: app/quiz/[id]/QuizRunner.tsx, line: 100 }], properties: [], source: frontend }
+  - { name: repair_round_completed, status: LIVE, locations: [{ file: app/quiz/[id]/QuizRunner.tsx, line: 209 }], properties: [correct_count, question_count], source: frontend }
   - { name: repair_proof_viewed, status: LIVE, locations: [{ file: components/RepairProofViewed.tsx, line: 9 }], properties: [], source: frontend }
   - { name: recovery_history_viewed, status: LIVE, locations: [{ file: components/RecoveryHistoryViewed.tsx, line: 9 }], properties: [active_count, completed_count], source: frontend }
   - { name: study_hub_viewed, status: LIVE, locations: [{ file: components/StudyHubTracking.tsx, line: 16 }], properties: [surface, exam_scope], source: frontend }
@@ -47,9 +48,12 @@ events:
 identity:
   identify_calls: []
   group_calls: []
+  notes: "No GA4 identify() or group() calls found. Auth lifecycle emits anonymous sign_up or login events after user consent."
 
 patterns:
   naming_style: snake_case
   naming_format: action_object
   centralized: true
-  error_handling: consent-gated, non-blocking browser wrapper
+  centralization_detail: "Most product events use the typed lib/product-analytics.ts boundary. Google Ads conversions use lib/google-ads.ts and Meta events use lib/meta-ads.ts."
+  error_handling: "Client calls are non-blocking; product analytics returns false when consent is not granted or gtag is unavailable."
+  consent: "Consent defaults to denied in app/layout.tsx and is updated by components/MarketingTracking.tsx."

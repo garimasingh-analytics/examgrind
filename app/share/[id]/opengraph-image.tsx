@@ -211,7 +211,7 @@ export default async function Image({ params }: Props) {
               lineHeight: 1.3,
             }}
           >
-            Get an AI diagnosis on every wrong answer — not just a score.
+            Review every wrong answer and see the topic to revise.
           </div>
           <div
             style={{

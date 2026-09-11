@@ -6,6 +6,7 @@ import { FREE_LIMITS } from "@/lib/freemium";
 import Chick from "@/components/Chick";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
+import { EXAM_BLUEPRINTS } from "@/lib/exam-blueprints";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,7 @@ export default async function MockHubPage() {
   );
   const isPaid = liveSubStatus === "paid";
   const examSlug = profile?.exam_choice ?? "cuet";
+  const blueprint = EXAM_BLUEPRINTS[examSlug];
 
   // Mocks for this exam.
   const { data: examRow } = await supabase
@@ -84,15 +86,23 @@ export default async function MockHubPage() {
         .order("display_name", { ascending: true })
     : { data: [] as MockCard[] };
 
-  // Recent attempts for this user (any exam) for the "Resume / Review" rail.
-  const { data: attempts } = await supabase
+  // Keep the resume / review rail scoped to the exam the student is studying.
+  // Showing an SSC CGL attempt while Delhi Police is selected is confusing and
+  // makes the preparation space feel unreliable.
+  const attemptsQuery = supabase
     .from("mock_attempts")
     .select(
-      "id, mock_test_id, status, score, started_at, submitted_at, mock_test:mock_tests(display_name, total_questions, exam_id)"
+      "id, mock_test_id, status, score, started_at, submitted_at, mock_test:mock_tests!inner(display_name, total_questions, exam_id)"
     )
     .eq("user_id", user.id)
     .order("started_at", { ascending: false })
     .limit(6);
+
+  if (examId) {
+    attemptsQuery.eq("mock_test.exam_id", examId);
+  }
+
+  const { data: attempts } = await attemptsQuery;
 
   type AttemptRow = {
     id: string;
@@ -158,7 +168,7 @@ export default async function MockHubPage() {
         )}
 
         {/* Hero */}
-        <div className="rounded-3xl border border-ember-500/15 bg-gradient-to-br from-sun-400/15 via-cream-50 to-ember-500/10 p-5 shadow-warm sm:p-7">
+        <div className="rounded-3xl border border-ember-500/15 bg-cream-50 p-5 shadow-warm sm:p-7">
           <div className="flex items-start gap-3">
             <Chick state="idle" size={56} />
             <div>
@@ -195,6 +205,45 @@ export default async function MockHubPage() {
             />
           ))}
         </div>
+
+        {blueprint && (
+          <aside className="mt-8 overflow-hidden rounded-3xl border border-moss-500/20 bg-moss-500/[0.07] p-5 shadow-warm sm:p-6">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-moss-700">
+              {blueprint.eyebrow}
+            </p>
+            <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <h2 className="font-serif text-2xl font-bold text-cocoa-900">
+                  {blueprint.title}
+                </h2>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-cocoa-700">
+                  {blueprint.summary}
+                </p>
+              </div>
+              <a
+                href={blueprint.sourceHref}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 text-xs font-bold text-moss-700 underline decoration-moss-500/40 underline-offset-4"
+              >
+                {blueprint.sourceLabel} ↗
+              </a>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-cocoa-700">
+              <span className="rounded-full bg-cream-50 px-3 py-1.5 shadow-warm">
+                {blueprint.duration}
+              </span>
+              <span className="rounded-full bg-cream-50 px-3 py-1.5 shadow-warm">
+                {blueprint.marking}
+              </span>
+              {blueprint.sections.map((section) => (
+                <span key={section.label} className="rounded-full bg-cream-50 px-3 py-1.5 shadow-warm">
+                  {section.questions} {section.label}
+                </span>
+              ))}
+            </div>
+          </aside>
+        )}
         {(!mocks || mocks.length === 0) && (
           <p className="mt-8 rounded-2xl bg-cocoa-100 px-5 py-6 text-center text-sm text-cocoa-700">
             No mocks live for {examName} yet. We&apos;re adding more — check

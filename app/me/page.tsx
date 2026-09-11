@@ -467,7 +467,7 @@ export default async function ProfilePage() {
             {masterTopics.map((m) => (
               <li
                 key={m.topic_id}
-                className="rounded-full bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-4 py-1.5 text-xs font-bold text-cocoa-900 shadow-warm"
+                className="rounded-full bg-sun-400 px-4 py-1.5 text-xs font-bold text-cocoa-900 shadow-warm"
               >
                 {topicName(m)}
               </li>

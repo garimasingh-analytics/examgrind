@@ -105,7 +105,7 @@ export default function ShieldPanel({ xp, shields, totalUsed }: Props) {
               aria-label={lit ? "Shield ready" : "Empty slot"}
               className={`flex h-12 w-12 items-center justify-center rounded-full text-2xl transition ${
                 lit
-                  ? "bg-gradient-to-br from-sun-100 to-ember-100 text-ember-700 shadow-inner ring-2 ring-ember-300"
+                  ? "bg-sun-300/25 text-ember-700 shadow-inner ring-2 ring-ember-300"
                   : "border-2 border-dashed border-cocoa-900/[0.12] text-cocoa-300"
               }`}
             >

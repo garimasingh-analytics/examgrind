@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Fraunces, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "./premium.css";
 import Footer from "@/components/Footer";
 import RegisterSW from "@/components/RegisterSW";
 import { ChickVariantProvider } from "@/components/ChickVariantContext";

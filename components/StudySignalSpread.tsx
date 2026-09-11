@@ -38,7 +38,7 @@ export default function StudySignalSpread({
           <article className="home-spread-right">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="eg-kicker text-violet-600">Your exam</p>
+                <p className="eg-kicker text-ember-700">Your exam</p>
                 <p className="mt-1 font-serif text-xl font-semibold text-cocoa-900">{examName}</p>
               </div>
               <Chick state="idle" size={62} />

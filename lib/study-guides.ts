@@ -622,7 +622,7 @@ export const studyGuides: StudyGuide[] = [
         heading: "Begin with the current notice, then make four small score plans",
         paragraphs: [
           "Delhi Police recruitment details can change between cycles: vacancies, eligibility, physical stages, dates and instructions must come from the Staff Selection Commission and Delhi Police recruitment portals. Check those sources before relying on a coaching post or a forwarded message.",
-          "For written preparation, do not treat the exam as one large subject. Build a separate working plan for General Knowledge, Reasoning, Numerical Ability and Computer Fundamentals. A score leak in one section should lead to a small repair in that section, not a random restart of the full syllabus.",
+          "The 2025 SSC Constable (Executive) CBE used 100 questions in 90 minutes: 50 General Knowledge/Current Affairs, 25 Reasoning, 15 Numerical Ability and 10 Computer Fundamentals, with −0.25 for a wrong answer. Use that only as a preparation reference until the next official notice is published. A score leak in one section should lead to a small repair in that section, not a random restart of the full syllabus.",
         ],
       },
       {
@@ -654,7 +654,7 @@ export const studyGuides: StudyGuide[] = [
     ],
     takeaway: "A good Delhi Police plan is not more material. It is four small score systems, each with a clear next repair.",
     sourceLinks: [
-      { label: "SSC official notice board", href: "https://ssc.gov.in/for-candidates" },
+      { label: "SSC Delhi Police Constable (Executive) 2025 notice", href: "https://ssc.gov.in/api/attachment/uploads/masterData/NoticeBoards/Notice_of_DPCE_2025.pdf" },
       { label: "Delhi Police recruitment portal", href: "https://delhipolice.gov.in/recruitments" },
     ],
   },
@@ -799,6 +799,229 @@ export const studyGuides: StudyGuide[] = [
       { label: "UPPSC official notification board", href: "https://uppsc.up.nic.in/Default.aspx/CandidatePages/Notifications.aspx" },
       { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" },
     ],
+  },
+  {
+    slug: "delhi-police-constable-four-section-week",
+    examSlug: "delhi-police-constable",
+    title: "A Delhi Police Constable weekly plan: what to do across all four sections",
+    description: "A practical seven-day routine for Delhi Police Constable preparation: use short section checks, repair repeated errors, and avoid an all-day generic timetable.",
+    eyebrow: "Delhi Police Constable study guide",
+    readTime: "6 min read",
+    publishedAt: "5 September 2026",
+    sections: [
+      {
+        heading: "Do not give every section the same kind of study time",
+        paragraphs: [
+          "Delhi Police preparation becomes messy when General Knowledge, Reasoning, Numerical Ability and Computer Awareness are treated as one enormous subject. They need different work: General Knowledge needs bounded recall, Reasoning needs visible conditions, Numerical Ability needs a reliable method, and Computer Awareness needs clear distinctions between close terms.",
+          "Use the current SSC notice to verify the actual cycle, dates and scheme. The routine below is a preparation method, not a claim about the next recruitment paper.",
+        ],
+      },
+      {
+        heading: "A simple seven-day rotation",
+        paragraphs: [
+          "Day 1: take a short mixed baseline and label each miss. Day 2: repair one reasoning pattern with fresh questions. Day 3: learn one arithmetic route, then solve a short timed set. Day 4: make and recall a small Computer Awareness contrast set. Day 5: revise a bounded GK theme and test yourself without notes. Day 6: take a mixed check. Day 7: retest the one weakness that returned most often.",
+          "The order is less important than the loop: learn one small idea, practise it, name the reason behind errors, and return with unseen questions. A chapter is not complete because its notes look familiar.",
+        ],
+        bullets: [
+          "GK/Current Affairs: use short prompts and recall before checking the answer.",
+          "Reasoning: sketch, label or sequence the condition before evaluating options.",
+          "Numerical Ability: write the setup first; speed is a result of a dependable route.",
+          "Computer Awareness: compare pairs such as RAM/ROM, browser/search engine and input/output.",
+        ],
+      },
+      {
+        heading: "Let a short check decide tomorrow",
+        paragraphs: [
+          "After any set, separate an unknown concept from a method error, a slow route and a reading error. Only repeated losses deserve the first repair. For example, if percentage questions are correct but slow, do not restart arithmetic; practise choosing the fastest setup under a time cap.",
+          "That is why a focused diagnosis is useful: it gives you a place to begin without pretending five questions are a final verdict on your preparation.",
+        ],
+      },
+    ],
+    takeaway: "Four sections do not require four giant timetables. They require four small, repeatable score systems.",
+    sourceLinks: [
+      { label: "Staff Selection Commission official portal", href: "https://ssc.gov.in/" },
+      { label: "Delhi Police recruitment portal", href: "https://delhipolice.gov.in/recruitments" },
+    ],
+  },
+  {
+    slug: "uppsc-ro-aro-hindi-practice-system",
+    examSlug: "uppsc-ro-aro",
+    title: "UPPSC RO / ARO Hindi practice: turn rules into reliable answers",
+    description: "A practical Hindi preparation system for UPPSC RO/ARO aspirants: learn a rule, create contrast examples, test it fresh, then preserve the mistake for revision.",
+    eyebrow: "UPPSC RO / ARO study guide",
+    readTime: "6 min read",
+    publishedAt: "5 September 2026",
+    sections: [
+      {
+        heading: "Hindi improves through decisions, not through rereading",
+        paragraphs: [
+          "A grammar or usage rule can feel obvious when you read it and still disappear when two close options appear in a question. The useful unit of study is therefore not a chapter label such as ‘व्याकरण’; it is one decision you can explain: why this spelling, sandhi, samas, sentence form or punctuation choice is correct and the nearby alternative is not.",
+          "Treat current UPPSC recruitment information as a separate question. Verify the exact notice and paper scheme on the Commission’s official portal before relying on a previous cycle.",
+        ],
+      },
+      {
+        heading: "Use the rule → contrast → fresh check method",
+        paragraphs: [
+          "Pick one narrow rule. Write it in your own words, then make one correct and one deliberately incorrect example. State the exact clue that separates them. Solve five fresh examples without looking back at the note. If you miss one, record the broken decision rather than only the answer.",
+          "The next day, begin with the error card before learning something new. A small error notebook becomes valuable only when it is repeatedly retrieved, not when it becomes a large collection of copied rules.",
+        ],
+        bullets: [
+          "One rule per short session—not an entire grammar book.",
+          "One contrast pair to reveal the decision point.",
+          "Five fresh examples before you call the rule learned.",
+          "One scheduled retest after a gap.",
+        ],
+      },
+      {
+        heading: "Keep the error label honest",
+        paragraphs: [
+          "If you knew the rule but rushed the option, the repair is a reading routine. If you could not identify the rule, the repair is a short explanation plus examples. If you knew the answer but changed it without evidence, the repair is an option-check rule. Different causes need different repairs.",
+        ],
+      },
+    ],
+    takeaway: "Language accuracy grows when every error becomes a small decision you can explain, test and revisit.",
+    sourceLinks: [
+      { label: "UPPSC official portal and notices", href: "https://uppsc.up.nic.in/" },
+      { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" },
+    ],
+  },
+  {
+    slug: "up-secretariat-ro-aro-computer-office-skills",
+    examSlug: "up-secretariat-ro-aro",
+    title: "UP Secretariat RO / ARO computer preparation: learn useful distinctions, not random facts",
+    description: "A practical computer-and-office-skills study method for UP Secretariat RO/ARO aspirants: learn what tools do, compare close terms, and test with fresh examples.",
+    eyebrow: "UP Secretariat RO / ARO study guide",
+    readTime: "6 min read",
+    publishedAt: "5 September 2026",
+    sections: [
+      {
+        heading: "Computer questions reward precise contrasts",
+        paragraphs: [
+          "Computer Awareness is often studied as a pile of definitions. That creates recognition, not recall. A more useful route is to learn close pairs and explain the boundary: RAM versus ROM, hardware versus software, an operating system versus an application, a browser versus a search engine, or a file versus a folder.",
+          "This guide is a durable foundation, not a substitute for the next official UPPSC notice. Check the issuing body for the applicable post, scheme and recruitment instructions.",
+        ],
+      },
+      {
+        heading: "Make every fact answer one useful question",
+        paragraphs: [
+          "For each term, write: what is it, what does it do, and what is it commonly confused with? Then create one small situation. For example: ‘A document needs to be stored temporarily while a program is running—what kind of memory is involved?’ Situations force you to use the idea instead of merely recognising a definition.",
+          "Finish a session with five mixed prompts. Include old concepts beside new ones so your brain must choose between similar terms. The moment two definitions blur together is the moment to build a contrast card.",
+        ],
+        bullets: [
+          "Define the term in plain language.",
+          "Name the nearby term students confuse it with.",
+          "Create one office or everyday computer situation.",
+          "Retest it in a mixed set after a short gap.",
+        ],
+      },
+      {
+        heading: "Repair the exact confusion, not the whole chapter",
+        paragraphs: [
+          "If you repeatedly confuse input and output devices, repair that pair with examples. If you cannot tell a spreadsheet feature from a word-processing feature, repair that contrast. Restarting an entire ‘computer’ chapter for one close distinction wastes time and hides the real issue.",
+        ],
+      },
+    ],
+    takeaway: "Computer preparation becomes easier when every definition becomes a clear distinction and every distinction is tested in context.",
+    sourceLinks: [
+      { label: "UPPSC official portal and notices", href: "https://uppsc.up.nic.in/" },
+      { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" },
+    ],
+  },
+  {
+    slug: "delhi-police-constable-gk-current-affairs-method",
+    examSlug: "delhi-police-constable",
+    title: "Delhi Police GK and current affairs: study without drowning in updates",
+    description: "A bounded General Knowledge and current-affairs method for Delhi Police Constable aspirants: choose a source, make recall prompts, and test what stays.",
+    eyebrow: "Delhi Police Constable study guide",
+    readTime: "6 min read",
+    publishedAt: "6 September 2026",
+    sections: [
+      { heading: "A current-affairs feed is not a study plan", paragraphs: ["The easiest way to lose hours is to read every headline and call it preparation. Build a bounded desk instead: a small set of daily briefs, a weekly recap, and a place to turn recurring themes into questions. Your aim is recall under pressure, not familiarity with a scrolling feed.", "Static General Knowledge belongs in themed clusters: polity, history, geography, science and basic India awareness. A small cluster becomes useful only when you can answer a question without seeing the note first."] },
+      { heading: "Use the context → fact → recall method", paragraphs: ["For each useful update, write one line of context, one exam-worthy fact and one question you could ask yourself later. For example, do not store only a scheme name; store what problem it addresses, which ministry or institution is involved, and the one distinction that makes it memorable.", "At the end of a week, test mixed prompts from older and newer notes. If a fact does not return, shorten the card or connect it to a place, institution, date or contrast. Rereading a long PDF is not the same as revising."] },
+      { heading: "Do not mistake volume for coverage", paragraphs: ["One clean revision set that you can recall is more valuable than five unfinished current-affairs PDFs. Keep a list of gaps that appear in practice, then add only the material that closes those gaps. When a new SSC or Delhi Police notice is relevant, use the official source—not a forwarded screenshot—to check it."] },
+    ],
+    takeaway: "Current affairs should become short recall prompts with context—not an endless feed you never revisit.",
+    sourceLinks: [{ label: "Staff Selection Commission official portal", href: "https://ssc.gov.in/" }, { label: "PIB official releases", href: "https://pib.gov.in/" }],
+  },
+  {
+    slug: "delhi-police-constable-reasoning-quant-repair",
+    examSlug: "delhi-police-constable",
+    title: "Delhi Police Reasoning and Maths: repair the method before timing it",
+    description: "A focused Delhi Police Constable practice method for Reasoning and Numerical Ability: identify the question family, write the first step, then earn speed.",
+    eyebrow: "Delhi Police Constable study guide",
+    readTime: "6 min read",
+    publishedAt: "6 September 2026",
+    sections: [
+      { heading: "Name the question family before you solve", paragraphs: ["A series, a direction question and a percentage problem do not fail for the same reason. Before looking at options, name the family and write the first action: create a direction sketch, find the percentage base, build a small table, or identify the series rule. This makes the method visible before time pressure hides the error.", "If you cannot name the first action, you have found a concept gap. If you can name it but make the setup wrong, you have found an application gap. These need different repairs."] },
+      { heading: "Practise in three passes", paragraphs: ["First pass: solve five fresh questions untimed and write the first step. Second pass: solve a similar short set with a reasonable cap. Third pass: mix the question family with other topics so you must recognise it yourself. Skipping straight to timing encourages guessing and makes a weak route feel like a speed problem.", "Keep one line for every repeat error: ‘I used the final value as the percentage base’ or ‘I reversed left and right after turning.’ A precise error note is a repair instruction."] },
+      { heading: "A skip can be a good decision", paragraphs: ["Not every question belongs in your first pass. If your method is still long after a few seconds, mark it and protect time for questions with a clear entry route. Come back only after the rest of the set. Efficient attempts are built through choices, not panic."] },
+    ],
+    takeaway: "Speed appears after you recognise the question family and trust the first step—not before.",
+    sourceLinks: [{ label: "Staff Selection Commission official portal", href: "https://ssc.gov.in/" }, { label: "Delhi Police recruitment portal", href: "https://delhipolice.gov.in/recruitments" }],
+  },
+  {
+    slug: "uppsc-ro-aro-general-studies-revision",
+    examSlug: "uppsc-ro-aro",
+    title: "UPPSC RO / ARO General Studies: build recall, not a bigger notebook",
+    description: "A practical General Studies revision method for UPPSC RO/ARO aspirants: organise themes, test recall, connect Uttar Pradesh context, and repair gaps quickly.",
+    eyebrow: "UPPSC RO / ARO study guide",
+    readTime: "7 min read",
+    publishedAt: "6 September 2026",
+    sections: [
+      { heading: "General Studies needs a map before it needs more notes", paragraphs: ["History, polity, geography, science, economy and Uttar Pradesh context can become an endless list if every fact is stored separately. Begin with a small topic map. Each card should answer a relationship: what happened and why it mattered, what an institution does and how it differs from another, or how a place connects to a river, resource, event or policy.", "This keeps your revision useful even while you wait for a live notice. The Commission’s official notification determines the current examination requirements; your recall system should remain useful across cycles."] },
+      { heading: "Retrieve before you reread", paragraphs: ["Close the source and ask yourself three questions: What is the core idea? What is one close confusion? What example or context proves I understand it? Then check what you missed. This is slower than highlighting once and much faster than rediscovering the same gap every month.", "Use mixed review. Pair an older polity prompt with a newer Uttar Pradesh prompt and a science distinction. Mixing teaches the brain to choose the right idea rather than recite notes in the order you wrote them."] },
+      { heading: "Let practice decide your next topic", paragraphs: ["A low score in a broad subject does not mean ‘revise all GS.’ Look for the repeated cluster: constitutional bodies, UP geography, basic science or modern history. Repair the smallest useful unit and come back with unseen questions. This is how a large syllabus stays manageable."] },
+    ],
+    takeaway: "A General Studies notebook becomes valuable only when it turns into recall, comparison and a clear next repair.",
+    sourceLinks: [{ label: "UPPSC official portal and notices", href: "https://uppsc.up.nic.in/" }, { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" }],
+  },
+  {
+    slug: "uppsc-ro-aro-reasoning-computer-practice",
+    examSlug: "uppsc-ro-aro",
+    title: "UPPSC RO / ARO reasoning and computer practice: make your method visible",
+    description: "A practical way to build reasoning and computer confidence for UPPSC RO/ARO: expose the first step, learn close contrasts, and retest the exact confusion.",
+    eyebrow: "UPPSC RO / ARO study guide",
+    readTime: "6 min read",
+    publishedAt: "6 September 2026",
+    sections: [
+      { heading: "Visible working beats familiar-looking options", paragraphs: ["In reasoning, write the condition before looking for an answer: arrange the people, mark the direction, build the relation chain or state the rule. In computer questions, state what the term does and which nearby term it is not. Both habits prevent a fast guess from being mistaken for understanding.", "The first step is your diagnostic tool. If it is missing, learn the concept. If it is wrong, use contrast examples. If it is right but slow, practise the same route with a cap."] },
+      { heading: "Use contrast cards for close computer terms", paragraphs: ["A contrast card has two sides: RAM versus ROM, operating system versus application, browser versus search engine, or file versus folder. Add a tiny situation on the back so the card asks for a decision rather than a definition. Then test it among unrelated prompts.", "For reasoning, create a similar pair of questions with one important difference. Say why the second needs a different method. That small explanation is what transfers to unfamiliar questions."] },
+      { heading: "Retest the same decision, not the same question", paragraphs: ["Do not replay a memorised question and call it improvement. Use a fresh question that demands the same first step or distinction. If you still hesitate, the concept needs another explanation; if you answer cleanly, move it into spaced revision."] },
+    ],
+    takeaway: "When the first step is visible, both reasoning and computer practice become easier to diagnose and improve.",
+    sourceLinks: [{ label: "UPPSC official portal and notices", href: "https://uppsc.up.nic.in/" }, { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" }],
+  },
+  {
+    slug: "up-secretariat-ro-aro-hindi-error-log",
+    examSlug: "up-secretariat-ro-aro",
+    title: "UP Secretariat RO / ARO Hindi: build an error log you will actually revise",
+    description: "A practical Hindi error-log system for UP Secretariat RO/ARO aspirants: capture the exact rule, create a contrast example, and revisit it before the mistake returns.",
+    eyebrow: "UP Secretariat RO / ARO study guide",
+    readTime: "6 min read",
+    publishedAt: "6 September 2026",
+    sections: [
+      { heading: "An error log is not a list of wrong answers", paragraphs: ["Copying twenty wrong options teaches very little. A useful Hindi error log contains the decision you missed: the rule in plain language, one correct example, one tempting wrong example, and the clue that separates them. This turns a mistake into something you can use next time.", "Keep the system small. One page of repeat errors that you revisit is more useful than a full notebook you never open again."] },
+      { heading: "The four-line repair", paragraphs: ["For each repeated error, write: 1) what I chose; 2) why it looked right; 3) the rule or clue I missed; 4) a new example I can solve tomorrow. Read the note once, cover it, and answer your own example. If the rule is still unclear, learn the smallest part again before adding more questions.", "Mix old cards with new ones every few sessions. An error that returns after a gap is the one that deserves a stronger memory anchor or more contrast practice."] },
+      { heading: "Separate a rule gap from a reading slip", paragraphs: ["If the same grammar choice fails repeatedly, it is probably a knowledge or application gap. If you know the rule but ignore a word in the stem, use a reading check. Giving both errors the same label—‘careless’—stops you from repairing either one."] },
+    ],
+    takeaway: "The best error log preserves the decision that failed, then makes you prove the repair with a fresh example.",
+    sourceLinks: [{ label: "UPPSC official portal and notices", href: "https://uppsc.up.nic.in/" }, { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" }],
+  },
+  {
+    slug: "up-secretariat-ro-aro-gs-reasoning-week",
+    examSlug: "up-secretariat-ro-aro",
+    title: "UP Secretariat RO / ARO: a weekly GS and reasoning preparation cycle",
+    description: "A simple weekly study cycle for UP Secretariat RO/ARO aspirants: use active General Studies recall, visible reasoning methods, and a retest that proves progress.",
+    eyebrow: "UP Secretariat RO / ARO study guide",
+    readTime: "6 min read",
+    publishedAt: "6 September 2026",
+    sections: [
+      { heading: "Use two lanes, not one giant syllabus", paragraphs: ["General Studies and reasoning ask for different kinds of work. General Studies needs recall, context and comparison. Reasoning needs visible conditions and a method you can repeat. Split your week into small blocks for each lane instead of waiting until you have time for an enormous session.", "This preparation rhythm is useful before a notification appears. The official UPPSC notice remains the place to confirm the current post, stages and scheme."] },
+      { heading: "A repeatable week", paragraphs: ["On the first day, learn one GS cluster and one reasoning family. On the second, retrieve the GS material from a blank page and solve fresh reasoning questions. On the third, run a short mixed check. On the fourth, repair the repeated gap. On the fifth, revisit an older error log. On the sixth, do a new mixed set. On the seventh, retest the repair.", "Keep each session small enough to finish. Consistency comes from a plan that survives a busy day, not from a timetable that looks impressive on paper."] },
+      { heading: "The retest tells you whether the week worked", paragraphs: ["If a GS fact disappears, reduce it to a smaller prompt and reconnect it to context. If a reasoning method is slow, identify the first step that still takes time. Use fresh questions for the retest. Repeating yesterday’s answers measures memory of the answer, not understanding of the method."] },
+    ],
+    takeaway: "A weekly cycle works when it ends with proof: a fresh retest of the exact gap you meant to repair.",
+    sourceLinks: [{ label: "UPPSC official portal and notices", href: "https://uppsc.up.nic.in/" }, { label: "UPPSC previous question-paper desk", href: "https://uppsc.pariksha.nic.in/OuterPages/PreQuesPapers.aspx?ID=PrevQues" }],
   },
 ];
 

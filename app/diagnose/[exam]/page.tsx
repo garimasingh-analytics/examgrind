@@ -9,6 +9,7 @@ import {
   isDiagnoseExam,
   type DiagnoseExam,
 } from "@/lib/diagnose-questions";
+import { isLiveExamSlug } from "@/lib/exam-catalog";
 
 export const dynamic = "force-static";
 
@@ -19,14 +20,13 @@ const VALID_EXAMS: DiagnoseExam[] = [
   "delhi-police-constable",
   "uppsc-ro-aro",
   "up-secretariat-ro-aro",
-  "uppsc-pcs",
 ];
 
 type Params = { params: Promise<{ exam: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { exam } = await params;
-  if (!isDiagnoseExam(exam)) return {};
+  if (!isDiagnoseExam(exam) || !isLiveExamSlug(exam)) return {};
   const label = EXAM_LABEL[exam as DiagnoseExam];
   return {
     title: `90-sec ${label} weakness diagnosis · ExamGrind`,
@@ -40,7 +40,7 @@ export async function generateStaticParams() {
 
 export default async function DiagnoseExamPage({ params }: Params) {
   const { exam } = await params;
-  if (!isDiagnoseExam(exam)) notFound();
+  if (!isDiagnoseExam(exam) || !isLiveExamSlug(exam)) notFound();
 
   const examKey = exam as DiagnoseExam;
   const questions = DIAGNOSE_QUESTIONS[examKey];
