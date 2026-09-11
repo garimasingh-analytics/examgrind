@@ -526,3 +526,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible { 
 .egallery-choice span{display:block;max-width:38rem;line-height:1.55}
 .egallery-choice a{position:relative;left:auto;bottom:auto;margin-top:auto}
 @media(max-width:700px){.egallery-choice a{left:auto;margin-top:auto}}
+
+/* The diagnosis picker is an inventory, not a hidden tab strip. Keep every
+   released exam visible on both phone and desktop so new visitors can act. */
+.egallery-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem}
+.egallery-tabs button{display:flex;min-height:3.35rem;flex-direction:column;align-items:flex-start;justify-content:center;gap:.12rem;border:1px solid rgba(255,249,238,.14);border-radius:.85rem;background:rgba(255,249,238,.04);padding:.65rem .75rem;color:rgba(255,249,238,.86);font-size:.76rem;font-weight:800;text-align:left;transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
+.egallery-tabs button:hover{border-color:rgba(248,214,106,.75);background:rgba(248,214,106,.1);transform:translateY(-1px)}
+.egallery-tabs button small{color:rgba(255,249,238,.5);font:700 .56rem var(--font-jetbrains-mono);letter-spacing:.08em;text-transform:uppercase}
+.egallery-tabs button.active{border-color:#f8d66a;background:#f8d66a;color:#1d1815}
+.egallery-tabs button.active small{color:rgba(29,24,21,.65)}
