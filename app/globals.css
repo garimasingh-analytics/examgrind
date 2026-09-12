@@ -160,9 +160,9 @@ body {
     transform-origin: 50% 100%;
   }
 
-  /* excited — vertical jumping/bouncing, animation_speed: 1.5 */
+  /* excited — a small, warm lift. Celebration should feel alive, never noisy. */
   .animate-chick-excited {
-    animation: chick-excited-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    animation: chick-excited-settle 2.7s ease-in-out infinite;
     transform-origin: 50% 100%;
   }
 
@@ -219,12 +219,7 @@ body {
   /* The illustrated ExamGrind chick. The emotion animation belongs to the
      whole character; small accents give celebration and low-score moments a
      little more life without turning the mascot into a noisy sticker. */
-  .eg-chick-main, .eg-chick-flap-frame { will-change: transform, opacity; }
-  .eg-chick-flap-frame {
-    opacity: 0;
-    transform-origin: 50% 100%;
-    animation: eg-chick-wing-flutter .55s steps(1, end) infinite;
-  }
+  .eg-chick-main { will-change: transform; }
   .eg-chick-spark {
     position: absolute;
     z-index: 2;
@@ -270,10 +265,10 @@ body {
   100% { opacity: 0; transform: translateY(18px) scale(.8); }
 }
 
-@keyframes eg-chick-wing-flutter {
-  0%, 41% { opacity: 0; transform: translateY(0) scale(1); }
-  42%, 87% { opacity: 1; transform: translateY(-18px) scale(.96, 1.05); }
-  88%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+@keyframes chick-excited-settle {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  42% { transform: translateY(-5px) rotate(1deg); }
+  58% { transform: translateY(-4px) rotate(.4deg); }
 }
 
 @keyframes eg-page-enter {

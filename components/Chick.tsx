@@ -73,8 +73,6 @@ export default function Chick({
       data-chick-variant={activeVariant}
       style={{ width: size, height: size }}
     >
-      {state === "excited" && <span className="eg-chick-spark eg-chick-spark-one">✦</span>}
-      {state === "excited" && <span className="eg-chick-spark eg-chick-spark-two">✦</span>}
       <Image
         alt=""
         src={imageSource}
@@ -84,17 +82,6 @@ export default function Chick({
         className={`eg-chick-main h-full w-full object-contain ${MOTION_BY_STATE[state]}`}
         sizes={`${Math.max(48, Math.round(size))}px`}
       />
-      {state === "excited" && !wardrobeArt && (
-        <Image
-          alt=""
-          src="/chick/examgrind-excited-flap.png"
-          width={640}
-          height={640}
-          draggable={false}
-          className="eg-chick-flap-frame pointer-events-none absolute inset-0 h-full w-full object-contain"
-          sizes={`${Math.max(48, Math.round(size))}px`}
-        />
-      )}
       {state === "sad" && <span className="eg-chick-tear" />}
     </span>
   );
