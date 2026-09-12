@@ -6,8 +6,6 @@ import Chick from "@/components/Chick";
 import PlanPanel from "./PlanPanel";
 import ShieldPanel from "./ShieldPanel";
 import ChickPicker from "@/components/ChickPicker";
-import PromoCodeRedeemer from "@/components/PromoCodeRedeemer";
-import type { ChickVariant } from "@/lib/chicks";
 import CancelSubButton from "./CancelSubButton";
 import EmailPreferencesCard from "./EmailPreferencesCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
@@ -73,14 +71,7 @@ export default async function ProfilePage() {
     .eq("id", authUser.id)
     .maybeSingle<UserRow>();
 
-  // Load explicitly-granted chicks (promo redemptions etc.)
   const adminForChicks = createAdminSupabase();
-  const { data: chickUnlocksRows } = await adminForChicks
-    .from("user_chick_unlocks")
-    .select("chick")
-    .eq("user_id", authUser.id);
-  const grantedChicks = ((chickUnlocksRows ?? []) as { chick: string }[])
-    .map((r) => r.chick) as ChickVariant[];
 
   // Lazy downgrade if paid_until has lapsed but status is still 'paid'.
   const liveSubscriptionStatus = await ensureSubscriptionFreshness(
@@ -340,14 +331,9 @@ export default async function ProfilePage() {
         />
       </section>
 
-      {/* Cosmetic chick wardrobe — XP-gated skins + promo redemption */}
+      {/* A single recognisable mascot that reacts to study moments. */}
       <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
-        <ChickPicker
-          userXp={profile?.xp ?? 0}
-          isPremium={liveSubscriptionStatus === "paid"}
-          grantedChicks={grantedChicks}
-        />
-        <PromoCodeRedeemer />
+        <ChickPicker />
       </section>
 
       {/* Exam switcher — three pills, current one highlighted. Clicks go */}

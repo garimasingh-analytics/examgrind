@@ -44,6 +44,7 @@ export default async function Image({ params }: Props) {
 
   const chickFace =
     accuracy >= 70 ? "happy" : accuracy >= 40 ? "idle" : "sad";
+  const mascotUrl = `https://www.examgrind.in/chick/examgrind-${chickFace}.png`;
 
   // Dare framing — what the recipient sees at the top of the card.
   // Score-aware so a high scorer brags and a low scorer dares back.
@@ -188,8 +189,15 @@ export default async function Image({ params }: Props) {
             </div>
           </div>
 
-          {/* Chick — simplified SVG-ish using nested divs */}
-          <ChickImage state={chickFace} />
+          {/* The same mascot shown inside the product. */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/og needs a plain image element */}
+          <img
+            alt=""
+            src={mascotUrl}
+            width={320}
+            height={320}
+            style={{ objectFit: "contain" }}
+          />
         </div>
 
         {/* Bottom CTA */}
@@ -430,3 +438,7 @@ function ChickImage({ state }: { state: "happy" | "idle" | "sad" }) {
     </div>
   );
 }
+
+// Kept temporarily for old generated-card snapshots that may still refer to
+// this helper while new cards use the shared illustrated mascot above.
+void ChickImage;
