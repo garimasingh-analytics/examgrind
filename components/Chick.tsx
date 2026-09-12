@@ -37,22 +37,21 @@ const MOTION_BY_STATE: Record<ChickState, string> = {
   excited: "animate-chick-excited",
 };
 
-// The body stays recognisably ExamGrind everywhere. A student's chosen
-// wardrobe item is a small, readable accessory rather than a different
-// mascot pasted into each screen.
-const ACCESSORY_BY_VARIANT: Partial<Record<ChickVariant, { label: string; className: string }>> = {
-  scholar: { label: "Graduation cap", className: "eg-chick-accessory-cap" },
-  ninja: { label: "Red focus headband", className: "eg-chick-accessory-headband" },
-  bookworm: { label: "Reading glasses", className: "eg-chick-accessory-glasses" },
-  dragon: { label: "Dragon horns", className: "eg-chick-accessory-horns" },
-  doctor: { label: "Doctor's stethoscope", className: "eg-chick-accessory-stethoscope" },
-  cyber: { label: "Cyber visor", className: "eg-chick-accessory-visor" },
-  police: { label: "SSC selection beret", className: "eg-chick-accessory-beret" },
-  warrior: { label: "Warrior headguard", className: "eg-chick-accessory-helmet" },
-  royal: { label: "Premium crown", className: "eg-chick-accessory-crown" },
-  cosmic: { label: "Cosmic aura", className: "eg-chick-accessory-cosmic" },
-  squad: { label: "Squad pin", className: "eg-chick-accessory-squad" },
-  phoenix: { label: "Phoenix flame", className: "eg-chick-accessory-phoenix" },
+// Wardrobe items are complete painted characters, not CSS hats or badges.
+// That keeps each unlock legible and rewarding even in the small app shell.
+const WARDROBE_ART: Partial<Record<ChickVariant, string>> = {
+  scholar: "/chick/wardrobe/scholar.png",
+  ninja: "/chick/wardrobe/ninja.png",
+  bookworm: "/chick/wardrobe/bookworm.png",
+  dragon: "/chick/wardrobe/dragon.png",
+  doctor: "/chick/wardrobe/doctor.png",
+  cyber: "/chick/wardrobe/cyber.png",
+  police: "/chick/wardrobe/police.png",
+  warrior: "/chick/wardrobe/warrior.png",
+  royal: "/chick/wardrobe/royal.png",
+  cosmic: "/chick/wardrobe/cosmic.png",
+  squad: "/chick/wardrobe/squad.png",
+  phoenix: "/chick/wardrobe/phoenix.png",
 };
 
 export default function Chick({
@@ -63,7 +62,8 @@ export default function Chick({
 }: Props) {
   const { variant: savedVariant } = useChickVariant();
   const activeVariant = variant ?? savedVariant;
-  const accessory = ACCESSORY_BY_VARIANT[activeVariant];
+  const wardrobeArt = WARDROBE_ART[activeVariant];
+  const imageSource = wardrobeArt ?? ART_BY_STATE[state];
 
   return (
     <span
@@ -77,14 +77,14 @@ export default function Chick({
       {state === "excited" && <span className="eg-chick-spark eg-chick-spark-two">✦</span>}
       <Image
         alt=""
-        src={ART_BY_STATE[state]}
+        src={imageSource}
         width={640}
         height={640}
         draggable={false}
         className={`eg-chick-main h-full w-full object-contain ${MOTION_BY_STATE[state]}`}
         sizes={`${Math.max(48, Math.round(size))}px`}
       />
-      {state === "excited" && (
+      {state === "excited" && !wardrobeArt && (
         <Image
           alt=""
           src="/chick/examgrind-excited-flap.png"
@@ -96,7 +96,6 @@ export default function Chick({
         />
       )}
       {state === "sad" && <span className="eg-chick-tear" />}
-      {accessory && <span aria-label={accessory.label} className={`eg-chick-accessory ${accessory.className}`} />}
     </span>
   );
 }
