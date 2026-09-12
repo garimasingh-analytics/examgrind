@@ -352,7 +352,7 @@ export default function MockTakeClient({
                   type="button"
                   onClick={() => void submit()}
                   disabled={submitting}
-                  className="rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-5 py-2 text-xs font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.02] disabled:opacity-60"
+                  className="rounded-2xl bg-sun-400 px-5 py-2 text-xs font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.02] disabled:opacity-60"
                 >
                   Submit mock →
                 </button>

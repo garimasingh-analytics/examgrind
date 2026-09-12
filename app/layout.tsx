@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Fraunces, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "./premium.css";
 import Footer from "@/components/Footer";
 import RegisterSW from "@/components/RegisterSW";
 import { ChickVariantProvider } from "@/components/ChickVariantContext";
@@ -166,7 +167,7 @@ export default async function RootLayout({
         />
         <NavigationFeedback />
         <ChickVariantProvider initialVariant={initialVariant}>
-          <div className="flex min-h-[100svh] flex-col pb-20 md:pb-0">
+          <div className="flex min-h-[100svh] flex-col pb-24 md:pb-28">
             <div className="flex-1">{children}</div>
             <Footer />
           </div>

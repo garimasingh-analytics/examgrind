@@ -4,7 +4,7 @@ import Chick from "@/components/Chick";
 import { EXAM_LABEL, EXAM_TAGLINE, type DiagnoseExam } from "@/lib/diagnose-questions";
 
 export const metadata: Metadata = {
-  title: "90-sec diagnosis — find your exam weak spot · ExamGrind",
+  title: "90-second diagnosis: find your weak topics · ExamGrind",
   description:
     "Take 5 focused exam-style questions. Find the concepts to revise first in 90 seconds. No signup. Free.",
   openGraph: {
@@ -21,6 +21,7 @@ const EXAMS = [
   "delhi-police-constable",
   "uppsc-ro-aro",
   "up-secretariat-ro-aro",
+  "uiic-ao",
   "uppsc-pcs",
 ] as const satisfies readonly DiagnoseExam[];
 type LiveDiagnosisExam = (typeof EXAMS)[number];
@@ -32,6 +33,7 @@ const EXAM_EMOJI: Record<LiveDiagnosisExam, string> = {
   "delhi-police-constable": "🚓",
   "uppsc-ro-aro": "🗂️",
   "up-secretariat-ro-aro": "🏛️",
+  "uiic-ao": "🛡️",
   "uppsc-pcs": "🧭",
 };
 
@@ -64,7 +66,7 @@ export default function DiagnoseHubPage() {
         </h1>
 
         <p className="mx-auto mt-5 max-w-xl text-balance text-base leading-relaxed text-cocoa-700 sm:text-lg">
-          5 focused exam-style questions. Pick your exam. See the concepts this sample says you should revise first — and one concrete place to begin.
+          Answer 5 exam-style questions. We will show the topics to revise first and a simple way to begin.
         </p>
 
         <div className="mt-2 text-sm text-cocoa-500">

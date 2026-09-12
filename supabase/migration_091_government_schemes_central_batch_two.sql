@@ -1,0 +1,49 @@
+-- Central scheme catalogue: verified batch two.
+-- These are additive records only. They use official programme/ministry portals
+-- and remain separate from the later State/UT catalogue.
+
+insert into public.government_schemes (
+  slug, name, ministry, category, government_level, what_it_is, who_it_is_for,
+  benefit_summary, why_it_matters, exam_links, official_source_title,
+  official_source_url, application_url, source_kind, verification_status,
+  last_official_check
+) values
+  ('pradhan-mantri-matsya-sampada-yojana', 'Pradhan Mantri Matsya Sampada Yojana', 'Department of Fisheries', 'Agriculture, Rural & Environment', 'central',
+   'An umbrella fisheries-development programme covering production, infrastructure, post-harvest management and fisheries governance components.', 'Fishers, fish farmers, entrepreneurs and implementing institutions under the relevant component guidelines.',
+   'The funding pattern and beneficiary support depend on the component, activity and beneficiary category.', 'Useful for blue economy, aquaculture, food security, coastal livelihoods and agriculture-sector diversification.', '["Agriculture", "Economy", "Environment"]'::jsonb, 'Department of Fisheries – PMMSY', 'https://dof.gov.in/pmmsy', 'https://dof.gov.in/pmmsy', 'programme_portal', 'official_source_checked', date '2026-09-07'),
+  ('rashtriya-gokul-mission', 'Rashtriya Gokul Mission', 'Department of Animal Husbandry & Dairying', 'Agriculture, Rural & Environment', 'central',
+   'A livestock-development programme focused on conserving and developing indigenous bovine breeds and improving bovine productivity.', 'Livestock sector stakeholders reached through the programme and state implementation mechanisms.',
+   'The programme operates through its notified components, institutions and state-level implementation.', 'Important for animal husbandry, indigenous breeds, dairy development and agricultural productivity.', '["Agriculture", "Animal husbandry", "Rural development"]'::jsonb, 'Department of Animal Husbandry & Dairying – schemes', 'https://www.dahd.gov.in/schemes-programmes', 'https://www.dahd.gov.in/schemes-programmes', 'ministry_portal', 'official_source_checked', date '2026-09-07'),
+  ('national-livestock-mission', 'National Livestock Mission', 'Department of Animal Husbandry & Dairying', 'Agriculture, Rural & Environment', 'central',
+   'A livestock-sector programme that supports entrepreneurship, productivity and development of selected livestock value chains.', 'Eligible livestock-sector beneficiaries and implementing entities under component guidelines.',
+   'Support is channelled through approved activities and the prevailing programme guidelines.', 'Useful for rural livelihoods, livestock diversification, entrepreneurship and agricultural productivity.', '["Agriculture", "Employment", "Animal husbandry"]'::jsonb, 'Department of Animal Husbandry & Dairying – schemes', 'https://www.dahd.gov.in/schemes-programmes', 'https://www.dahd.gov.in/schemes-programmes', 'ministry_portal', 'official_source_checked', date '2026-09-07'),
+  ('national-programme-for-dairy-development', 'National Programme for Dairy Development', 'Department of Animal Husbandry & Dairying', 'Agriculture, Rural & Environment', 'central',
+   'A dairy-sector programme for strengthening milk procurement, processing, testing and producer-oriented infrastructure.', 'State cooperative dairy federations, unions, producer organisations and other eligible implementing entities.',
+   'The programme funds approved infrastructure and capacity-building activities under its components.', 'High-value for dairy cooperatives, rural livelihoods, food processing and agricultural infrastructure.', '["Agriculture", "Cooperatives", "Rural development"]'::jsonb, 'National Programme for Dairy Development – DAHD', 'https://dahd.gov.in/en/schemes/programmes/npdd', 'https://dahd.gov.in/en/schemes/programmes/npdd', 'programme_portal', 'official_source_checked', date '2026-09-07'),
+  ('animal-husbandry-infrastructure-development-fund', 'Animal Husbandry Infrastructure Development Fund', 'Department of Animal Husbandry & Dairying', 'Business & Entrepreneurship', 'central',
+   'A credit-support fund for eligible investment in animal-husbandry and allied processing or infrastructure activities.', 'Eligible private entrepreneurs, MSMEs, farmer-producer organisations and other entities under fund guidelines.',
+   'The fund supports eligible infrastructure investment through the prescribed financing framework.', 'Useful for agricultural infrastructure, dairy and meat processing, credit support and value-chain development.', '["Agriculture", "MSMEs", "Infrastructure"]'::jsonb, 'Department of Animal Husbandry & Dairying – schemes', 'https://www.dahd.gov.in/schemes-programmes', 'https://www.dahd.gov.in/schemes-programmes', 'ministry_portal', 'official_source_checked', date '2026-09-07'),
+  ('national-career-service', 'National Career Service', 'Ministry of Labour & Employment', 'Skills & Employment', 'central',
+   'A national digital career-service platform for job search, counselling, job fairs and career information.', 'Job seekers, employers, career counsellors and training stakeholders using the official platform.',
+   'The portal offers services and information rather than a universal cash benefit.', 'Useful for labour markets, employment services, digital public platforms and career guidance.', '["Employment", "Labour", "Digital governance"]'::jsonb, 'National Career Service official portal', 'https://www.ncs.gov.in/', 'https://www.ncs.gov.in/', 'programme_portal', 'official_source_checked', date '2026-09-07'),
+  ('pm-usp-central-sector-scholarship', 'PM-USP Central Sector Scheme of Scholarship for College and University Students', 'Department of Higher Education, Ministry of Education', 'Education & Learning', 'central',
+   'A merit-based higher-education scholarship listed and administered through the National Scholarship Portal framework.', 'Eligible college and university students who meet the prevailing merit and other scheme conditions.',
+   'Application windows, eligibility and documents are published on the National Scholarship Portal for each academic year.', 'Useful for education policy, scholarships, DBT and higher-education support questions.', '["Education", "Social welfare", "Digital governance"]'::jsonb, 'National Scholarship Portal', 'https://scholarships.gov.in/Students', 'https://scholarships.gov.in/Students', 'official_catalogue', 'official_source_checked', date '2026-09-07'),
+  ('national-means-cum-merit-scholarship', 'National Means-cum-Merit Scholarship Scheme', 'Department of School Education & Literacy, Ministry of Education', 'Education & Learning', 'central',
+   'A merit-based scholarship scheme listed on the National Scholarship Portal for eligible school students.', 'Eligible school students under the scheme’s examination, income and other conditions.',
+   'The annual application schedule and eligibility conditions are published through the official scholarship system.', 'Useful for school education, preventing dropout, educational equity and scholarship-policy questions.', '["Education", "Social welfare", "Children"]'::jsonb, 'National Scholarship Portal', 'https://scholarships.gov.in/All-Scholarships', 'https://scholarships.gov.in/Students', 'official_catalogue', 'official_source_checked', date '2026-09-07'),
+  ('free-coaching-and-allied-scheme', 'Free Coaching and Allied Scheme', 'Ministry of Minority Affairs', 'Education & Learning', 'central',
+   'A support scheme intended to help eligible minority-community candidates prepare for competitive examinations and admissions.', 'Eligible candidates from notified minority communities under the current scheme conditions.',
+   'Support and selection conditions must be checked against the current official service and ministry guidance.', 'Directly relevant to competitive-exam access, affirmative support, minority welfare and educational empowerment.', '["Education", "Social justice", "Employment"]'::jsonb, 'National Government Services Portal', 'https://services.india.gov.in/service/detail/free-coaching-and-allied-scheme-1', 'https://services.india.gov.in/service/detail/free-coaching-and-allied-scheme-1', 'official_catalogue', 'official_source_checked', date '2026-09-07'),
+  ('pm-scholarship-scheme-capf-assam-rifles', 'Prime Minister’s Scholarship Scheme for CAPFs and Assam Rifles', 'Ministry of Home Affairs', 'Education & Learning', 'central',
+   'A merit-based scholarship listed on the National Scholarship Portal for eligible dependants under the relevant CAPF and Assam Rifles conditions.', 'Eligible dependants as defined by the prevailing scholarship scheme.',
+   'Current opening dates, eligibility and documents are maintained on the National Scholarship Portal.', 'Useful for internal security, welfare measures for security personnel and scholarship schemes.', '["Internal security", "Education", "Social welfare"]'::jsonb, 'National Scholarship Portal', 'https://scholarships.gov.in/All-Scholarships', 'https://scholarships.gov.in/Students', 'official_catalogue', 'official_source_checked', date '2026-09-07')
+on conflict (slug) do update set
+  name = excluded.name, ministry = excluded.ministry, category = excluded.category,
+  government_level = excluded.government_level, what_it_is = excluded.what_it_is,
+  who_it_is_for = excluded.who_it_is_for, benefit_summary = excluded.benefit_summary,
+  why_it_matters = excluded.why_it_matters, exam_links = excluded.exam_links,
+  official_source_title = excluded.official_source_title, official_source_url = excluded.official_source_url,
+  application_url = excluded.application_url, source_kind = excluded.source_kind,
+  verification_status = excluded.verification_status, last_official_check = excluded.last_official_check,
+  updated_at = now();

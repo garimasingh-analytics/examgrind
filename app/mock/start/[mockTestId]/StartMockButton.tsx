@@ -68,7 +68,7 @@ export default function StartMockButton({ mockTestId }: { mockTestId: string }) 
         type="button"
         onClick={start}
         disabled={loading}
-        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-6 py-4 text-base font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70"
+        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-sun-400 px-6 py-4 text-base font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {loading ? "Generating your mock…" : "I'm ready — Start the mock"}
       </button>

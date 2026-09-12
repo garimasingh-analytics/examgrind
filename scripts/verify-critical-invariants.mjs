@@ -89,6 +89,15 @@ const INVARIANTS = [
       "or its export is renamed, the billing webhook + verify-payment routes stop " +
       "compiling. Introduced 2026-07-17.",
   },
+  {
+    id: "topic-quiz-framing-for-every-live-exam",
+    file: "app/api/quiz/start/route.ts",
+    pattern: /"cuet"[\s\S]*"ssc-cgl"[\s\S]*"neet-ug"[\s\S]*"delhi-police-constable"[\s\S]*"uppsc-ro-aro"[\s\S]*"up-secretariat-ro-aro"[\s\S]*missing exam-specific question framing/,
+    rationale:
+      "Every live exam needs its own question-generation framing. Falling back " +
+      "to CUET produces superficially valid but wrong exam practice, which is " +
+      "worse than temporarily declining to generate a quiz.",
+  },
 ];
 
 let failed = 0;

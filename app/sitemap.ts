@@ -14,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Do not manufacture a new "last modified" date on every crawl. It can
   // make a small site look noisy to search engines and tells crawlers nothing
   // useful about which public pages genuinely changed.
-  const siteUpdatedAt = new Date("2026-08-23T00:00:00.000Z");
+  const siteUpdatedAt = new Date("2026-09-06T00:00:00.000Z");
 
   return [
     {
@@ -59,6 +59,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/current-affairs`,
+      lastModified: siteUpdatedAt,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/government-schemes`,
+      lastModified: siteUpdatedAt,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    ...[
+      "delhi-police-constable",
+      "uppsc-ro-aro",
+      "up-secretariat-ro-aro",
+    ].map((slug) => ({
+      url: `${baseUrl}/exam/${slug}`,
+      lastModified: siteUpdatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    })),
     ...studyGuides.map((guide) => ({
       url: `${baseUrl}/guides/${guide.slug}`,
       // Guide dates are human-readable editorial labels, so retain a stable

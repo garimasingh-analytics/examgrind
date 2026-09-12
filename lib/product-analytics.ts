@@ -47,6 +47,7 @@ export const ANALYTICS_EVENTS = {
   RECOVERY_HISTORY_VIEWED: "recovery_history_viewed",
   STUDY_HUB_VIEWED: "study_hub_viewed",
   STUDY_GUIDE_VIEWED: "study_guide_viewed",
+  CURRENT_AFFAIRS_VIEWED: "current_affairs_viewed",
 } as const;
 
 declare global {
@@ -128,11 +129,13 @@ export const trackCheckoutDismissed = (params: { product: AccessProduct; checkou
 export const trackPurchaseCompleted = (params: { product: AccessProduct; checkout_type: "one_time" | "subscription" }) => track(ANALYTICS_EVENTS.PURCHASE_COMPLETED, params);
 export const trackStudyPlanSaved = (params: { exam: string; subject_count: number; daily_minutes: number }) =>
   track(ANALYTICS_EVENTS.STUDY_PLAN_SAVED, params);
+export const trackCurrentAffairsViewed = (params: { date: string; brief_count: number }) =>
+  track(ANALYTICS_EVENTS.CURRENT_AFFAIRS_VIEWED, params);
 export const trackLandingBookOpened = () =>
   track(ANALYTICS_EVENTS.LANDING_BOOK_OPENED, {});
 export const trackLandingCtaClicked = (params: { placement: "hero" | "closing" }) =>
   track(ANALYTICS_EVENTS.LANDING_CTA_CLICKED, params);
-export const trackLandingExamSelected = (params: { exam: "cuet" | "ssc-cgl" | "neet-ug" | "delhi-police-constable" }) =>
+export const trackLandingExamSelected = (params: { exam: string }) =>
   track(ANALYTICS_EVENTS.LANDING_EXAM_SELECTED, params);
 
 export type DiagnosisExam =
@@ -142,6 +145,7 @@ export type DiagnosisExam =
   | "delhi-police-constable"
   | "uppsc-ro-aro"
   | "up-secretariat-ro-aro"
+  | "uiic-ao"
   | "uppsc-pcs";
 
 export const trackDiagnosisStarted = (params: {

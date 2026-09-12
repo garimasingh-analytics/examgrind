@@ -81,7 +81,7 @@ export default function ShareButton({
     <div className="flex flex-col items-center gap-2">
       <button
         onClick={handleShare}
-        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-6 py-3 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.02] active:scale-[0.99]"
+        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sun-400 px-6 py-3 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.02] active:scale-[0.99]"
       >
         <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
           <path

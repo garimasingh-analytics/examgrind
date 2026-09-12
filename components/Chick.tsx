@@ -733,11 +733,11 @@ function ChickAccessory({ variant }: { variant: ChickVariant }) {
   }
 
   if (variant === "cosmic") {
-    // Code-only rare: purple aura + star sparkles
+    // Code-only rare: warm sun aura + star sparkles.
     return (
       <g>
         {/* Aura halo */}
-        <circle cx="110" cy="118" r="100" fill="none" stroke="#9C4DD3" strokeWidth="2" opacity="0.5">
+        <circle cx="110" cy="118" r="100" fill="none" stroke="#FDD647" strokeWidth="2" opacity="0.62">
           <animate attributeName="r" values="98;106;98" dur="3s" repeatCount="indefinite" />
         </circle>
         {/* Sparkles around the chick */}
@@ -752,8 +752,8 @@ function ChickAccessory({ variant }: { variant: ChickVariant }) {
         <circle cx="130" cy="160" r="1.5" fill="#FFFDF6" />
         <circle cx="100" cy="175" r="1.5" fill="#FFFDF6" />
         <circle cx="120" cy="175" r="1.5" fill="#FFFDF6" />
-        {/* Crown-like tiny purple gem on head */}
-        <path d="M105 22 L110 12 L115 22 Z" fill="#9C4DD3" stroke="#5B2090" strokeWidth="0.8" />
+        {/* Crown-like tiny sun gem on head */}
+        <path d="M105 22 L110 12 L115 22 Z" fill="#FDD647" stroke="#C2350A" strokeWidth="0.8" />
         <circle cx="110" cy="14" r="1.5" fill="#FFFDF6" />
       </g>
     );

@@ -111,11 +111,11 @@ export default async function ResultsPage({ params }: Params) {
     isEmpty            ? "No answers this round."
   : accuracy >= 90     ? "You aced it."
   : accuracy >= 70     ? "Nicely done."
-  : accuracy >= 40     ? "Good attempt — let's keep building."
+  : accuracy >= 40     ? "Good attempt. Keep going."
   :                      "Tough one. We'll come back stronger.";
 
   const subhead = isEmpty
-    ? "Every question was skipped — give it another go when you're ready."
+    ? "Every question was skipped. Try again when you're ready."
     : null;
   const nextAction = isEmpty || accuracy < 70
     ? {
@@ -196,7 +196,7 @@ export default async function ResultsPage({ params }: Params) {
           {completed && (
             <div className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-sun-500/15 px-4 py-3 text-sm font-semibold text-cocoa-900">
               <span>🎉</span>
-              <span>Topic completed — the next one is unlocked.</span>
+              <span>Topic completed. The next one is unlocked.</span>
             </div>
           )}
 
@@ -205,8 +205,8 @@ export default async function ResultsPage({ params }: Params) {
               <span>🔥</span>
               <span>
                 {streak === 1
-                  ? "Streak started — come back tomorrow to keep it going."
-                  : `${streak}-day streak — keep it lit.`}
+                  ? "Streak started. Come back tomorrow to keep it going."
+                  : `${streak}-day streak. Keep it going.`}
               </span>
             </div>
           )}
@@ -236,6 +236,16 @@ export default async function ResultsPage({ params }: Params) {
             </div>
           )}
 
+          {!isEmpty && (
+            <div className="mt-5 rounded-2xl border border-ember-600/20 bg-ember-500/[.08] p-4 text-left sm:flex sm:items-center sm:justify-between sm:gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[.15em] text-ember-700">Do this before your next quiz</p>
+                <p className="mt-1 text-sm font-semibold leading-6 text-cocoa-900">Open Deep Analysis to see the exact concepts, mistakes and next repair worth your time.</p>
+              </div>
+              <a href="#deep-analysis" className="mt-3 inline-flex shrink-0 rounded-xl bg-ember-600 px-4 py-2.5 text-sm font-bold text-cream-50 transition hover:bg-ember-700 sm:mt-0">Open Deep Analysis →</a>
+            </div>
+          )}
+
         </div>
       </section>
 
@@ -253,7 +263,7 @@ export default async function ResultsPage({ params }: Params) {
             <p className="mt-3 text-sm text-cocoa-700">{repairCycle.repair_correct / repairCycle.repair_total >= 0.7 ? "This fresh round is a positive signal. Keep it in your revision queue so it stays reliable." : "The signal is still active. Review the repair steps below, then run one more focused round."}</p>
             {repairCycle.repair_correct / repairCycle.repair_total >= 0.7 && (
               <div className="mt-4 border-t border-moss-500/20 pt-4">
-                <p className="text-center text-xs font-semibold text-cocoa-600">A real repair result is worth keeping—and sharing with a study partner.</p>
+                <p className="text-center text-xs font-semibold text-cocoa-600">Save this result or share it with a study partner.</p>
                 <div className="mt-3 flex justify-center">
                   <ShareButton
                     quizId={id}
@@ -272,7 +282,7 @@ export default async function ResultsPage({ params }: Params) {
 
       {/* Deep Analysis — only for non-empty quizzes */}
       {!isEmpty && (
-        <section className="mx-auto mt-10 max-w-2xl px-4 sm:px-6">
+        <section id="deep-analysis" className="mx-auto mt-10 max-w-2xl scroll-mt-6 px-4 sm:px-6">
           <DeepAnalysis
             quizId={id}
             topicId={quizRow.topic_id}
@@ -306,7 +316,7 @@ export default async function ResultsPage({ params }: Params) {
                       "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                       wasRight ? "bg-moss-500 text-cream-50" : skipped ? "bg-cream-200 text-cocoa-500" : "bg-coral-500 text-cream-50",
                     ].join(" ")}>{wasRight ? "✓" : skipped ? "—" : "✗"}</span>
-                    <span className="min-w-0 flex-1"><span className="font-medium text-cocoa-900"><span className="font-mono text-xs text-cocoa-500">{i + 1}.</span>{" "}{q.question_text}</span><span className={`mt-1 block text-xs font-bold ${wasRight ? "text-moss-700" : skipped ? "text-cocoa-500" : "text-coral-500"}`}>{wasRight ? "Correct — tap to review" : skipped ? "Skipped — review the answer" : "Needs repair — review the answer"}</span></span>
+                    <span className="min-w-0 flex-1"><span className="font-medium text-cocoa-900"><span className="font-mono text-xs text-cocoa-500">{i + 1}.</span>{" "}{q.question_text}</span><span className={`mt-1 block text-xs font-bold ${wasRight ? "text-moss-700" : skipped ? "text-cocoa-500" : "text-coral-500"}`}>{wasRight ? "Correct. Tap to review." : skipped ? "Skipped. Review the answer." : "Review the answer."}</span></span>
                     <span className="mt-1 text-xs font-bold text-cocoa-500 group-open:rotate-180">⌄</span>
                   </summary>
                   <div className="border-t border-cocoa-900/[.06] px-5 pb-5 pt-4">

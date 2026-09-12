@@ -60,8 +60,10 @@ export default function ExamSwitcher({
         aria-haspopup="menu"
         aria-expanded={open}
         title="Switch exam"
-        className="inline-flex items-center gap-1 rounded-full bg-moss-500/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-moss-700 transition hover:bg-moss-500/25"
+        aria-label={`Switch exam. Current exam: ${currentName}`}
+        className="inline-flex items-center gap-1.5 rounded-full bg-moss-500/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-moss-700 transition hover:bg-moss-500/25"
       >
+        <span className="text-moss-800/75">Switch</span>
         <span>{currentName}</span>
         <span aria-hidden className={`text-[9px] transition ${open ? "rotate-180" : ""}`}>
           ▾

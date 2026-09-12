@@ -37,9 +37,12 @@ const config: Config = {
         coral: {
           500: "#D6654E", // soft "wrong" — never harsh red
         },
+        // Legacy `violet-*` utilities are intentionally mapped to the warm
+        // ink-and-gold system until each callsite is renamed. This prevents
+        // one-off purple surfaces from leaking into the signed-in product.
         violet: {
-          500: "#8174D9",
-          600: "#6659C9",
+          500: "#D9C48B",
+          600: "#8A6300",
         },
         indigo: {
           600: "#5C98B9",

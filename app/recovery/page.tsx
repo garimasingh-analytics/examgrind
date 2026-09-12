@@ -112,8 +112,8 @@ export default async function RecoveryPage() {
 
       <section className="mx-auto max-w-4xl px-4 pt-4 sm:px-6 sm:pt-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ember-700">Recovery history</p>
-        <h1 className="mt-2 max-w-2xl font-serif text-4xl font-semibold tracking-tight text-cocoa-900 sm:text-5xl">See what you fixed. Know what is still asking for work.</h1>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-cocoa-700">Each signal begins with an analysis, then earns its place here only after a fresh-question repair round. This is evidence—not a promise of marks.</p>
+        <h1 className="mt-2 max-w-2xl font-serif text-4xl font-semibold tracking-tight text-cocoa-900 sm:text-5xl">See what you have improved and what to practise next.</h1>
+        <p className="mt-3 max-w-2xl text-base leading-7 text-cocoa-700">This page tracks topics after you review mistakes and try fresh questions. Use it to see which topics still need time.</p>
       </section>
 
       <section className="mx-auto mt-7 max-w-4xl px-4 sm:px-6">

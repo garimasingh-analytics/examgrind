@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import Chick from "@/components/Chick";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import type { Chapter, Subject, Topic, UserTopicMastery, TopicWithMastery } from "@/lib/types";
+import { isLiveExamSlug } from "@/lib/exam-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function ChapterPage({ params }: Params) {
       .maybeSingle<{ exam_choice: string | null }>(),
     supabase
       .from("chapters")
-      .select("*, subject:subjects(*)")
+      .select("*, subject:subjects(*, exam:exams(slug))")
       .eq("id", id)
       .maybeSingle(),
     supabase
@@ -39,7 +40,8 @@ export default async function ChapterPage({ params }: Params) {
 
   const examSlug = profileRes.data?.exam_choice ?? "cuet";
   if (!chapterRes.data) notFound();
-  const chapter = chapterRes.data as Chapter & { subject: Subject };
+  const chapter = chapterRes.data as Chapter & { subject: Subject & { exam: { slug: string } | null } };
+  if (!isLiveExamSlug(chapter.subject.exam?.slug ?? "")) notFound();
   const topics = (topicsRes.data ?? []) as Topic[];
 
   // User's mastery for these topics
@@ -56,9 +58,9 @@ export default async function ChapterPage({ params }: Params) {
     );
   }
 
-  // Compute per-topic state for the path UI.
-  // Linear unlock: topic[0] always available; topic[i] available when topic[i-1] completed.
-  let prevCompleted = true;
+  // A chapter is a map, not a gate. Students often arrive with a specific
+  // doubt from a class, a mock, or a guide, so every topic must be reachable
+  // on the first visit. Progress is still shown through completion state.
   const enriched: TopicWithMastery[] = topics.map((t) => {
     const m = masteryByTopic.get(t.id);
     const attempted = m?.questions_attempted ?? 0;
@@ -66,11 +68,7 @@ export default async function ChapterPage({ params }: Params) {
     const accuracy = attempted > 0 ? correct / attempted : 0;
     const completed = attempted > 0 && accuracy >= COMPLETION_THRESHOLD;
 
-    let status: TopicWithMastery["status"] = "locked";
-    if (completed) status = "completed";
-    else if (prevCompleted) status = "available";
-
-    prevCompleted = completed;
+    const status: TopicWithMastery["status"] = completed ? "completed" : "available";
     return {
       ...t,
       questions_correct: correct,
@@ -111,7 +109,7 @@ export default async function ChapterPage({ params }: Params) {
         </h1>
         <p className="mt-4 max-w-md text-base leading-6 text-cream-200">
           {topics.length > 0
-            ? `${topics.length} topic${topics.length === 1 ? "" : "s"}. Follow the marks, choose the next open page, and make a visible move.`
+            ? `${topics.length} topic${topics.length === 1 ? "" : "s"}. Every page is open, so start with the concept you need today.`
             : "Topics for this chapter are coming soon."}
         </p>
         </div>
@@ -123,7 +121,7 @@ export default async function ChapterPage({ params }: Params) {
       {/* The Path */}
       {topics.length > 0 ? (
         <section className="chapter-atlas mx-auto mt-8 max-w-md px-6">
-          <div className="chapter-atlas-head"><p className="eg-kicker">Your route</p><p>One open page at a time</p></div>
+          <div className="chapter-atlas-head"><p className="eg-kicker">Your route</p><p>Pick any topic to begin</p></div>
           <ol className="topic-atlas relative">
             {enriched.map((t, i) => (
               <PathNode key={t.id} topic={t} index={i} total={enriched.length} />
@@ -156,7 +154,7 @@ function PathNode({
 }) {
   const isLast = index === total - 1;
   const masteredStyle = topic.mastery_level === "master"
-    ? "bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 ring-sun-400/60"
+    ? "bg-sun-400 ring-sun-400/60"
     : topic.mastery_level === "adept"
       ? "bg-ember-500 ring-ember-400/40"
       : "bg-sun-500 ring-sun-400/40";
@@ -177,7 +175,7 @@ function PathNode({
     {topic.questions_attempted > 0 && <p className="text-xs text-cocoa-500">Best: {Math.round(topic.accuracy * 100)}%</p>}
   </div>;
   return <li className={`topic-node relative flex justify-center pb-16 last:pb-0 topic-node-${topic.status}`}>
-    {topic.status === "locked" ? <div className="topic-node-inner z-10 cursor-not-allowed">{inner}</div> : <Link href={`/topic/${topic.id}`} className="topic-node-inner z-10 transition hover:-translate-y-0.5">{inner}</Link>}
+    <Link href={`/topic/${topic.id}`} className="topic-node-inner z-10 transition hover:-translate-y-0.5">{inner}</Link>
     {!isLast && <span aria-hidden="true" className="topic-connector absolute bottom-1 left-1/2 z-0 h-11 -translate-x-1/2 border-l-2 border-dashed" />}
   </li>;
 }

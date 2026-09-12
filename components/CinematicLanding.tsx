@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Chick from "@/components/Chick";
+import { LIVE_EXAMS } from "@/lib/exam-catalog";
 import { trackLandingBookOpened, trackLandingCtaClicked, trackLandingExamSelected } from "@/lib/product-analytics";
 
-const exams = [
-  { slug: "cuet", label: "CUET UG", detail: "12 subjects · NCERT-aligned", colour: "amber" },
-  { slug: "ssc-cgl", label: "SSC CGL", detail: "Quant · Reasoning · English · GA", colour: "violet" },
-  { slug: "neet-ug", label: "NEET UG", detail: "Physics · Chemistry · Biology", colour: "coral" },
-  { slug: "delhi-police-constable", label: "Delhi Police", detail: "GK · Reasoning · Numerical Ability · Computer", colour: "amber" },
-] as const;
+const colours = ["amber", "violet", "coral"] as const;
+const exams = LIVE_EXAMS.map((exam, index) => ({
+  slug: exam.slug,
+  label: exam.name,
+  detail: exam.tagline,
+  colour: colours[index % colours.length],
+}));
 
 export default function CinematicLanding() {
-  const [exam, setExam] = useState<(typeof exams)[number]["slug"]>("ssc-cgl");
+  const [exam, setExam] = useState<string>("ssc-cgl");
   const choice = exams.find((item) => item.slug === exam) ?? exams[1];
 
   useEffect(() => {
@@ -43,18 +45,32 @@ export default function CinematicLanding() {
 
     <section className="egallery-signal" aria-labelledby="signal-title">
       <p className="egallery-eyebrow">WHAT YOU GET AFTER A TEST</p>
-      <h2 id="signal-title">A mock test should<br />not end with a <em>score.</em></h2>
+      <h2 id="signal-title">After a mock,<br />know what to <em>study.</em></h2>
       <div className="egallery-signal-grid">
-        <article><b>01 · SCORE LEAKS</b><h3>What went wrong?</h3><p>See the exact concept behind every lost mark—not just the answer you missed.</p></article>
-        <article><b>02 · YOUR NEXT MOVE</b><h3>What should I study?</h3><p>Start with the weakness that deserves your next study session, not a random playlist.</p></article>
-        <article><b>03 · PROOF</b><h3>Did I improve?</h3><p>Targeted practice and a retest make progress visible instead of leaving you guessing.</p></article>
+        <article><b>01 · REVIEW</b><h3>What went wrong?</h3><p>See the topic behind each wrong answer and understand what you missed.</p></article>
+        <article><b>02 · STUDY</b><h3>What should I study?</h3><p>Choose one weak topic for your next study session.</p></article>
+        <article><b>03 · RETEST</b><h3>Did I improve?</h3><p>Practise the topic again with new questions and check your progress.</p></article>
       </div>
     </section>
 
     <section id="your-exam" className="egallery-exam" aria-labelledby="exam-title">
       <div><p className="egallery-eyebrow">YOUR STARTING LINE</p><h2 id="exam-title">Choose your<br /><em>exam.</em></h2><p className="egallery-intro">Start with five exam-level questions. We will show the concepts to revisit before your next attempt.</p></div>
       <div className="egallery-picker">
-        <div className="egallery-tabs" role="tablist" aria-label="Choose your exam">{exams.map((item) => <button type="button" role="tab" aria-selected={item.slug === exam} key={item.slug} onClick={() => setExam(item.slug)} className={item.slug === exam ? "active" : ""}>{item.label}</button>)}</div>
+        <div className="egallery-tabs" role="tablist" aria-label="Choose your exam">
+          {exams.map((item) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={item.slug === exam}
+              key={item.slug}
+              onClick={() => setExam(item.slug)}
+              className={item.slug === exam ? "active" : ""}
+            >
+              <span>{item.label}</span>
+              <small>{item.slug === exam ? "Selected" : "Choose"}</small>
+            </button>
+          ))}
+        </div>
         <div className={`egallery-choice ${choice.colour}`}><p>YOUR {choice.label} DIAGNOSIS</p><h3>Find the topics<br />costing you marks.</h3><span>{choice.detail}</span><Link href={`/diagnose/${choice.slug}`} onClick={() => trackLandingExamSelected({ exam: choice.slug })}>Start my diagnosis</Link></div>
       </div>
     </section>

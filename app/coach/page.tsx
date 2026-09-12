@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import Chick from "@/components/Chick";
+import ExamSwitcher from "@/components/ExamSwitcher";
 import { isAdminEmail } from "@/lib/admin-auth";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
@@ -19,6 +20,7 @@ type TopicSignal = {
   lastQuizzedAt: string | null;
 };
 type LearnTopic = { id: string; name: string; chapterName: string; subjectName: string };
+type CoachHistoryItem = { id: string; requested_topic: string; topic_id: string | null; created_at: string };
 
 const revisionDays: Record<string, number> = {
   novice: 1,
@@ -50,7 +52,7 @@ export default async function CoachPage() {
   )) === "paid";
   const founderPreview = isAdminEmail(user.email);
   if (!isCoach && !founderPreview) {
-    return <main className="min-h-[100svh] bg-warm-wash pb-20"><header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5"><Link href="/home" className="font-serif text-lg font-bold text-cocoa-900">ExamGrind</Link><Link href="/home" className="text-sm font-bold text-ember-700">Home →</Link></header><section className="mx-auto max-w-2xl px-5 pt-8 text-center"><Chick state="idle" size={110} className="mx-auto" /><p className="mt-4 text-xs font-bold uppercase tracking-[.18em] text-ember-700">ExamGrind Coach</p><h1 className="mt-2 font-serif text-3xl font-bold text-cocoa-900">Coach isn&apos;t active for you yet.</h1><p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-cocoa-700">This is your complete learning loop: learn the topic, practise it, understand mistakes, then improve—not a generic timetable.</p><div className="mt-6 grid gap-3 text-left sm:grid-cols-2">{["Unlimited quizzes, mocks and AI Deep Analyses","Ask Coach to teach any exact topic","Clear teaching walkthroughs that make hard ideas easier","Practice on the exact concept you just learned","Adaptive daily actions and smart revision","Readiness recalculation, Mistake Book and reports"].map((benefit) => <div key={benefit} className="rounded-2xl border border-cocoa-900/[.07] bg-cream-50 p-4 text-sm font-medium text-cocoa-800 shadow-warm">✓ {benefit}</div>)}</div><Link href="/me" className="mt-7 inline-flex rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-6 py-4 text-base font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.01]">Unlock Coach — ₹199 / month</Link><p className="mt-3 text-xs text-cocoa-500">Cancel anytime from your profile.</p></section></main>;
+    return <main className="min-h-[100svh] bg-warm-wash pb-20"><header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5"><Link href="/home" className="font-serif text-lg font-bold text-cocoa-900">ExamGrind</Link><Link href="/home" className="text-sm font-bold text-ember-700">Home →</Link></header><section className="mx-auto max-w-2xl px-5 pt-8 text-center"><Chick state="idle" size={110} className="mx-auto" /><p className="mt-4 text-xs font-bold uppercase tracking-[.18em] text-ember-700">ExamGrind Coach</p><h1 className="mt-2 font-serif text-3xl font-bold text-cocoa-900">Coach isn&apos;t active for you yet.</h1><p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-cocoa-700">Coach helps you learn a topic, practise it and understand mistakes before your next quiz.</p><div className="mt-6 grid gap-3 text-left sm:grid-cols-2">{["Unlimited quizzes, mocks and AI Deep Analyses","Ask Coach to teach any exact topic","Clear teaching walkthroughs that make hard ideas easier","Practice on the exact concept you just learned","Adaptive daily actions and smart revision","Readiness recalculation, Mistake Book and reports"].map((benefit) => <div key={benefit} className="rounded-2xl border border-cocoa-900/[.07] bg-cream-50 p-4 text-sm font-medium text-cocoa-800 shadow-warm">✓ {benefit}</div>)}</div><Link href="/me" className="mt-7 inline-flex rounded-2xl bg-sun-400 px-6 py-4 text-base font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.01]">Unlock Coach — ₹199 / month</Link><p className="mt-3 text-xs text-cocoa-500">Cancel anytime from your profile.</p></section></main>;
   }
 
   const examSlug = profile?.exam_choice ?? "cuet";
@@ -61,7 +63,7 @@ export default async function CoachPage() {
     .maybeSingle<{ id: string; name: string }>();
   const [{ data: subjectRows }, { data: preferenceRaw }] = exam?.id
     ? await Promise.all([
-        supabase.from("subjects").select("id, name").eq("exam_id", exam.id).order("order_index"),
+        supabase.from("subjects").select("id, name").eq("exam_id", exam.id).eq("is_active", true).order("order_index"),
         supabase.from("user_exam_preferences").select("selected_subject_ids").eq("user_id", user.id).eq("exam_id", exam.id).maybeSingle<StudyPreference>(),
       ])
     : [{ data: [] }, { data: null }];
@@ -101,6 +103,20 @@ export default async function CoachPage() {
       if (!chapter) return [];
       return [{ id: topic.id, name: topic.name, chapterName: chapter.name, subjectName: subjectName(chapter.subject_id) }];
     });
+  const { data: historyRaw } = await supabase
+    .from("coach_lesson_history")
+    .select("id, requested_topic, topic_id, created_at")
+    .eq("user_id", user.id)
+    .eq("exam_slug", examSlug)
+    .order("created_at", { ascending: false })
+    .limit(8);
+  const seenHistoryTopics = new Set<string>();
+  const recentLessons = ((historyRaw ?? []) as CoachHistoryItem[]).filter((item) => {
+    const key = item.requested_topic.trim().toLowerCase();
+    if (seenHistoryTopics.has(key)) return false;
+    seenHistoryTopics.add(key);
+    return true;
+  });
 
   const { data: masteryRows } = await supabase
     .from("user_topic_mastery")
@@ -172,12 +188,15 @@ export default async function CoachPage() {
     <main className="coach-stage min-h-[100svh] pb-20">
       <header className="mx-auto flex max-w-4xl items-center justify-between px-5 py-5">
         <Link href="/home" className="font-serif text-lg font-bold text-cocoa-900">ExamGrind</Link>
-        <Link href="/home" className="text-sm font-bold text-ember-700">Home →</Link>
+        <div className="flex items-center gap-3">
+          <ExamSwitcher currentSlug={examSlug} />
+          <Link href="/home" className="text-sm font-bold text-ember-700">Home →</Link>
+        </div>
       </header>
       {founderPreview && !isCoach && <p className="mx-auto mb-3 max-w-4xl rounded-xl bg-sun-400/20 px-3 py-2 text-center text-xs font-bold text-cocoa-900">Founder preview — students need an active Coach plan to use this live briefing.</p>}
-      <CoachLearningStudio topics={learningTopics} priorityTopicIds={weakSignals.map((signal) => signal.topicId)} />
+      <CoachLearningStudio topics={learningTopics} priorityTopicIds={weakSignals.map((signal) => signal.topicId)} recentLessons={recentLessons} />
       <section className="mx-auto max-w-4xl px-5 pt-4">
-        <div className="coach-cover rounded-3xl bg-gradient-to-br from-cocoa-900 via-cocoa-900 to-ember-900 p-6 text-cream-50 shadow-warm-lg sm:p-8">
+        <div className="coach-cover rounded-3xl border border-cocoa-900/[.12] bg-cocoa-900 p-6 text-cream-50 shadow-warm-lg sm:p-8">
           <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-sun-300">ExamGrind Coach · live briefing</p><h1 className="mt-2 font-serif text-3xl font-bold sm:text-4xl">Here&apos;s exactly what to do next.</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-cream-100/80">{today} · Based on your completed {exam?.name ?? "exam"} practice. This briefing changes after each finished quiz or mock.</p></div><Chick state="excited" size={76} /></div>
         </div>
       </section>

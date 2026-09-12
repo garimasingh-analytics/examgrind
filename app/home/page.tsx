@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
+import { isLiveExamSlug } from "@/lib/exam-catalog";
 import SubjectGrid, { type SubjectWithProgress } from "@/components/SubjectGrid";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import PremiumBadge from "@/components/PremiumBadge";
@@ -136,7 +137,10 @@ export default async function HomePage({ searchParams }: HomeProps) {
     profile = created;
   }
 
-  const examSlug = profile?.exam_choice ?? "cuet";
+  const requestedExamSlug = profile?.exam_choice ?? "cuet";
+  // An exam can be paused after a learner has selected it. Keep existing
+  // accounts on a live route without rewriting their saved preference.
+  const examSlug = isLiveExamSlug(requestedExamSlug) ? requestedExamSlug : "cuet";
 
   // Lazy downgrade: if the user's paid_until has lapsed but their
   // status is still 'paid', flip them to 'free' right now. Costs at
@@ -175,6 +179,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
   let subjectsQuery = supabase
     .from("subjects")
     .select("id, name, cuet_code, icon, order_index")
+    .eq("is_active", true)
     .order("order_index", { ascending: true });
   if (examRow?.id) {
     subjectsQuery = subjectsQuery.eq("exam_id", examRow.id);
@@ -549,12 +554,6 @@ export default async function HomePage({ searchParams }: HomeProps) {
           <ExamSwitcher currentSlug={examSlug} />
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/coach" className="inline-flex items-center gap-1 rounded-full border border-cocoa-900/[.1] bg-cream-50 px-2.5 py-1.5 text-xs font-bold text-cocoa-900 shadow-warm transition hover:-translate-y-0.5" title="Open ExamGrind Coach">
-            <span aria-hidden>🧠</span><span className="hidden sm:inline">Coach</span>
-          </Link>
-          <Link href={`/guides?exam=${examSlug}`} className="inline-flex items-center gap-1 rounded-full border border-cocoa-900/[.1] bg-cream-50 px-2.5 py-1.5 text-xs font-bold text-cocoa-900 shadow-warm transition hover:-translate-y-0.5" title="Open your Study Hub">
-            <span aria-hidden>📚</span><span className="hidden sm:inline">Study Hub</span>
-          </Link>
         <Link href="/me" className="flex items-center gap-2 transition hover:opacity-90" title="View your profile">
           {/* Premium badge — paid users only. Free users see nothing here */}
           {/* (the Upgrade button lives elsewhere). Lives next to streak so   */}
@@ -600,7 +599,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
             href="/me"
             className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-2.5 shadow-warm transition hover:-translate-y-0.5 ${
               freeQuizzesLeft === 0
-                ? "border-ember-600/30 bg-gradient-to-r from-sun-400/15 to-ember-500/15"
+                ? "border-ember-600/30 bg-sun-300/15"
                 : "border-cocoa-900/[0.06] bg-cream-50"
             }`}
           >
@@ -640,14 +639,14 @@ export default async function HomePage({ searchParams }: HomeProps) {
           friction copy to bridge from sign-up → first tap. */}
       {isFirstTimeUser && (
         <div className="mx-auto max-w-5xl px-4 pt-3 sm:px-6 sm:pt-5">
-          <div className="flex items-start gap-3 rounded-2xl border border-sun-500/30 bg-gradient-to-br from-sun-400/15 via-cream-50 to-ember-500/10 px-4 py-3 shadow-warm sm:items-center sm:px-5">
+          <div className="flex items-start gap-3 rounded-2xl border border-sun-500/30 bg-sun-300/15 px-4 py-3 shadow-warm sm:items-center sm:px-5">
             <span className="text-2xl leading-none" aria-hidden>🎉</span>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-cocoa-900 sm:text-base">
                 Welcome to ExamGrind! Tap any subject below to start your first quiz.
               </p>
               <p className="mt-0.5 text-xs text-cocoa-700 sm:text-sm">
-                Every wrong answer comes with an AI diagnosis — not just a red X.
+                Review every wrong answer to see the topic you need to work on.
                 First 3 quizzes free, no card needed.
               </p>
             </div>
@@ -660,6 +659,84 @@ export default async function HomePage({ searchParams }: HomeProps) {
           The client card reads a short-lived local signal and gives the
           student a choice: follow it or browse their own selected subjects. */}
       <DiagnosisHandoffCard examSlug={examSlug} />
+
+      {examSlug === "delhi-police-constable" && (
+        <section className="mx-auto mt-5 max-w-5xl px-4 sm:px-6">
+          <div className="overflow-hidden rounded-[1.75rem] border border-ember-600/20 bg-cream-50 p-5 shadow-warm sm:flex sm:items-center sm:justify-between sm:gap-6 sm:p-6">
+            <div className="max-w-2xl">
+              <p className="eg-kicker text-ember-700">Delhi Police · 2025-pattern practice</p>
+              <h2 className="mt-1 font-serif text-2xl font-semibold tracking-[-.04em] text-cocoa-900 sm:text-3xl">
+                Practise the paper before you plan the repair.
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-cocoa-700">
+                100 questions in 90 minutes: 50 GK/Current Affairs, 25 Reasoning, 15 Numerical Ability and 10 Computer. +1 / −0.25 per wrong answer.
+              </p>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2 sm:mt-0 sm:justify-end">
+              <Link href="/mock" className="rounded-full bg-cocoa-900 px-4 py-2.5 text-sm font-bold text-cream-50 shadow-warm transition hover:-translate-y-0.5">
+                Start the practice mock →
+              </Link>
+              <Link href="/guides?exam=delhi-police-constable" className="rounded-full border border-cocoa-900/15 bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 transition hover:border-cocoa-900/30">
+                See the guide
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {examSlug === "uppsc-ro-aro" && (
+        <section className="mx-auto mt-5 max-w-5xl px-4 sm:px-6" aria-label="UPPSC RO ARO preparation status">
+          <div className="rounded-[1.75rem] border border-cocoa-900/10 bg-cream-50 p-5 shadow-warm sm:p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-700">UPPSC RO / ARO · preparation foundation</p>
+            <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="font-serif text-2xl font-bold text-cocoa-900">Build the skills now. Verify the next paper when UPPSC publishes it.</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-cocoa-700">Work through Hindi, General Studies, computer and reasoning with diagnosis-led practice. The previous recruitment is not being presented as a promise of a future paper format.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/diagnose/uppsc-ro-aro" className="rounded-full bg-cocoa-900 px-4 py-2.5 text-sm font-bold text-cream-50 transition hover:-translate-y-0.5">Start my foundation check</Link>
+                <Link href="/guides?exam=uppsc-ro-aro" className="rounded-full border border-cocoa-900/15 bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 transition hover:border-cocoa-900/30">Open study guide</Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {examSlug === "up-secretariat-ro-aro" && (
+        <section className="mx-auto mt-5 max-w-5xl px-4 sm:px-6" aria-label="UP Secretariat RO ARO preparation status">
+          <div className="rounded-[1.75rem] border border-cocoa-900/10 bg-cream-50 p-5 shadow-warm sm:p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-700">UP Secretariat RO / ARO · preparation foundation</p>
+            <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="font-serif text-2xl font-bold text-cocoa-900">Make office-ready skills your advantage, not a vague plan.</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-cocoa-700">Build Hindi accuracy, UP-focused General Studies, computer fluency and reasoning through a clear learn → practise → repair route. Confirm the next official notice before treating any paper scheme as final.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/diagnose/up-secretariat-ro-aro" className="rounded-full bg-cocoa-900 px-4 py-2.5 text-sm font-bold text-cream-50 transition hover:-translate-y-0.5">Start my foundation check</Link>
+                <Link href="/guides?exam=up-secretariat-ro-aro" className="rounded-full border border-cocoa-900/15 bg-cream-50 px-4 py-2.5 text-sm font-bold text-cocoa-900 transition hover:border-cocoa-900/30">Open study guide</Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="mx-auto mt-5 max-w-5xl px-4 sm:px-6" aria-label="Your preparation routes">
+        <div className="rounded-[1.6rem] border border-cocoa-900/[.08] bg-cream-50 p-3 shadow-warm sm:p-4">
+          <div className="mb-3 flex items-end justify-between gap-4 px-2">
+            <div>
+              <p className="eg-kicker text-ember-700">Your preparation, made simple</p>
+              <h2 className="mt-1 font-serif text-xl font-semibold tracking-[-.035em] text-cocoa-900">Choose the job you need to do next.</h2>
+            </div>
+            <p className="hidden max-w-52 text-right text-xs leading-5 text-cocoa-600 sm:block">Learn something. Practise it. Repair what missed. Stay current.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+            <CommandRoute href="/learn" number="01" label="Learn" detail="Coach, guides and memory tools" />
+            <CommandRoute href="/practice" number="02" label="Practise" detail="Subjects, quizzes and mocks" />
+            <CommandRoute href="/improve" number="03" label="Improve" detail="Deep Analysis, mistakes and revision" />
+            <CommandRoute href="/current-affairs" number="04" label="Stay current" detail="Daily briefs and schemes" />
+          </div>
+        </div>
+      </section>
 
       {missionSteps.length > 0 && <DailyMissionCard steps={missionSteps} scoreBoostDay={scoreBoostDay} firstName={firstName} examName={examRow?.name ?? "Your selected exam"} daysLeft={hasStudyProfile ? examDaysLeft : null} todayProof={`${todayQuestions.length} questions${todayQuestions.length > 0 ? ` · ${todayAccuracy}% · ${todayMinutes} min` : " · ready when you are"}`} readinessProof={`${readiness}% · ${attemptedTopicCount}/${totalTopics} topics started`} />}
 
@@ -687,7 +764,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
           </div>
         </div>
         <div className="syllabus-body">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="max-w-md text-sm leading-5 text-cocoa-700">Every subject is a page. Open one, pick the exact concept, and leave with a score signal—not just a completed task.</p><span className="font-mono text-[10px] font-bold uppercase tracking-[.15em] text-ember-700">{studySubjects.length} subjects in play</span></div>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="max-w-md text-sm leading-5 text-cocoa-700">Open a subject, choose a topic and start practising. Your results will show what to revise next.</p><span className="font-mono text-[10px] font-bold uppercase tracking-[.15em] text-ember-700">{studySubjects.length} subjects selected</span></div>
         <SubjectGrid
           subjects={studySubjects.map<SubjectWithProgress>((s) => ({
             id: s.id,
@@ -703,29 +780,16 @@ export default async function HomePage({ searchParams }: HomeProps) {
         </div>
       </section>
 
-      <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
-        <div className="tool-issue">
-        <div className="flex items-end justify-between gap-3"><div><p className="eg-kicker text-ember-700">Margin notes</p><h2 className="mt-1 font-serif text-2xl font-semibold tracking-[-.04em] text-cocoa-900">Tools for the moments that matter.</h2></div><p className="hidden max-w-xs text-right text-xs leading-5 text-cocoa-700 sm:block">Use these when you need a different way in—not as another dashboard to maintain.</p></div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-          <CompactTool href="/vault" icon="🗂️" title="Study Vault" detail="Create flashcards and mnemonics." />
-          <CompactTool href="/mistakes" icon="📘" title="Mistake Book" detail="Repair incorrect answers." />
-          <CompactTool href="/recovery" icon="↗" title="Recovery History" detail="See your repair proof." />
-          <CompactTool href="/revision" icon="🧠" title="Smart Revision" detail={revisionDueTopics.length > 0 ? `${revisionDueTopics.length} due for recall.` : "Recall when it is due."} />
-          <CompactTool href="/mock" icon="📝" title="Mock test" detail="Try full exam timing." />
-          <CompactTool href={`/guides?exam=${examSlug}`} icon="📚" title="Study Hub" detail="Guides and official updates." />
-        </div>
-        </div>
-      </section>
     </main>
   );
 }
 
-function CompactTool({ href, icon, title, detail }: { href: string; icon: string; title: string; detail: string }) {
+function CommandRoute({ href, number, label, detail }: { href: string; number: string; label: string; detail: string }) {
   return (
-    <Link href={href} className="tool-note">
-      <span className="text-xl" aria-hidden>{icon}</span>
-      <span className="min-w-0"><span className="block text-sm font-bold text-cocoa-900">{title}</span><span className="block truncate text-xs text-cocoa-700">{detail}</span></span>
-      <span className="ml-auto text-sm font-bold text-ember-700" aria-hidden>→</span>
+    <Link href={href} className="group rounded-2xl border border-cocoa-900/[.07] bg-warm-wash px-3 py-3 transition hover:-translate-y-0.5 hover:border-ember-700/25 hover:bg-sun-300/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-700">
+      <span className="font-mono text-[10px] font-bold tracking-[.15em] text-ember-700" aria-hidden>{number}</span>
+      <span className="mt-1 block text-sm font-bold text-cocoa-900">{label} <span className="text-ember-700 transition group-hover:translate-x-0.5">→</span></span>
+      <span className="mt-0.5 block text-xs leading-4 text-cocoa-600">{detail}</span>
     </Link>
   );
 }

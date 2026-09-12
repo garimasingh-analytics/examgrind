@@ -119,7 +119,6 @@ export function currentAffairsRunAudit(runDate: string) {
       notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through current-affairs materials, then verified every published item against the original official release or regulator record. Published TRAI's repeal of its television-advertisement-duration QoS Regulations after the underlying Cable Television Networks Rules cap was omitted, and the Agriculture Ministry's nationwide consultation on a proposed stronger Seed Act. Excluded a SEBI consultation paper because it is not a final regulatory action; proposed meetings, speeches, workshops, training and ceremonial material; routine recruitment and enforcement notices; individual court and election-event items without a durable institutional development; unverified State-policy claims without an accessible original State release; stale or duplicate material; and releases without a durable policy, regulatory or exam-relevant development. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
     };
   }
-
   return null;
 }
 

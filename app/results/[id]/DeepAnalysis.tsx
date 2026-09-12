@@ -296,7 +296,7 @@ export default function DeepAnalysis({
               </p>
               <button
                 onClick={() => analyze(false)}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-6 py-3 text-sm font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sun-400 px-6 py-3 text-sm font-bold text-cocoa-900 shadow-warm-lg transition hover:scale-[1.02]"
               >
                 <span>👑</span>
                 <span>Choose an analysis option</span>
@@ -340,7 +340,7 @@ export default function DeepAnalysis({
           Looking at every choice you made and why.
         </p>
         <div className="mx-auto mt-4 h-1.5 w-60 overflow-hidden rounded-full bg-cream-200">
-          <div className="h-full w-1/3 animate-quiz-loader rounded-full bg-gradient-to-r from-sun-500 to-ember-600" />
+          <div className="h-full w-1/3 animate-quiz-loader rounded-full bg-ember-600" />
         </div>
       </div>
     );
@@ -352,7 +352,7 @@ export default function DeepAnalysis({
   return (
     <div className="analysis-dossier space-y-6">
       {/* Verdict banner */}
-      <div className="analysis-cover rounded-3xl border border-cocoa-900/[0.06] bg-gradient-to-br from-cream-50 to-cream-100 p-6 shadow-warm-lg">
+      <div className="analysis-cover rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-6 shadow-warm-lg">
         <div className="flex items-start gap-4">
           <Chick state="happy" size={64} />
           <div className="min-w-0 flex-1">
@@ -543,7 +543,7 @@ export default function DeepAnalysis({
           <button
             onClick={() => analyze(true)}
             disabled={pending}
-            className="mt-3 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-5 py-2.5 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.02] disabled:opacity-60"
+            className="mt-3 inline-flex items-center justify-center gap-2 rounded-2xl bg-sun-400 px-5 py-2.5 text-sm font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.02] disabled:opacity-60"
           >
             <span>👑</span>
             <span>{pending ? "Diving deep…" : "Run Deep Dive"}</span>
@@ -599,8 +599,8 @@ function RecoveryMap({
         <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-ember-600 text-lg" aria-hidden="true">↗</span>
         <div>
           <p className="analysis-eyebrow text-ember-700">Your marks recovery map</p>
-          <h3 className="mt-1 font-serif text-xl font-bold text-cocoa-900">Start with the highest-return repair.</h3>
-          <p className="mt-1 text-sm leading-6 text-cocoa-700">These are ranked by the strength of the mistake signal in this attempt—not a promise of marks.</p>
+          <h3 className="mt-1 font-serif text-xl font-bold text-cocoa-900">Start with the topic that needs the most work.</h3>
+          <p className="mt-1 text-sm leading-6 text-cocoa-700">These topics are ranked from your answers in this attempt. Start with the first one, then move down the list.</p>
         </div>
       </div>
       <ol className="mt-5 space-y-3">

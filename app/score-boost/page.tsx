@@ -89,7 +89,7 @@ export default async function ScoreBoostPage() {
   if (!roadmap) {
     const { data: exam } = await admin.from("exams").select("id").eq("slug", profile?.exam_choice ?? "cuet").maybeSingle<{ id: string }>();
     const { data: subjects } = exam?.id
-      ? await admin.from("subjects").select("name").eq("exam_id", exam.id).order("order_index", { ascending: true })
+      ? await admin.from("subjects").select("name").eq("exam_id", exam.id).eq("is_active", true).order("order_index", { ascending: true })
       : { data: [] as Array<{ name: string }> };
     // Score Boost is a fixed paid product: take one performance snapshot when
     // the roadmap is first opened, then persist it. Later quizzes never

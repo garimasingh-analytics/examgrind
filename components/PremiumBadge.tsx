@@ -41,7 +41,7 @@ export default function PremiumBadge({
     <Link
       href="/me"
       title="ExamGrind Premium — manage subscription"
-      className={`flex items-center rounded-full bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 shadow-warm transition hover:scale-[1.02] ${sizing} ${className}`}
+      className={`flex items-center rounded-full bg-sun-400 shadow-warm transition hover:scale-[1.02] ${sizing} ${className}`}
     >
       <span className="leading-none" aria-hidden>👑</span>
       <span className="font-bold uppercase tracking-wider text-cocoa-900">

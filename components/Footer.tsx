@@ -29,6 +29,8 @@ export default function Footer() {
           <Link href="/about" className="hover:text-cocoa-900">About</Link>
           <Link href="/editorial-standards" className="hover:text-cocoa-900">Editorial standards</Link>
           <Link href="/guides" className="hover:text-cocoa-900">Study Guides</Link>
+          <Link href="/current-affairs" className="hover:text-cocoa-900">Current Affairs</Link>
+          <Link href="/government-schemes" className="hover:text-cocoa-900">Government Schemes</Link>
           <Link href="/updates" className="hover:text-cocoa-900">Official Updates</Link>
           <CookieSettingsButton />
         </nav>

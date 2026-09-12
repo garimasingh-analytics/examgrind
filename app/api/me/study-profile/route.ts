@@ -69,6 +69,7 @@ export async function PUT(request: NextRequest) {
     .from("subjects")
     .select("id")
     .eq("exam_id", exam.id)
+    .eq("is_active", true)
     .in("id", subjectIds);
   if (subjectsError || (validSubjects?.length ?? 0) !== subjectIds.length) {
     return NextResponse.json({ error: "Every selected subject must belong to this exam." }, { status: 400 });

@@ -1,36 +1,34 @@
 ## Current Implementation
 
-**SDK:** GA4 `gtag.js` loaded with Next.js `Script`; Google Ads and Meta conversion helpers  
-**Captured:** 2026-08-14
+**SDK:** Google tag / GA4 `gtag.js`, direct Google Ads conversion events, and Meta Pixel helper functions.
+**Captured:** 2026-09-06
 
 ### Initialization
 
-`components/MarketingTracking.tsx` initializes consent defaults, then loads GA4 from `NEXT_PUBLIC_GA_MEASUREMENT_ID` after the visitor grants consent.
+`app/layout.tsx` creates `window.dataLayer`, a lightweight `window.gtag` queue, and a consent default during HTML parsing. `components/MarketingTracking.tsx` conditionally loads `https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GA_MEASUREMENT_ID}` after a visitor grants marketing consent. Its ready callback configures the GA measurement ID and the configured Google Ads ID.
 
 ### Client vs Server
 
-Product events are browser-side. Razorpay verification remains server-side; only the already-verified client success flow sends advertising conversion events. Public Study Hub page and guide view events are also browser-side after consent.
+Product, Google Ads and Meta tracking calls are browser-side. `lib/product-analytics.ts` calls `window.gtag("event", ...)`. The application does not contain server-side GA4 Measurement Protocol calls.
 
 ### Call Routing
 
-`lib/product-analytics.ts` is the central typed event boundary. It calls `window.gtag("event", name, params)` only after consent.
-
-The current boundary defines events across acquisition, diagnosis, activation, core learning, repair, billing, and Study Hub use. `components/StudyHubTracking.tsx` emits public-content events when the guide index, official updates desk, or an individual guide is displayed.
-
-The Daily Mission CTA stores a 30-minute anonymous marker in browser session storage. Quiz completion consumes that marker once and emits `daily_mission_completed` only when at least one answer was submitted.
+Product event names are centralized in `lib/product-analytics.ts` and are called from feature components. Google Ads conversion events are centralized in `lib/google-ads.ts`, with `sign_up` and verified Razorpay purchase flows using separate destinations. Meta helpers are in `lib/meta-ads.ts`.
 
 ### Identity Management
 
-No GA4 user ID, traits, or groups are sent. This protects student privacy and keeps analytics anonymous.
+No GA4 identify or group calls were found. `components/MarketingTracking.tsx` reads `auth_event` from the URL and sends anonymous `sign_up` or `login` events after consent. It also sends `diagnosis_signup_completed` if a fresh diagnosis-signup intent exists in session storage.
 
 ### Environment Variables
 
-`NEXT_PUBLIC_GA_MEASUREMENT_ID` controls GA4 loading.
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID` controls whether the GA tag is rendered.
+- Google Ads conversion destination IDs are hard-coded in `lib/google-ads.ts`.
+- The Google Ads account ID is configured in `components/MarketingTracking.tsx`.
 
 ### Error Handling
 
-Tracking returns `false` when the browser, consent, or tag is unavailable. It does not block product actions.
+Product analytics calls are non-blocking. They return without sending if `window` is unavailable, marketing consent is not granted, or `window.gtag` is unavailable. Google Ads helpers create a `dataLayer` queue fallback when `gtag` is not available.
 
 ### Shutdown / Flush
 
-Not applicable to browser `gtag.js`.
+No explicit shutdown or flush handling was found; browser tag delivery is delegated to the Google tag runtime.

@@ -280,7 +280,7 @@ export default function QuizRunner({ quizId, topicLabel, questions, previewResul
         {/* Progress bar */}
         <div className="quiz-progress h-1.5 w-full bg-cream-200">
           <div
-            className="h-full bg-gradient-to-r from-sun-500 to-ember-600 transition-all duration-300"
+            className="h-full bg-ember-600 transition-all duration-300"
             style={{ width: `${progressPct}%` }}
           />
         </div>

@@ -356,7 +356,7 @@ function DiagnoseResult({
 
       <div className="mt-5 rounded-3xl border border-cocoa-900/[0.08] bg-cream-50 p-5">
         <p className="text-xs font-bold uppercase tracking-[.16em] text-cocoa-500">What this quick signal means</p>
-        <p className="mt-2 text-sm leading-6 text-cocoa-700">It surfaced {wrongCount === 0 ? "no gaps in this small sample" : `${wrongCount} concept gap${wrongCount === 1 ? "" : "s"}`} — useful direction, not a verdict on your full preparation. A real chapter attempt gives ExamGrind enough evidence for a deeper diagnosis.</p>
+        <p className="mt-2 text-sm leading-6 text-cocoa-700">You missed {wrongCount === 0 ? "none of the topics in this small sample" : `${wrongCount} topic${wrongCount === 1 ? "" : "s"}`}. This is only a quick check. Try a chapter quiz for a fuller view of what to study.</p>
         {correctConcepts.length > 0 && <p className="mt-3 text-sm text-cocoa-700"><span className="font-bold text-cocoa-900">Held up here:</span> {correctConcepts.join(" · ")}</p>}
       </div>
 

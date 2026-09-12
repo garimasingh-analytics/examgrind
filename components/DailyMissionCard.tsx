@@ -47,18 +47,16 @@ export default function DailyMissionCard({ steps, scoreBoostDay, firstName = "th
   return <section id="daily-mission" className="mx-auto max-w-5xl scroll-mt-5 px-4 pt-6 sm:px-6 sm:pt-10">
     <div className="issue-shell">
       <header className="issue-cover">
-        <div className="relative z-10 flex items-start justify-between gap-3"><div><p className="eg-kicker text-sun-400">Today&apos;s issue · {examName}</p><h1 className="mt-2 font-serif text-4xl font-semibold leading-[.9] tracking-[-.055em] text-cream-50 sm:text-5xl">{complete ? "Issue closed.\nGood work." : `Hi, ${firstName}.\nBuild your edge.`}</h1></div><Chick state={complete ? "excited" : "idle"} size={88} /></div>
-        <div className="relative z-10 mt-9 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-cream-50/15 pt-4 text-xs font-bold text-cream-200"><span>{steps.length} MOVES</span><span>{minutes} MIN STARTING BLOCK</span><span>{daysLeft == null ? "SET YOUR EXAM DATE" : daysLeft === 0 ? "EXAM TODAY" : `${daysLeft} DAYS TO GO`}</span></div>
-        <span className="issue-sun" aria-hidden /><span className="issue-scribble" aria-hidden>↝</span>
+        <div className="relative z-10 flex items-center justify-between gap-4"><div><p className="eg-kicker text-sun-400">Today&apos;s plan · {examName}</p><h1 className="mt-1 font-serif text-3xl font-semibold leading-[.95] tracking-[-.05em] text-cream-50 sm:text-4xl">{complete ? "Today is complete." : `Your next ${steps.length === 1 ? "move" : `${steps.length} moves`}, ${firstName}.`}</h1></div><Chick state={complete ? "excited" : "idle"} size={58} /></div>
+        <div className="relative z-10 mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-cream-50/15 pt-3 text-[11px] font-bold uppercase tracking-[.08em] text-cream-200"><span>{minutes} min total</span><span>{daysLeft == null ? "set your exam date" : daysLeft === 0 ? "exam today" : `${daysLeft} days to go`}</span></div>
       </header>
-      <div className="issue-route" aria-hidden><span /><span /><span /></div>
       <ol className="grid gap-3 p-3 sm:grid-cols-3 sm:p-5">
         {steps.map((step, index) => {
           const item = copy(step);
           return <li key={`${step.type}-${step.href}`} className={`issue-page issue-${item.colour} ${step.completed ? "is-done" : ""}`}>
             <IssueDoodle type={item.colour} />
             <div className="relative z-10 flex items-start justify-between gap-3"><p className="eg-kicker">{String(index + 1).padStart(2, "0")} · {item.label}</p><span className="font-mono text-[11px] font-bold">{step.completed ? "DONE" : item.time}</span></div>
-            <div className="relative z-10 mt-auto pt-16"><p className="font-serif text-3xl font-semibold leading-[.92] tracking-[-.05em]">{step.topicName ?? step.subjectName}</p><p className="mt-3 max-w-[16rem] text-sm leading-5">{step.subjectName} · {item.note}</p>{step.completed ? <p className="mt-5 inline-flex rounded-full border border-current/25 px-3 py-1.5 text-xs font-extrabold">Stamped today ✓</p> : <Link href={step.href} onClick={() => start(step.type)} className="eg-press mt-5 inline-flex items-center gap-2 rounded-2xl bg-cocoa-900 px-3.5 py-2.5 text-xs font-extrabold text-cream-50 shadow-warm">{item.button} <span aria-hidden>→</span></Link>}</div>
+            <div className="relative z-10 mt-auto pt-9"><p className="font-serif text-2xl font-semibold leading-[.98] tracking-[-.045em]">{step.topicName ?? step.subjectName}</p><p className="mt-2 max-w-[16rem] text-xs leading-5">{step.subjectName} · {item.note}</p>{step.completed ? <p className="mt-4 inline-flex rounded-full border border-current/25 px-3 py-1.5 text-xs font-extrabold">Done today ✓</p> : <Link href={step.href} onClick={() => start(step.type)} className="eg-press mt-4 inline-flex items-center gap-2 rounded-xl bg-cocoa-900 px-3 py-2 text-xs font-extrabold text-cream-50 shadow-warm">{item.button} <span aria-hidden>→</span></Link>}</div>
           </li>;
         })}
       </ol>

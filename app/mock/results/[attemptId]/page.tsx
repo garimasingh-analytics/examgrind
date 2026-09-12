@@ -179,7 +179,7 @@ export default async function MockResultsPage({ params }: PageProps) {
 
       <section className="mx-auto max-w-5xl px-5 pb-16 sm:px-8">
         {/* Headline */}
-        <div className="rounded-3xl border border-cocoa-900/[0.06] bg-gradient-to-br from-sun-400/20 via-sun-500/15 to-ember-500/15 p-6 text-center shadow-warm-lg sm:p-8">
+        <div className="rounded-3xl border border-cocoa-900/[0.06] bg-cream-50 p-6 text-center shadow-warm-lg sm:p-8">
           <Chick state={positive ? "excited" : "frustrated"} size={96} className="mx-auto" />
           <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-cocoa-500">
             {mock.display_name} · {attempt.submitted_at
@@ -244,6 +244,7 @@ export default async function MockResultsPage({ params }: PageProps) {
             For a cached analysis, renders the full Read/Watch/Work
             ladder directly. The component is the same one that powers
             chapter-quiz Deep Analysis — only the API path differs. */}
+        <section id="deep-analysis" className="scroll-mt-6">
         <MockDeepAnalysisTrigger
           attemptId={attemptId}
           initialAnalysis={initialAnalysis}
@@ -252,6 +253,7 @@ export default async function MockResultsPage({ params }: PageProps) {
           hasAnalysisCredit={hasAnalysisCredit}
           isPaid={isPaid}
         />
+        </section>
 
         {/* Per-question review */}
         <div className="mt-10">

@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { FREE_LIMITS } from "@/lib/freemium";
+import { isLiveExamSlug } from "@/lib/exam-catalog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -118,6 +119,9 @@ export async function POST(req: NextRequest) {
   const topicName = topic.name;
   const examSlug = topic.chapter.subject.exam?.slug ?? "cuet";
   const examName = topic.chapter.subject.exam?.name ?? "CUET UG";
+  if (!isLiveExamSlug(examSlug)) {
+    return NextResponse.json({ error: "This exam is coming soon." }, { status: 404 });
+  }
   const ncertClass = topic.chapter.ncert_class; // 11 / 12 for NEET UG, null otherwise
 
   // ---- 3b. Atomically reserve a free slot before AI generation ----
@@ -178,10 +182,22 @@ export async function POST(req: NextRequest) {
     cuet: `Generate ${questionCount} CUET-style multiple-choice questions for an Indian undergraduate aspirant (class 12 pass / first-year college). Use NCERT Class 11–12 conventions. Stick to the NTA CUET UG difficulty band — slightly above board level, with one-step application as the modal difficulty.`,
     "ssc-cgl": `Generate ${questionCount} SSC CGL Tier-1/Tier-2 style multiple-choice questions for an Indian graduate aspirant preparing for central-government clerical/officer posts (CGL, CHSL, MTS). Match the SSC question style: numeric, time-bound, no fluff. For Quant target ~SSC CGL Tier-1 difficulty (≈ board-level arithmetic with one twist). For Reasoning use canonical SSC patterns. For English use 1980s–2010s SSC vocab register. For GA prefer static facts and high-yield current affairs.`,
     "neet-ug": `Generate ${questionCount} NEET UG style multiple-choice questions for an Indian medical undergraduate aspirant (class 12 / dropper). Source material is strictly NCERT Class ${ncertClass ?? "11–12"}. Match NTA NEET difficulty — concept-heavy, single-correct, plausible distractors drawn from sibling concepts. Use scientific notation and SI units. Biology questions should reflect NCERT line-by-line phrasing where possible. Physics and Chemistry should be application-level, not derivation-heavy.`,
+    "delhi-police-constable": `Generate ${questionCount} original Delhi Police Constable objective-practice questions for an Indian aspirant. Match the supplied subject, chapter and topic exactly. Keep stems direct, short and accessible; use standard police-recruitment reasoning patterns, practical numerical ability, basic computer awareness, or carefully verified static General Knowledge as the topic requires. Do not invent a notification-specific marks split, cutoff, eligibility rule, or current-affairs fact.`,
+    "uppsc-ro-aro": `Generate ${questionCount} original UPPSC RO/ARO foundation-practice questions for an Indian aspirant. Match the supplied subject, chapter and topic exactly. Use Hindi where the topic requires it; make General Studies UP-aware when relevant; and keep computer, office-skills and reasoning questions practical and objective. Do not invent notification-specific post eligibility, typing requirements, marks splits, cutoffs, or current-affairs claims.`,
+    "up-secretariat-ro-aro": `Generate ${questionCount} original UP Secretariat RO/ARO foundation-practice questions for an Indian aspirant. Match the supplied subject, chapter and topic exactly. Use Hindi where the topic requires it; make General Studies UP-aware when relevant; and keep computer, office-skills and reasoning questions practical and objective. Do not invent notification-specific post eligibility, skill-test requirements, marks splits, cutoffs, or current-affairs claims.`,
   };
 
-  const examIntro =
-    examFraming[examSlug] ?? examFraming.cuet;
+  // A live exam must never silently inherit CUET's question style. Failing
+  // closed protects students from receiving plausibly-worded but irrelevant
+  // practice whenever a new live exam is added without its own framing.
+  const examIntro = examFraming[examSlug];
+  if (!examIntro) {
+    console.error("[quiz/start] missing exam-specific question framing", { examSlug });
+    return NextResponse.json(
+      { error: "Practice for this exam is being calibrated. Please try another topic shortly." },
+      { status: 503 }
+    );
+  }
 
   const prompt = `${examIntro}
 

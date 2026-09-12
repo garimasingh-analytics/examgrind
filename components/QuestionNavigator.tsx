@@ -85,7 +85,7 @@ export default function QuestionNavigator({
 function cellClass(q: NavQuestion, isCurrent: boolean): string {
   const ring = isCurrent ? "ring-2 ring-cocoa-900 ring-offset-1 ring-offset-cream-50" : "";
   if (q.answered && q.markedForReview) {
-    return `bg-gradient-to-br from-sun-400 to-ember-500 text-cocoa-900 ${ring}`;
+    return `bg-sun-400 text-cocoa-900 ${ring}`;
   }
   if (q.markedForReview) {
     return `bg-ember-600 text-cream-50 ${ring}`;

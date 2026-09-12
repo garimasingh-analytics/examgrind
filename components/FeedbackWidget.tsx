@@ -110,7 +110,7 @@ export default function FeedbackWidget() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-gradient-to-br from-sun-400/30 via-sun-500/20 to-ember-500/20 px-5 py-4 sm:px-6 sm:py-5">
+            <div className="border-b border-sun-500/20 bg-sun-300/20 px-5 py-4 sm:px-6 sm:py-5">
               <h2
                 id="feedback-title"
                 className="font-serif text-xl font-bold text-cocoa-900 sm:text-2xl"
@@ -174,7 +174,7 @@ export default function FeedbackWidget() {
                     <button
                       onClick={send}
                       disabled={sending || !message.trim()}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-ember-500 to-coral-500 px-5 py-2.5 text-sm font-bold text-cream-50 shadow-warm transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-ember-600 px-5 py-2.5 text-sm font-bold text-cream-50 shadow-warm transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {sending ? (
                         <>

@@ -40,7 +40,7 @@ export default function PlanPanel({
       <div
         className={`plan-ledger overflow-hidden rounded-3xl border shadow-warm-lg ${
           isPaid
-            ? "border-sun-500/30 bg-gradient-to-br from-sun-400/10 to-ember-500/10"
+            ? "border-sun-500/30 bg-sun-300/15"
             : "border-cocoa-900/[0.06] bg-cream-50"
         }`}
       >
@@ -61,7 +61,7 @@ export default function PlanPanel({
           {!isPaid && (
             <button
               onClick={() => setOpen(true)}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-br from-sun-400 via-sun-500 to-ember-500 px-4 py-2.5 text-xs font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.02]"
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-sun-400 px-4 py-2.5 text-xs font-bold text-cocoa-900 shadow-warm transition hover:scale-[1.02]"
             >
               <span>👑</span>
               <span>Upgrade</span>
@@ -196,8 +196,8 @@ function Meter({
         <div
           className={`h-full rounded-full transition-all ${
             exhausted
-              ? "bg-gradient-to-r from-ember-500 to-coral-500"
-              : "bg-gradient-to-r from-sun-500 to-ember-600"
+              ? "bg-ember-600"
+              : "bg-sun-500"
           }`}
           style={{ width: `${pct}%` }}
         />
