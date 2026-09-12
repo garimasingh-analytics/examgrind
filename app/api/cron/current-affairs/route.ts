@@ -22,18 +22,22 @@ export async function GET(request: NextRequest) {
   let publishedFromMigrations = 0;
   try {
     const reviewedBriefs = await loadReviewedCurrentAffairs();
-    const { error: publishError } = await admin.from("current_affairs_briefs").upsert(reviewedBriefs, { onConflict: "slug" });
-    if (publishError) throw publishError;
-    const { data: savedBriefs, error: savedBriefsError } = await admin.from("current_affairs_briefs").select("id").in("slug", reviewedBriefs.map((brief) => brief.slug));
-    if (savedBriefsError) throw savedBriefsError;
     const { data: exams, error: examsError } = await admin.from("exams").select("id").in("slug", ["cuet", "ssc-cgl", "uppsc-ro-aro", "up-secretariat-ro-aro"]);
     if (examsError) throw examsError;
-    const tags = (savedBriefs ?? []).flatMap((brief) => (exams ?? []).map((exam) => ({ brief_id: brief.id, exam_id: exam.id })));
-    if (tags.length) {
-      const { error: tagsError } = await admin.from("current_affairs_exam_tags").upsert(tags, { onConflict: "brief_id,exam_id" });
-      if (tagsError) throw tagsError;
+    const publicationDates = Array.from(new Set(reviewedBriefs.map((brief) => brief.published_on)));
+    for (const publishedOn of publicationDates) {
+      const desk = reviewedBriefs.filter((brief) => brief.published_on === publishedOn);
+      const { error: publishError } = await admin.from("current_affairs_briefs").upsert(desk, { onConflict: "slug" });
+      if (publishError) throw publishError;
+      const { data: savedBriefs, error: savedBriefsError } = await admin.from("current_affairs_briefs").select("id").in("slug", desk.map((brief) => brief.slug));
+      if (savedBriefsError) throw savedBriefsError;
+      const tags = (savedBriefs ?? []).flatMap((brief) => (exams ?? []).map((exam) => ({ brief_id: brief.id, exam_id: exam.id })));
+      if (tags.length) {
+        const { error: tagsError } = await admin.from("current_affairs_exam_tags").upsert(tags, { onConflict: "brief_id,exam_id" });
+        if (tagsError) throw tagsError;
+      }
+      publishedFromMigrations += desk.length;
     }
-    publishedFromMigrations = reviewedBriefs.length;
   } catch (error) {
     console.error("[current-affairs] editorial migration publish failed", error);
     await admin.from("current_affairs_daily_runs").upsert({ run_date: runDate, status: "failed", sources_checked: 0, candidate_count: 0, published_count: 0, notes: "Reviewed editorial briefs could not be published." }, { onConflict: "run_date" });
