@@ -84,15 +84,14 @@ export const metadata: Metadata = {
   // Next.js starter. Force browsers to load our chick icons.
   icons: {
     icon: [
-      { url: "/favicon.ico?v=2", sizes: "any" },
-      { url: "/icon.png?v=2", type: "image/png", sizes: "512x512" },
-      { url: "/icon-192.png?v=2", type: "image/png", sizes: "192x192" },
-      { url: "/favicon-32.png?v=2", type: "image/png", sizes: "32x32" },
+      { url: "/icon.png?v=3", type: "image/png", sizes: "512x512" },
+      { url: "/icon-192.png?v=3", type: "image/png", sizes: "192x192" },
+      { url: "/favicon-32.png?v=3", type: "image/png", sizes: "32x32" },
     ],
     apple: [
-      { url: "/icon-192.png?v=2", sizes: "192x192" },
+      { url: "/icon-192.png?v=3", sizes: "192x192" },
     ],
-    shortcut: "/favicon.ico?v=2",
+    shortcut: "/icon-192.png?v=3",
   },
 };
 
