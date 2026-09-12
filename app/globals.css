@@ -215,6 +215,33 @@ body {
     opacity: 0;
     z-index: 1;
   }
+
+  /* The illustrated ExamGrind chick. The emotion animation belongs to the
+     whole character; small accents give celebration and low-score moments a
+     little more life without turning the mascot into a noisy sticker. */
+  .eg-chick > img { will-change: transform; }
+  .eg-chick-spark {
+    position: absolute;
+    z-index: 2;
+    color: #f5b938;
+    font-family: Georgia, serif;
+    font-size: clamp(0.7rem, 12%, 1.25rem);
+    line-height: 1;
+    pointer-events: none;
+    animation: eg-chick-spark 1.15s ease-in-out infinite;
+  }
+  .eg-chick-spark-one { top: 14%; right: 8%; }
+  .eg-chick-spark-two { bottom: 23%; left: 6%; animation-delay: .38s; }
+  .eg-chick-tear {
+    position: absolute;
+    top: 49%; right: 30%;
+    width: 7%; height: 10%;
+    border-radius: 60% 60% 70% 70%;
+    background: #8bc9ec;
+    box-shadow: 0 1px 0 rgba(44, 106, 138, .14);
+    animation: eg-chick-tear 1.75s ease-in infinite;
+    pointer-events: none;
+  }
 }
 
 /* ============================================================
@@ -224,6 +251,18 @@ body {
 @keyframes chick-idle {
   0%, 100% { transform: translateY(0)    scale(1); }
   50%      { transform: translateY(-3px) scale(1.015); }
+}
+
+@keyframes eg-chick-spark {
+  0%, 100% { transform: scale(.65) rotate(-12deg); opacity: .25; }
+  50% { transform: scale(1.12) rotate(12deg); opacity: 1; }
+}
+
+@keyframes eg-chick-tear {
+  0% { opacity: 0; transform: translateY(-2px) scale(.65); }
+  22% { opacity: .9; }
+  82% { opacity: .9; transform: translateY(14px) scale(1); }
+  100% { opacity: 0; transform: translateY(18px) scale(.8); }
 }
 
 @keyframes eg-page-enter {
@@ -507,7 +546,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible { 
   .chick-wings-sway,
   .chick-beak-click,
   .chick-tear,
-  .chick-sparkle { animation: none !important; }
+  .chick-sparkle,
+  .eg-chick-spark,
+  .eg-chick-tear { animation: none !important; }
   .eg-page-enter { animation: none !important; }
   .eg-book-page { transition: none !important; }
   .eg-book-scene:hover .eg-book-page { transform: none; }
