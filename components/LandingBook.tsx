@@ -36,7 +36,7 @@ export default function LandingBook() {
       <span className="landing-book-open-page">
         <span className="landing-book-open-kicker">TODAY&apos;S SIGNAL</span>
         <span className="landing-book-open-title">Know what<br />earns marks.</span>
-        <span className="landing-book-chick"><Chick state="excited" size={70} /></span>
+        <span className="landing-book-chick"><Chick state="happy" size={70} /></span>
         <span className="landing-book-open-line" aria-hidden />
         <span className="landing-book-open-small">Tap to turn the page</span>
       </span>

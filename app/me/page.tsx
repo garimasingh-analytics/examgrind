@@ -54,6 +54,8 @@ type PurchaseEntitlementRow = {
   expires_at: string | null;
 };
 
+type ChickUnlockRow = { chick: string };
+
 export default async function ProfilePage() {
   const supabase = createServerSupabase();
 
@@ -108,6 +110,16 @@ export default async function ProfilePage() {
     .select("marketing_email_opt_in")
     .eq("user_id", authUser.id)
     .maybeSingle<{ marketing_email_opt_in: boolean }>();
+
+  const { data: chickUnlockRows } = await adminForChicks
+    .from("user_chick_unlocks")
+    .select("chick")
+    .eq("user_id", authUser.id);
+  const explicitlyGrantedChicks = (chickUnlockRows ?? [])
+    .map((row) => (row as ChickUnlockRow).chick)
+    .filter((chick): chick is import("@/lib/chicks").ChickVariant =>
+      ["cosmic", "squad", "phoenix"].includes(chick)
+    );
 
   const fullName =
     (authUser.user_metadata?.full_name as string | undefined) ??
@@ -333,7 +345,11 @@ export default async function ProfilePage() {
 
       {/* A single recognisable mascot that reacts to study moments. */}
       <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
-        <ChickPicker />
+        <ChickPicker
+          xp={profile?.xp ?? 0}
+          isPremium={liveSubscriptionStatus === "paid"}
+          explicitlyGranted={explicitlyGrantedChicks}
+        />
       </section>
 
       {/* Exam switcher — three pills, current one highlighted. Clicks go */}
