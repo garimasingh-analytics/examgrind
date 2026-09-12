@@ -62,9 +62,20 @@ export default function Chick({
         width={640}
         height={640}
         draggable={false}
-        className={`h-full w-full object-contain ${MOTION_BY_STATE[state]}`}
+        className={`eg-chick-main h-full w-full object-contain ${MOTION_BY_STATE[state]}`}
         sizes={`${Math.max(48, Math.round(size))}px`}
       />
+      {state === "excited" && (
+        <Image
+          alt=""
+          src="/chick/examgrind-excited-flap.png"
+          width={640}
+          height={640}
+          draggable={false}
+          className="eg-chick-flap-frame pointer-events-none absolute inset-0 h-full w-full object-contain"
+          sizes={`${Math.max(48, Math.round(size))}px`}
+        />
+      )}
       {state === "sad" && <span className="eg-chick-tear" />}
     </span>
   );

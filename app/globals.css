@@ -219,7 +219,12 @@ body {
   /* The illustrated ExamGrind chick. The emotion animation belongs to the
      whole character; small accents give celebration and low-score moments a
      little more life without turning the mascot into a noisy sticker. */
-  .eg-chick > img { will-change: transform; }
+  .eg-chick-main, .eg-chick-flap-frame { will-change: transform, opacity; }
+  .eg-chick-flap-frame {
+    opacity: 0;
+    transform-origin: 50% 100%;
+    animation: eg-chick-wing-flutter .55s steps(1, end) infinite;
+  }
   .eg-chick-spark {
     position: absolute;
     z-index: 2;
@@ -263,6 +268,12 @@ body {
   22% { opacity: .9; }
   82% { opacity: .9; transform: translateY(14px) scale(1); }
   100% { opacity: 0; transform: translateY(18px) scale(.8); }
+}
+
+@keyframes eg-chick-wing-flutter {
+  0%, 41% { opacity: 0; transform: translateY(0) scale(1); }
+  42%, 87% { opacity: 1; transform: translateY(-18px) scale(.96, 1.05); }
+  88%, 100% { opacity: 0; transform: translateY(0) scale(1); }
 }
 
 @keyframes eg-page-enter {
@@ -548,7 +559,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible { 
   .chick-tear,
   .chick-sparkle,
   .eg-chick-spark,
-  .eg-chick-tear { animation: none !important; }
+  .eg-chick-tear,
+  .eg-chick-flap-frame { animation: none !important; }
   .eg-page-enter { animation: none !important; }
   .eg-book-page { transition: none !important; }
   .eg-book-scene:hover .eg-book-page { transform: none; }
