@@ -51,16 +51,26 @@ export function currentAffairsSourceRegistryExpansion() {
 }
 
 const editorialMigrationFiles = [
-  "migration_082_current_affairs_2026_09_04_non_pib_briefs.sql",
-  "migration_083_current_affairs_2026_09_04_breadth_desk.sql",
-  "migration_085_current_affairs_2026_09_05_morning_desk.sql",
-  "migration_088_current_affairs_2026_09_06_daily_desk.sql",
-  "migration_089_current_affairs_2026_09_07_recovered_desk.sql",
-  "migration_093_current_affairs_2026_09_08_daily_desk.sql",
-  "migration_098_current_affairs_2026_09_09_daily_desk.sql",
-  "migration_099_current_affairs_2026_09_10_daily_desk.sql",
+  // Prioritise the two newly completed desks for the next protected publish.
   "migration_100_current_affairs_2026_09_11_daily_desk.sql",
   "migration_101_current_affairs_2026_09_12_daily_desk.sql",
+  // Then make the previously reviewed archive available to the same production path.
+  "migration_099_current_affairs_2026_09_10_daily_desk.sql",
+  "migration_098_current_affairs_2026_09_09_daily_desk.sql",
+  "migration_093_current_affairs_2026_09_08_daily_desk.sql",
+  "migration_089_current_affairs_2026_09_07_recovered_desk.sql",
+  "migration_088_current_affairs_2026_09_06_daily_desk.sql",
+  "migration_085_current_affairs_2026_09_05_morning_desk.sql",
+  "migration_082_current_affairs_2026_09_04_non_pib_briefs.sql",
+  "migration_083_current_affairs_2026_09_04_breadth_desk.sql",
+  "migration_078_current_affairs_2026_09_03_morning_digest.sql",
+  "migration_073_current_affairs_2026_09_02_editorial_batch.sql",
+  "migration_074_current_affairs_2026_09_01_editorial_batch.sql",
+  "migration_075_current_affairs_2026_08_31_editorial_batch.sql",
+  "migration_077_current_affairs_2026_08_30_editorial_expansion.sql",
+  "migration_079_current_affairs_2026_08_29_editorial_batch.sql",
+  "migration_080_current_affairs_2026_08_28_editorial_batch.sql",
+  "migration_081_current_affairs_2026_08_27_editorial_batch.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
