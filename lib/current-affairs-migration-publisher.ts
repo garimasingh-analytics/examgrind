@@ -53,6 +53,7 @@ export function currentAffairsSourceRegistryExpansion() {
 const editorialMigrationFiles = [
   // Prioritise the two newly completed desks for the next protected publish.
   "migration_100_current_affairs_2026_09_11_daily_desk.sql",
+  "migration_102_current_affairs_2026_09_11_expansion.sql",
   "migration_101_current_affairs_2026_09_12_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
@@ -116,9 +117,9 @@ export function currentAffairsRunAudit(runDate: string) {
 
   if (runDate === "2026-09-11") {
     return {
-      candidateCount: 21,
-      publishedCount: 4,
-      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through trustworthy current-affairs materials and verified every published item against its original primary official release. Published the Consumer Protection (E-Commerce) (Amendment) Rules, 2026; DILRMP 3.0 operational guidelines; NSO's first district-level ASUSE estimates; and SEBI-RBI's Demat 2.0 tokenised corporate-bond pilot. Excluded ceremonial visits and speeches, workshops and training events, routine recruitment, individual enforcement and recovery notices, port calls, stale material, duplicate coverage, and releases without a durable policy, institutional, regulatory, statistical or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context; neither was used as a daily news feed.",
+      candidateCount: 29,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through trustworthy coaching and current-affairs materials, then verified every published item against its original primary official release. Published the Consumer Protection (E-Commerce) (Amendment) Rules, 2026; DILRMP 3.0 guidelines; NSO's first district-level ASUSE estimates; SEBI-RBI's Demat 2.0 tokenised-corporate-bond pilot; the national HPV vaccination milestone; commencement of the Bankers’ Books Evidence Act, 2026; State BOCW welfare and cess digital tools; and IPC's Enoxaparin reference substance. Excluded ceremonial visits and speeches, workshops and training events, routine recruitment, individual enforcement and recovery notices, port calls, stale material, duplicate coverage, and releases without a durable policy, institutional, regulatory, statistical or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context; neither was used as a daily news feed.",
     };
   }
 
