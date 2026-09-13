@@ -58,6 +58,7 @@ const editorialMigrationFiles = [
   "migration_103_current_affairs_2026_09_13_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
+  "migration_104_current_affairs_2026_09_10_expansion.sql",
   "migration_098_current_affairs_2026_09_09_daily_desk.sql",
   "migration_093_current_affairs_2026_09_08_daily_desk.sql",
   "migration_089_current_affairs_2026_09_07_recovered_desk.sql",
@@ -110,9 +111,9 @@ export function currentAffairsRunAudit(runDate: string) {
 
   if (runDate === "2026-09-10") {
     return {
-      candidateCount: 22,
-      publishedCount: 5,
-      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and the monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through trustworthy current-affairs materials and verified each published development against its original official release. Published the CCEA's two distinct railway multi-tracking approval packages, India's 6G Leadership and Security Call to Action endorsement, UIDAI's Aadhaar Face Authentication SDK and Sandbox, and the launch of ORV Sagar Manthan under the Deep Ocean Mission. Excluded ceremonial visits and speeches, routine meetings, workshops, awards, enforcement and seizure notices, duplicate or already-covered releases, and prospective announcements such as DILRMP 3.0 guidelines that were scheduled after this desk's verification window.",
+      candidateCount: 27,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks and coaching/current-affairs discovery sources, then verified every published item against its primary official release. Published the two distinct CCEA rail multi-tracking packages, the 6G Call to Action endorsement, UIDAI's face-authentication SDK and sandbox, ORV Sagar Manthan, Rashtriya Poshan Maah 2026, Nasha Mukt Bharat Abhiyaan MoUs, and CeNS metal-free organic photocatalyst research. Excluded speeches, ceremony-only notices, routine meetings, workshops, awards, recruitment, enforcement and seizure notices, duplicates, prospective announcements and releases without durable exam relevance. Yojana and Kurukshetra remained monthly context only.",
     };
   }
 
