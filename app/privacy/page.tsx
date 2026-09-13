@@ -133,8 +133,10 @@ export default function PrivacyPage() {
         <li>Make a complaint to the Data Protection Board of India.</li>
       </ul>
       <p>
-        To exercise any of these rights, write to us via the{" "}
-        <a href="/contact">contact page</a>. We&apos;ll respond within 30 days.
+        To exercise any of these rights, use our{" "}
+        <a href="/account-deletion">account deletion request page</a> or write
+        to us via the <a href="/contact">contact page</a>. We&apos;ll respond within
+        30 days.
       </p>
 
       <h2>6. How long we keep your data</h2>
@@ -171,8 +173,9 @@ export default function PrivacyPage() {
 
       <h2>10. Contact</h2>
       <p>
-        Privacy questions, deletion requests, complaints — please use the{" "}
-        <a href="/contact">contact page</a>.
+        Privacy questions and complaints — please use the{" "}
+        <a href="/contact">contact page</a>. For deletion requests, use the{" "}
+        <a href="/account-deletion">account deletion request page</a>.
       </p>
     </LegalPageLayout>
   );
