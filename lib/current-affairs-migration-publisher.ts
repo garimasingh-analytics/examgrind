@@ -133,6 +133,14 @@ export function currentAffairsRunAudit(runDate: string) {
     };
   }
 
+  if (runDate === "2026-09-14") {
+    return {
+      candidateCount: 0,
+      publishedCount: 0,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and the monthly Yojana/Kurukshetra context desks. Rechecked late official material from the 11-13 September window and used current-affairs discovery material only to identify candidates. No new, primary-source-verifiable development met the desk standard after removing the eight items already published for 13 September, routine notices, speeches, ceremonial material, individual enforcement/recovery entries, consultations not yet final, and releases without durable exam relevance. No filler was published; this exceptional zero-brief shortfall is deliberate and should be retained in the daily-run audit. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-09-12") {
     return {
       candidateCount: 24,
