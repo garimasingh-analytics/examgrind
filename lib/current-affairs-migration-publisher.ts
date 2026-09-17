@@ -57,6 +57,7 @@ const editorialMigrationFiles = [
   "migration_101_current_affairs_2026_09_12_daily_desk.sql",
   "migration_103_current_affairs_2026_09_13_daily_desk.sql",
   "migration_105_current_affairs_2026_09_16_daily_desk.sql",
+  "migration_106_current_affairs_2026_09_17_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_104_current_affairs_2026_09_10_expansion.sql",
@@ -155,6 +156,13 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 24,
       publishedCount: 8,
       notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through trustworthy coaching and current-affairs materials, but verified every published brief against its original official release or regulator record. Published TRAI's television-advertisement QoS repeal; consultation on a proposed stronger Seed Act; MoTA's FRA implementation review; Social Justice scholarship delivery reforms; India's 2026 BRICS chairship and summit; the PMMSY six-year fisheries update; BEE's commercial electric-cooking directory and standards work; and the ninth ASEAN-India agriculture and forestry ministerial meeting. Excluded a SEBI consultation paper because it is not a final regulatory action; speeches, workshops, training and ceremonial material with no durable policy or institutional development; routine recruitment and enforcement notices; individual court and election-event items without a durable development; unverified State-policy claims without an accessible original release; stale or duplicate material; and releases without exam relevance. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
+    };
+  }
+  if (runDate === "2026-09-17") {
+    return {
+      candidateCount: 35,
+      publishedCount: 10,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; State and UT authorities; and Yojana/Kurukshetra as monthly context only. Broadened discovery through public current-affairs material, then verified every published item against an original competent-authority release. Recovered qualifying late releases from 14-16 September. Published the EPFO wage-ceiling approval, low-value export RCMC exemption, India Electric Mobility Index, Trade Watch Quarterly, Net Zero Portal and NAPCC Dashboard, Swachh Seva Aankalan, CBFC reconstitution, UAPA terrorist-organisation designation, PM Vishwakarma milestone, and India-MERCOSUR electronic Certificates of Origin protocol. Excluded speeches, greetings, ceremonies, workshops, routine cleanliness or pending-matter notices, individual enforcement or seizure reports, recruitment material, duplicate coverage, unfinalised negotiation announcements, and releases without durable syllabus relevance. No unauthorised images were used.",
     };
   }
   return null;
