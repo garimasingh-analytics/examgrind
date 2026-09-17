@@ -56,6 +56,8 @@ const editorialMigrationFiles = [
   "migration_102_current_affairs_2026_09_11_expansion.sql",
   "migration_101_current_affairs_2026_09_12_daily_desk.sql",
   "migration_103_current_affairs_2026_09_13_daily_desk.sql",
+  "migration_106_current_affairs_2026_09_14_daily_desk.sql",
+  "migration_107_current_affairs_2026_09_15_daily_desk.sql",
   "migration_105_current_affairs_2026_09_16_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
@@ -136,9 +138,9 @@ export function currentAffairsRunAudit(runDate: string) {
 
   if (runDate === "2026-09-14") {
     return {
-      candidateCount: 0,
-      publishedCount: 0,
-      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and the monthly Yojana/Kurukshetra context desks. Rechecked late official material from the 11-13 September window and used current-affairs discovery material only to identify candidates. No new, primary-source-verifiable development met the desk standard after removing the eight items already published for 13 September, routine notices, speeches, ceremonial material, individual enforcement/recovery entries, consultations not yet final, and releases without durable exam relevance. No filler was published; this exceptional zero-brief shortfall is deliberate and should be retained in the daily-run audit. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
+      candidateCount: 28,
+      publishedCount: 8,
+      notes: "Corrected the prior zero-brief audit after a fresh 19-desk sweep of PIB and ministry releases, RBI, SEBI, CCI, IFSCA, NITI Aayog, NDMA, MoSPI, Supreme Court, Parliament, ECI, MyGov, myScheme, State/UT authorities and Yojana/Kurukshetra as monthly context only. Coaching/current-affairs pages were used only for discovery, then every published item was checked against its original official release. Published SEMICON India institutional context, the IAF UAS Roadmap/Dronathon, Exercise Samudra Laksamana, India–MERCOSUR PTA-expansion negotiations, the electronic Certificates of Origin protocol, August WPI, August CPI and NMBA delivery data. Excluded Hindi Diwas greetings and speeches, awards, routine meetings, individual enforcement/seizure notices, personal-success stories, recruitment, duplicate BRICS coverage, proposals not yet final and releases without durable syllabus relevance. No unauthorised images were used.",
     };
   }
 
@@ -147,6 +149,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 31,
       publishedCount: 10,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; State/UT authorities; and Yojana/Kurukshetra as monthly context only. Broadened discovery through public current-affairs material but verified every published item against an original competent-authority release. Published the Kishau Project agreement, DAY-NRLM-PFRDA Pension Sakhis, DRDO industry frameworks, BRIC-NIPGR SPROUT facility, legal-metrology GATCs, the August PLFS bulletin, the UPI MDR framework, Gujarat Gati Shakti Cargo Terminals, Exercise Yudh Abhyas and WCEF 2026. Excluded greetings, speeches, ceremonies, workshops, individual enforcement or recovery items, recruitment and event notices, duplicate/stale releases, unfinalised proposals and items without durable syllabus relevance. No unauthorised images were used.",
+    };
+  }
+
+  if (runDate === "2026-09-15") {
+    return {
+      candidateCount: 32,
+      publishedCount: 8,
+      notes: "Corrected the prior zero-brief audit after a fresh 19-desk sweep of PIB and ministry releases, RBI, SEBI, CCI, IFSCA, NITI Aayog, NDMA, MoSPI, Supreme Court, Parliament, ECI, MyGov, myScheme, State/UT authorities and Yojana/Kurukshetra as monthly context only. Used coaching/current-affairs material solely to surface leads and verified each selected fact against its original official source. Published the Falta SEZ SiC-unit approval, August trade data, Special Campaign 6, SHREYAS, NISD’s TAPAS platform, CCPA’s dark-patterns order, CAQM enforcement review and the Varuna Elevated Corridor. Excluded greetings, speeches, personal-success stories, ceremony-only releases, routine workshops, recruitment, individual seizure/enforcement reports, repeat coverage already live in the 16 September desk, unfinalised proposals and items without durable syllabus relevance. No unauthorised images were used.",
     };
   }
 
