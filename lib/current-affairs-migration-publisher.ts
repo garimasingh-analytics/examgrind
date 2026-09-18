@@ -56,8 +56,11 @@ const editorialMigrationFiles = [
   "migration_102_current_affairs_2026_09_11_expansion.sql",
   "migration_101_current_affairs_2026_09_12_daily_desk.sql",
   "migration_103_current_affairs_2026_09_13_daily_desk.sql",
+  "migration_106_current_affairs_2026_09_14_daily_desk.sql",
+  "migration_107_current_affairs_2026_09_15_daily_desk.sql",
   "migration_105_current_affairs_2026_09_16_daily_desk.sql",
   "migration_106_current_affairs_2026_09_17_daily_desk.sql",
+  "migration_108_current_affairs_2026_09_18_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_104_current_affairs_2026_09_10_expansion.sql",
@@ -137,9 +140,17 @@ export function currentAffairsRunAudit(runDate: string) {
 
   if (runDate === "2026-09-14") {
     return {
-      candidateCount: 0,
-      publishedCount: 0,
-      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and the monthly Yojana/Kurukshetra context desks. Rechecked late official material from the 11-13 September window and used current-affairs discovery material only to identify candidates. No new, primary-source-verifiable development met the desk standard after removing the eight items already published for 13 September, routine notices, speeches, ceremonial material, individual enforcement/recovery entries, consultations not yet final, and releases without durable exam relevance. No filler was published; this exceptional zero-brief shortfall is deliberate and should be retained in the daily-run audit. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
+      candidateCount: 28,
+      publishedCount: 8,
+      notes: "Recovered a complete desk after a fresh official-source sweep across PIB and ministry releases, regulators, commissions, Parliament, Supreme Court, programme portals, State and UT authorities, and Yojana/Kurukshetra as monthly context only. Published SEMICON India/ISM context, the IAF UAS roadmap, Exercise Samudra Laksamana, India-MERCOSUR PTA-expansion talks, electronic Certificates of Origin, August WPI, August CPI and NMBA outreach. Excluded Hindi Diwas messages and speeches, awards, routine meetings, individual seizure/enforcement reports, personal stories, recruitment, duplicate BRICS coverage, unfinalised proposals and weak items.",
+    };
+  }
+
+  if (runDate === "2026-09-15") {
+    return {
+      candidateCount: 32,
+      publishedCount: 8,
+      notes: "Recovered a complete desk after a fresh official-source sweep across PIB and ministry releases, regulators, commissions, Parliament, Supreme Court, programme portals, State and UT authorities, and Yojana/Kurukshetra as monthly context only. Published Falta SEZ's Odisha SiC-unit approval, August trade data, Special Campaign 6, SHREYAS, NISD TAPAS, the CCPA dark-patterns order, CAQM enforcement review and the Varuna Elevated Corridor. Excluded greetings, speeches, personal stories, ceremonies, workshops, recruitment, individual seizures, repeat coverage already live in the 16 September desk, unfinalised proposals and weak items.",
     };
   }
 
@@ -163,6 +174,13 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 35,
       publishedCount: 10,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; State and UT authorities; and Yojana/Kurukshetra as monthly context only. Broadened discovery through public current-affairs material, then verified every published item against an original competent-authority release. Recovered qualifying late releases from 14-16 September. Published the EPFO wage-ceiling approval, low-value export RCMC exemption, India Electric Mobility Index, Trade Watch Quarterly, Net Zero Portal and NAPCC Dashboard, Swachh Seva Aankalan, CBFC reconstitution, UAPA terrorist-organisation designation, PM Vishwakarma milestone, and India-MERCOSUR electronic Certificates of Origin protocol. Excluded speeches, greetings, ceremonies, workshops, routine cleanliness or pending-matter notices, individual enforcement or seizure reports, recruitment material, duplicate coverage, unfinalised negotiation announcements, and releases without durable syllabus relevance. No unauthorised images were used.",
+    };
+  }
+  if (runDate === "2026-09-18") {
+    return {
+      candidateCount: 46,
+      publishedCount: 9,
+      notes: "Checked the 19 active registry desks, including PIB and ministry releases, RBI, SEBI, CCI, IFSCA, NITI Aayog, NDMA, MoSPI, Supreme Court, Parliament, ECI, MyGov, myScheme, State and UT authorities, and Yojana/Kurukshetra as monthly context only. Recovered late 17 September primary releases. Published India-New Zealand FTA implementation legislation, the 16th commercial coal-auction round, Sambalpur's Doppler Weather Radar, the NIOS primary-teacher bridge course, stem-cell-therapy safeguards, the ULB waste-management LCA tool, OneTag FASTag portability, August textile-export data and first soil-carbon payments. Excluded speeches, birthday/greeting material, cleanliness campaigns, workshops, personal stories, recruitment, individual competition decisions, pending draft Drugs Rules amendments, duplicate semiconductor-event coverage and weak items. No unauthorised images were used.",
     };
   }
   return null;
