@@ -66,6 +66,15 @@ export const EXAM_CATALOG = [
 
 export type ExamSlug = (typeof EXAM_CATALOG)[number]["slug"];
 export type ExamCatalogItem = (typeof EXAM_CATALOG)[number];
+/**
+ * Derived from the source-of-truth catalog. Any feature that must support
+ * every live exam can use this to turn an incomplete launch into a build
+ * failure instead of a student-facing error.
+ */
+export type LiveExamSlug = Extract<
+  ExamCatalogItem,
+  { status: "live" }
+>["slug"];
 
 export function getExamBySlug(slug: string): ExamCatalogItem | undefined {
   return EXAM_CATALOG.find((exam) => exam.slug === slug);
@@ -83,6 +92,6 @@ export const LIVE_EXAMS = EXAM_CATALOG.filter(
   (exam) => exam.status === "live"
 );
 
-export function isLiveExamSlug(slug: string): slug is ExamSlug {
+export function isLiveExamSlug(slug: string): slug is LiveExamSlug {
   return getExamBySlug(slug)?.status === "live";
 }

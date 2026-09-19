@@ -92,11 +92,11 @@ const INVARIANTS = [
   {
     id: "topic-quiz-framing-for-every-live-exam",
     file: "app/api/quiz/start/route.ts",
-    pattern: /"cuet"[\s\S]*"ssc-cgl"[\s\S]*"neet-ug"[\s\S]*"delhi-police-constable"[\s\S]*"uppsc-ro-aro"[\s\S]*"up-secretariat-ro-aro"[\s\S]*missing exam-specific question framing/,
+    pattern: /satisfies\s+Record<LiveExamSlug,\s*string>/,
     rationale:
-      "Every live exam needs its own question-generation framing. Falling back " +
-      "to CUET produces superficially valid but wrong exam practice, which is " +
-      "worse than temporarily declining to generate a quiz.",
+      "Every live exam needs an explicit question-generation framing. The " +
+      "route must be exhaustively type-checked against the catalog's live exams " +
+      "so incomplete quiz support cannot compile or deploy.",
   },
 ];
 
