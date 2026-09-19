@@ -84,6 +84,22 @@ const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 const SONNET_MODEL = "claude-sonnet-4-6";
 
 export async function POST(req: NextRequest) {
+  try {
+    return await analyzeQuiz(req);
+  } catch (error) {
+    console.error("[quiz/analyze] unexpected failure", error);
+    void fireAlert("Unexpected Deep Analysis failure", {
+      severity: "P1",
+      route: "/api/quiz/analyze",
+    });
+    return NextResponse.json(
+      { error: "We couldn't finish the analysis right now. Our team has been alerted and is fixing it." },
+      { status: 503 },
+    );
+  }
+}
+
+async function analyzeQuiz(req: NextRequest) {
   // ---- Auth ----
   const supabase = createServerSupabase();
   const {

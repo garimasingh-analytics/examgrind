@@ -114,6 +114,22 @@ const INVARIANTS = [
       "A learner-facing quiz-generation failure must alert operations immediately " +
       "rather than waiting for a student to report it.",
   },
+  {
+    id: "quiz-analysis-unexpected-error-guard",
+    file: "app/api/quiz/analyze/route.ts",
+    pattern: /Unexpected Deep Analysis failure/,
+    rationale:
+      "Any unanticipated Deep Analysis exception must be converted into a controlled " +
+      "response and alert operations immediately; it must never become an opaque crash.",
+  },
+  {
+    id: "mock-analysis-unexpected-error-guard",
+    file: "app/api/mock/analyze/route.ts",
+    pattern: /Unexpected mock Deep Analysis failure/,
+    rationale:
+      "Mock Deep Analysis has the same paid-learning reliability requirement as chapter " +
+      "analysis and therefore needs its own top-level exception guard.",
+  },
 ];
 
 let failed = 0;

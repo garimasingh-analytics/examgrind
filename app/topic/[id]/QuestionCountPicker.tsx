@@ -98,9 +98,6 @@ export default function QuestionCountPicker({
           if (typeof body?.error === "string") {
             throw new Error(body.error);
           }
-          if (res.status >= 500) {
-            throw new Error("Our server tripped over its feet. Try again in a moment.");
-          }
           throw new Error(body.error ?? `Failed (${res.status})`);
         }
         const { quizId } = (await res.json()) as { quizId: string };
