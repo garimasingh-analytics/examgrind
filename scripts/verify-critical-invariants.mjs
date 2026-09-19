@@ -115,6 +115,14 @@ const INVARIANTS = [
       "rather than waiting for a student to report it.",
   },
   {
+    id: "quiz-start-stored-question-fallback",
+    file: "app/api/quiz/start/route.ts",
+    pattern: /served stored-question fallback/,
+    rationale:
+      "A temporary AI-provider failure must use stored, validated questions for the " +
+      "same topic whenever possible instead of blocking a learner from practice.",
+  },
+  {
     id: "quiz-analysis-unexpected-error-guard",
     file: "app/api/quiz/analyze/route.ts",
     pattern: /Unexpected Deep Analysis failure/,

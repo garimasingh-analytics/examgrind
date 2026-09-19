@@ -277,68 +277,76 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
     messages: [{ role: "user", content: prompt }],
   });
 
-  if (!result.ok) {
-    void fireAlert("Quiz generation failed after retries", {
-      severity: "P1",
-      user_id: user.id,
-      exam_slug: examSlug,
-      kind: result.kind,
-    });
-    return NextResponse.json(
-      { error: result.userMessage, kind: result.kind },
-      { status: result.httpStatus }
-    );
-  }
+  let valid: GeneratedQuestion[] = [];
+  let questionSource: "generated" | "stored" = "generated";
 
-  let generated: GeneratedQuestion[];
-  try {
+  if (!result.ok) {
+    // A fresh question set should never be a single point of failure. When
+    // Anthropic is briefly unavailable, reuse a stored, validated question
+    // set for this exact topic rather than sending the learner back empty.
+    valid = await loadStoredQuestions(admin, topic.id, questionCount);
+    if (valid.length > 0) {
+      questionSource = "stored";
+      void fireAlert("Quiz generation failed; served stored-question fallback", {
+        severity: "P1",
+        user_id: user.id,
+        exam_slug: examSlug,
+        kind: result.kind,
+      });
+    } else {
+      void fireAlert("Quiz generation failed after retries", {
+        severity: "P1",
+        user_id: user.id,
+        exam_slug: examSlug,
+        kind: result.kind,
+        fallback: "none",
+      });
+      return NextResponse.json(
+        { error: result.userMessage, kind: result.kind },
+        { status: result.httpStatus }
+      );
+    }
+  } else {
+    let generated: GeneratedQuestion[];
+    try {
     // Strip optional markdown fences just in case.
     const cleaned = result.text
       .replace(/^```(?:json)?\s*/i, "")
       .replace(/\s*```\s*$/i, "")
       .trim();
 
-    generated = JSON.parse(cleaned) as GeneratedQuestion[];
-    if (!Array.isArray(generated) || generated.length === 0) {
-      throw new Error("Claude returned no questions.");
+      generated = JSON.parse(cleaned) as GeneratedQuestion[];
+      if (!Array.isArray(generated) || generated.length === 0) {
+        throw new Error("Claude returned no questions.");
+      }
+      valid = normalizeQuestions(generated, questionCount);
+    } catch (e) {
+      console.error("[quiz/start] parse failed:", e);
     }
-  } catch (e) {
-    console.error("[quiz/start] parse failed:", e);
-    void fireAlert("Quiz generation returned unusable content", {
-      severity: "P1",
-      user_id: user.id,
-      exam_slug: examSlug,
-    });
-    return NextResponse.json(
-      { error: "Couldn't generate questions. Please try again." },
-      { status: 502 }
-    );
-  }
 
-  // Trim to requested count if Claude over/under-shot, validate shape.
-  const valid = generated
-    .slice(0, questionCount)
-    .filter(
-      (q): q is GeneratedQuestion =>
-        !!q &&
-        typeof q.question === "string" &&
-        !!q.options &&
-        ["A", "B", "C", "D"].every(
-          (k) => typeof q.options?.[k as "A"] === "string"
-        ) &&
-        ["A", "B", "C", "D"].includes(q.correct)
-    );
-
-  if (valid.length === 0) {
-    void fireAlert("Quiz generation produced no valid questions", {
-      severity: "P1",
-      user_id: user.id,
-      exam_slug: examSlug,
-    });
-    return NextResponse.json(
-      { error: "Generated questions failed validation. Please try again." },
-      { status: 502 }
-    );
+    if (valid.length === 0) {
+      // Invalid provider output is treated exactly like a temporary provider
+      // outage: fall back to stored questions for the same topic.
+      valid = await loadStoredQuestions(admin, topic.id, questionCount);
+      if (valid.length > 0) {
+        questionSource = "stored";
+        void fireAlert("Quiz generation unusable; served stored-question fallback", {
+          severity: "P1",
+          user_id: user.id,
+          exam_slug: examSlug,
+        });
+      } else {
+        void fireAlert("Quiz generation produced no valid questions or fallback", {
+          severity: "P1",
+          user_id: user.id,
+          exam_slug: examSlug,
+        });
+        return NextResponse.json(
+          { error: "Generated questions failed validation. Please try again." },
+          { status: 502 }
+        );
+      }
+    }
   }
 
   // ---- 5. Insert quiz + question rows ----
@@ -422,7 +430,75 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
     }
   }
 
-  return NextResponse.json({ quizId: quizRow.id });
+  return NextResponse.json({ quizId: quizRow.id, questionSource });
+}
+
+/** Keep only fully formed questions before anything reaches a learner. */
+function normalizeQuestions(
+  questions: GeneratedQuestion[],
+  questionCount: number,
+): GeneratedQuestion[] {
+  return questions
+    .slice(0, questionCount)
+    .filter(
+      (q): q is GeneratedQuestion =>
+        !!q &&
+        typeof q.question === "string" &&
+        q.question.trim().length > 0 &&
+        !!q.options &&
+        ["A", "B", "C", "D"].every(
+          (key) => typeof q.options?.[key as "A"] === "string" && q.options[key as "A"].trim().length > 0,
+        ) &&
+        ["A", "B", "C", "D"].includes(q.correct),
+    );
+}
+
+/**
+ * Rebuild a quiz from earlier, validated questions for this exact topic.
+ *
+ * These rows were already shown successfully in ExamGrind; cloning them into
+ * a new quiz preserves the normal quiz/result/deep-analysis flow without
+ * making a learner wait on a live AI response. We deliberately require a
+ * complete set rather than padding a quiz with duplicate questions.
+ */
+async function loadStoredQuestions(
+  admin: ReturnType<typeof createAdminSupabase>,
+  topicId: string,
+  questionCount: number,
+): Promise<GeneratedQuestion[]> {
+  const { data, error } = await admin
+    .from("questions")
+    .select("question_text, option_a, option_b, option_c, option_d, correct_answer, explanation, quizzes!inner(topic_id)")
+    .eq("quizzes.topic_id", topicId)
+    .limit(100);
+
+  if (error || !data) {
+    console.error("[quiz/start] stored-question fallback lookup failed", error);
+    return [];
+  }
+
+  const unique = new Map<string, GeneratedQuestion>();
+  for (const row of data as Array<{
+    question_text: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    correct_answer: string;
+    explanation: string | null;
+  }>) {
+    const question: GeneratedQuestion = {
+      question: row.question_text,
+      options: { A: row.option_a, B: row.option_b, C: row.option_c, D: row.option_d },
+      correct: row.correct_answer as GeneratedQuestion["correct"],
+      explanation: row.explanation ?? undefined,
+    };
+    if (!unique.has(question.question)) unique.set(question.question, question);
+  }
+
+  const shuffled = Array.from(unique.values()).sort(() => Math.random() - 0.5);
+  const valid = normalizeQuestions(shuffled, questionCount);
+  return valid.length >= questionCount ? valid : [];
 }
 
 /** Retry short-lived database hiccups before exposing a failure to a learner. */
