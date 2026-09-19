@@ -5,9 +5,13 @@ import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { FREE_LIMITS } from "@/lib/freemium";
 import { isLiveExamSlug, type LiveExamSlug } from "@/lib/exam-catalog";
+import { fireAlert } from "@/lib/alert";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Question generation retries can take ~20 seconds during an upstream blip.
+// Keep this above the retry window so Vercel never cuts off a quiz mid-retry.
+export const maxDuration = 60;
 
 type StartBody = {
   topicId: string;
@@ -30,9 +34,30 @@ type GeneratedQuestion = {
   explanation?: string;
 };
 
+type DatabaseWriteResult<T> = {
+  data: T | null;
+  error: unknown | null;
+};
+
 const MIN_Q = 5;
 const MAX_Q = 25;
 export async function POST(req: NextRequest) {
+  try {
+    return await startQuiz(req);
+  } catch (error) {
+    console.error("[quiz/start] unexpected failure", error);
+    void fireAlert("Unexpected quiz-start failure", {
+      severity: "P1",
+      route: "/api/quiz/start",
+    });
+    return NextResponse.json(
+      { error: "We couldn't start this quiz right now. Our team has been alerted and is fixing it." },
+      { status: 503 },
+    );
+  }
+}
+
+async function startQuiz(req: NextRequest) {
   // ---- 1. Auth ----
   const supabase = createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
@@ -137,6 +162,11 @@ export async function POST(req: NextRequest) {
   const slot = Array.isArray(slotRows) ? slotRows[0] : slotRows;
   if (slotError || !slot) {
     console.error("[quiz/start] entitlement check failed", slotError);
+    void fireAlert("Quiz entitlement check failed", {
+      severity: "P1",
+      user_id: user.id,
+      route: "/api/quiz/start",
+    });
     return NextResponse.json(
       { error: "Couldn't verify your plan. Please try again in a moment." },
       { status: 503 },
@@ -160,6 +190,10 @@ export async function POST(req: NextRequest) {
 
   // ---- 4. Generate questions with Claude ----
   if (!process.env.ANTHROPIC_API_KEY) {
+    void fireAlert("Quiz generation unavailable: missing Anthropic API key", {
+      severity: "P0",
+      route: "/api/quiz/start",
+    });
     return NextResponse.json(
       { error: "Server missing ANTHROPIC_API_KEY." },
       { status: 500 }
@@ -244,6 +278,12 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
   });
 
   if (!result.ok) {
+    void fireAlert("Quiz generation failed after retries", {
+      severity: "P1",
+      user_id: user.id,
+      exam_slug: examSlug,
+      kind: result.kind,
+    });
     return NextResponse.json(
       { error: result.userMessage, kind: result.kind },
       { status: result.httpStatus }
@@ -264,6 +304,11 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
     }
   } catch (e) {
     console.error("[quiz/start] parse failed:", e);
+    void fireAlert("Quiz generation returned unusable content", {
+      severity: "P1",
+      user_id: user.id,
+      exam_slug: examSlug,
+    });
     return NextResponse.json(
       { error: "Couldn't generate questions. Please try again." },
       { status: 502 }
@@ -285,6 +330,11 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
     );
 
   if (valid.length === 0) {
+    void fireAlert("Quiz generation produced no valid questions", {
+      severity: "P1",
+      user_id: user.id,
+      exam_slug: examSlug,
+    });
     return NextResponse.json(
       { error: "Generated questions failed validation. Please try again." },
       { status: 502 }
@@ -292,21 +342,33 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
   }
 
   // ---- 5. Insert quiz + question rows ----
-  const { data: quizRow, error: quizErr } = await supabase
-    .from("quizzes")
-    .insert({
-      user_id: user.id,
-      subject: subjectName,
-      topic: chapterName,
-      subtopic: topicName,
-      chapter_id: topic.chapter.id,
-      topic_id: topic.id,
-    })
-    .select("id")
-    .single();
+  const { data: quizRow, error: quizErr } = await retryDatabaseWrite<
+    DatabaseWriteResult<{ id: string }>
+  >(
+    "quiz insert",
+    () =>
+      admin
+        .from("quizzes")
+        .insert({
+          user_id: user.id,
+          subject: subjectName,
+          topic: chapterName,
+          subtopic: topicName,
+          chapter_id: topic.chapter.id,
+          topic_id: topic.id,
+        })
+        .select("id")
+        .single(),
+    (result) => Boolean(result.error),
+  );
 
   if (quizErr || !quizRow) {
     console.error("[quiz/start] quiz insert failed:", quizErr);
+    void fireAlert("Quiz record could not be saved", {
+      severity: "P1",
+      user_id: user.id,
+      exam_slug: examSlug,
+    });
     return NextResponse.json(
       { error: "Couldn't save the quiz. Please try again." },
       { status: 500 }
@@ -324,11 +386,20 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
     explanation: typeof q.explanation === "string" ? q.explanation : null,
   }));
 
-  const { error: qErr } = await supabase.from("questions").insert(questionRows);
+  const { error: qErr } = await retryDatabaseWrite<DatabaseWriteResult<unknown>>(
+    "quiz question insert",
+    () => admin.from("questions").insert(questionRows),
+    (result) => Boolean(result.error),
+  );
   if (qErr) {
     console.error("[quiz/start] questions insert failed:", qErr);
+    void fireAlert("Quiz questions could not be saved", {
+      severity: "P1",
+      user_id: user.id,
+      exam_slug: examSlug,
+    });
     // Best-effort cleanup of the quiz row to avoid orphans
-    await supabase.from("quizzes").delete().eq("id", quizRow.id);
+    await admin.from("quizzes").delete().eq("id", quizRow.id);
     return NextResponse.json(
       { error: "Couldn't save questions. Please try again." },
       { status: 500 }
@@ -352,4 +423,20 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
   }
 
   return NextResponse.json({ quizId: quizRow.id });
+}
+
+/** Retry short-lived database hiccups before exposing a failure to a learner. */
+async function retryDatabaseWrite<T>(
+  label: string,
+  operation: () => PromiseLike<T>,
+  shouldRetry: (result: T) => boolean,
+): Promise<T> {
+  let result = await operation();
+  for (const delayMs of [250, 750]) {
+    if (!shouldRetry(result)) return result;
+    console.warn(`[quiz/start] ${label} failed; retrying`);
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    result = await operation();
+  }
+  return result;
 }

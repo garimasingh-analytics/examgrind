@@ -95,7 +95,7 @@ export default function QuestionCountPicker({
               "The question generator hiccupped. This usually clears up in a few seconds — try again."
             );
           }
-          if (res.status === 503 && typeof body?.error === "string") {
+          if (typeof body?.error === "string") {
             throw new Error(body.error);
           }
           if (res.status >= 500) {

@@ -5,6 +5,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { sendAdminSMS } from "@/lib/sms";
+import { fireAlert } from "@/lib/alert";
 import { consumeDeepDiveSlot, DAILY_DEEP_DIVE_LIMIT } from "@/lib/ai-rate-limit";
 import { ANALYSIS_JSON_SCHEMA, normalizeAnalysis } from "@/lib/analysis-contract";
 import { checkFreemium, FREE_LIMITS } from "@/lib/freemium";
@@ -91,6 +92,10 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Not signed in." }, { status: 401 });
   }
+  // All subsequent writes are scoped to this authenticated user, so use the
+  // service client for persistence rather than relying on a refreshed cookie
+  // session to satisfy RLS during a long-running analysis request.
+  const admin = createAdminSupabase();
 
   // ---- Body ----
   let body: AnalyzeBody;
@@ -173,7 +178,6 @@ export async function POST(req: NextRequest) {
       );
     }
   } else {
-    const admin = createAdminSupabase();
     const { data: slotRows, error: slotError } = await admin.rpc(
       "consume_analysis_entitlement",
       { p_user_id: user.id },
@@ -209,6 +213,10 @@ export async function POST(req: NextRequest) {
 
   // ---- Build prompt for Claude ----
   if (!process.env.ANTHROPIC_API_KEY) {
+    void fireAlert("Deep Analysis unavailable: missing Anthropic API key", {
+      severity: "P0",
+      route: "/api/quiz/analyze",
+    });
     return NextResponse.json(
       { error: "Server missing ANTHROPIC_API_KEY." },
       { status: 500 }
@@ -363,7 +371,7 @@ export async function POST(req: NextRequest) {
   // is_deep_dive stays true if the user requested a deep dive, so the DB
   // knows the user's INTENT even if we degraded gracefully.
   const isDeepDiveActual = deepDive && actualModel === SONNET_MODEL;
-  const { error: upsertErr } = await supabase.from("quiz_analyses").upsert(
+  const { error: upsertErr } = await admin.from("quiz_analyses").upsert(
     {
       quiz_id: quizId,
       user_id: user.id,
@@ -375,6 +383,11 @@ export async function POST(req: NextRequest) {
   );
   if (upsertErr) {
     console.error("[quiz/analyze] upsert failed:", upsertErr);
+    void fireAlert("Deep Analysis could not be saved", {
+      severity: "P1",
+      user_id: user.id,
+      quiz_id: quizId,
+    });
     return NextResponse.json(
       { error: "Couldn't save the analysis." },
       { status: 500 }

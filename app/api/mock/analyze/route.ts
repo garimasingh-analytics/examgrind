@@ -7,6 +7,7 @@ import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { checkFreemium, FREE_LIMITS } from "@/lib/freemium";
 import { consumeDeepDiveSlot, DAILY_DEEP_DIVE_LIMIT } from "@/lib/ai-rate-limit";
 import { sendAdminSMS } from "@/lib/sms";
+import { fireAlert } from "@/lib/alert";
 import { ANALYSIS_JSON_SCHEMA, normalizeAnalysis } from "@/lib/analysis-contract";
 
 export const runtime = "nodejs";
@@ -205,6 +206,10 @@ export async function POST(req: NextRequest) {
 
   // ---- Build prompt ----
   if (!process.env.ANTHROPIC_API_KEY) {
+    void fireAlert("Mock Deep Analysis unavailable: missing Anthropic API key", {
+      severity: "P0",
+      route: "/api/mock/analyze",
+    });
     return NextResponse.json(
       { error: "Server missing ANTHROPIC_API_KEY." },
       { status: 500 }
@@ -332,6 +337,11 @@ export async function POST(req: NextRequest) {
   );
   if (upsertErr) {
     console.error("[mock/analyze] upsert failed:", upsertErr);
+    void fireAlert("Mock Deep Analysis could not be saved", {
+      severity: "P1",
+      user_id: user.id,
+      attempt_id: attemptId,
+    });
     return NextResponse.json(
       { error: "Couldn't save the analysis." },
       { status: 500 }

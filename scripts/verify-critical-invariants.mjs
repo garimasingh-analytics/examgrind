@@ -98,6 +98,22 @@ const INVARIANTS = [
       "route must be exhaustively type-checked against the catalog's live exams " +
       "so incomplete quiz support cannot compile or deploy.",
   },
+  {
+    id: "quiz-start-retry-window",
+    file: "app/api/quiz/start/route.ts",
+    pattern: /export\s+const\s+maxDuration\s*=\s*(?:[6-9]\d|\d{3,})\s*;/,
+    rationale:
+      "Quiz generation uses upstream retries. The route needs at least 60 seconds " +
+      "so a transient provider slowdown cannot be cut off by the platform mid-retry.",
+  },
+  {
+    id: "quiz-start-operations-alert",
+    file: "app/api/quiz/start/route.ts",
+    pattern: /fireAlert\("Quiz generation failed after retries"/,
+    rationale:
+      "A learner-facing quiz-generation failure must alert operations immediately " +
+      "rather than waiting for a student to report it.",
+  },
 ];
 
 let failed = 0;
