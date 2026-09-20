@@ -61,6 +61,7 @@ const editorialMigrationFiles = [
   "migration_105_current_affairs_2026_09_16_daily_desk.sql",
   "migration_106_current_affairs_2026_09_17_daily_desk.sql",
   "migration_108_current_affairs_2026_09_18_daily_desk.sql",
+  "migration_109_current_affairs_2026_09_19_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_104_current_affairs_2026_09_10_expansion.sql",
@@ -181,6 +182,13 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 46,
       publishedCount: 9,
       notes: "Checked the 19 active registry desks, including PIB and ministry releases, RBI, SEBI, CCI, IFSCA, NITI Aayog, NDMA, MoSPI, Supreme Court, Parliament, ECI, MyGov, myScheme, State and UT authorities, and Yojana/Kurukshetra as monthly context only. Recovered late 17 September primary releases. Published India-New Zealand FTA implementation legislation, the 16th commercial coal-auction round, Sambalpur's Doppler Weather Radar, the NIOS primary-teacher bridge course, stem-cell-therapy safeguards, the ULB waste-management LCA tool, OneTag FASTag portability, August textile-export data and first soil-carbon payments. Excluded speeches, birthday/greeting material, cleanliness campaigns, workshops, personal stories, recruitment, individual competition decisions, pending draft Drugs Rules amendments, duplicate semiconductor-event coverage and weak items. No unauthorised images were used.",
+    };
+  }
+  if (runDate === "2026-09-19") {
+    return {
+      candidateCount: 38,
+      publishedCount: 10,
+      notes: "Checked all 19 active registry desks, using coaching/current-affairs material only to surface leads and verifying every selected fact against a primary official source. Published SCO trade-minister outcomes, the India–Nepal IGSC, TRAI’s final UCC amendment, the conditional sugar-stockholding change, HAL platform deliveries, second NGMV steel cutting, NSO’s first district labour snapshot, Chouk–Karjat rail doubling, Semicon 2.0 and the 100-week Nasha Mukt Yuva campaign. Excluded speeches, greetings, personal stories, routine workshops and cleanliness material, individual enforcement cases, pending consultations, duplicate coverage from 14–18 September and weak items. Yojana and Kurukshetra were monthly context only; no unauthorised images were used.",
     };
   }
   return null;
