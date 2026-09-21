@@ -62,6 +62,7 @@ const editorialMigrationFiles = [
   "migration_106_current_affairs_2026_09_17_daily_desk.sql",
   "migration_108_current_affairs_2026_09_18_daily_desk.sql",
   "migration_109_current_affairs_2026_09_19_daily_desk.sql",
+  "migration_110_current_affairs_2026_09_20_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_104_current_affairs_2026_09_10_expansion.sql",
@@ -189,6 +190,13 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 38,
       publishedCount: 10,
       notes: "Checked all 19 active registry desks, using coaching/current-affairs material only to surface leads and verifying every selected fact against a primary official source. Published SCO trade-minister outcomes, the India–Nepal IGSC, TRAI’s final UCC amendment, the conditional sugar-stockholding change, HAL platform deliveries, second NGMV steel cutting, NSO’s first district labour snapshot, Chouk–Karjat rail doubling, Semicon 2.0 and the 100-week Nasha Mukt Yuva campaign. Excluded speeches, greetings, personal stories, routine workshops and cleanliness material, individual enforcement cases, pending consultations, duplicate coverage from 14–18 September and weak items. Yojana and Kurukshetra were monthly context only; no unauthorised images were used.",
+    };
+  }
+  if (runDate === "2026-09-20") {
+    return {
+      candidateCount: 31,
+      publishedCount: 5,
+      notes: "Checked all 19 active registry desks, including PIB and ministry releases, RBI, SEBI, CCI, IFSCA, NITI Aayog, NDMA, MoSPI, Supreme Court, Parliament, ECI, MyGov, myScheme and State/UT authorities; Yojana and Kurukshetra were used only as monthly context. Used public current-affairs/coaching material only to identify late candidates, then verified every published fact with the linked primary official release. Published NLMC monetisation recommendations, DDU-GKY 2.0 rollout preparation, the NGT mobile application, CAT Jammu infrastructure and the proposed Gwalior Telecom Manufacturing Zone. This is an exceptional five-brief desk after the full official-source sweep: remaining qualifying-looking releases were already published (Semicon, sugar, FASTag, climate dashboards, trade-watch and the waste tool), were speeches, greetings, routine recruitment, workshops, personal stories or enforcement cases, or lacked a concrete implementation development. No unauthorised images were used.",
     };
   }
   return null;
