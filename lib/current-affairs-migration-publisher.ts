@@ -63,6 +63,7 @@ const editorialMigrationFiles = [
   "migration_108_current_affairs_2026_09_18_daily_desk.sql",
   "migration_109_current_affairs_2026_09_19_daily_desk.sql",
   "migration_110_current_affairs_2026_09_20_daily_desk.sql",
+  "migration_111_current_affairs_2026_09_21_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_104_current_affairs_2026_09_10_expansion.sql",
@@ -197,6 +198,13 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 31,
       publishedCount: 8,
       notes: "Checked all 19 active registry desks, including PIB and ministry releases, RBI, SEBI, CCI, IFSCA, NITI Aayog, NDMA, MoSPI, Supreme Court, Parliament, ECI, MyGov, myScheme and State/UT authorities; Yojana and Kurukshetra were used only as monthly context. Used public current-affairs/coaching material only to identify late candidates, then verified every published fact with the linked primary official release. Published NLMC monetisation recommendations, DDU-GKY 2.0 rollout preparation, the NGT mobile application, CAT Jammu infrastructure, the proposed Gwalior Telecom Manufacturing Zone, first NGMV keel laying, India International Water Week 2026 and PM-AJAY coverage. Excluded already-published Semicon, sugar, FASTag, climate-dashboard, trade-watch and waste-tool releases; speeches, greetings, individual awards, routine recruitment, workshops, personal stories, enforcement cases, unfinalised claims and low-syllabus-value notices. No unauthorised images were used.",
+    };
+  }
+  if (runDate === "2026-09-21") {
+    return {
+      candidateCount: 34,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; State and UT authorities; and Yojana/Kurukshetra only as monthly context. Used public current-affairs material solely to surface candidates, then verified each published fact against its linked official release. Published August ICI, the NFI 2026 and Biovigilance Programme, the PM-SETU Kurukshetra ITI-cluster approval, Exercise Nomadic Elephant, indigenous APUs for T-72/T-90 tanks, DoT's Telecommunications Act safety action, AVYAY senior-support delivery and the CBN–Brahma Kumaris Yuva Raksha MoU. Excluded speeches, greetings, routine workshops, recruitment, personal stories, individual seizure/enforcement reports, preparation notices, previously covered 19–20 September material, proposals without a final action and weak items. No unauthorised images were used.",
     };
   }
   return null;
