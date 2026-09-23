@@ -1,0 +1,88 @@
+-- 23 September 2026 daily current-affairs desk: eight original, official-source-verified briefs.
+insert into public.current_affairs_briefs (slug, published_on, title, summary, why_it_matters, background, source_title, source_url, source_publisher, source_published_on, prelims_takeaways, quick_check, visual_data, status, reviewed_at) values
+(
+$$2026-09-23-trai-voice-sms-stv-amendment$$,$$2026-09-23$$,$$TRAI mandates more voice-and-SMS-only tariff voucher choices$$,
+$$TRAI notified the Telecom Consumer Protection (Thirteenth Amendment) Regulations, 2026. The amendment requires telecom service providers to offer voice-and-SMS-only Special Tariff Vouchers (STVs) with specified shorter and monthly renewal options.$$,
+$$This is a final consumer-protection regulation, not a consultation paper. It is useful for questions on TRAI, telecom regulation, tariff vouchers and the distinction between voice/SMS services and data-bundled plans.$$,
+$$TRAI said the earlier STV supply was concentrated in longer-validity options, limiting affordable choices for consumers who did not need data. The final amendment followed a consultation that received 1,132 stakeholder responses.$$,
+$$TRAI releases Telecom Consumer Protection (Thirteenth Amendment) Regulations, 2026$$,$$https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2313349&lang=1&reg=3$$,$$Telecom Regulatory Authority of India / Press Information Bureau$$,$$2026-09-22$$,
+$$["TRAI issued the Thirteenth Amendment to the Telecom Consumer Protection Regulations in 2026.","The rule concerns voice-and-SMS-only Special Tariff Vouchers (STVs).","It requires suitable options for validity periods of 30 days and less, alongside monthly-renewal and longer-validity options.","The regulation followed a public consultation; it is not merely the draft consultation paper."]$$::jsonb,
+$$[{"question":"Which regulator issued the 2026 amendment on voice-and-SMS STVs?","answer":"The Telecom Regulatory Authority of India (TRAI)."},{"question":"What does STV mean in this release?","answer":"Special Tariff Voucher."}]$$::jsonb,
+$${"title":"From consultation to consumer option","steps":["TRAI identifies a consumer-choice issue.","A draft is consulted upon.","TRAI finalises an amendment.","Providers must offer qualifying voice-and-SMS STVs."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-23-namaste-sanitation-worker-support$$,$$2026-09-23$$,$$NAMASTE reports worker validation, safety support and mechanisation progress$$,
+$$The Ministry of Social Justice and Empowerment reported that NAMASTE had validated 90,186 sewer and septic-tank workers across all 36 States and UTs, while profiling 251,756 waste pickers across 34 States and UTs.$$,
+$$NAMASTE links sanitation policy with occupational safety, social protection and mechanisation. Its reported reach is a programme-status update, not evidence that hazardous manual cleaning has been eliminated everywhere.$$,
+$$The National Action for Mechanized Sanitation Ecosystem supports safety equipment, insurance eKYC, training and access to capital subsidy through the Swachhta Udyami Yojana. The National Safai Karamcharis Finance and Development Corporation implements these interventions.$$,
+$$NAMASTE Strengthens Safety Dignity and Livelihood Support for Sanitation Workers$$,$$https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2313362&lang=1&reg=3$$,$$Ministry of Social Justice and Empowerment / Press Information Bureau$$,$$2026-09-22$$,
+$$["NAMASTE stands for National Action for Mechanized Sanitation Ecosystem.","The release reports 90,186 validated sewer and septic-tank workers across 36 States and UTs.","It reports 251,756 profiled waste pickers across 34 States and UTs.","Swachhta Udyami Yojana is the capital-subsidy route mentioned for mechanisation."]$$::jsonb,
+$$[{"question":"What is NAMASTE's central policy direction?","answer":"Safer, mechanised sanitation with livelihood and social-protection support."},{"question":"Which organisation is named as implementing NAMASTE interventions?","answer":"National Safai Karamcharis Finance and Development Corporation (NSKFDC)."}]$$::jsonb,
+$${"title":"Safer sanitation ecosystem","steps":["Workers are identified and profiled.","Safety gear, insurance and training are provided.","Mechanisation support reduces hazardous work.","Livelihood and social-security support are tracked."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-23-pmjay-eighth-year-status$$,$$2026-09-23$$,$$PM-JAY's eighth-year update sets out coverage and hospitalisation figures$$,
+$$A PIB health backgrounder marked eight years of Ayushman Bharat Pradhan Mantri-Jan Arogya Yojana (AB PM-JAY), reporting over 48.51 crore Ayushman-card holders, 13.25 crore hospital admissions and more than 38,000 empanelled public and private hospitals.$$,
+$$This refreshes the scheme's scale and its role in universal health coverage. It is important to keep PM-JAY's secondary and tertiary hospitalisation cover distinct from primary care, digital health and health-infrastructure components of Ayushman Bharat.$$,
+$$AB PM-JAY began on 23 September 2018 and provides cashless hospitalisation cover of up to Rs 5 lakh per eligible family per year. The backgrounder places it alongside Ayushman Arogya Mandirs, the Ayushman Bharat Digital Mission and PM-ABHIM.$$,
+$$Progressing Towards Universal Health Coverage: Ayushman Bharat – Pradhan Mantri Jan Arogya Yojana$$,$$https://www.pib.gov.in/PressNoteDetails.aspx?ModuleId=3&NoteId=160081&lang=1&reg=48$$,$$Press Information Bureau Research Unit$$,$$2026-09-22$$,
+$$["AB PM-JAY was launched on 23 September 2018.","It covers secondary and tertiary hospitalisation for eligible families.","The stated annual cashless cover is up to Rs 5 lakh per family.","The four components named in the backgrounder include PM-JAY, Ayushman Arogya Mandirs, ABDM and PM-ABHIM."]$$::jsonb,
+$$[{"question":"Which type of care is principally covered under AB PM-JAY?","answer":"Secondary and tertiary hospitalisation."},{"question":"What is the stated annual cover ceiling per eligible family?","answer":"Up to Rs 5 lakh."}]$$::jsonb,
+$${"title":"Ayushman Bharat and UHC","steps":["Primary care is strengthened through Ayushman Arogya Mandirs.","PM-JAY provides eligible hospitalisation cover.","ABDM supports digital health records and IDs.","PM-ABHIM builds public-health infrastructure."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-23-india-cine-hub-single-window$$,$$2026-09-23$$,$$India Cine Hub explains its single-window film-permission system$$,
+$$A PIB backgrounder set out the India Cine Hub as an NFDC-managed digital single-window platform for film-permit applications, film visas, co-production information and directories of locations and services.$$,
+$$The platform is a useful example of digital public facilitation in the creative economy and film tourism. It streamlines applications and coordination; it does not remove the need for every relevant authority to grant its own statutory clearance.$$,
+$$India Cine Hub can route applications involving States, UTs and nodal authorities, and its live-event function is being expanded through the Live Events Development Cell. NFDC was established in 1975 and works to promote Indian cinema.$$,
+$$India Cine Hub: Streamlining Film-Shooting Permit Applications$$,$$https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2313376&lang=1&reg=3$$,$$Press Information Bureau Research Unit / National Film Development Corporation$$,$$2026-09-22$$,
+$$["India Cine Hub is managed by the National Film Development Corporation of India (NFDC).","It is a digital single-window platform for film-permit applications.","It provides information on film visas and co-production applications.","NFDC was established in 1975."]$$::jsonb,
+$$[{"question":"Which organisation manages India Cine Hub?","answer":"The National Film Development Corporation of India (NFDC)."},{"question":"Does a single-window portal itself replace statutory approvals?","answer":"No. It streamlines applications and coordination with the relevant authorities."}]$$::jsonb,
+$${"title":"Film-permission facilitation","steps":["A creator submits a digital application.","The portal routes it to relevant authorities.","Authorities examine permit or clearance requirements.","The platform consolidates information and status for the applicant."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-23-opec-india-energy-dialogue$$,$$2026-09-23$$,$$India and OPEC hold the seventh high-level energy dialogue$$,
+$$India and OPEC held the seventh High-Level Meeting of their Energy Dialogue in New Delhi, reviewing oil-market stability, energy security, investment and the short-, medium- and long-term outlooks. The parties agreed to hold the eighth meeting in Vienna.$$,
+$$The dialogue is an institutional producer-consumer engagement, relevant to energy security and global oil markets. It is not an OPEC membership arrangement for India and the release does not announce a bilateral oil-supply contract.$$,
+$$The OPEC-India Energy Dialogue began in New Delhi in 2015. The September meeting was co-chaired by India's Minister of Petroleum and Natural Gas and OPEC's Secretary General.$$,
+$$7th High-Level Meeting of the OPEC-India Energy Dialogue$$,$$https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2313398&lang=1&reg=3$$,$$Ministry of Petroleum and Natural Gas / Press Information Bureau$$,$$2026-09-22$$,
+$$["The seventh OPEC-India Energy Dialogue was held in New Delhi on 22 September 2026.","The Dialogue began in New Delhi in 2015.","It addresses oil-market stability, energy security and investment.","The eighth high-level meeting is to be held in Vienna at a mutually convenient date."]$$::jsonb,
+$$[{"question":"Is India a member of OPEC because it holds an energy dialogue with OPEC?","answer":"No. The dialogue is a producer-consumer engagement, not membership."},{"question":"Where is the next high-level meeting expected to be held?","answer":"Vienna, Austria."}]$$::jsonb,
+$${"title":"Producer-consumer energy dialogue","steps":["Producers and consumers review market conditions.","They discuss stability, investment and energy security.","Technical cooperation continues between meetings.","The next high-level meeting carries the dialogue forward."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-23-nhai-ssnnl-gj-infrastructure-mou$$,$$2026-09-23$$,$$NHAI and SSNNL create a Gujarat crossing-approval framework$$,
+$$NHAI and Sardar Sarovar Narmada Nigam Limited signed an MoU for a simplified, time-bound framework to approve National Highway, canal and pipeline crossings in Gujarat.$$,
+$$The MoU is a concrete inter-agency coordination measure for integrated infrastructure. It does not itself sanction every highway or irrigation project; individual projects still need to be identified, designed and implemented.$$,
+$$The arrangement provides for early exchange of project information, standard engineering practices and defined construction-and-maintenance responsibilities. It also provides for mutual waiver of listed fees and charges for covered crossings.$$,
+$$NHAI Signs MoU with SSNNL to Simplify Approval Framework for National Highway and Irrigation Infrastructure Projects in Gujarat$$,$$https://www.pib.gov.in/PressReleasePage.aspx?PRID=2313520&lang=1&reg=3$$,$$National Highways Authority of India / Press Information Bureau$$,$$2026-09-22$$,
+$$["The MoU is between NHAI and Sardar Sarovar Narmada Nigam Limited (SSNNL).","It covers National Highway, canal and pipeline crossings in Gujarat.","It creates a simplified and time-bound approval framework.","It sets out information sharing, standard practices and maintenance responsibilities."]$$::jsonb,
+$$[{"question":"Which state is covered by the NHAI-SSNNL crossing MoU?","answer":"Gujarat."},{"question":"What does the MoU streamline?","answer":"Approvals for National Highway, canal and pipeline crossings."}]$$::jsonb,
+$${"title":"Integrated crossing approval","steps":["An infrastructure crossing is identified.","NHAI and SSNNL share project information early.","The framework standardises approvals and responsibilities.","Construction and maintenance proceed under coordinated arrangements."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-23-udan-challenge-mode-aerodromes$$,$$2026-09-23$$,$$Modified UDAN opens a Challenge Mode for aerodrome development$$,
+$$The Ministry of Civil Aviation launched the Challenge Mode Portal for Aerodrome Development under the next phase of UDAN, allowing States and UTs to nominate airstrips and helipads for development. It also signed 21 MoUs with States and UTs and released the route-bidding scheme document.$$,
+$$This moves the next UDAN phase from consultation toward implementation through a Centre-State-AAI framework. Nomination through the portal is not the same as automatic commissioning of an airport or award of an airline route.$$,
+$$UDAN is the Ude Desh ka Aam Nagrik regional-connectivity scheme. The official release identifies Modified UDAN's four pillars as affordability, operational sustainability, a transparent Challenge Mode framework and indigenous manufacturing.$$,
+$$Civil Aviation Minister Ram Mohan Naidu launches Challenge Mode for Aerodrome Development$$,$$https://www.pib.gov.in/PressReleasePage.aspx?PRID=2313612&lang=1&reg=3$$,$$Ministry of Civil Aviation / Press Information Bureau$$,$$2026-09-22$$,
+$$["UDAN stands for Ude Desh ka Aam Nagrik.","The Challenge Mode Portal lets States and UTs nominate airstrips and helipads for development.","Twenty-one MoUs were signed with participating States and UTs for the next phase.","AAI is identified as the implementing agency under UDAN in the release."]$$::jsonb,
+$$[{"question":"What can States and UTs nominate through UDAN's Challenge Mode Portal?","answer":"Airstrips and helipads for development."},{"question":"Which agency is identified as UDAN's implementing agency?","answer":"Airports Authority of India (AAI)."}]$$::jsonb,
+$${"title":"UDAN Challenge Mode","steps":["A State or UT identifies a potential aviation asset.","It nominates the asset through the portal.","Centre, State or UT and AAI coordinate development.","Route bidding can connect qualifying unserved or underserved locations."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-23-antf-narcotics-control-vision$$,$$2026-09-23$$,$$National ANTF conference takes up the 2026–29 narcotics-control vision$$,
+$$The Narcotics Control Bureau's third national conference of State and UT Anti-Narcotics Task Force heads convened around implementation of the Vision Document on Narcotics Control, 2026–29. The conference agenda covered enforcement, synthetic drugs, demand reduction and capacity building.$$,
+$$The development is relevant to internal security and the NDPS framework because it connects the central NCB with State and UT coordination structures. A conference and its agenda are not, by themselves, a new criminal statute or proof of a particular enforcement outcome.$$,
+$$The Vision Document identifies four strategic pillars: enforcement, intelligence and operations; precursors and synthetic-drugs control; demand and harm reduction; and capacity building and coordination. The conference was organised by the NCB with ANTF heads from all 36 States and UTs.$$,
+$$Union Home Minister and Minister of Cooperation inaugurates 3rd National Conference of Anti-Narcotics Task Force Heads of States and UTs$$,$$https://www.pib.gov.in/PressReleasePage.aspx?PRID=2313570&lang=1&reg=3$$,$$Ministry of Home Affairs / Narcotics Control Bureau$$,$$2026-09-22$$,
+$$["The conference is organised by the Narcotics Control Bureau (NCB).","It concerns the Vision Document on Narcotics Control, 2026–29.","The document's four pillars include enforcement and intelligence; precursor and synthetic-drug control; demand and harm reduction; and capacity building and coordination.","State and UT ANTFs are coordination structures in the narcotics-control framework."]$$::jsonb,
+$$[{"question":"Which central agency organised the ANTF heads conference?","answer":"The Narcotics Control Bureau (NCB)."},{"question":"Name one pillar of the 2026–29 Narcotics Control Vision Document.","answer":"For example, demand and harm reduction, or precursors and synthetic-drugs control."}]$$::jsonb,
+$${"title":"Narcotics-control coordination","steps":["The Vision Document sets strategic priorities.","NCB coordinates national-level action.","State and UT ANTFs track local implementation.","Enforcement, prevention and capacity-building measures are reviewed together."]}$$::jsonb,$$published$$,now()
+)
+on conflict (slug) do update set title=excluded.title,summary=excluded.summary,why_it_matters=excluded.why_it_matters,background=excluded.background,source_title=excluded.source_title,source_url=excluded.source_url,source_publisher=excluded.source_publisher,source_published_on=excluded.source_published_on,prelims_takeaways=excluded.prelims_takeaways,quick_check=excluded.quick_check,visual_data=excluded.visual_data,status=excluded.status,reviewed_at=excluded.reviewed_at,updated_at=now();
+
+insert into public.current_affairs_exam_tags (brief_id,exam_id)
+select briefs.id,exams.id from public.current_affairs_briefs briefs cross join public.exams exams
+where briefs.slug in ($$2026-09-23-trai-voice-sms-stv-amendment$$,$$2026-09-23-namaste-sanitation-worker-support$$,$$2026-09-23-pmjay-eighth-year-status$$,$$2026-09-23-india-cine-hub-single-window$$,$$2026-09-23-opec-india-energy-dialogue$$,$$2026-09-23-nhai-ssnnl-gj-infrastructure-mou$$,$$2026-09-23-udan-challenge-mode-aerodromes$$,$$2026-09-23-antf-narcotics-control-vision$$)
+and exams.slug in ($$cuet$$,$$ssc-cgl$$,$$uppsc-ro-aro$$,$$up-secretariat-ro-aro$$) on conflict do nothing;
