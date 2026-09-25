@@ -1,13 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { generateWithRetry } from "@/lib/anthropic-resilient";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { FREE_LIMITS } from "@/lib/freemium";
-import { isLiveExamSlug } from "@/lib/exam-catalog";
+import { isLiveExamSlug, type LiveExamSlug } from "@/lib/exam-catalog";
+import {
+  generateTopicQuizWithRecovery,
+  type GeneratedTopicQuestion,
+} from "@/lib/topic-quiz-recovery";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Topic quizzes use the same resilient generation contract as full mocks.
+// A provider retry or backup-model pass must have enough time to finish
+// rather than being cut short into a generic student-facing server error.
+export const maxDuration = 300;
 
 type StartBody = {
   topicId: string;
@@ -23,15 +30,84 @@ type StartBody = {
   };
 };
 
-type GeneratedQuestion = {
-  question: string;
-  options: { A: string; B: string; C: string; D: string };
-  correct: "A" | "B" | "C" | "D";
-  explanation?: string;
-};
-
 const MIN_Q = 5;
 const MAX_Q = 25;
+const DATABASE_RETRY_DELAYS = [0, 500, 1_500];
+
+const pause = (milliseconds: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+
+async function createQuizWithRetry(
+  admin: ReturnType<typeof createAdminSupabase>,
+  input: {
+    userId: string;
+    subject: string;
+    topic: string;
+    subtopic: string;
+    chapterId: string;
+    topicId: string;
+  }
+) {
+  const quizId = crypto.randomUUID();
+  let lastError: unknown;
+
+  for (const delay of DATABASE_RETRY_DELAYS) {
+    if (delay) await pause(delay);
+    const { data, error } = await admin
+      .from("quizzes")
+      .insert({ id: quizId, user_id: input.userId, subject: input.subject, topic: input.topic, subtopic: input.subtopic, chapter_id: input.chapterId, topic_id: input.topicId })
+      .select("id")
+      .maybeSingle();
+    if (!error && data?.id) return data.id as string;
+
+    if (error?.code === "23505") {
+      const { data: existing } = await admin
+        .from("quizzes")
+        .select("id")
+        .eq("id", quizId)
+        .maybeSingle();
+      if (existing?.id) return existing.id as string;
+    }
+    lastError = error;
+  }
+
+  throw lastError ?? new Error("Unable to create quiz.");
+}
+
+async function saveQuizQuestionsWithRetry(
+  admin: ReturnType<typeof createAdminSupabase>,
+  input: { quizId: string; questions: GeneratedTopicQuestion[] }
+) {
+  const rows = input.questions.map((question) => ({
+    quiz_id: input.quizId,
+    question_text: question.question,
+    option_a: question.options.A,
+    option_b: question.options.B,
+    option_c: question.options.C,
+    option_d: question.options.D,
+    correct_answer: question.correct,
+    explanation: typeof question.explanation === "string" ? question.explanation : null,
+  }));
+  let lastError: unknown;
+
+  for (const delay of DATABASE_RETRY_DELAYS) {
+    if (delay) await pause(delay);
+    const { error } = await admin.from("questions").insert(rows);
+    if (!error) return;
+
+    if (error.code === "23505") {
+      const { count, error: countError } = await admin
+        .from("questions")
+        .select("id", { count: "exact", head: true })
+        .eq("quiz_id", input.quizId);
+      if (!countError && count === rows.length) return;
+    }
+    lastError = error;
+  }
+
+  throw lastError ?? new Error("Unable to save quiz questions.");
+}
+
 export async function POST(req: NextRequest) {
   // ---- 1. Auth ----
   const supabase = createServerSupabase();
@@ -138,7 +214,10 @@ export async function POST(req: NextRequest) {
   if (slotError || !slot) {
     console.error("[quiz/start] entitlement check failed", slotError);
     return NextResponse.json(
-      { error: "Couldn't verify your plan. Please try again in a moment." },
+      {
+        error: "We are checking your access and will retry automatically.",
+        retryable: true,
+      },
       { status: 503 },
     );
   }
@@ -160,9 +239,14 @@ export async function POST(req: NextRequest) {
 
   // ---- 4. Generate questions with Claude ----
   if (!process.env.ANTHROPIC_API_KEY) {
+    console.error("[quiz/start] ANTHROPIC_API_KEY is not configured");
     return NextResponse.json(
-      { error: "Server missing ANTHROPIC_API_KEY." },
-      { status: 500 }
+      {
+        error:
+          "We are restoring question generation and will retry automatically. Keep this page open for a moment.",
+        retryable: true,
+      },
+      { status: 503 }
     );
   }
 
@@ -178,14 +262,18 @@ export async function POST(req: NextRequest) {
   // (c) any source-material constraints (NCERT, official syllabus, etc.).
   // Keep these tight — the LLM is good at calibrating difficulty when it
   // knows the exam, but only if we name the exam explicitly.
-  const examFraming: Record<string, string> = {
+  // `satisfies` makes it impossible to mark a new catalog exam as live
+  // without giving it an explicit question-generation brief. That is a
+  // compile-time release blocker, not a convention someone can forget.
+  const examFraming = {
     cuet: `Generate ${questionCount} CUET-style multiple-choice questions for an Indian undergraduate aspirant (class 12 pass / first-year college). Use NCERT Class 11–12 conventions. Stick to the NTA CUET UG difficulty band — slightly above board level, with one-step application as the modal difficulty.`,
     "ssc-cgl": `Generate ${questionCount} SSC CGL Tier-1/Tier-2 style multiple-choice questions for an Indian graduate aspirant preparing for central-government clerical/officer posts (CGL, CHSL, MTS). Match the SSC question style: numeric, time-bound, no fluff. For Quant target ~SSC CGL Tier-1 difficulty (≈ board-level arithmetic with one twist). For Reasoning use canonical SSC patterns. For English use 1980s–2010s SSC vocab register. For GA prefer static facts and high-yield current affairs.`,
     "neet-ug": `Generate ${questionCount} NEET UG style multiple-choice questions for an Indian medical undergraduate aspirant (class 12 / dropper). Source material is strictly NCERT Class ${ncertClass ?? "11–12"}. Match NTA NEET difficulty — concept-heavy, single-correct, plausible distractors drawn from sibling concepts. Use scientific notation and SI units. Biology questions should reflect NCERT line-by-line phrasing where possible. Physics and Chemistry should be application-level, not derivation-heavy.`,
     "delhi-police-constable": `Generate ${questionCount} original Delhi Police Constable objective-practice questions for an Indian aspirant. Match the supplied subject, chapter and topic exactly. Keep stems direct, short and accessible; use standard police-recruitment reasoning patterns, practical numerical ability, basic computer awareness, or carefully verified static General Knowledge as the topic requires. Do not invent a notification-specific marks split, cutoff, eligibility rule, or current-affairs fact.`,
     "uppsc-ro-aro": `Generate ${questionCount} original UPPSC RO/ARO foundation-practice questions for an Indian aspirant. Match the supplied subject, chapter and topic exactly. Use Hindi where the topic requires it; make General Studies UP-aware when relevant; and keep computer, office-skills and reasoning questions practical and objective. Do not invent notification-specific post eligibility, typing requirements, marks splits, cutoffs, or current-affairs claims.`,
     "up-secretariat-ro-aro": `Generate ${questionCount} original UP Secretariat RO/ARO foundation-practice questions for an Indian aspirant. Match the supplied subject, chapter and topic exactly. Use Hindi where the topic requires it; make General Studies UP-aware when relevant; and keep computer, office-skills and reasoning questions practical and objective. Do not invent notification-specific post eligibility, skill-test requirements, marks splits, cutoffs, or current-affairs claims.`,
-  };
+    "uiic-ao": `Generate ${questionCount} original UIIC Administrative Officer (Generalist) Tier I practice questions for an Indian insurance-sector aspirant. Match the supplied subject, chapter and topic exactly. Use the objective style expected in English Language, Reasoning, Quantitative Aptitude, General Awareness or Computer Knowledge. Keep insurance and current-affairs questions factual and durable; never invent UIIC notification-specific vacancies, dates, eligibility rules, marks splits or cutoffs.`,
+  } satisfies Record<LiveExamSlug, string>;
 
   // A live exam must never silently inherit CUET's question style. Failing
   // closed protects students from receiving plausibly-worded but irrelevant
@@ -231,104 +319,71 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
   }
 ]`;
 
-  // Resilient generation: 3 attempts with backoff, friendly per-kind
-  // error messages, and an alert fired to ALERT_WEBHOOK_URL if our
-  // Anthropic balance hits zero.
-  const result = await generateWithRetry(anthropic, {
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 4000,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  if (!result.ok) {
+  // The shared wrapper retries transient Anthropic/network failures. This
+  // helper then switches models, retries a malformed batch, and refuses to
+  // save a short quiz, so students receive a complete question set or an
+  // automatic retry — never a raw infrastructure dead end.
+  const generated = await generateTopicQuizWithRecovery(
+    anthropic,
+    prompt,
+    questionCount
+  );
+  if (!generated.ok) {
+    console.error("[quiz/start] complete topic-quiz generation failed", {
+      examSlug,
+      topicId,
+      error: generated.error,
+    });
     return NextResponse.json(
-      { error: result.userMessage, kind: result.kind },
-      { status: result.httpStatus }
-    );
-  }
-
-  let generated: GeneratedQuestion[];
-  try {
-    // Strip optional markdown fences just in case.
-    const cleaned = result.text
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```\s*$/i, "")
-      .trim();
-
-    generated = JSON.parse(cleaned) as GeneratedQuestion[];
-    if (!Array.isArray(generated) || generated.length === 0) {
-      throw new Error("Claude returned no questions.");
-    }
-  } catch (e) {
-    console.error("[quiz/start] parse failed:", e);
-    return NextResponse.json(
-      { error: "Couldn't generate questions. Please try again." },
-      { status: 502 }
-    );
-  }
-
-  // Trim to requested count if Claude over/under-shot, validate shape.
-  const valid = generated
-    .slice(0, questionCount)
-    .filter(
-      (q): q is GeneratedQuestion =>
-        !!q &&
-        typeof q.question === "string" &&
-        !!q.options &&
-        ["A", "B", "C", "D"].every(
-          (k) => typeof q.options?.[k as "A"] === "string"
-        ) &&
-        ["A", "B", "C", "D"].includes(q.correct)
-    );
-
-  if (valid.length === 0) {
-    return NextResponse.json(
-      { error: "Generated questions failed validation. Please try again." },
-      { status: 502 }
+      {
+        error:
+          "We are still preparing a complete fresh quiz and will retry automatically. Keep this page open for a moment.",
+        retryable: true,
+      },
+      { status: 503 }
     );
   }
 
   // ---- 5. Insert quiz + question rows ----
-  const { data: quizRow, error: quizErr } = await supabase
-    .from("quizzes")
-    .insert({
-      user_id: user.id,
+  let quizId: string;
+  try {
+    quizId = await createQuizWithRetry(admin, {
+      userId: user.id,
       subject: subjectName,
       topic: chapterName,
       subtopic: topicName,
-      chapter_id: topic.chapter.id,
-      topic_id: topic.id,
-    })
-    .select("id")
-    .single();
-
-  if (quizErr || !quizRow) {
-    console.error("[quiz/start] quiz insert failed:", quizErr);
+      chapterId: topic.chapter.id,
+      topicId: topic.id,
+    });
+  } catch (quizError) {
+    console.error("[quiz/start] quiz insert failed:", quizError);
     return NextResponse.json(
-      { error: "Couldn't save the quiz. Please try again." },
-      { status: 500 }
+      {
+        error:
+          "We are saving your complete quiz and will retry automatically. Keep this page open for a moment.",
+        retryable: true,
+      },
+      { status: 503 }
     );
   }
 
-  const questionRows = valid.map((q) => ({
-    quiz_id: quizRow.id,
-    question_text: q.question,
-    option_a: q.options.A,
-    option_b: q.options.B,
-    option_c: q.options.C,
-    option_d: q.options.D,
-    correct_answer: q.correct,
-    explanation: typeof q.explanation === "string" ? q.explanation : null,
-  }));
-
-  const { error: qErr } = await supabase.from("questions").insert(questionRows);
-  if (qErr) {
-    console.error("[quiz/start] questions insert failed:", qErr);
-    // Best-effort cleanup of the quiz row to avoid orphans
-    await supabase.from("quizzes").delete().eq("id", quizRow.id);
+  try {
+    await saveQuizQuestionsWithRetry(admin, {
+      quizId,
+      questions: generated.questions,
+    });
+  } catch (questionError) {
+    console.error("[quiz/start] questions insert failed:", questionError);
+    // Best-effort cleanup prevents a later request from ever opening an
+    // empty quiz shell after a persistence interruption.
+    await admin.from("quizzes").delete().eq("id", quizId);
     return NextResponse.json(
-      { error: "Couldn't save questions. Please try again." },
-      { status: 500 }
+      {
+        error:
+          "We are saving your complete quiz and will retry automatically. Keep this page open for a moment.",
+        retryable: true,
+      },
+      { status: 503 }
     );
   }
 
@@ -336,7 +391,7 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
     const { error: repairError } = await admin.from("repair_cycles").insert({
       user_id: user.id,
       source_quiz_id: repair.sourceQuizId,
-      repair_quiz_id: quizRow.id,
+      repair_quiz_id: quizId,
       concept: repair.concept.trim(),
       evidence: repair.evidence.trim(),
       severity: repair.severity,
@@ -348,5 +403,5 @@ Return ONLY a valid JSON array with this exact shape — no prose, no markdown f
     }
   }
 
-  return NextResponse.json({ quizId: quizRow.id });
+  return NextResponse.json({ quizId });
 }

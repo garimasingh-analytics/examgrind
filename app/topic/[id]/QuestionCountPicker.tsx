@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Chick from "@/components/Chick";
 import UpgradeModal, { type PaywallReason } from "@/components/UpgradeModal";
@@ -28,6 +28,15 @@ const LOADING_MESSAGES = [
   "Setting up the quiz…",
 ];
 
+// The server already performs its own provider/database recovery. These
+// attempts cover a dropped browser connection or an interrupted response so a
+// student never has to decode a raw 5xx and manually recreate the quiz.
+const AUTO_RECOVERY_DELAYS = [0, 1_500, 4_000];
+const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+
+const pause = (milliseconds: number) =>
+  new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
+
 export default function QuestionCountPicker({
   topicId,
   freeQuizzesLeft,
@@ -35,9 +44,10 @@ export default function QuestionCountPicker({
   conceptFocus,
 }: Props) {
   const [count, setCount] = useState(DEFAULT);
-  const [pending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [messageIdx, setMessageIdx] = useState(0);
+  const [recoveryAttempt, setRecoveryAttempt] = useState(0);
   const [paywall, setPaywall] = useState<{
     reason: PaywallReason;
     used?: number;
@@ -50,7 +60,7 @@ export default function QuestionCountPicker({
 
   // Cycle through loading messages while the API is generating questions.
   useEffect(() => {
-    if (!pending) {
+    if (!loading) {
       setMessageIdx(0);
       return;
     }
@@ -58,9 +68,10 @@ export default function QuestionCountPicker({
       setMessageIdx((i) => (i + 1) % LOADING_MESSAGES.length);
     }, 1800);
     return () => clearInterval(t);
-  }, [pending]);
+  }, [loading]);
 
   const start = () => {
+    if (loading) return;
     // Defensive: if the gate is hit, open the modal directly instead of
     // bouncing off the API.
     if (isBlocked) {
@@ -68,60 +79,74 @@ export default function QuestionCountPicker({
       return;
     }
     setError(null);
-    startTransition(async () => {
-      try {
-        const res = await fetch("/api/quiz/start", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topicId, questionCount: count, conceptFocus }),
-        });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          // Paywall (402)
-          if (res.status === 402 && body?.paywall) {
+    setRecoveryAttempt(0);
+    setLoading(true);
+    void (async () => {
+      for (let attempt = 0; attempt < AUTO_RECOVERY_DELAYS.length; attempt += 1) {
+        if (attempt > 0) {
+          setRecoveryAttempt(attempt);
+          await pause(AUTO_RECOVERY_DELAYS[attempt]);
+        }
+
+        try {
+          const res = await fetch("/api/quiz/start", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topicId, questionCount: count, conceptFocus }),
+          });
+          const body = (await res.json().catch(() => ({}))) as {
+            quizId?: string;
+            error?: string;
+            retryable?: boolean;
+            paywall?: {
+              reason?: PaywallReason;
+              used?: number;
+              limit?: number;
+            };
+          };
+
+          if (res.status === 402 && body.paywall) {
             setPaywall({
-              reason: (body.paywall.reason as PaywallReason) ?? "quiz-limit",
+              reason: body.paywall.reason ?? "quiz-limit",
               used: body.paywall.used,
               limit: body.paywall.limit,
             });
+            setLoading(false);
             return;
           }
-          // Friendly translations for known status codes
-          if (res.status === 401) {
-            throw new Error("Your session expired. Refresh the page and sign in again.");
+          if (res.ok && body.quizId) {
+            router.push(`/quiz/${body.quizId}`);
+            return;
           }
-          if (res.status === 502) {
-            throw new Error(
-              "The question generator hiccupped. This usually clears up in a few seconds — try again."
+
+          const retryable = body.retryable === true || RETRYABLE_STATUSES.has(res.status);
+          if (!retryable) {
+            setError(
+              res.status === 401
+                ? "Your session expired. Refresh the page and sign in again."
+                : body.error ?? "We couldn’t prepare this quiz. Please try again."
             );
+            setLoading(false);
+            return;
           }
-          if (res.status >= 500) {
-            throw new Error("Our server tripped over its feet. Try again in a moment.");
-          }
-          throw new Error(body.error ?? `Failed (${res.status})`);
+        } catch {
+          // fetch() rejection is a normal temporary offline/connection case.
+          // Stay in the current flow and let the automatic recovery continue.
         }
-        const { quizId } = (await res.json()) as { quizId: string };
-        router.push(`/quiz/${quizId}`);
-      } catch (e: unknown) {
-        let message: string;
-        if (e instanceof TypeError) {
-          // fetch() throws TypeError on network failure / offline
-          message = "Couldn't reach the server. Check your internet and try again.";
-        } else if (e instanceof Error) {
-          message = e.message;
-        } else {
-          message = "Couldn't start the quiz.";
-        }
-        setError(message);
       }
-    });
+
+      setError(
+        "Your complete quiz is taking longer than usual. Nothing has been started halfway — tap Continue and we’ll keep preparing it."
+      );
+      setLoading(false);
+    })();
   };
 
   const maxXp = count * XP_PER_CORRECT;
 
   return (
     <>
-      {pending && (
+      {loading && (
         <div
           role="status"
           aria-live="polite"
@@ -130,10 +155,12 @@ export default function QuestionCountPicker({
           <Chick state="idle" size={200} />
           <div className="flex flex-col items-center gap-2 px-6 text-center">
             <h2 className="font-serif text-3xl font-semibold text-cocoa-900 sm:text-4xl">
-              Crafting your quiz…
+              {recoveryAttempt ? "Still preparing your quiz…" : "Crafting your quiz…"}
             </h2>
             <p className="text-base text-cocoa-700 transition-opacity duration-300">
-              {LOADING_MESSAGES[messageIdx]}
+              {recoveryAttempt
+                ? "A brief connection bump is being retried automatically. Your questions will remain complete."
+                : LOADING_MESSAGES[messageIdx]}
             </p>
           </div>
           {/* Indeterminate sliding bar */}
@@ -152,7 +179,7 @@ export default function QuestionCountPicker({
       <div className="quiz-builder-counter mt-5 flex items-center justify-center gap-4">
         <button
           onClick={() => setCount(Math.max(MIN, count - 1))}
-          disabled={count <= MIN || pending}
+          disabled={count <= MIN || loading}
           className="flex size-12 items-center justify-center rounded-2xl border border-cocoa-900/[0.08] bg-white text-2xl font-bold text-cocoa-900 transition hover:border-cocoa-900/[0.2] hover:bg-cream-100 disabled:opacity-40"
           aria-label="Fewer questions"
         >
@@ -168,7 +195,7 @@ export default function QuestionCountPicker({
         </div>
         <button
           onClick={() => setCount(Math.min(MAX, count + 1))}
-          disabled={count >= MAX || pending}
+          disabled={count >= MAX || loading}
           className="flex size-12 items-center justify-center rounded-2xl border border-cocoa-900/[0.08] bg-white text-2xl font-bold text-cocoa-900 transition hover:border-cocoa-900/[0.2] hover:bg-cream-100 disabled:opacity-40"
           aria-label="More questions"
         >
@@ -184,7 +211,7 @@ export default function QuestionCountPicker({
         step={1}
         value={count}
         onChange={(e) => setCount(parseInt(e.target.value, 10))}
-        disabled={pending}
+        disabled={loading}
         className="mt-6 w-full appearance-none rounded-full bg-cream-200 accent-ember-600
                    [&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:appearance-none
                    [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-ember-600
@@ -237,31 +264,31 @@ export default function QuestionCountPicker({
       ) : (
         <button
           onClick={start}
-          disabled={pending}
+          disabled={loading}
           className="quiz-builder-cta quiz-builder-start mt-3 flex w-full items-center justify-center rounded-2xl px-6 py-4 text-base font-bold text-cream-50 shadow-warm-lg transition active:scale-[0.99] disabled:opacity-60"
         >
-          {pending ? "Preparing your quiz…" : "Start quiz"}
+          {loading ? "Preparing your quiz…" : "Start quiz"}
         </button>
       )}
 
       {error && (
         <div
-          role="alert"
-          className="mt-5 rounded-2xl border border-coral-500/30 bg-coral-500/5 p-5"
+          role="status"
+          className="mt-5 rounded-2xl border border-cocoa-900/[0.10] bg-cream-50 p-5"
         >
           <div className="flex items-start gap-3">
-            <Chick state="frustrated" size={56} />
+            <Chick state="idle" size={56} />
             <div className="flex-1">
               <p className="font-serif text-base font-bold text-cocoa-900">
-                Quiz didn&apos;t start
+                We&apos;re still preparing your quiz
               </p>
               <p className="mt-1 text-sm text-cocoa-700">{error}</p>
               <button
                 onClick={start}
-                disabled={pending}
-                className="mt-3 inline-flex items-center justify-center rounded-2xl bg-ember-600 px-4 py-2 text-xs font-bold text-cream-50 shadow-warm transition hover:bg-ember-700 disabled:opacity-60"
+                disabled={loading}
+                className="mt-3 inline-flex items-center justify-center rounded-2xl bg-cocoa-900 px-4 py-2 text-xs font-bold text-cream-50 shadow-warm transition hover:bg-cocoa-800 disabled:opacity-60"
               >
-                {pending ? "Retrying…" : "Try again"}
+                {loading ? "Preparing…" : "Continue preparing"}
               </button>
             </div>
           </div>

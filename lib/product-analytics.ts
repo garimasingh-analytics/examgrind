@@ -103,7 +103,10 @@ export const trackQuizCompleted = (params: {
   duration_seconds: number;
 }) =>
   track(ANALYTICS_EVENTS.QUIZ_COMPLETED, params);
-export const trackMockStarted = (params: { mock_test_id: string }) =>
+export const trackMockStarted = (params: {
+  mock_test_id: string;
+  difficulty: "easy" | "medium" | "hard";
+}) =>
   track(ANALYTICS_EVENTS.MOCK_STARTED, params);
 export const trackMockCompleted = (params: {
   correct_count: number;

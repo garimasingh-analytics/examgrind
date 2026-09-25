@@ -66,6 +66,15 @@ export const EXAM_CATALOG = [
 
 export type ExamSlug = (typeof EXAM_CATALOG)[number]["slug"];
 export type ExamCatalogItem = (typeof EXAM_CATALOG)[number];
+/**
+ * Keep this derived from the catalog rather than maintaining a second manual
+ * list. Features that are required for every live exam can use this type to
+ * make an incomplete launch a TypeScript build failure.
+ */
+export type LiveExamSlug = Extract<
+  ExamCatalogItem,
+  { status: "live" }
+>["slug"];
 
 export function getExamBySlug(slug: string): ExamCatalogItem | undefined {
   return EXAM_CATALOG.find((exam) => exam.slug === slug);
@@ -83,6 +92,6 @@ export const LIVE_EXAMS = EXAM_CATALOG.filter(
   (exam) => exam.status === "live"
 );
 
-export function isLiveExamSlug(slug: string): slug is ExamSlug {
+export function isLiveExamSlug(slug: string): slug is LiveExamSlug {
   return getExamBySlug(slug)?.status === "live";
 }

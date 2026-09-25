@@ -64,6 +64,88 @@ const INVARIANTS = [
       "not an unbounded prompt plus an impossible per-question generated response.",
   },
   {
+    id: "mock-start-history-gate",
+    file: "app/api/mock/start/route.ts",
+    pattern: /loadSeenMockQuestionStems\(admin/,
+    rationale:
+      "A paid student reported repeated full-mock questions. Every mock start must load " +
+      "the student's earlier stems before generation; removing this guard would silently " +
+      "reintroduce the credibility-breaking repeat problem.",
+  },
+  {
+    id: "mock-start-maxDuration",
+    file: "app/api/mock/start/route.ts",
+    pattern: /export\s+const\s+maxDuration\s*=\s*(?:[3-9]\d{2,}|\d{4,})\s*;/,
+    rationale:
+      "Full mock generation may use controlled batch concurrency, provider retries, a backup model " +
+      "and a whole-run recovery pass. A low function ceiling would convert a healthy recovery into " +
+      "a student-facing 5xx before the question set is complete.",
+  },
+  {
+    id: "mock-generator-model-fallback",
+    file: "lib/anthropic-mock.ts",
+    pattern: /BACKUP_MODEL\s*=\s*["']claude-sonnet-/,
+    rationale:
+      "A transient Haiku outage must not make full mocks unavailable. The generator needs a separately " +
+      "tested backup model after primary retries are exhausted.",
+  },
+  {
+    id: "mock-generator-bounded-concurrency",
+    file: "lib/anthropic-mock.ts",
+    pattern: /MAX_CONCURRENT_BATCHES\s*=\s*[1-9]\d*;/,
+    rationale:
+      "Launching every large mock batch simultaneously caused burst rate-limit failures. Bounded " +
+      "concurrency is a production reliability requirement, not a performance preference.",
+  },
+  {
+    id: "topic-quiz-start-maxDuration",
+    file: "app/api/quiz/start/route.ts",
+    pattern: /export\s+const\s+maxDuration\s*=\s*(?:[3-9]\d{2,}|\d{4,})\s*;/,
+    rationale:
+      "The paid student's topic-quiz flow must have time for transport retries, a backup model and " +
+      "a safe full-batch retry. A short route limit would recreate the generic failed-start screen.",
+  },
+  {
+    id: "topic-quiz-generator-fallback",
+    file: "lib/topic-quiz-recovery.ts",
+    pattern: /generateTopicQuizWithRecovery\(/,
+    rationale:
+      "The topic quiz shown in the customer screenshot must use its complete-batch, backup-model recovery " +
+      "helper instead of making one fragile provider call.",
+  },
+  {
+    id: "topic-quiz-no-generic-server-toast",
+    file: "app/topic/[id]/QuestionCountPicker.tsx",
+    forbiddenPattern: /server tripped over its feet|Quiz didn.{0,2}t start/i,
+    rationale:
+      "A paid student received this exact dead-end copy. The topic-quiz screen must retain its " +
+      "automatic recovery state rather than restoring a generic error card after a future refactor.",
+  },
+  {
+    id: "mock-start-no-generic-server-toast",
+    file: "app/mock/start/[mockTestId]/StartMockButton.tsx",
+    forbiddenPattern: /server tripped over its feet|Quiz didn.{0,2}t start/i,
+    rationale:
+      "Mock starts must retry provider and transport interruptions in place. A generic raw-error card " +
+      "would undo the production reliability contract for paid students.",
+  },
+  {
+    id: "mock-generator-local-freshness-gate",
+    file: "lib/anthropic-mock.ts",
+    pattern: /createMockQuestionFreshnessGuard\(opts\.previousQuestionStems\)/,
+    rationale:
+      "Prompt wording alone cannot guarantee freshness. The generator must locally reject " +
+      "historic and same-attempt duplicates before any attempt is saved.",
+  },
+  {
+    id: "mock-difficulty-selector",
+    file: "app/mock/start/[mockTestId]/StartMockButton.tsx",
+    pattern: /Choose your difficulty/,
+    rationale:
+      "Easy, Medium, and Difficult are a committed student-facing mock control and must not " +
+      "disappear in a later UI refactor.",
+  },
+  {
     id: "quiz-deep-dive-fair-use-guard",
     file: "app/api/quiz/analyze/route.ts",
     pattern: /consumeDeepDiveSlot\(supabase, user\.id\)/,
@@ -92,11 +174,11 @@ const INVARIANTS = [
   {
     id: "topic-quiz-framing-for-every-live-exam",
     file: "app/api/quiz/start/route.ts",
-    pattern: /"cuet"[\s\S]*"ssc-cgl"[\s\S]*"neet-ug"[\s\S]*"delhi-police-constable"[\s\S]*"uppsc-ro-aro"[\s\S]*"up-secretariat-ro-aro"[\s\S]*missing exam-specific question framing/,
+    pattern: /satisfies\s+Record<LiveExamSlug,\s*string>/,
     rationale:
-      "Every live exam needs its own question-generation framing. Falling back " +
-      "to CUET produces superficially valid but wrong exam practice, which is " +
-      "worse than temporarily declining to generate a quiz.",
+      "Every live exam needs its own question-generation framing. The framing " +
+      "object must be exhaustively type-checked against the catalog's live exams, " +
+      "so promoting an exam without quiz support cannot compile or deploy.",
   },
 ];
 
@@ -117,10 +199,18 @@ for (const inv of INVARIANTS) {
     failed++;
     continue;
   }
-  if (!inv.pattern.test(contents)) {
+  if (inv.pattern && !inv.pattern.test(contents)) {
     failures.push({
       id: inv.id,
       msg: `Pattern not found in ${inv.file}: ${inv.pattern}`,
+      rationale: inv.rationale,
+    });
+    failed++;
+  }
+  if (inv.forbiddenPattern && inv.forbiddenPattern.test(contents)) {
+    failures.push({
+      id: inv.id,
+      msg: `Forbidden pattern found in ${inv.file}: ${inv.forbiddenPattern}`,
       rationale: inv.rationale,
     });
     failed++;

@@ -9,6 +9,11 @@
     "start": "next start",
     "lint": "next lint",
     "verify": "node scripts/verify-critical-invariants.mjs",
+    "test:mock-freshness": "node scripts/test-mock-question-freshness.mjs",
+    "test:mock-resilience": "node scripts/test-mock-resilience.mjs",
+    "test:topic-quiz-recovery": "node scripts/test-topic-quiz-recovery.mjs",
+    "smoke:topic-quiz-recovery": "node scripts/smoke-topic-quiz-recovery.mjs",
+    "smoke:mock-freshness": "node scripts/smoke-mock-freshness.mjs",
     "smoke:analysis": "node scripts/smoke-analysis.mjs"
   },
   "dependencies": {

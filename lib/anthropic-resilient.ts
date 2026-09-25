@@ -24,11 +24,34 @@ type ClassifiedError =
   | { kind: "rate_limit" }
   | { kind: "overloaded" }
   | { kind: "transient_5xx" }
+  | { kind: "network" }
   | { kind: "auth" }
   | { kind: "invalid_request" }
   | { kind: "unknown" };
 
 function classifyError(err: unknown): ClassifiedError {
+  // APIConnectionError covers DNS lookups, dropped sockets, TLS handshakes
+  // and fetch-level failures. These are precisely the short-lived failures
+  // that must not become a student-visible quiz error.
+  if (err instanceof Anthropic.APIConnectionError) return { kind: "network" };
+
+  // The SDK normally wraps network failures above, but serverless runtimes
+  // occasionally expose the underlying fetch error directly. Keep this
+  // deliberately narrow: only well-known transient transport signals retry.
+  const maybeNetworkError = err as {
+    code?: string;
+    message?: string;
+    cause?: { code?: string; message?: string };
+  } | null;
+  const networkCode = maybeNetworkError?.cause?.code ?? maybeNetworkError?.code;
+  const networkMessage = `${maybeNetworkError?.message ?? ""} ${maybeNetworkError?.cause?.message ?? ""}`;
+  if (
+    ["EAI_AGAIN", "ECONNRESET", "ECONNREFUSED", "ENETUNREACH", "ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT"].includes(networkCode ?? "") ||
+    /fetch failed|network error|socket hang up|connection reset/i.test(networkMessage)
+  ) {
+    return { kind: "network" };
+  }
+
   if (err instanceof Anthropic.APIError) {
     const status = err.status;
     // Anthropic sets a structured error.type — credit_balance_too_low
@@ -40,6 +63,7 @@ function classifyError(err: unknown): ClassifiedError {
     if (errType.includes("credit_balance")) return { kind: "credit_balance" };
     if (status === 429) return { kind: "rate_limit" };
     if (status === 529) return { kind: "overloaded" };
+    if (status === 408 || status === 425) return { kind: "network" };
     if (status === 401 || status === 403) return { kind: "auth" };
     if (status === 400) return { kind: "invalid_request" };
     if (status && status >= 500) return { kind: "transient_5xx" };
@@ -51,7 +75,8 @@ function isRetryable(err: ClassifiedError): boolean {
   return (
     err.kind === "rate_limit" ||
     err.kind === "overloaded" ||
-    err.kind === "transient_5xx"
+    err.kind === "transient_5xx" ||
+    err.kind === "network"
   );
 }
 
@@ -156,6 +181,15 @@ function mapPermanentError(
         httpStatus: 502,
         userMessage:
           "Our AI hiccuped. Please try again — we kept your progress.",
+      };
+    case "network":
+      console.error("[anthropic] transient network failure after retries", raw);
+      return {
+        ok: false,
+        kind: "network",
+        httpStatus: 503,
+        userMessage:
+          "Question generation is reconnecting. Please try again in a few seconds.",
       };
     case "auth":
       // ALERT THE FOUNDER. The API key is wrong / revoked / expired.
