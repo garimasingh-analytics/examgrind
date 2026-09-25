@@ -66,6 +66,7 @@ const editorialMigrationFiles = [
   "migration_111_current_affairs_2026_09_21_daily_desk.sql",
   "migration_112_current_affairs_2026_09_22_daily_desk.sql",
   "migration_113_current_affairs_2026_09_23_daily_desk.sql",
+  "migration_114_current_affairs_2026_09_24_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_104_current_affairs_2026_09_10_expansion.sql",
@@ -214,6 +215,13 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 34,
       publishedCount: 8,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Parliament; ECI; MyGov; myScheme; State and UT authorities; and Yojana/Kurukshetra as monthly context only. Used public current-affairs/coaching material only to surface leads, then verified every selected item against the linked competent-authority release. Published TRAI's voice-and-SMS STV amendment, NAMASTE delivery data, the PM-JAY eighth-year status, India Cine Hub, the OPEC-India Energy Dialogue, NHAI-SSNNL crossing coordination, UDAN Challenge Mode and the ANTF narcotics-control vision conference. Excluded speeches, greetings, routine cleanliness activity, recruitment, individual enforcement or seizure notices, pre-event notices, duplicate SEMICON, Ayurveda Day, India International Water Week and Veer Guardian coverage, and items without a concrete policy, institutional, regulatory or data development. Yojana and Kurukshetra were monthly context only; no unauthorised images were used.",
+    };
+  }
+  if (runDate === "2026-09-24") {
+    return {
+      candidateCount: 37,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Parliament; ECI; MyGov; myScheme; State and UT authorities; and Yojana/Kurukshetra as monthly context only. Coaching and public current-affairs material were used only to surface leads; every selected fact was verified against the linked official primary release. Published the access-controlled-highway framework, SAT-SAAW procurement, SLINEX-26, Kavach 4.0 on South Central Railway, the NSO domestic-tourism survey, TDB support for the e200X, the OneSCD Global Partnership, and RRI's quantum-measure experiment. Excluded four duplicate developments already published on 21–23 September, unfinalised consultation papers, speeches, greetings, routine recruitment, workshops, individual enforcement cases, pre-event notices and weak items. No unauthorised images were used.",
     };
   }
   if (runDate === "2026-09-21") {

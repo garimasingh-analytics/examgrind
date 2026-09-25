@@ -1,0 +1,88 @@
+-- 24 September 2026 daily current-affairs desk: eight original, official-source-verified briefs.
+insert into public.current_affairs_briefs (slug, published_on, title, summary, why_it_matters, background, source_title, source_url, source_publisher, source_published_on, prelims_takeaways, quick_check, visual_data, status, reviewed_at) values
+(
+$$2026-09-24-nhai-access-controlled-highways-guidelines$$,$$2026-09-24$$,$$NHAI adopts uniform design guidelines for access-controlled high-speed highways$$,
+$$The Ministry of Road Transport and Highways issued a framework for uniform planning and design of access-controlled high-speed National Highways other than expressways. It is meant for selected new four- and six-lane greenfield and brownfield projects.$$,
+$$The release connects highway engineering with safer, predictable travel and national infrastructure planning. It is a design framework, not a declaration that every National Highway will become access-controlled.$$,
+$$The guidelines use traffic projections to determine lanes and right of way, and provide for planned interchanges, ramps, exit signs and a one-metre boundary wall. The Ministry links the initiative with a longer-term 50,000-km access-controlled network target.$$,
+$$Government Sets Uniform Design Guidelines for Access-Controlled High-Speed National Highways$$,$$https://www.pib.gov.in/PressReleaseIframePage.aspx?PRID=2313032&lang=2&reg=48$$,$$Ministry of Road Transport and Highways / Press Information Bureau$$,$$2026-09-21$$,
+$$["The guidelines cover access-controlled high-speed National Highways other than expressways.","They apply to selected new four- and six-lane greenfield and brownfield projects.","Traffic projections guide lane configuration and right-of-way planning.","Interchanges and ramps regulate entry and exit; they are central to access control."]$$::jsonb,
+$$[{"question":"Do these guidelines automatically convert every National Highway into an access-controlled road?","answer":"No. They provide a framework for selected qualifying projects."},{"question":"What is the purpose of planned interchanges and ramps?","answer":"They channel entry and exit instead of allowing unrestricted direct access."}]$$::jsonb,
+$${"title":"Access-controlled highway design","steps":["Traffic demand and the project corridor are assessed.","Lanes and right of way are planned.","Ramps and interchanges control access.","Safety, signage and boundary features are built into the design."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-24-sat-saaw-indigenous-procurement$$,$$2026-09-24$$,$$Defence Ministry contracts 160 SAT-SAAW precision glide weapons$$,
+$$The Ministry of Defence signed a contract with Bharat Dynamics Limited for 160 Satellite Smart Anti Airfield Weapons (SAT-SAAW) and associated equipment, at a cost of Rs 810.79 crore, under the Buy (Indian–IDDM) category.$$,
+$$This is a defence-indigenisation and precision-strike procurement development. SAT-SAAW is an air-to-ground glide weapon; it should not be confused with a surface-to-air missile merely because its name contains “anti-airfield”.$$,
+$$SAT-SAAW was designed by DRDO and is intended for aircraft including Jaguar, Hawk and Su-30 MKI. The release states indigenous content of more than 60 per cent and sets deliveries across 2027–28 and 2028–29.$$,
+$$Ministry of Defence signs contract with Bharat Dynamics Limited for procurement of SAT-SAAW$$,$$https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2313942&lang=1&reg=3$$,$$Ministry of Defence / Press Information Bureau$$,$$2026-09-23$$,
+$$["SAT-SAAW expands to Satellite Smart Anti Airfield Weapon.","The order is for 160 weapons and associated equipment.","The contract is under Buy (Indian–IDDM) and is with Bharat Dynamics Limited.","SAT-SAAW is a DRDO-designed air-to-ground precision glide weapon."]$$::jsonb,
+$$[{"question":"Which public-sector company received the SAT-SAAW contract?","answer":"Bharat Dynamics Limited (BDL)."},{"question":"Is SAT-SAAW a surface-to-air weapon?","answer":"No. The release describes it as an air-to-ground precision glide weapon."}]$$::jsonb,
+$${"title":"Indigenous precision-strike procurement","steps":["DRDO develops the weapon technology.","The Ministry contracts an Indian producer under IDDM.","Aircraft integrate the air-to-ground glide weapon.","Planned deliveries strengthen indigenous capability."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-24-slinex-26-maritime-exercise$$,$$2026-09-24$$,$$SLINEX-26 deepens India–Sri Lanka maritime interoperability$$,
+$$The 13th edition of the Sri Lanka–India Naval Exercise (SLINEX-26) concluded at Visakhapatnam after harbour and sea phases conducted from 17 to 21 September. The exercise included coordinated manoeuvres, air operations, night replenishment and visit-board-search-and-seizure drills.$$,
+$$SLINEX is useful for questions on bilateral naval exercises, maritime security and India’s neighbourhood engagement. An exercise builds interoperability; it is not a mutual-defence treaty or an operational deployment against a third country.$$,
+$$India’s official release locates the exercise in the MAHASAGAR vision and the Neighbourhood First policy. The harbour phase supported professional interaction before the two navies moved to sea drills.$$,
+$$SLINEX-26: India–Sri Lanka Naval Exercise concludes at Visakhapatnam$$,$$https://www.pib.gov.in/PressReleasePage.aspx?PRID=2313929&lang=2&reg=48$$,$$Indian Navy / Press Information Bureau$$,$$2026-09-23$$,
+$$["SLINEX is the Sri Lanka–India Naval Exercise.","SLINEX-26 was the 13th edition.","It was held at Visakhapatnam from 17 to 21 September 2026.","The sea phase included coordinated manoeuvres, air operations, replenishment and VBSS drills."]$$::jsonb,
+$$[{"question":"Which two countries participate in SLINEX?","answer":"India and Sri Lanka."},{"question":"What does VBSS refer to in a naval-exercise context?","answer":"Visit, Board, Search and Seizure operations."}]$$::jsonb,
+$${"title":"From harbour phase to sea interoperability","steps":["Navies meet and coordinate in harbour.","Ships and aircraft conduct sea drills.","Tactical procedures are practised together.","Interoperability supports regional maritime cooperation."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-24-kavach-4-south-central-railway$$,$$2026-09-24$$,$$South Central Railway commissions its first Kavach 4.0 section$$,
+$$South Central Railway commissioned Kavach Version 4.0 on the 108-route-km Malkajgiri–Kamareddi section in Hyderabad Division, upgrading the earlier Version 3.2 installation. The railway describes it as the zone’s first Kavach 4.0 deployment.$$,
+$$Kavach is a domestically developed automatic train-protection system, an important rail-safety topic. Commissioning on one section is a deployment milestone, not proof that the network-wide rollout is complete.$$,
+$$The Version 4.0 work includes improved location accuracy, optical-fibre connectivity and integration with electronic interlocking. Kavach is designed to a Safety Integrity Level 4 standard.$$,
+$$South Central Railway commissions Kavach Version 4.0 on Malkajgiri–Kamareddi section$$,$$https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2313758&lang=1&reg=3$$,$$Ministry of Railways / Press Information Bureau$$,$$2026-09-23$$,
+$$["Kavach is an Indian automatic train-protection system.","The cited deployment covers 108 route km between Malkajgiri and Kamareddi.","It upgrades the earlier Version 3.2 installation to Version 4.0.","The release links Kavach to Safety Integrity Level 4 (SIL 4)."]$$::jsonb,
+$$[{"question":"What is Kavach designed to do?","answer":"It is an automatic train-protection system that enhances rail safety."},{"question":"Which railway zone reported the first Version 4.0 section in this release?","answer":"South Central Railway."}]$$::jsonb,
+$${"title":"Kavach 4.0 safety chain","steps":["Trackside and onboard systems receive reliable location data.","The systems communicate through the rail-safety architecture.","Electronic interlocking supports safe movement authority.","Automatic protection reduces the risk from unsafe train movement."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-24-nso-domestic-tourism-expenditure-survey$$,$$2026-09-24$$,$$NSO releases findings from the Domestic Tourism Expenditure Survey$$,
+$$The National Statistical Office released findings from the 80th National Sample Survey round on domestic tourism. The survey, conducted from July 2025 to June 2026, covered overnight and same-day trips as well as household expenditure on them.$$,
+$$The item is important because it is an official survey-based evidence source for tourism policy, household spending and sampling-based statistics. It measures reported travel and expenditure; it is not an administrative count of every journey taken in India.$$,
+$$The release reported pilgrimage as the most common purpose among specified overnight trips in the previous 365 days, while business travel had the highest average household expenditure for trips in the preceding 30 days, at Rs 5,949.$$,
+$$National Sample Survey 80th Round: Domestic Tourism Expenditure Survey findings$$,$$https://www.pib.gov.in/PressReleasePage.aspx?PRID=2313894&lang=2&reg=48$$,$$National Statistical Office, Ministry of Statistics and Programme Implementation / Press Information Bureau$$,$$2026-09-23$$,
+$$["The survey was conducted in the 80th NSS round from July 2025 to June 2026.","It covers overnight and same-day domestic trips and their expenditure.","Pilgrimage was the most common purpose among specified overnight trips in the preceding 365 days.","Business travel had the highest average household expenditure for trips in the preceding 30 days in the release."]$$::jsonb,
+$$[{"question":"Which organisation released the survey findings?","answer":"The National Statistical Office (NSO)."},{"question":"Does the Domestic Tourism Expenditure Survey cover only overnight travel?","answer":"No. It covers both overnight and same-day trips."}]$$::jsonb,
+$${"title":"How tourism expenditure is measured","steps":["A sampled household reports domestic trips.","Trips are classified as overnight or same-day.","Purpose and spending are recorded.","NSO aggregates the sample into official survey estimates."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-24-tdb-eplane-rdi-fund$$,$$2026-09-24$$,$$Technology Development Board backs electric-aircraft R&D through the RDI Fund$$,
+$$The Technology Development Board approved Rs 285 crore for Ubifly Technologies Pvt. Ltd. through the Rs 1 lakh crore Research, Development and Innovation Fund. The funding supports development of the e200X electric aircraft from Technology Readiness Level 6 to 9.$$,
+$$This is a science-and-technology financing development, useful for understanding technology readiness, clean mobility and public R&D support. The approval is development financing; it does not mean commercial passenger operations have begun.$$,
+$$The release describes e200X as a three-seat, zero-emission electric aircraft and gives the total project cost as Rs 570 crore. The investment is structured as optional convertible debentures through the Technology Development Board under the Department of Science and Technology.$$,
+$$TDB supports development of electric aircraft under Research, Development and Innovation Fund$$,$$https://www.pib.gov.in/PressReleasePage.aspx?PRID=2313853&lang=1&reg=3$$,$$Technology Development Board, Department of Science and Technology / Press Information Bureau$$,$$2026-09-23$$,
+$$["TDB is the Technology Development Board under the Department of Science and Technology.","The approved support is Rs 285 crore for Ubifly Technologies Pvt. Ltd.","The e200X project is to advance from TRL 6 to TRL 9.","The release describes e200X as a three-seat zero-emission electric aircraft."]$$::jsonb,
+$$[{"question":"What does a move from TRL 6 to TRL 9 broadly indicate?","answer":"Progress from a demonstrated prototype toward an operationally proven system."},{"question":"Which body approved the e200X support?","answer":"The Technology Development Board (TDB)."}]$$::jsonb,
+$${"title":"From R&D to technology readiness","steps":["A technology is demonstrated at prototype level.","RDI financing supports engineering and validation.","Testing advances the product through readiness levels.","A mature system can then seek commercial deployment separately."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-24-onescd-global-partnership$$,$$2026-09-24$$,$$India helps launch OneSCD Global Partnership at the UN General Assembly$$,
+$$India co-hosted the launch of the OneSCD Global Partnership with Nigeria at the 81st session of the UN General Assembly, alongside partners including WHO, UNICEF and Africa CDC. The collaboration aims to strengthen global action on sickle-cell disease.$$,
+$$The launch links India’s domestic sickle-cell programme with international health cooperation. It is a partnership framework, not a new global treaty or a claim that sickle-cell disease has been eliminated.$$,
+$$India’s National Sickle Cell Anaemia Elimination Mission was launched in 2023 with a public-health elimination goal for 2047. The release reports screening of 7.29 crore people, identification of over 20 lakh carriers and diagnosis of over 2.5 lakh persons with sickle-cell disease.$$,
+$$India co-hosts launch of OneSCD Global Partnership at 81st UN General Assembly$$,$$https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2314294&lang=1&reg=3$$,$$Ministry of Health and Family Welfare / Press Information Bureau$$,$$2026-09-24$$,
+$$["OneSCD is a global partnership on sickle-cell disease.","India co-hosted its launch with Nigeria at the 81st UN General Assembly session.","India launched the National Sickle Cell Anaemia Elimination Mission in 2023.","The Mission has a public-health elimination goal for 2047."]$$::jsonb,
+$$[{"question":"Which country co-hosted the OneSCD launch with India?","answer":"Nigeria."},{"question":"What is the target year named for India’s sickle-cell public-health elimination goal?","answer":"2047."}]$$::jsonb,
+$${"title":"Domestic mission and global partnership","steps":["Screening identifies disease and carrier status.","National programmes link people to care and counselling.","Countries exchange knowledge through the global partnership.","The combined approach advances long-term disease control."]}$$::jsonb,$$published$$,now()
+),
+(
+$$2026-09-24-rri-quantum-measure-experiment$$,$$2026-09-24$$,$$Raman Research Institute reports an experimental quantum measure above one$$,
+$$Researchers at the Raman Research Institute reported an experimental quantum measure of about 1.17, close to a predicted value of 1.18, using controlled photon paths and an event filter. The work was published in Quantum.$$,
+$$This is a useful conceptual science item: a quantum measure is not the same thing as an ordinary probability. A probability for a detector event remains bounded by one, whereas the reported measure captures quantum interference in a different mathematical way.$$,
+$$Raman Research Institute is an autonomous institute of the Department of Science and Technology. The release describes the work as the first experimental demonstration of a quantum measure greater than one.$$,
+$$Raman Research Institute demonstrates quantum measure greater than one experimentally$$,$$https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2314350&lang=1&reg=3$$,$$Raman Research Institute, Department of Science and Technology / Press Information Bureau$$,$$2026-09-24$$,
+$$["Raman Research Institute is an autonomous institute of the Department of Science and Technology.","The reported experimental quantum measure was about 1.17, near the predicted 1.18.","The release distinguishes a quantum measure from an ordinary probability.","Photon-path control and an event filter were used in the experiment."]$$::jsonb,
+$$[{"question":"Does a quantum measure above one mean a detector probability above one?","answer":"No. The two are distinct quantities; probability remains bounded by one."},{"question":"Which DST autonomous institute reported this experiment?","answer":"Raman Research Institute (RRI)."}]$$::jsonb,
+$${"title":"Why a quantum measure can exceed one","steps":["Photon paths are prepared and controlled.","An event filter selects the relevant histories.","Quantum interference affects the measure.","The result is compared with theoretical prediction, not mistaken for probability."]}$$::jsonb,$$published$$,now()
+)
+on conflict (slug) do update set title=excluded.title,summary=excluded.summary,why_it_matters=excluded.why_it_matters,background=excluded.background,source_title=excluded.source_title,source_url=excluded.source_url,source_publisher=excluded.source_publisher,source_published_on=excluded.source_published_on,prelims_takeaways=excluded.prelims_takeaways,quick_check=excluded.quick_check,visual_data=excluded.visual_data,status=excluded.status,reviewed_at=excluded.reviewed_at,updated_at=now();
+
+insert into public.current_affairs_exam_tags (brief_id,exam_id)
+select briefs.id,exams.id from public.current_affairs_briefs briefs cross join public.exams exams
+where briefs.slug in ($$2026-09-24-nhai-access-controlled-highways-guidelines$$,$$2026-09-24-sat-saaw-indigenous-procurement$$,$$2026-09-24-slinex-26-maritime-exercise$$,$$2026-09-24-kavach-4-south-central-railway$$,$$2026-09-24-nso-domestic-tourism-expenditure-survey$$,$$2026-09-24-tdb-eplane-rdi-fund$$,$$2026-09-24-onescd-global-partnership$$,$$2026-09-24-rri-quantum-measure-experiment$$)
+and exams.slug in ($$cuet$$,$$ssc-cgl$$,$$uppsc-ro-aro$$,$$up-secretariat-ro-aro$$) on conflict do nothing;
