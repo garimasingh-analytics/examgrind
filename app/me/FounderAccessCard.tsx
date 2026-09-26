@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Props = {
   active: boolean;
@@ -12,7 +12,7 @@ export default function FounderAccessCard({ active }: Props) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
-  const activate = async () => {
+  const activate = useCallback(async () => {
     setPending(true);
     setError("");
 
@@ -36,7 +36,14 @@ export default function FounderAccessCard({ active }: Props) {
     } finally {
       setPending(false);
     }
-  };
+  }, [router]);
+
+  // Founder access is an entitlement, not a purchase. Activate it as soon as
+  // the verified founder opens their profile; keep the button as a retry path
+  // if the network is temporarily unavailable.
+  useEffect(() => {
+    if (!active) void activate();
+  }, [active, activate]);
 
   return (
     <div className="mb-4 rounded-3xl border border-sun-500/35 bg-cream-50 p-5 shadow-warm sm:p-6">

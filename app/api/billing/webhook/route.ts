@@ -5,6 +5,7 @@ import { fireAlert } from "@/lib/alert";
 import { sendPaymentConfirmation } from "@/lib/email";
 import { sendAdminSMS } from "@/lib/sms";
 import { isOneTimeProduct, ONE_TIME_PRODUCTS } from "@/lib/billing-products";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -75,6 +76,27 @@ async function requireWrite(
 ) {
   const { error } = await operation;
   if (error) throw new Error(`${label}: ${error.message ?? "database write failed"}`);
+}
+
+// A founder entitlement deliberately uses the normal paid fields so all
+// standard product gates work. Preserve that permanent status if an old
+// recurring Razorpay subscription happens to emit a later webhook.
+async function isFounderAccount(
+  admin: ReturnType<typeof createAdminSupabase>,
+  userId: string
+): Promise<boolean> {
+  const { data, error } = await admin
+    .from("users")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle<{ email: string | null }>();
+
+  if (error) {
+    console.error("[billing/webhook] founder entitlement lookup failed", error);
+    return false;
+  }
+
+  return isAdminEmail(data?.email);
 }
 
 export async function POST(req: NextRequest) {
@@ -184,14 +206,21 @@ export async function POST(req: NextRequest) {
           })
           .eq("razorpay_subscription_id", sub.id));
 
-        await requireWrite("user entitlement update", admin
-          .from("users")
-          .update({
-            subscription_status: "paid",
-            subscription_state: sub.status,
-            paid_until: paidUntilIso,
-          })
-          .eq("id", userId));
+        if (await isFounderAccount(admin, userId)) {
+          await requireWrite("founder subscription state update", admin
+            .from("users")
+            .update({ subscription_state: sub.status })
+            .eq("id", userId));
+        } else {
+          await requireWrite("user entitlement update", admin
+            .from("users")
+            .update({
+              subscription_status: "paid",
+              subscription_state: sub.status,
+              paid_until: paidUntilIso,
+            })
+            .eq("id", userId));
+        }
 
         const emailForAlert = sub.notes?.email;
         const userTag = emailForAlert ?? `user ${userId.slice(0, 8)}`;
