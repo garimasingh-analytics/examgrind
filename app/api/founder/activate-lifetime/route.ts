@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { isAdminEmail } from "@/lib/admin-auth";
-import { FOUNDER_PAID_UNTIL } from "@/lib/founder-access";
+import { FOUNDER_PAID_UNTIL, isFounderAccessEmail } from "@/lib/founder-access";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { createServerSupabase } from "@/lib/supabase/server";
 
@@ -22,7 +21,7 @@ export async function POST() {
     return NextResponse.json({ error: "Sign in to activate founder access." }, { status: 401 });
   }
 
-  if (!isAdminEmail(user.email)) {
+  if (!isFounderAccessEmail(user.email)) {
     return NextResponse.json(
       { error: "This signed-in account is not authorised for founder access." },
       { status: 403 }

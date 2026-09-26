@@ -11,8 +11,7 @@ import EmailPreferencesCard from "./EmailPreferencesCard";
 import FounderAccessCard from "./FounderAccessCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { LIVE_EXAMS } from "@/lib/exam-catalog";
-import { isAdminEmail } from "@/lib/admin-auth";
-import { hasFounderAccess } from "@/lib/founder-access";
+import { hasFounderAccess, isFounderAccessEmail } from "@/lib/founder-access";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +76,7 @@ export default async function ProfilePage() {
     .maybeSingle<UserRow>();
 
   const adminForChicks = createAdminSupabase();
-  const isFounder = isAdminEmail(authUser.email);
+  const isFounder = isFounderAccessEmail(authUser.email);
 
   // Lazy downgrade if paid_until has lapsed but status is still 'paid'.
   const liveSubscriptionStatus = await ensureSubscriptionFreshness(

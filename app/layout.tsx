@@ -14,8 +14,7 @@ import FeedbackWidget from "@/components/FeedbackWidget";
 import MarketingTracking from "@/components/MarketingTracking";
 import StudyDock from "@/components/StudyDock";
 import NavigationFeedback from "@/components/NavigationFeedback";
-import { isAdminEmail } from "@/lib/admin-auth";
-import { FOUNDER_PAID_UNTIL, hasFounderAccess } from "@/lib/founder-access";
+import { FOUNDER_PAID_UNTIL, hasFounderAccess, isFounderAccessEmail } from "@/lib/founder-access";
 
 // Soft warm serif — used for headlines.
 const fraunces = Fraunces({
@@ -130,7 +129,7 @@ export default async function RootLayout({
     const user = session?.user;
     if (user) {
       isSignedIn = true;
-      const isFounder = isAdminEmail(user.email);
+      const isFounder = isFounderAccessEmail(user.email);
       if (isFounder || !chickVariantCookie) {
         const admin = createAdminSupabase();
         const { data: row } = await admin

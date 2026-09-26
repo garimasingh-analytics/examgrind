@@ -5,7 +5,7 @@ import { fireAlert } from "@/lib/alert";
 import { sendPaymentConfirmation } from "@/lib/email";
 import { sendAdminSMS } from "@/lib/sms";
 import { isOneTimeProduct, ONE_TIME_PRODUCTS } from "@/lib/billing-products";
-import { isAdminEmail } from "@/lib/admin-auth";
+import { isFounderAccessEmail } from "@/lib/founder-access";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -96,7 +96,7 @@ async function isFounderAccount(
     return false;
   }
 
-  return isAdminEmail(data?.email);
+  return isFounderAccessEmail(data?.email);
 }
 
 export async function POST(req: NextRequest) {
