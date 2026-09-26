@@ -126,7 +126,17 @@ export default async function RootLayout({
   try {
     const supabase = createServerSupabase();
     const { data: { session } } = await supabase.auth.getSession();
-    const user = session?.user;
+    let user = session?.user;
+
+    // The usual app-shell session read is intentionally local for speed.
+    // Before granting a permanent entitlement, however, verify the possible
+    // founder identity with Supabase Auth rather than trusting that cached
+    // cookie value alone.
+    if (isFounderAccessEmail(user?.email)) {
+      const { data: { user: verifiedUser } } = await supabase.auth.getUser();
+      user = verifiedUser ?? undefined;
+    }
+
     if (user) {
       isSignedIn = true;
       const isFounder = isFounderAccessEmail(user.email);
