@@ -67,6 +67,8 @@ const editorialMigrationFiles = [
   "migration_112_current_affairs_2026_09_22_daily_desk.sql",
   "migration_113_current_affairs_2026_09_23_daily_desk.sql",
   "migration_114_current_affairs_2026_09_24_daily_desk.sql",
+  "migration_115_current_affairs_2026_09_25_daily_desk.sql",
+  "migration_116_current_affairs_2026_09_26_daily_desk.sql",
   // Then make the previously reviewed archive available to the same production path.
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_104_current_affairs_2026_09_10_expansion.sql",
@@ -229,6 +231,22 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 34,
       publishedCount: 8,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; State and UT authorities; and Yojana/Kurukshetra only as monthly context. Used public current-affairs material solely to surface candidates, then verified each published fact against its linked official release. Published August ICI, the NFI 2026 and Biovigilance Programme, the PM-SETU Kurukshetra ITI-cluster approval, Exercise Nomadic Elephant, indigenous APUs for T-72/T-90 tanks, DoT's Telecommunications Act safety action, AVYAY senior-support delivery and the CBN–Brahma Kumaris Yuva Raksha MoU. Excluded speeches, greetings, routine workshops, recruitment, personal stories, individual seizure/enforcement reports, preparation notices, previously covered 19–20 September material, proposals without a final action and weak items. No unauthorised images were used.",
+    };
+  }
+
+  if (runDate === "2026-09-25") {
+    return {
+      candidateCount: 26,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive releases issued after the 24 September desk and verified each published development against its original official source. Published the edible-oil basic-customs-duty reduction, FSSAI's draft paneer-labelling amendment, the National Formulary of India 2026 and Biovigilance Programme, MCA's Nidhi-company investor advisory, GalaxEye OptoSAR RDI support, commercialisation of bio-based biodegradable plastic under BioE3, IIT Gandhinagar's Taiwan semiconductor-research partnerships, and the updated Make in India backgrounder. Excluded speeches, ceremonies, routine workshops, individual infrastructure works, isolated enforcement/seizure notices, prospective events with no completed policy outcome, duplicates, and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
+    };
+  }
+
+  if (runDate === "2026-09-26") {
+    return {
+      candidateCount: 31,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive releases issued after the 25 September desk and verified every published development against its original official source. Published the sixth MEE-TR cycle, PAIMANA's August infrastructure report, TDB RDI support for Agnikul's reusable launch vehicle, Arogya Manthan digital-health initiatives, pharma and medical-device PLI progress, the India-JICA forest-management capacity project, the Bhuj-Barauni Amrit Bharat Express, and ICAR's CSR agriculture partnerships. Excluded speeches, ceremonies, routine enforcement and liquidity operations, isolated awards or event notices, individual infrastructure works, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
     };
   }
   return null;
