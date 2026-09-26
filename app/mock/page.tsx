@@ -56,35 +56,29 @@ export default async function MockHubPage() {
       analyses_started: number;
     }>();
 
-  const liveSubStatus = await ensureSubscriptionFreshness(
-    user.id,
-    profile?.subscription_status ?? "free",
-    profile?.paid_until ?? null
-  );
-  const isPaid = liveSubStatus === "paid";
   const examSlug = profile?.exam_choice ?? "cuet";
   const blueprint = EXAM_BLUEPRINTS[examSlug];
 
-  // Mocks for this exam.
-  const { data: examRow } = await supabase
-    .from("exams")
-    .select("id, name")
-    .eq("slug", examSlug)
-    .maybeSingle();
+  // Subscription freshness and the catalog lookup do not depend on each
+  // other. Resolve both before building the mock page instead of serialising
+  // two remote reads on every visit.
+  const [liveSubStatus, examResult] = await Promise.all([
+    ensureSubscriptionFreshness(
+      user.id,
+      profile?.subscription_status ?? "free",
+      profile?.paid_until ?? null,
+    ),
+    supabase
+      .from("exams")
+      .select("id, name")
+      .eq("slug", examSlug)
+      .maybeSingle(),
+  ]);
+  const isPaid = liveSubStatus === "paid";
+  const examRow = examResult.data;
 
   const examId = examRow?.id;
   const examName = examRow?.name ?? "Mock";
-
-  const { data: mocks } = examId
-    ? await supabase
-        .from("mock_tests")
-        .select(
-          "id, slug, display_name, description, total_questions, duration_seconds, positive_marks, negative_marks, subject_id, sections"
-        )
-        .eq("exam_id", examId)
-        .eq("is_active", true)
-        .order("display_name", { ascending: true })
-    : { data: [] as MockCard[] };
 
   // Keep the resume / review rail scoped to the exam the student is studying.
   // Showing an SSC CGL attempt while Delhi Police is selected is confusing and
@@ -102,7 +96,23 @@ export default async function MockHubPage() {
     attemptsQuery.eq("mock_test.exam_id", examId);
   }
 
-  const { data: attempts } = await attemptsQuery;
+  // Catalog and attempt history are independent once the active exam is
+  // known, so run them together for a faster Practice landing page.
+  const [mocksResult, attemptsResult] = await Promise.all([
+    examId
+      ? supabase
+          .from("mock_tests")
+          .select(
+            "id, slug, display_name, description, total_questions, duration_seconds, positive_marks, negative_marks, subject_id, sections"
+          )
+          .eq("exam_id", examId)
+          .eq("is_active", true)
+          .order("display_name", { ascending: true })
+      : Promise.resolve({ data: [] as MockCard[] }),
+    attemptsQuery,
+  ]);
+  const mocks = mocksResult.data;
+  const attempts = attemptsResult.data;
 
   type AttemptRow = {
     id: string;

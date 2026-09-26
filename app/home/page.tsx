@@ -142,39 +142,42 @@ export default async function HomePage({ searchParams }: HomeProps) {
   // accounts on a live route without rewriting their saved preference.
   const examSlug = isLiveExamSlug(requestedExamSlug) ? requestedExamSlug : "cuet";
 
-  // Lazy downgrade: if the user's paid_until has lapsed but their
-  // status is still 'paid', flip them to 'free' right now. Costs at
-  // most a single conditional UPDATE per expired user per visit.
-  const liveSubscriptionStatus = await ensureSubscriptionFreshness(
-    authUser.id,
-    profile?.subscription_status ?? "free",
-    profile?.paid_until ?? null
-  );
+  // Lazy downgrade, the active score-boost lookup, and the active-exam lookup
+  // are independent after profile resolution. Keep them in one round trip so
+  // the signed-in home shell is not held up by a needless query waterfall.
   const admin = createAdminSupabase();
-  const { data: scoreBoostPurchase } = await admin
-    .from("purchase_entitlements")
-    .select("starts_at, expires_at")
-    .eq("user_id", authUser.id)
-    .eq("product", "score_boost_21d")
-    .gt("expires_at", new Date().toISOString())
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle<{ starts_at: string; expires_at: string }>();
+  const [liveSubscriptionStatus, scoreBoostResult, examResult] = await Promise.all([
+    ensureSubscriptionFreshness(
+      authUser.id,
+      profile?.subscription_status ?? "free",
+      profile?.paid_until ?? null,
+    ),
+    admin
+      .from("purchase_entitlements")
+      .select("starts_at, expires_at")
+      .eq("user_id", authUser.id)
+      .eq("product", "score_boost_21d")
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ starts_at: string; expires_at: string }>(),
+    // Explicit two-query path: look up exam_id by slug, then filter subjects
+    // by exam_id. We tried the nested-filter approach (.eq("exam.slug",...))
+    // for a single-roundtrip speedup but PostgREST returns inconsistent
+    // results across exams with that pattern — SSC CGL specifically came
+    // back unfiltered. The 50-100ms extra over the network is not worth
+    // shipping wrong subjects to a brand-new user.
+    supabase
+      .from("exams")
+      .select("id, name")
+      .eq("slug", examSlug)
+      .maybeSingle<{ id: string; name: string }>(),
+  ]);
+  const scoreBoostPurchase = scoreBoostResult.data;
   const scoreBoostDay = scoreBoostPurchase
     ? Math.max(1, Math.min(21, Math.floor((Date.now() - new Date(scoreBoostPurchase.starts_at).getTime()) / 86_400_000) + 1))
     : null;
-
-  // Explicit two-query path: look up exam_id by slug, then filter subjects
-  // by exam_id. We tried the nested-filter approach (.eq("exam.slug",...))
-  // for a single-roundtrip speedup but PostgREST returns inconsistent
-  // results across exams with that pattern — SSC CGL specifically came
-  // back unfiltered. The 50-100ms extra over the network is not worth
-  // shipping wrong subjects to a brand-new user.
-  const { data: examRow } = await supabase
-    .from("exams")
-    .select("id, name")
-    .eq("slug", examSlug)
-    .maybeSingle<{ id: string; name: string }>();
+  const examRow = examResult.data;
 
   let subjectsQuery = supabase
     .from("subjects")
@@ -184,16 +187,21 @@ export default async function HomePage({ searchParams }: HomeProps) {
   if (examRow?.id) {
     subjectsQuery = subjectsQuery.eq("exam_id", examRow.id);
   }
-  const { data: subjectsData } = await subjectsQuery;
+  // Both queries depend on the resolved exam id but not on each other.
+  const [subjectsResult, studyPreferenceResult] = await Promise.all([
+    subjectsQuery,
+    examRow?.id
+      ? admin
+          .from("user_exam_preferences")
+          .select("selected_subject_ids, target_exam_date, target_score, daily_study_minutes")
+          .eq("user_id", authUser.id)
+          .eq("exam_id", examRow.id)
+          .maybeSingle<StudyPreference>()
+      : Promise.resolve({ data: null }),
+  ]);
+  const subjectsData = subjectsResult.data;
   const subjects = (subjectsData ?? []) as Subject[];
-  const { data: studyPreferenceRaw } = examRow?.id
-    ? await admin
-        .from("user_exam_preferences")
-        .select("selected_subject_ids, target_exam_date, target_score, daily_study_minutes")
-        .eq("user_id", authUser.id)
-        .eq("exam_id", examRow.id)
-        .maybeSingle<StudyPreference>()
-    : { data: null };
+  const studyPreferenceRaw = studyPreferenceResult.data;
   const studyPreference = studyPreferenceRaw as StudyPreference | null;
   const examDaysLeft = studyPreference?.target_exam_date
     ? Math.ceil((new Date(`${studyPreference.target_exam_date}T00:00:00+05:30`).getTime() - Date.now()) / 86_400_000)

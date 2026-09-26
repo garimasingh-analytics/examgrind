@@ -89,9 +89,24 @@ export type ResilientResult =
       kind: ClassifiedError["kind"];
     };
 
+/**
+ * The Anthropic SDK retries transport and 5xx failures by default. This app
+ * already owns a visible, bounded retry policy, so letting both layers retry
+ * multiplies wait time (especially for a full mock with several batches).
+ */
+export type GenerationRetryOptions = {
+  /** Overrides the shared retry schedule for a latency-sensitive flow. */
+  retryDelays?: readonly number[];
+  /** Per provider call cap. Omit for the shared default behaviour. */
+  requestTimeoutMs?: number;
+};
+
+const DEFAULT_RETRY_DELAYS = [0, 1000, 3000, 6000, 10000] as const;
+
 export async function generateWithRetry(
   anthropic: Anthropic,
-  params: Anthropic.MessageCreateParamsNonStreaming
+  params: Anthropic.MessageCreateParamsNonStreaming,
+  options: GenerationRetryOptions = {}
 ): Promise<ResilientResult> {
   // 5 attempts: 0ms → 1s → 3s → 6s → 10s. Total worst-case 20s extra.
   // Widened from 3 attempts / 2.5s on 2026-07-17 after ads-live incident:
@@ -99,7 +114,10 @@ export async function generateWithRetry(
   // Old backoff burned through all 3 attempts in <3s and gave up. New
   // backoff has a real chance of catching the recovery window.
   // The 300s route maxDuration comfortably absorbs this.
-  const delays = [0, 1000, 3000, 6000, 10000];
+  const delays =
+    options.retryDelays && options.retryDelays.length > 0
+      ? options.retryDelays
+      : DEFAULT_RETRY_DELAYS;
 
   let lastErr: unknown;
   for (let i = 0; i < delays.length; i++) {
@@ -107,7 +125,14 @@ export async function generateWithRetry(
       await new Promise((r) => setTimeout(r, delays[i]));
     }
     try {
-      const resp = await anthropic.messages.create(params);
+      // Disable SDK-level retries: otherwise one wrapper "attempt" can wait
+      // through several hidden SDK retries, making the UI wait minutes before
+      // this function reaches its own recovery path. The optional timeout is
+      // used by question-generation flows that can safely retry a fresh call.
+      const resp = await anthropic.messages.create(params, {
+        maxRetries: 0,
+        ...(options.requestTimeoutMs ? { timeout: options.requestTimeoutMs } : {}),
+      });
       const text =
         resp.content
           .filter((b) => b.type === "text")

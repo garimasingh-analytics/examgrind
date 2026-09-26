@@ -14,6 +14,7 @@
     "test:topic-quiz-recovery": "node scripts/test-topic-quiz-recovery.mjs",
     "smoke:topic-quiz-recovery": "node scripts/smoke-topic-quiz-recovery.mjs",
     "smoke:mock-freshness": "node scripts/smoke-mock-freshness.mjs",
+    "smoke:mock-latency": "node scripts/smoke-mock-latency.mjs",
     "smoke:analysis": "node scripts/smoke-analysis.mjs"
   },
   "dependencies": {

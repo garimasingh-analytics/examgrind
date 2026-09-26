@@ -144,6 +144,7 @@ async function saveQuestionsWithRetry(
  * no-op because mock_attempts.status is still 'in_progress'.
  */
 export async function POST(req: NextRequest) {
+  const startedAt = Date.now();
   // ---- 1. Auth ----
   const supabase = createServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
@@ -266,6 +267,7 @@ export async function POST(req: NextRequest) {
   // ---- 5. Load every earlier question this student saw for this exam ----
   // If history cannot be read, do not gamble with a potentially repeated mock.
   let previousQuestionStems: string[];
+  const historyStartedAt = Date.now();
   try {
     previousQuestionStems = await loadFreshnessHistoryWithRetry(admin, {
       userId: user.id,
@@ -282,6 +284,7 @@ export async function POST(req: NextRequest) {
       { status: 503 }
     );
   }
+  const historyMs = Date.now() - historyStartedAt;
 
   // ---- 6. Atomically reserve the free mock before generation ----
   const { data: slotRows, error: slotError } = await admin.rpc(
@@ -312,6 +315,7 @@ export async function POST(req: NextRequest) {
   // outer pass protects against a rare whole-run interruption without ever
   // writing a partial mock.
   let questions: GeneratedQuestion[] | null = null;
+  const generationStartedAt = Date.now();
   for (let pass = 0; pass < GENERATION_RECOVERY_PASSES; pass += 1) {
     if (pass > 0) await pause(1_000 * pass);
     const generated = await generateMockQuestions({
@@ -346,8 +350,10 @@ export async function POST(req: NextRequest) {
       { status: 503 }
     );
   }
+  const generationMs = Date.now() - generationStartedAt;
 
   // ---- 8. Persist attempt + question rows ----
+  const persistenceStartedAt = Date.now();
   let attemptId: string;
   try {
     attemptId = await createAttemptWithRetry(admin, {
@@ -390,6 +396,18 @@ export async function POST(req: NextRequest) {
     examId: mock.exam_id,
     attemptId,
     questions: questions.map((question) => question.question_text),
+  });
+
+  console.info("[mock/start] ready", {
+    examSlug: mock.exam?.slug ?? "cuet",
+    mockQuestionCount: mock.total_questions,
+    freshQuestionCount: questions.length,
+    historicStemCount: previousQuestionStems.length,
+    difficulty,
+    historyMs,
+    generationMs,
+    persistenceMs: Date.now() - persistenceStartedAt,
+    totalMs: Date.now() - startedAt,
   });
 
   return NextResponse.json({ attemptId });

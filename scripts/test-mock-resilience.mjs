@@ -40,9 +40,11 @@ const Anthropic = require("@anthropic-ai/sdk").default;
 const { generateWithRetry } = require("../lib/anthropic-resilient.ts");
 
 let simulatedCalls = 0;
+let lastRequestOptions;
 const simulatedClient = {
   messages: {
-    create: async () => {
+    create: async (_params, requestOptions) => {
+      lastRequestOptions = requestOptions;
       simulatedCalls += 1;
       if (simulatedCalls < 3) {
         const cause = Object.assign(new Error("connection reset"), {
@@ -59,9 +61,14 @@ const simulatedResult = await generateWithRetry(simulatedClient, {
   model: "test-model",
   max_tokens: 16,
   messages: [{ role: "user", content: "test" }],
+}, {
+  retryDelays: [0, 0, 0],
+  requestTimeoutMs: 1234,
 });
 assert.equal(simulatedResult.ok, true, "connection errors must be retried");
 assert.equal(simulatedCalls, 3, "the wrapper must continue after transport failures");
+assert.equal(lastRequestOptions?.maxRetries, 0, "the SDK must not add hidden retries to the app retry budget");
+assert.equal(lastRequestOptions?.timeout, 1234, "latency-sensitive callers must be able to cap one provider request");
 
 const backup = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const backupResult = await generateWithRetry(backup, {

@@ -17,10 +17,12 @@ const DIFFICULTY_OPTIONS: Array<{
   { value: "hard", label: "Difficult", description: "Push yourself" },
 ];
 
-// Normal starts complete in one request. These are only for an interrupted
-// network/server response; the API performs its own deeper provider retries
-// before returning one of these retryable responses.
-const AUTO_RECOVERY_DELAYS = [0, 1_500, 4_000];
+// Normal starts complete in one request. The API already performs the deeper
+// provider/database recovery, so the browser makes only one automatic retry
+// for a lost response or a brief network interruption. More client retries
+// would repeat a full fresh-generation run and turn a rare failure into a
+// multi-minute wait.
+const AUTO_RECOVERY_DELAYS = [0, 1_500];
 const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
 
 const pause = (milliseconds: number) =>
@@ -101,8 +103,8 @@ export default function StartMockButton({ mockTestId }: { mockTestId: string }) 
     }
 
     // This state is deliberately neutral rather than a raw server error.
-    // The test is never started partially; a single click keeps retrying with
-    // the same difficulty once the connection has recovered.
+    // The test is never started partially; the student can continue with the
+    // same difficulty once the connection has recovered.
     setError(
       "Your fresh mock is taking longer than usual. Nothing has been started halfway — tap Continue and we’ll keep preparing it."
     );

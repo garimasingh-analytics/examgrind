@@ -26,6 +26,22 @@ const ChickVariantContext = createContext<Ctx>({
 });
 
 const LS_KEY = "eg_chick_variant";
+const COOKIE_KEY = "eg_chick_variant";
+
+function persistVariant(variant: ChickVariant) {
+  try {
+    localStorage.setItem(LS_KEY, variant);
+  } catch {
+    // Local storage is optional. The lightweight cookie still lets the server
+    // paint the user's wardrobe without a database request on every route.
+  }
+  try {
+    document.cookie = `${COOKIE_KEY}=${encodeURIComponent(variant)}; Path=/; Max-Age=31536000; SameSite=Lax`;
+  } catch {
+    // Private browsing or a restrictive browser can reject writes; the
+    // selected wardrobe remains persisted through the existing API call.
+  }
+}
 
 export function ChickVariantProvider({
   initialVariant = "classic",
@@ -43,7 +59,11 @@ export function ChickVariantProvider({
     try {
       const stored = localStorage.getItem(LS_KEY);
       if (stored && stored !== variant) {
-        setVariantState(asChickVariant(stored));
+        const normalized = asChickVariant(stored);
+        setVariantState(normalized);
+        persistVariant(normalized);
+      } else if (stored) {
+        persistVariant(asChickVariant(stored));
       }
     } catch {
       // localStorage unavailable (SSR, private mode) — fall back to initial.
@@ -53,11 +73,7 @@ export function ChickVariantProvider({
 
   const setVariant = (v: ChickVariant) => {
     setVariantState(v);
-    try {
-      localStorage.setItem(LS_KEY, v);
-    } catch {
-      // ignore — server is source of truth
-    }
+    persistVariant(v);
   };
 
   return (

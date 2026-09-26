@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { cookies } from "next/headers";
 import { Fraunces, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "./premium.css";
@@ -110,23 +111,33 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Server-side: fetch the signed-in user's selected chick so the
-  // provider hydrates without a flash of "classic" first.
+  // This layout wraps every route, including the public landing page. Avoid a
+  // remote auth round trip on every render: getSession reads the signed cookie
+  // locally, while protected pages still use auth.getUser() themselves.
+  //
+  // The wardrobe choice is cosmetic, so retain it in a small first-party
+  // cookie. Existing users without that cookie make one safe database read;
+  // later navigations do not pay a database query just to paint a mascot.
   let initialVariant: ReturnType<typeof asChickVariant> = "classic";
   let isSignedIn = false;
+  const chickVariantCookie = cookies().get("eg_chick_variant")?.value;
+  if (chickVariantCookie) initialVariant = asChickVariant(chickVariantCookie);
   try {
     const supabase = createServerSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (user) {
       isSignedIn = true;
-      const admin = createAdminSupabase();
-      const { data: row } = await admin
-        .from("users")
-        .select("selected_chick")
-        .eq("id", user.id)
-        .single();
-      const sc = (row as { selected_chick?: string | null } | null)?.selected_chick;
-      initialVariant = asChickVariant(sc);
+      if (!chickVariantCookie) {
+        const admin = createAdminSupabase();
+        const { data: row } = await admin
+          .from("users")
+          .select("selected_chick")
+          .eq("id", user.id)
+          .single();
+        const sc = (row as { selected_chick?: string | null } | null)?.selected_chick;
+        initialVariant = asChickVariant(sc);
+      }
     }
   } catch {
     // ignore — fallback to "classic" is fine
@@ -162,7 +173,9 @@ export default async function RootLayout({
           async
           crossOrigin="anonymous"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2090215060427781"
-          strategy="beforeInteractive"
+          // Ads are never part of the learning path. Do not compete with the
+          // app shell, quiz controls, or home dashboard on first paint.
+          strategy="afterInteractive"
         />
         <NavigationFeedback />
         <ChickVariantProvider initialVariant={initialVariant}>

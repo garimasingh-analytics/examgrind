@@ -25,13 +25,28 @@ export default async function MockStartPage({ params }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  const { data: mock } = await supabase
-    .from("mock_tests")
-    .select(
-      "id, display_name, description, total_questions, duration_seconds, positive_marks, negative_marks, sections, is_active, exam:exams(name, slug)"
-    )
-    .eq("id", mockTestId)
-    .maybeSingle();
+  // The catalog row and the small entitlement display query are independent.
+  // Fetch them together so the instructions screen appears promptly before
+  // a student begins a fresh mock.
+  const [mockResult, profileResult] = await Promise.all([
+    supabase
+      .from("mock_tests")
+      .select(
+        "id, display_name, description, total_questions, duration_seconds, positive_marks, negative_marks, sections, is_active, exam:exams(name, slug)"
+      )
+      .eq("id", mockTestId)
+      .maybeSingle(),
+    supabase
+      .from("users")
+      .select("subscription_status, paid_until, mock_tests_started")
+      .eq("id", user.id)
+      .maybeSingle<{
+        subscription_status: "free" | "trial" | "paid";
+        paid_until: string | null;
+        mock_tests_started: number;
+      }>(),
+  ]);
+  const mock = mockResult.data;
 
   if (!mock || !(mock as { is_active: boolean }).is_active) {
     return (
@@ -67,15 +82,7 @@ export default async function MockStartPage({ params }: PageProps) {
 
   // Freemium read for the warning banner. (Server gate also runs in
   // /api/mock/start; this is just display.)
-  const { data: profile } = await supabase
-    .from("users")
-    .select("subscription_status, paid_until, mock_tests_started")
-    .eq("id", user.id)
-    .maybeSingle<{
-      subscription_status: "free" | "trial" | "paid";
-      paid_until: string | null;
-      mock_tests_started: number;
-    }>();
+  const profile = profileResult.data;
 
   const liveSubStatus = await ensureSubscriptionFreshness(
     user.id,
