@@ -12,6 +12,7 @@ type Props = {
   analysisCredits: number;
   scoreBoostDaysLeft: number;
   paidPlan: "annual" | "monthly";
+  founderAccess?: boolean;
 };
 
 const FREE_QUIZ_LIMIT = 3;
@@ -25,9 +26,10 @@ export default function PlanPanel({
   analysisCredits,
   scoreBoostDaysLeft,
   paidPlan,
+  founderAccess = false,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const isPaid = subscriptionStatus === "paid";
+  const isPaid = founderAccess || subscriptionStatus === "paid";
 
   const quizLeft = Math.max(0, FREE_QUIZ_LIMIT - quizzesStarted);
   const analysisLeft = Math.max(0, FREE_ANALYSIS_LIMIT - analysesTaken);
@@ -50,11 +52,19 @@ export default function PlanPanel({
               Plan
             </p>
             <p className="mt-1 font-serif text-2xl font-bold text-cocoa-900">
-              {isPaid ? paidPlan === "annual" ? "ExamGrind Annual 👑" : "ExamGrind Coach 👑" : "Free plan"}
+              {isPaid
+                ? founderAccess
+                  ? "Founder access 👑"
+                  : paidPlan === "annual"
+                    ? "ExamGrind Annual 👑"
+                    : "ExamGrind Coach 👑"
+                : "Free plan"}
             </p>
             <p className="mt-1 text-xs text-cocoa-600">
               {isPaid
-                ? `${paidPlan === "annual" ? "Full annual access" : "Coach"} is active${coachUntil ? ` until ${coachUntil}` : ""}.`
+                ? founderAccess
+                  ? "Permanent full access for this founder account."
+                  : `${paidPlan === "annual" ? "Full annual access" : "Coach"} is active${coachUntil ? ` until ${coachUntil}` : ""}.`
                 : "Your active purchases are listed below."}
             </p>
           </div>

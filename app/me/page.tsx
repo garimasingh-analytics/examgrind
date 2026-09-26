@@ -8,8 +8,10 @@ import ShieldPanel from "./ShieldPanel";
 import ChickPicker from "@/components/ChickPicker";
 import CancelSubButton from "./CancelSubButton";
 import EmailPreferencesCard from "./EmailPreferencesCard";
+import FounderAccessCard from "./FounderAccessCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { LIVE_EXAMS } from "@/lib/exam-catalog";
+import { isAdminEmail } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +76,7 @@ export default async function ProfilePage() {
     .maybeSingle<UserRow>();
 
   const adminForChicks = createAdminSupabase();
+  const isFounder = isAdminEmail(authUser.email);
 
   // Lazy downgrade if paid_until has lapsed but status is still 'paid'.
   const liveSubscriptionStatus = await ensureSubscriptionFreshness(
@@ -104,6 +107,22 @@ export default async function ProfilePage() {
     .filter((purchase) => purchase.product === "coach_yearly" && purchase.expires_at)
     .sort((a, b) => new Date(b.expires_at ?? 0).getTime() - new Date(a.expires_at ?? 0).getTime())[0];
   const isAnnualCoach = liveSubscriptionStatus === "paid" && Boolean(annualAccess);
+  const founderAccessActive =
+    isFounder &&
+    liveSubscriptionStatus === "paid" &&
+    Boolean(
+      profile?.paid_until &&
+        new Date(profile.paid_until).getFullYear() >= 9999
+    );
+
+  const { data: activeBillingSubscription } = await adminForChicks
+    .from("subscriptions")
+    .select("id")
+    .eq("user_id", authUser.id)
+    .in("state", ["created", "authenticated", "active", "pending"])
+    .limit(1)
+    .maybeSingle();
+  const hasActiveBillingSubscription = Boolean(activeBillingSubscription);
 
   const { data: emailPreference } = await adminForChicks
     .from("email_preferences")
@@ -316,6 +335,7 @@ export default async function ProfilePage() {
 
       {/* Plan panel — tier + freemium meters + upgrade CTA */}
       <section className="profile-access mx-auto mt-8 max-w-3xl px-4 sm:px-6">
+        {isFounder && <FounderAccessCard active={founderAccessActive} />}
         <PlanPanel
           subscriptionStatus={liveSubscriptionStatus}
           paidUntil={profile?.paid_until ?? null}
@@ -324,10 +344,11 @@ export default async function ProfilePage() {
           analysisCredits={analysisCredits}
           scoreBoostDaysLeft={scoreBoostDaysLeft}
           paidPlan={isAnnualCoach ? "annual" : "monthly"}
+          founderAccess={founderAccessActive}
         />
         {/* Cancel-subscription affordance — only shown for active paid */}
         {/* users. Two-tap confirmation so accidental clicks don't fire. */}
-        {liveSubscriptionStatus === "paid" && !isAnnualCoach && (
+        {liveSubscriptionStatus === "paid" && !isAnnualCoach && hasActiveBillingSubscription && (
           <div className="mt-3 flex justify-end">
             <CancelSubButton paidUntil={profile?.paid_until ?? null} />
           </div>
@@ -347,7 +368,7 @@ export default async function ProfilePage() {
       <section className="mx-auto mt-8 max-w-3xl px-4 sm:px-6">
         <ChickPicker
           xp={profile?.xp ?? 0}
-          isPremium={liveSubscriptionStatus === "paid"}
+          isPremium={liveSubscriptionStatus === "paid" || founderAccessActive}
           explicitlyGranted={explicitlyGrantedChicks}
         />
       </section>
