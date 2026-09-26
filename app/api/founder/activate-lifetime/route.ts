@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
 import { isAdminEmail } from "@/lib/admin-auth";
+import { FOUNDER_PAID_UNTIL } from "@/lib/founder-access";
 import { createAdminSupabase } from "@/lib/supabase/admin";
 import { createServerSupabase } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-// A real date keeps every existing paid entitlement check working without
-// adding a fragile founder exception to quizzes, mocks, Coach, or analysis.
-const FOUNDER_PAID_UNTIL = "9999-12-31T23:59:59.999Z";
 
 /**
  * Gives the currently signed-in founder the app's normal permanent paid

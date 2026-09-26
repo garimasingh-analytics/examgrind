@@ -14,6 +14,8 @@ import FeedbackWidget from "@/components/FeedbackWidget";
 import MarketingTracking from "@/components/MarketingTracking";
 import StudyDock from "@/components/StudyDock";
 import NavigationFeedback from "@/components/NavigationFeedback";
+import { isAdminEmail } from "@/lib/admin-auth";
+import { FOUNDER_PAID_UNTIL, hasFounderAccess } from "@/lib/founder-access";
 
 // Soft warm serif — used for headlines.
 const fraunces = Fraunces({
@@ -128,15 +130,36 @@ export default async function RootLayout({
     const user = session?.user;
     if (user) {
       isSignedIn = true;
-      if (!chickVariantCookie) {
+      const isFounder = isAdminEmail(user.email);
+      if (isFounder || !chickVariantCookie) {
         const admin = createAdminSupabase();
         const { data: row } = await admin
           .from("users")
-          .select("selected_chick")
+          .select("selected_chick, subscription_status, paid_until")
           .eq("id", user.id)
-          .single();
-        const sc = (row as { selected_chick?: string | null } | null)?.selected_chick;
-        initialVariant = asChickVariant(sc);
+          .maybeSingle<{
+            selected_chick?: string | null;
+            subscription_status?: string | null;
+            paid_until?: string | null;
+          }>();
+
+        // Founder access self-heals on any signed-in app route. It uses the
+        // existing paid fields, so every server and database product gate
+        // receives the same entitlement instead of needing separate bypasses.
+        if (isFounder && !hasFounderAccess(row?.subscription_status, row?.paid_until)) {
+          const { error } = await admin
+            .from("users")
+            .update({
+              subscription_status: "paid",
+              paid_until: FOUNDER_PAID_UNTIL,
+            })
+            .eq("id", user.id);
+          if (error) console.error("[layout] founder entitlement update failed", error);
+        }
+
+        if (!chickVariantCookie) {
+          initialVariant = asChickVariant(row?.selected_chick);
+        }
       }
     }
   } catch {

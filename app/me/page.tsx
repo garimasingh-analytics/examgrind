@@ -12,6 +12,7 @@ import FounderAccessCard from "./FounderAccessCard";
 import { ensureSubscriptionFreshness } from "@/lib/subscription";
 import { LIVE_EXAMS } from "@/lib/exam-catalog";
 import { isAdminEmail } from "@/lib/admin-auth";
+import { hasFounderAccess } from "@/lib/founder-access";
 
 export const dynamic = "force-dynamic";
 
@@ -107,13 +108,10 @@ export default async function ProfilePage() {
     .filter((purchase) => purchase.product === "coach_yearly" && purchase.expires_at)
     .sort((a, b) => new Date(b.expires_at ?? 0).getTime() - new Date(a.expires_at ?? 0).getTime())[0];
   const isAnnualCoach = liveSubscriptionStatus === "paid" && Boolean(annualAccess);
-  const founderAccessActive =
-    isFounder &&
-    liveSubscriptionStatus === "paid" &&
-    Boolean(
-      profile?.paid_until &&
-        new Date(profile.paid_until).getFullYear() >= 9999
-    );
+  const founderAccessActive = isFounder && hasFounderAccess(
+    liveSubscriptionStatus,
+    profile?.paid_until
+  );
 
   const { data: activeBillingSubscription } = await adminForChicks
     .from("subscriptions")
