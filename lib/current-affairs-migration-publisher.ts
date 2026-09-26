@@ -60,6 +60,11 @@ const editorialMigrationFiles = [
   "migration_098_current_affairs_2026_09_09_daily_desk.sql",
   "migration_099_current_affairs_2026_09_10_daily_desk.sql",
   "migration_100_current_affairs_2026_09_11_daily_desk.sql",
+  "migration_101_current_affairs_2026_09_19_daily_desk.sql",
+  "migration_102_current_affairs_2026_09_20_daily_desk.sql",
+  "migration_103_current_affairs_2026_09_24_daily_desk.sql",
+  "migration_104_current_affairs_2026_09_25_daily_desk.sql",
+  "migration_106_current_affairs_2026_09_26_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -108,6 +113,46 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 21,
       publishedCount: 4,
       notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened candidate discovery through trustworthy current-affairs materials and verified every published item against its original primary official release. Published the Consumer Protection (E-Commerce) (Amendment) Rules, 2026; DILRMP 3.0 operational guidelines; NSO's first district-level ASUSE estimates; and SEBI-RBI's Demat 2.0 tokenised corporate-bond pilot. Excluded ceremonial visits and speeches, workshops and training events, routine recruitment, individual enforcement and recovery notices, port calls, stale material, duplicate coverage, and releases without a durable policy, institutional, regulatory, statistical or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context; neither was used as a daily news feed.",
+    };
+  }
+
+  if (runDate === "2026-09-19") {
+    return {
+      candidateCount: 31,
+      publishedCount: 10,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive releases published since the 11 September desk and verified every published item against its original official source. Published the EPFO mandatory-coverage wage-ceiling decision, August WPI, two distinct India–MERCOSUR trade developments, the India Electric Mobility Index 2025, time-bound power exports to Nepal, soil-carbon payments in Punjab and Haryana, Swachh Seva Aankalan, TRAI’s commercial-communications regulation amendment, and the Mukutban–Gadchandur rail-line approval. Excluded speeches, ceremonies, recruitment notices, routine auctions and liquidity operations, individual enforcement or recovery actions, workshops, scheduled events without a durable policy development, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for new monthly context; neither was treated as a daily feed.",
+    };
+  }
+
+  if (runDate === "2026-09-20") {
+    return {
+      candidateCount: 27,
+      publishedCount: 10,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive releases issued since the 19 September desk and verified each published development against its original official source. Published the NGMV keel laying, NLMC asset-monetisation recommendation, DDU-GKY 2.0 rollout preparation, NGT mobile application, sugar stockholding relaxation, Semicon 2.0, OneTag FASTag portability, the ULB waste-management GHG tool, the Net Zero Portal and NAPCC Dashboard, and NITI Aayog’s Trade Watch Quarterly. Excluded speeches, ceremonies, recruitment notices, routine enforcement and liquidity operations, meetings with no durable outcome, duplicates, forward announcements without an operational development, and weakly exam-relevant items. Yojana and Kurukshetra were checked only for new monthly context; neither was treated as a daily feed.",
+    };
+  }
+
+  if (runDate === "2026-09-24") {
+    return {
+      candidateCount: 34,
+      publishedCount: 10,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive releases issued since the 20 September desk and verified every published item against its original official source. Published the India-New Zealand FTA entry-into-force date, UDAN Challenge Mode, NHAI high-speed-corridor guidelines, the NHAI-SSNNL approvals framework, tank APUs, SAT-SAAW procurement, SLINEX-26, Kavach 4.0 commissioning, NSO's Domestic Tourism Expenditure Survey and TDB's ePlane RDI support. Excluded speeches, ceremonies, recruitment notices, routine enforcement and liquidity operations, isolated seizures, event-only notices, individual project foundation stones, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily news feed.",
+    };
+  }
+
+  if (runDate === "2026-09-25") {
+    return {
+      candidateCount: 26,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive releases issued after the 24 September desk and verified each published development against its original official source. Published the edible-oil basic-customs-duty reduction, FSSAI's draft paneer-labelling amendment, the National Formulary of India 2026 and Biovigilance Programme, MCA's Nidhi-company investor advisory, GalaxEye OptoSAR RDI support, commercialisation of bio-based biodegradable plastic under BioE3, IIT Gandhinagar's Taiwan semiconductor-research partnerships, and the updated Make in India backgrounder. Excluded speeches, ceremonies, routine workshops, individual infrastructure works, isolated enforcement/seizure notices, prospective events with no completed policy outcome, duplicates, and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
+    };
+  }
+
+  if (runDate === "2026-09-26") {
+    return {
+      candidateCount: 31,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive releases issued after the 25 September desk and verified every published development against its original official source. Published the sixth MEE-TR cycle, PAIMANA's August infrastructure report, TDB RDI support for Agnikul's reusable launch vehicle, Arogya Manthan digital-health initiatives, pharma and medical-device PLI progress, the India-JICA forest-management capacity project, the Bhuj-Barauni Amrit Bharat Express, and ICAR's CSR agriculture partnerships. Excluded speeches, ceremonies, routine enforcement and liquidity operations, isolated awards or event notices, individual infrastructure works, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
     };
   }
 
