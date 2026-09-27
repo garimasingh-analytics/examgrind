@@ -65,6 +65,8 @@ const editorialMigrationFiles = [
   "migration_103_current_affairs_2026_09_24_daily_desk.sql",
   "migration_104_current_affairs_2026_09_25_daily_desk.sql",
   "migration_106_current_affairs_2026_09_26_daily_desk.sql",
+  "migration_107_current_affairs_2026_09_27_daily_desk.sql",
+  "migration_108_current_affairs_2026_09_28_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -153,6 +155,22 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 31,
       publishedCount: 8,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive releases issued after the 25 September desk and verified every published development against its original official source. Published the sixth MEE-TR cycle, PAIMANA's August infrastructure report, TDB RDI support for Agnikul's reusable launch vehicle, Arogya Manthan digital-health initiatives, pharma and medical-device PLI progress, the India-JICA forest-management capacity project, the Bhuj-Barauni Amrit Bharat Express, and ICAR's CSR agriculture partnerships. Excluded speeches, ceremonies, routine enforcement and liquidity operations, isolated awards or event notices, individual infrastructure works, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
+    };
+  }
+
+  if (runDate === "2026-09-27") {
+    return {
+      candidateCount: 38,
+      publishedCount: 10,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive late releases from 25-26 September and verified each published development against its original official source. Published CGTMSE cover on TReDS, the QUAD-at-Sea observer mission, TRAI's Digital Connectivity Rating platform, FCV tobacco working-capital assistance, the H2 market-borrowing plan, CPGRAMS August performance, Minority Affairs delivery partnerships, IFSCA's differential-distribution framework, India International Water Week outcomes, and CSIR-NIScPR's five-language science magazines. Excluded speeches, ceremonies, recruitment notices, routine enforcement or auction calendars, prospective events with no operational outcome, local construction works, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
+    };
+  }
+
+  if (runDate === "2026-09-28") {
+    return {
+      candidateCount: 29,
+      publishedCount: 9,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive late releases published on 26-27 September and verified every published development against its original official source. Published ECI SIR access measures and ECINet review, Exercise Tarang Shakti, ADMM-Plus maritime-security cooperation, the Kandla e-methanol facility, India at WorldSkills Shanghai, NMDC's Bacheli-Nagarnar pellet and slurry project, Bharat Maritime Insurance Pool, resource recovery from organic waste, and the first LNG-powered train. Excluded speeches, ceremonies, recruitment notices, sports congratulatory messages, future-only announcements, routine enforcement or cleanliness drives, local construction works, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
     };
   }
 
