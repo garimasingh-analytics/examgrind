@@ -89,6 +89,7 @@ const editorialMigrationFiles = [
   "migration_081_current_affairs_2026_08_27_editorial_batch.sql",
   "migration_107_current_affairs_2026_09_27_daily_desk.sql",
   "migration_108_current_affairs_2026_09_28_daily_desk.sql",
+  "migration_109_current_affairs_2026_09_29_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -265,6 +266,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 29,
       publishedCount: 9,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive late releases published on 26-27 September and verified every published development against its original official source. Published ECI SIR access measures and ECINet review, Exercise Tarang Shakti, ADMM-Plus maritime-security cooperation, the Kandla e-methanol facility, India at WorldSkills Shanghai, NMDC's Bacheli-Nagarnar pellet and slurry project, Bharat Maritime Insurance Pool, resource recovery from organic waste, and the first LNG-powered train. Excluded speeches, ceremonies, recruitment notices, sports congratulatory messages, future-only announcements, routine enforcement or cleanliness drives, local construction works, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
+    };
+  }
+
+  if (runDate === "2026-09-29") {
+    return {
+      candidateCount: 33,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed newly indexed 28 September releases and late material since the completed 28 September desk; verified every published item against the linked primary official release. Published the India-UAE investment task-force review, August telecom subscription indicators, Livestock Insurance Portal, Steel Industry Safety Council, FASTag Annual Pass milestone, India at COFO-28, IWC-70 cetacean conservation, and August IIP. Excluded speeches, ceremonies, recruitment, routine cleanliness activity, enforcement/seizure notices, local rail works, prospective-only launches, duplicate material, and weakly exam-relevant releases. Yojana and Kurukshetra were checked only as monthly context and were not used as daily feeds.",
     };
   }
 
