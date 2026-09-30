@@ -68,6 +68,7 @@ const editorialMigrationFiles = [
   "migration_107_current_affairs_2026_09_27_daily_desk.sql",
   "migration_108_current_affairs_2026_09_28_daily_desk.sql",
   "migration_109_current_affairs_2026_09_29_daily_desk.sql",
+  "migration_110_current_affairs_2026_09_30_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -180,6 +181,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 33,
       publishedCount: 8,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed newly indexed 28 September releases and late material since the completed 28 September desk; verified every published item against the linked primary official release. Published the India-UAE investment task-force review, August telecom subscription indicators, Livestock Insurance Portal, Steel Industry Safety Council, FASTag Annual Pass milestone, India at COFO-28, IWC-70 cetacean conservation, and August IIP. Excluded speeches, ceremonies, recruitment, routine cleanliness activity, enforcement/seizure notices, local rail works, prospective-only launches, duplicate material, and weakly exam-relevant releases. Yojana and Kurukshetra were checked only as monthly context and were not used as daily feeds.",
+    };
+  }
+
+  if (runDate === "2026-09-30") {
+    return {
+      candidateCount: 35,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed late 28-29 September releases and directly verified each published item against the linked primary official release. Published the MSME-MoSPI Statistical Business Register MoU, July trial ISP, PRAGATI-50, revised NCR GRAP, first PRAMAAN forest-and-wood certificates, the PMGSY-IV and PM-JANMAN impact study, TDB support for a multi-gas sensing platform, and the Tribal Affairs-IGNCA heritage MoU. Excluded speeches, ceremonies, routine cleanliness activity, recruitment, enforcement/seizure notices, local rail works, prospective workshops, duplicates and weakly exam-relevant material. Yojana and Kurukshetra were checked only as monthly context and were not used as daily feeds.",
     };
   }
 
