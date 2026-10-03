@@ -69,6 +69,7 @@ const editorialMigrationFiles = [
   "migration_108_current_affairs_2026_09_28_daily_desk.sql",
   "migration_109_current_affairs_2026_09_29_daily_desk.sql",
   "migration_110_current_affairs_2026_09_30_daily_desk.sql",
+  "migration_111_current_affairs_2026_10_03_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -189,6 +190,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 35,
       publishedCount: 8,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed late 28-29 September releases and directly verified each published item against the linked primary official release. Published the MSME-MoSPI Statistical Business Register MoU, July trial ISP, PRAGATI-50, revised NCR GRAP, first PRAMAAN forest-and-wood certificates, the PMGSY-IV and PM-JANMAN impact study, TDB support for a multi-gas sensing platform, and the Tribal Affairs-IGNCA heritage MoU. Excluded speeches, ceremonies, routine cleanliness activity, recruitment, enforcement/seizure notices, local rail works, prospective workshops, duplicates and weakly exam-relevant material. Yojana and Kurukshetra were checked only as monthly context and were not used as daily feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-03") {
+    return {
+      candidateCount: 29,
+      publishedCount: 9,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive 1-2 October releases after the 1 October run and verified every published item against its original official source. Published CAPEX 2026, the ICAR-FCI foodgrain-storage MoU, the RoDTEP extension, Maharashtra's amended BharatNet agreement, Defence Accounts digital-finance tools, Buxa tiger reintroduction, standard Survey of India place names in Ladakh, the GOBARdhan CBG scheme and revised exempted-FASTag guidelines. Excluded speeches, ceremonies, routine Swachhata activities, individual enforcement and seizure notices, sports congratulations, routine training, duplicate sugar-stockholding coverage and weakly exam-relevant material. Yojana and Kurukshetra were checked only as monthly context and were not used as daily feeds.",
     };
   }
 
