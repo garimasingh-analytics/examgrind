@@ -92,6 +92,7 @@ const editorialMigrationFiles = [
   "migration_109_current_affairs_2026_09_29_daily_desk.sql",
   "migration_110_current_affairs_2026_09_30_daily_desk.sql",
   "migration_112_current_affairs_2026_10_04_daily_desk.sql",
+  "migration_113_current_affairs_2026_10_07_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -292,6 +293,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 32,
       publishedCount: 8,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered four substantive 30 September releases missed by the prior desk and verified every published item against its original official release. Published Green Energy Corridor Phase-III, Rabi MSPs for 2027-28, new CAFE norms, ECI's SIR schedule revision, a free-space QKD demonstration, five Classical Language Centres of Excellence, NABKISAN's WASH social bond and AIME 2026. Excluded speeches, ceremonial cleanliness drives, congratulatory and sports notices, individual enforcement actions, routine exercises and forward-only announcements including the scheduled Great Indian Bustard release. Yojana and Kurukshetra were checked only as monthly context and were not used as daily feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-07") {
+    return {
+      candidateCount: 41,
+      publishedCount: 10,
+      notes: "Recovery desk for the missed 5-6 October window. Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered and verified every published development against its linked primary official release. Published the Integrated Transport & Logistics Authority, SME Growth Fund, VB-G RAM G permissible-works schedule, expanded Index of Services Production proposal, CAQM PTZ-camera order, eSanjeevani milestone, India-Japan JCM operational manual, BrahMos naval fire-control contract, Project VeerAI RDI support and India-Switzerland State Visit outcomes. Excluded speeches, ceremonial and cleanliness drives, routine reviews, appointments, isolated enforcement or seizure notices, prospective events, duplicate 3-4 October coverage and weakly exam-relevant releases. Yojana and Kurukshetra were checked only as monthly context and were not used as daily feeds.",
     };
   }
 
