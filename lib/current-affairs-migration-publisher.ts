@@ -94,6 +94,7 @@ const editorialMigrationFiles = [
   "migration_112_current_affairs_2026_10_04_daily_desk.sql",
   "migration_113_current_affairs_2026_10_07_daily_desk.sql",
   "migration_114_current_affairs_2026_10_08_daily_desk.sql",
+  "migration_115_current_affairs_2026_10_09_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -310,6 +311,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 34,
       publishedCount: 10,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed fresh 7 October material and recoverable substantive 5-6 October releases, verifying every published development against its linked primary official release. Published NCAHP's autonomous-board and registration regulations, MoSPI's environmental-economic accounts strategy, the revised MoD proof-range SOP, the Fleet Support Ship milestones, the India-UK Financial Markets Dialogue statement, TRAI's annual telecom indicators, the Bogibeel-Dhaka cargo voyage, the additive-manufacturing backgrounder, SC-beneficiary financial-scheme reporting, and NSO's first National Household Travel Survey findings. Excluded speeches, ceremonial and cleanliness activity, appointments, routine inspections and enforcement, individual CCI combination approvals, workshops, prospective events, duplicates, stale material and weakly exam-relevant releases. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-09") {
+    return {
+      candidateCount: 29,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered the substantive 7 October ICAR-Ghana agricultural-research MoU and reviewed fresh 8 October material, verifying every published development against the linked primary official release. Published 57th GST Council process-reform recommendations, the anti-cancer medicine trade-margin cap, JOSH Teams, SAREX-2026, NHAI's wildlife-mitigation framework, the ICAR-Ghana MoU, Jorhat silkworm-seed infrastructure and satellite-communications licensing clarification. Excluded speeches, ceremony-only and cleanliness activities, routine meetings and assessments, individual cases, prospective visits, duplicate material, and weakly exam-relevant releases. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
     };
   }
 
