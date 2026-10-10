@@ -74,6 +74,7 @@ const editorialMigrationFiles = [
   "migration_113_current_affairs_2026_10_07_daily_desk.sql",
   "migration_114_current_affairs_2026_10_08_daily_desk.sql",
   "migration_115_current_affairs_2026_10_09_daily_desk.sql",
+  "migration_116_current_affairs_2026_10_10_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -234,6 +235,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 29,
       publishedCount: 8,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered the substantive 7 October ICAR-Ghana agricultural-research MoU and reviewed fresh 8 October material, verifying every published development against the linked primary official release. Published 57th GST Council process-reform recommendations, the anti-cancer medicine trade-margin cap, JOSH Teams, SAREX-2026, NHAI's wildlife-mitigation framework, the ICAR-Ghana MoU, Jorhat silkworm-seed infrastructure and satellite-communications licensing clarification. Excluded speeches, ceremony-only and cleanliness activities, routine meetings and assessments, individual cases, prospective visits, duplicate material, and weakly exam-relevant releases. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-10") {
+    return {
+      candidateCount: 34,
+      publishedCount: 10,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered qualifying official releases from 5-7 October and reviewed fresh 9 October material, verifying every published development against its linked primary source. Published NSO's GSDP expenditure-side draft, MoSPI's environmental-economic accounts strategy, ITLA approval, SME Growth Fund commitment, the Rajya Sabha committee's NTA report, Great Indian Bustard rewilding, NCAHP regulations, the prescription-drug advertising draft, TRAI's DRM audit consultation and the India-Japan JCM manual. Excluded speeches, ceremonies, routine assessments and source-desk notices, isolated enforcement, individual appointments, prospect-only events, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
     };
   }
 
