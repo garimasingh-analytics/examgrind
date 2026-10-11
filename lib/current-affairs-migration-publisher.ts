@@ -96,6 +96,7 @@ const editorialMigrationFiles = [
   "migration_114_current_affairs_2026_10_08_daily_desk.sql",
   "migration_115_current_affairs_2026_10_09_daily_desk.sql",
   "migration_116_current_affairs_2026_10_10_daily_desk.sql",
+  "migration_117_current_affairs_2026_10_11_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
@@ -328,6 +329,14 @@ export function currentAffairsRunAudit(runDate: string) {
       candidateCount: 34,
       publishedCount: 10,
       notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered qualifying official releases from 5-7 October and reviewed fresh 9 October material, verifying every published development against its linked primary source. Published NSO's GSDP expenditure-side draft, MoSPI's environmental-economic accounts strategy, ITLA approval, SME Growth Fund commitment, the Rajya Sabha committee's NTA report, Great Indian Bustard rewilding, NCAHP regulations, the prescription-drug advertising draft, TRAI's DRM audit consultation and the India-Japan JCM manual. Excluded speeches, ceremonies, routine assessments and source-desk notices, isolated enforcement, individual appointments, prospect-only events, duplicates and weakly exam-relevant releases. Yojana and Kurukshetra were checked only as monthly context and were not used as daily news feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-11") {
+    return {
+      candidateCount: 37,
+      publishedCount: 8,
+      notes: "Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed late 9 October and substantive 10 October releases, verifying every published development against its linked primary official source. Published NGOPV Shreyas, the India-hosted GI-AI4FS meeting, NBA seed-sector ABS distribution, the AITIGA review deliverables, the India Post-Blue Dart parcel agreement, PMDDKY's first-year implementation review, 153rd IPU Assembly outcomes and Nasha Mukt Yuva's first-month implementation report. Excluded speeches, ceremonies, local training and review meetings without a durable outcome, prospective announcements, routine enforcement and cleanliness notices, individual awards, duplicate themes and weakly exam-relevant releases. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
     };
   }
 
