@@ -97,9 +97,18 @@ const editorialMigrationFiles = [
   "migration_115_current_affairs_2026_10_09_daily_desk.sql",
   "migration_116_current_affairs_2026_10_10_daily_desk.sql",
   "migration_117_current_affairs_2026_10_11_daily_desk.sql",
+  "migration_118_current_affairs_2026_10_12_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-10-12") {
+    return {
+      candidateCount: 29,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered late 11 October and reviewed 12 October releases, verifying every published development against its linked primary official source. Published the revised-base CPI release, TRAI telecom indicators, IMD's cyclone and marine WebGIS decision-support system, Exercise Tarang Shakti, RDIF's first fund-manager cohort, TDB's Peptris RDI agreement, PM-SETU shareholders' agreements, and the India-UK JETCO implementation statement. Excluded speeches, ceremonies, recruitment notices, cleanliness campaigns, local events, routine quality checks, individual enforcement actions, prospective announcements, duplicate campaign updates, routine energy-stock reporting, and releases without a durable policy, institutional, statistical, regulatory or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context; neither was treated as a daily feed.",
+    };
+  }
+
   if (runDate === "2026-09-06") {
     return {
       candidateCount: 10,
