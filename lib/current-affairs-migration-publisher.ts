@@ -98,9 +98,18 @@ const editorialMigrationFiles = [
   "migration_116_current_affairs_2026_10_10_daily_desk.sql",
   "migration_117_current_affairs_2026_10_11_daily_desk.sql",
   "migration_118_current_affairs_2026_10_12_daily_desk.sql",
+  "migration_119_current_affairs_2026_10_16_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-10-16") {
+    return {
+      candidateCount: 38,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered substantive official material issued after the 12 October desk and verified each published development against its original linked release. Published September WPI, the NSAP continuation and renamed components, MSCARO 2026 for multi-state cooperatives, India's SIOFA accession approval, IDBI Bank strategic restructuring, the HLCDC public portal, TDB RDI support for the YETI autonomous logistics vehicle, and the 121st Sarvekshana issue. Excluded speeches, ceremonies, recruitment and cleanliness notices, individual enforcement or seizure cases, routine liquidity and market operations, local events and construction works, prospective event announcements, duplicate campaign material, and weakly durable releases. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily feeds.",
+    };
+  }
+
   if (runDate === "2026-10-12") {
     return {
       candidateCount: 29,
