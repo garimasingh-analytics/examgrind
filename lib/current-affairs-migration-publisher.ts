@@ -77,9 +77,53 @@ const editorialMigrationFiles = [
   "migration_116_current_affairs_2026_10_10_daily_desk.sql",
   "migration_117_current_affairs_2026_10_11_daily_desk.sql",
   "migration_118_current_affairs_2026_10_12_daily_desk.sql",
+  "migration_119_current_affairs_2026_10_18_daily_desk.sql",
+  "migration_120_current_affairs_2026_10_20_daily_desk.sql",
+  "migration_121_current_affairs_2026_10_27_daily_desk.sql",
+  "migration_122_current_affairs_2026_10_28_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-10-28") {
+    return {
+      candidateCount: 61,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed new 27 October releases and recoverable 24-26 October material after the 27 October recovery desk, then verified every published item against its original competent official release. Published DAC capital-acquisition Acceptance of Necessity approvals, NCMC preparedness for Cyclone Arnab, NCB Operation Trident, the 11-crore Farmer ID milestone, Exercise Garuda Shakti, NGOPV Srishti’s launch, India’s CBD COP-17 biodiversity statement and the BRICS Parliamentary Forum Joint Declaration. Excluded speeches, greetings, ceremonial tours, Special Campaign reporting, recruitment notices, ordinary workshops and port calls, routine individual enforcement/seizure items, prospective-only announcements, items already covered on 27 October (including CIML), and releases without a durable policy, statutory, institutional, disaster-management, defence, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-27") {
+    return {
+      candidateCount: 58,
+      publishedCount: 10,
+      notes: "Recovery desk for the 21-26 October window. Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened discovery through public current-affairs material, then verified every published item against its original competent official release. Published the National Social Assistance Programme continuation and renaming, the notified E85/E100 flex-fuel vehicle rule amendments, NSDC's Social Stock Exchange debut, the upgraded NMMS attendance app, proposed PLFS 2027 sampling and schedule changes, Exercise SIMBEX-2026, the AATAL air-pollution-analysis facility, DRDO's AIP Energy Module STW-2 milestone, Bihar Integrated Manufacturing City Gaya Limited, and RBI's Bhubaneswar Data Centre and Cybersecurity Training Institute. Excluded speeches, greetings, ceremony-only releases, Special Campaign reporting, individual seizures/enforcement cases, recruitment notices, ordinary workshops, forward visits, routine performance reports, duplicate exercise reporting, and claims without a durable policy, regulatory, institutional, statistical, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not treated as daily feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-20") {
+    return {
+      candidateCount: 42,
+      publishedCount: 9,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Recovered late 19 October material and broadened candidate discovery through trustworthy public current-affairs materials before checking every publication against its original official release. Published the India-New Zealand FTA entry into force, DFS financial-inclusion saturation campaign, CCPA action on regulated explosives listings, upgraded Agri Welfare Portal, Exercise AUSTRAHIND, Ladakh High Court Bench inauguration, India's first hosting of the CIML meeting, the MoES-AcSIR doctoral network and the PIB pumped-storage-hydropower technical backgrounder. Excluded speeches and greetings, individual seizures and enforcement cases, routine cleanliness reporting, workshops and ceremony-only updates, recruitment/examination notices, generic outreach items, future-only visits, duplicate coverage, source claims without a competent primary record, and the India-Saudi electrical-interconnection discussion because it reported talks rather than a new approved project or agreement. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-19") {
+    return {
+      candidateCount: 51,
+      publishedCount: 0,
+      notes: "Exceptional zero-item desk. Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 15 newly indexed PIB releases for the 18 October window and broadened discovery through 36 secondary current-affairs candidates. Every potential item was checked against the named competent official body before publication. None met the desk standard: the primary releases were condolences, a future-only visit, routine Special Campaign progress, an individual casualty evacuation, a local postal-promotion item, local visits, a seizure notice, a routine technology conclave, a ceremony/anniversary update, or a port call without a durable decision. Secondary claims of new regulations, launches, judicial rulings, statistics and approvals lacked corroborating primary publications and were excluded. No newly available Yojana or Kurukshetra issue supplied daily-news material. Published 0 substantive briefs; shortfall from the eight-item minimum: 8. This exception preserves the no-filler and primary-source-only standard.",
+    };
+  }
+
+  if (runDate === "2026-10-18") {
+    return {
+      candidateCount: 43,
+      publishedCount: 10,
+      notes: "Recovery desk for the 13-17 October window. Checked all 19 active registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed fresh and late releases and verified every published development against its linked primary official source. Published the September PLFS bulletin, PAIMANA infrastructure dashboard update, FSSAI infant-nutrition draft, GSAT-7C and Varunastra contracts, INS Samarthak commissioning, Exercise KONKAN-26, MSCARO audit framework, the sugarcane and sugar-sector committee, RDI eligibility for advanced chemicals/materials, and TDB support for quantum-secure networks. Excluded speeches, ceremonies, recruitment and accreditation notices, routine workshops and cleanliness drives, individual enforcement or inspection notices, local events, future-only announcements, duplicate themes and releases without a durable policy, institutional, statistical, regulatory or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-10-12") {
     return {
       candidateCount: 29,
