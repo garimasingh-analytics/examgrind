@@ -99,9 +99,21 @@ const editorialMigrationFiles = [
   "migration_117_current_affairs_2026_10_11_daily_desk.sql",
   "migration_118_current_affairs_2026_10_12_daily_desk.sql",
   "migration_119_current_affairs_2026_10_16_daily_desk.sql",
+  "migration_120_current_affairs_2026_10_18_daily_desk.sql",
+  "migration_121_current_affairs_2026_10_20_daily_desk.sql",
+  "migration_122_current_affairs_2026_10_27_daily_desk.sql",
+  "migration_123_current_affairs_2026_10_28_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-10-28") {
+    return {
+      candidateCount: 61,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed new 27 October releases and recoverable 24-26 October material after the 27 October recovery desk, then verified every published item against its original competent official release. Published DAC capital-acquisition Acceptance of Necessity approvals, NCMC preparedness for Cyclone Arnab, NCB Operation Trident, the 11-crore Farmer ID milestone, Exercise Garuda Shakti, NGOPV Srishti’s launch, India’s CBD COP-17 biodiversity statement and the BRICS Parliamentary Forum Joint Declaration. Excluded speeches, greetings, ceremonial tours, Special Campaign reporting, recruitment notices, ordinary workshops and port calls, routine individual enforcement/seizure items, prospective-only announcements, items already covered on 27 October (including CIML), and releases without a durable policy, statutory, institutional, disaster-management, defence, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-10-16") {
     return {
       candidateCount: 38,
