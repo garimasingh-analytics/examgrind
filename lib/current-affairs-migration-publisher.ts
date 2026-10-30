@@ -103,9 +103,27 @@ const editorialMigrationFiles = [
   "migration_121_current_affairs_2026_10_20_daily_desk.sql",
   "migration_122_current_affairs_2026_10_27_daily_desk.sql",
   "migration_123_current_affairs_2026_10_28_daily_desk.sql",
+  "migration_124_current_affairs_2026_10_29_daily_desk.sql",
+  "migration_125_current_affairs_2026_10_30_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-10-30") {
+    return {
+      candidateCount: 49,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 29 October releases and late material not used in the 29 October desk, then verified every published item against the original competent official record. Published the trial Index of Services Production, green-hydrogen offtake commitments, ESIC's amnesty extension, Narmada Control Authority payment modalities, Ganga Flood Control Board restructuring and recharge app, the Delhi Declaration on local climate action, India Post-UTI KYC collaboration and the Tawang International Tourism Mart. Excluded speeches, greetings, routine Special Campaign reporting, recruitment and training notices, individual service/enforcement cases, ordinary port calls, prospective-only announcements including the planned PM-KISAN instalment, duplicate Cyclone Arnab material, and releases without a durable policy, regulatory, institutional, statistical or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
+  if (runDate === "2026-10-29") {
+    return {
+      candidateCount: 47,
+      publishedCount: 9,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed fresh 28 October releases and recoverable 26-27 October material not used in the prior desk, then verified every published item against its original competent official release. Published India-Mexico PTA negotiation Terms of Reference, PM VGSY, the Container Manufacturing Promotion Scheme, the Khelo India Sports Goods Manufacturing Scheme, the DA/DR instalment, the India-Education-UNESCO clean-sport toolkit MoU, PMEGP margin-money subsidy, the Gyan Bharatam-BnF manuscript-preservation MoU, and TDB RDI support for indigenous green propulsion. Excluded speeches, greetings, routine workshops, Special Campaign reporting, recruitment notices, individual seizure/enforcement items, auction-schedule corrections, prospective-only visits and events, duplicate 27 October coverage, and releases without a durable policy, regulatory, institutional, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-10-28") {
     return {
       candidateCount: 61,
