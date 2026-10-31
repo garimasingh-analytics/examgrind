@@ -105,9 +105,18 @@ const editorialMigrationFiles = [
   "migration_123_current_affairs_2026_10_28_daily_desk.sql",
   "migration_124_current_affairs_2026_10_29_daily_desk.sql",
   "migration_125_current_affairs_2026_10_30_daily_desk.sql",
+  "migration_126_current_affairs_2026_10_31_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-10-31") {
+    return {
+      candidateCount: 43,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed new 30 October releases and recoverable late 29 October material, then verified every published item against the original competent official record. Published the National Social Security Board notification, High Level Committee on Banking for Viksit Bharat, Tamil Nadu BharatNet utilisation agreement, UPI online-booking expansion in the UAE and Singapore, Union Government September accounts, the India-BLEU Joint Economic Commission session, the IDBI strategic-restructuring clarification, and PM-KISAN's 24th instalment. Excluded speeches, ceremonial/observance material, Special Campaign reporting, recruitment and training notices, individual enforcement/seizure cases, routine visits and workshops, future-only announcements, duplicate Tawang and Cyclone Arnab material, and releases without a durable policy, regulatory, institutional, statistical or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-10-30") {
     return {
       candidateCount: 49,
