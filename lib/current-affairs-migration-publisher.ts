@@ -106,9 +106,18 @@ const editorialMigrationFiles = [
   "migration_124_current_affairs_2026_10_29_daily_desk.sql",
   "migration_125_current_affairs_2026_10_30_daily_desk.sql",
   "migration_126_current_affairs_2026_10_31_daily_desk.sql",
+  "migration_127_current_affairs_2026_11_01_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-01") {
+    return {
+      candidateCount: 37,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 31 October releases and recoverable late 30 October material, then verified every published item against the original competent official record. Published the advance tax-devolution instalment, cotton-import customs exemption extension, DEPA for AI Training Handbook, ARAI's EV testing facilities, MoPR-CESL Panchayat EV-infrastructure MoU, Mizoram PMGSY-IV approvals, NVS-03's first orbit manoeuvre, and CCI's same-day combination approvals. Excluded National Unity Day ceremonies and speeches, Special Campaign reporting, recruitment and training notices, routine scholarship-deadline administration, individual awards, event-only notices, planned-but-not-yet-launched EPFO initiatives, duplicates, and releases without a durable policy, regulatory, institutional, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-10-31") {
     return {
       candidateCount: 43,
