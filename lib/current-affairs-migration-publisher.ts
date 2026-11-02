@@ -107,9 +107,18 @@ const editorialMigrationFiles = [
   "migration_125_current_affairs_2026_10_30_daily_desk.sql",
   "migration_126_current_affairs_2026_10_31_daily_desk.sql",
   "migration_127_current_affairs_2026_11_01_daily_desk.sql",
+  "migration_128_current_affairs_2026_11_02_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-02") {
+    return {
+      candidateCount: 58,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 1 November releases and recovered qualifying late 30 October regulator releases not included in the prior desk; every published item was checked against its original official record. Published Digi Yatra international trials, August coal-import data, the 29th Chief of Air Staff and VAYU theme, CISF's functional-sector structure, the Bengaluru-Mumbai Vande Bharat Sleeper service, Coal India's October production and supply records, RBI's September services-trade data, and SEBI's FPI KYC-review circular. Excluded greetings, speeches, ceremonial and foundation-day observances, prospective events, local construction inaugurations, routine appointments, tenders, recruitment and training notices, routine auctions and money-market operations, individual enforcement matters, duplicate NVS-03 material, and notices without a durable policy, regulatory, institutional, statistical, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-11-01") {
     return {
       candidateCount: 37,
