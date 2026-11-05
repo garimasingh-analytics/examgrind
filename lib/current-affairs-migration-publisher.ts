@@ -84,9 +84,36 @@ const editorialMigrationFiles = [
   "migration_123_current_affairs_2026_10_29_daily_desk.sql",
   "migration_124_current_affairs_2026_10_30_daily_desk.sql",
   "migration_125_current_affairs_2026_10_31_daily_desk.sql",
+  "migration_126_current_affairs_2026_11_01_daily_desk.sql",
+  "migration_127_current_affairs_2026_11_02_daily_desk.sql",
+  "migration_128_current_affairs_2026_11_05_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-05") {
+    return {
+      candidateCount: 64,
+      publishedCount: 8,
+      notes: "Recovery desk for the 3-4 November window. Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened discovery through current-affairs listings, then verified every published development at its original competent official release. Published the FTSC continuation, VISTAR statistical-system scheme, critical-mineral-processing capex support, grid-scale storage VGF, Agniveer absorption pathway, TRAI interconnection amendment, ASI 2024-25 publications, and the NITI Aayog-GIZ road-freight-decarbonisation agreement. Excluded speeches, greetings, foundation days, workshops, recruitment/results notices, local outreach, proposed-but-not-notified health-rule changes, individual combination approvals, individual enforcement matters, routine freight results, future-only events, duplicate November 1-2 material, and releases without a durable policy, regulatory, institutional, statistical, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
+  if (runDate === "2026-11-02") {
+    return {
+      candidateCount: 58,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 1 November releases and recovered qualifying late 30 October regulator releases not included in the prior desk; every published item was checked against its original official record. Published Digi Yatra international trials, August coal-import data, the 29th Chief of Air Staff and VAYU theme, CISF's functional-sector structure, the Bengaluru-Mumbai Vande Bharat Sleeper service, Coal India's October production and supply records, RBI's September services-trade data, and SEBI's FPI KYC-review circular. Excluded greetings, speeches, ceremonial and foundation-day observances, prospective events, local construction inaugurations, routine appointments, tenders, recruitment and training notices, routine auctions and money-market operations, individual enforcement matters, duplicate NVS-03 material, and notices without a durable policy, regulatory, institutional, statistical, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
+  if (runDate === "2026-11-01") {
+    return {
+      candidateCount: 37,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 31 October releases and recoverable late 30 October material, then verified every published item against the original competent official record. Published the advance tax-devolution instalment, cotton-import customs exemption extension, DEPA for AI Training Handbook, ARAI's EV testing facilities, MoPR-CESL Panchayat EV-infrastructure MoU, Mizoram PMGSY-IV approvals, NVS-03's first orbit manoeuvre, and CCI's same-day combination approvals. Excluded National Unity Day ceremonies and speeches, Special Campaign reporting, recruitment and training notices, routine scholarship-deadline administration, individual awards, event-only notices, planned-but-not-yet-launched EPFO initiatives, duplicates, and releases without a durable policy, regulatory, institutional, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-10-31") {
     return {
       candidateCount: 43,
