@@ -108,9 +108,18 @@ const editorialMigrationFiles = [
   "migration_126_current_affairs_2026_10_31_daily_desk.sql",
   "migration_127_current_affairs_2026_11_01_daily_desk.sql",
   "migration_128_current_affairs_2026_11_02_daily_desk.sql",
+  "migration_129_current_affairs_2026_11_05_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-05") {
+    return {
+      candidateCount: 64,
+      publishedCount: 8,
+      notes: "Recovery desk for the 3-4 November window. Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened discovery through current-affairs listings, then verified every published development at its original competent official release. Published the FTSC continuation, VISTAR statistical-system scheme, critical-mineral-processing capex support, grid-scale storage VGF, Agniveer absorption pathway, TRAI interconnection amendment, ASI 2024-25 publications, and the NITI Aayog-GIZ road-freight-decarbonisation agreement. Excluded speeches, greetings, foundation days, workshops, recruitment/results notices, local outreach, proposed-but-not-notified health-rule changes, individual combination approvals, individual enforcement matters, routine freight results, future-only events, duplicate November 1-2 material, and releases without a durable policy, regulatory, institutional, statistical, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-11-02") {
     return {
       candidateCount: 58,
