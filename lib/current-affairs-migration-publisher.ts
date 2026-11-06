@@ -109,9 +109,18 @@ const editorialMigrationFiles = [
   "migration_127_current_affairs_2026_11_01_daily_desk.sql",
   "migration_128_current_affairs_2026_11_02_daily_desk.sql",
   "migration_129_current_affairs_2026_11_05_daily_desk.sql",
+  "migration_130_current_affairs_2026_11_06_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-06") {
+    return {
+      candidateCount: 67,
+      publishedCount: 9,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 5 November releases and recoverable late 4 November regulator material, using public current-affairs listings only to broaden discovery and verifying every selected item at its original official source. Published the ninth critical-mineral and third exploration-licence auctions, TRAI’s satellite-network authorisation recommendations, the Pralay user-evaluation flight test, advance regular tax devolution, the VB–G RAM G fodder-convergence advisory, the UBC 63 double-cluster study, the MSME–TRIFED PM Vishwakarma market-access MoU, SEBI’s IGP working group, and SEBI’s mutual-fund cash-market net-settlement framework. Excluded speeches, greetings, ceremonial and foundation-day notices, Special Campaign reporting, recruitment and exam-result notices, routine quality-drive reports, local workshops, future-only events, single-project construction updates, individual enforcement/recovery cases, routine market notices, and releases without a durable policy, regulatory, institutional, statistical, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-11-05") {
     return {
       candidateCount: 64,
