@@ -88,9 +88,18 @@ const editorialMigrationFiles = [
   "migration_127_current_affairs_2026_11_02_daily_desk.sql",
   "migration_128_current_affairs_2026_11_05_daily_desk.sql",
   "migration_129_current_affairs_2026_11_06_daily_desk.sql",
+  "migration_130_current_affairs_2026_11_07_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-07") {
+    return {
+      candidateCount: 71,
+      publishedCount: 10,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 6 November releases and recoverable late 5 November material, using public current-affairs listings only to broaden discovery and verifying every selected item at its original competent official source. Published Semicon 2.0 portal and ECMS approvals, Telangana's Amended BharatNet agreement, TRAI's digital interconnect-register amendment, the OMSS(D) rice target revision, NHAI's MLFF toll-plaza guidelines, SEBI settlement-regulation commencement, the maiden BIMSTEC maritime-security exercise, India-Myanmar HADR Exercise Rahat Mitra, Amini's delivery, and the Startup India-I-STEM API integration. Excluded speeches, greetings, Special Campaign reporting, appointments, awards, recruitment and exam-result notices, local workshops, event-only visits, individual enforcement/recovery matters, routine market operations, prospective-only announcements, duplicate 5 November coverage, and releases without a durable policy, regulatory, institutional, statistical, scientific, defence or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-11-06") {
     return {
       candidateCount: 67,
