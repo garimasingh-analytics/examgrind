@@ -89,9 +89,18 @@ const editorialMigrationFiles = [
   "migration_128_current_affairs_2026_11_05_daily_desk.sql",
   "migration_129_current_affairs_2026_11_06_daily_desk.sql",
   "migration_130_current_affairs_2026_11_07_daily_desk.sql",
+  "migration_131_current_affairs_2026_11_09_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-09") {
+    return {
+      candidateCount: 12,
+      publishedCount: 3,
+      notes: "Exceptional three-item desk for the 7-8 November Diwali-weekend window. Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened discovery through public current-affairs listings, then verified every published item at its original official source. Published India-EU completion of Horizon Europe association negotiations, NPPA's 137 anti-cancer-drug trade-margin rationalisation, and the E20 IS 17021 quality-monitoring results. Excluded Diwali greetings, speeches, visits and reviews without a new institutional outcome, Special Campaign reporting, staff-only workshops, an industrial-sector backgrounder without a new policy decision, and prospective/event-only notices. No additional substantive official release from the covered window met the desk standard after the complete sweep. Shortfall from the eight-item target: 5; this exception preserves the primary-source-only, no-filler rule. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-11-07") {
     return {
       candidateCount: 71,
