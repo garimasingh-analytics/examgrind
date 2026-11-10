@@ -112,9 +112,18 @@ const editorialMigrationFiles = [
   "migration_130_current_affairs_2026_11_06_daily_desk.sql",
   "migration_131_current_affairs_2026_11_07_daily_desk.sql",
   "migration_132_current_affairs_2026_11_09_daily_desk.sql",
+  "migration_133_current_affairs_2026_11_10_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-10") {
+    return {
+      candidateCount: 31,
+      publishedCount: 2,
+      notes: "Exceptional two-item recovery desk for the 9 November official-release window. Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Broadened discovery through public current-affairs listings, then verified every published item against its original competent official source. Published TRAI's IP-port charging amendment and the completed Bomdila Buddha-relics enshrinement and exposition. Excluded the NPPA revised-MRP implementation because the underlying trade-margin measure was already covered in the 9 November desk; a prospective Yamuna cruise launch; prospective exercises and parades; Special Campaign reporting; speeches, visits and greetings; routine auctions and money-market operations; local drive-test reports; fair-sales reporting; and background or observance material without a new durable development. No further substantive, non-duplicate official item met the standard after the full sweep. Shortfall from the eight-item target: 6; this exception preserves the primary-source-only, no-filler rule. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-11-09") {
     return {
       candidateCount: 12,
