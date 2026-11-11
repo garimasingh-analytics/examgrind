@@ -113,9 +113,18 @@ const editorialMigrationFiles = [
   "migration_131_current_affairs_2026_11_07_daily_desk.sql",
   "migration_132_current_affairs_2026_11_09_daily_desk.sql",
   "migration_133_current_affairs_2026_11_10_daily_desk.sql",
+  "migration_134_current_affairs_2026_11_11_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-11") {
+    return {
+      candidateCount: 47,
+      publishedCount: 8,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 10 November releases plus recoverable late 9 November regulator material, using public current-affairs listings only to widen discovery and verifying every selected development at its competent original source. Published the July-September PLFS bulletin, the extended PLI scheme for medical devices, the third coal/lignite-gasification application round, Delhi's Yamuna recreational cruise, new-AIIMS OPD utilisation, the BRIC-Centre for Process Innovation letter of intent, India's 100th chess Grandmaster, and DGTR's suo-motu aluminium-extrusion anti-dumping investigation. Excluded speeches and position statements without an adopted outcome, greetings, Special Campaign reports, personal-beneficiary stories, routine market/auction operations, individual seizures and enforcement actions, repeated programme updates, future-only events, low-value local activities, and notices without a durable policy, regulatory, institutional, statistical, scientific, sporting or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-11-10") {
     return {
       candidateCount: 31,
