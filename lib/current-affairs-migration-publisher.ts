@@ -114,9 +114,18 @@ const editorialMigrationFiles = [
   "migration_132_current_affairs_2026_11_09_daily_desk.sql",
   "migration_133_current_affairs_2026_11_10_daily_desk.sql",
   "migration_134_current_affairs_2026_11_11_daily_desk.sql",
+  "migration_135_current_affairs_2026_11_12_daily_desk.sql",
 ];
 
 export function currentAffairsRunAudit(runDate: string) {
+  if (runDate === "2026-11-12") {
+    return {
+      candidateCount: 52,
+      publishedCount: 10,
+      notes: "Checked all 19 active source-registry desks: PIB and ministry releases; RBI; SEBI; CCI; IFSCA; NITI Aayog; NDMA; MoSPI; Supreme Court; Lok Sabha; Rajya Sabha; ECI; MyGov; myScheme; the State/UT directory; and monthly Yojana/Kurukshetra context desks. Reviewed 11 November releases and recoverable late 10 November regulator material, using public current-affairs listings only to widen discovery and verifying every published development at its competent original source. Published continuation of Stand-Up India and CGFMU, Rabi NBS rates, the Aqua Line extension, the Yuge Yugeen Bharat Museum, DGFT's battery-black-mass export prohibition, the BIMSTEC Health Ministers' Joint Ministerial Statement, India's rationalised visa framework, RBI's Domestic Money Transfer Directions and SEBI's FATCA/CRS reporting circular. Excluded speeches, greetings, Special Campaign reports, personal-beneficiary stories, individual seizures or enforcement cases, routine market operations, future-only events, consultations not yet finalised, local functions, duplicates, and notices without a durable policy, regulatory, institutional, statistical, scientific or exam-relevant development. Yojana and Kurukshetra were checked only for newly available monthly context and were not used as daily news feeds.",
+    };
+  }
+
   if (runDate === "2026-11-11") {
     return {
       candidateCount: 47,
